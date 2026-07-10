@@ -6,6 +6,10 @@
 
 如果这里有遗漏、名称需要更正，或同一位贡献者使用了多个账号，欢迎随时联系维护者补充。
 
+## Upstream Project
+
+本项目基于 [shenminglinyi/PlotPilot](https://github.com/shenminglinyi/PlotPilot) 演化而来，原始贡献与讨论请优先参考该仓库。
+
 ## Maintainer
 
 - [shenminglinyi](https://github.com/shenminglinyi)
