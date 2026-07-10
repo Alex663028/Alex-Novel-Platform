@@ -1,0 +1,148 @@
+"""初始知识图谱：LLM 输出契约、解析校验与 OpenAI-style tool 定义。
+
+设计要点：
+- **校验即工具**：当前 `LLMService` 仅有文本 `generate`；模型仍输出 JSON 字符串，服务端用本模块做
+  严格解析（等价于「执行 tool 参数校验」）。日后 provider 支持 function calling 时，可把
+  `initial_knowledge_openai_function_tool()` 交给网关，参数形状保持一致。
+- **禁止多余字段**：`extra='forbid'`，丢弃模型捏造的 `provenance`、`source_type`（写入时由服务端统一标为 ai_generated）等。
+
+CPMS 改造：system prompt 不再硬编码，通过 PromptRegistry 从数据库读取。
+"""
+from __future__ import annotations
+
+import json
+import re
+from typing import Any, Dict, List, Optional, Tuple
+
+from pydantic import AliasChoices, BaseModel, ConfigDict, Field, ValidationError
+
+from application.ai.llm_json_extract import parse_llm_json_to_dict  # noqa: F401 — 保留向后兼容（外部可能 import）
+
+# ---------------------------------------------------------------------------
+# 与 LLM 约定的形状（字段越少越好，其余由持久化层补全）
+# ---------------------------------------------------------------------------
+
+
+class LlmInitialKnowledgeFact(BaseModel):
+    """单条事实：仅允许 id / subject / predicate / object / note。"""
+
+    model_config = ConfigDict(extra="forbid")
+
+    id: str = Field(min_length=1, max_length=256)
+    subject: str = Field(default="", max_length=4000)
+    predicate: str = Field(default="", max_length=512)
+    obj: str = Field(
+        default="",
+        max_length=4000,
+        validation_alias=AliasChoices("object", "obj"),
+        serialization_alias="object",
+    )
+    note: str = Field(default="", max_length=4000)
+
+
+class LlmInitialKnowledgePayload(BaseModel):
+    """根对象：梗概 + 事实列表。"""
+
+    model_config = ConfigDict(extra="forbid")
+
+    premise_lock: str = Field(default="", max_length=4000)
+    facts: List[LlmInitialKnowledgeFact] = Field(default_factory=list, max_length=50)
+
+
+# ---------------------------------------------------------------------------
+# 提示词（角色 + 契约说明；与校验模型同源维护）
+# ---------------------------------------------------------------------------
+
+# CPMS: 提示词节点 key
+from infrastructure.ai.prompt_keys import KNOWLEDGE_INITIAL as _KNOWLEDGE_NODE_KEY
+from infrastructure.ai.prompt_utils import get_required_prompt_system
+
+
+def build_initial_knowledge_system_prompt() -> str:
+    """Build the initial-knowledge system prompt from CPMS only."""
+    return get_required_prompt_system(_KNOWLEDGE_NODE_KEY)
+
+
+def initial_knowledge_openai_function_tool() -> Dict[str, Any]:
+    """OpenAI Chat Completions `tools[]` 中单条 function 定义（parameters 来自 Pydantic schema）。"""
+    schema = LlmInitialKnowledgePayload.model_json_schema(mode="validation")
+    return {
+        "type": "function",
+        "function": {
+            "name": "submit_initial_knowledge",
+            "description": (
+                "提交初始故事知识：梗概锁定 premise_lock 与核心 facts。"
+                "禁止包含 provenance、source_type、chapter_element_id；仅允许契约内字段。"
+            ),
+            "parameters": schema,
+        },
+    }
+
+
+# ---------------------------------------------------------------------------
+# 从模型原始文本解析 → 校验
+# ---------------------------------------------------------------------------
+
+
+def parse_json_from_response(rsp: str):
+    """从LLM响应中解析JSON。
+
+    🔥 已废弃：此函数是旧版简易 JSON 解析器，无法处理 DeepSeek 等模型的
+    中文引号、思考链、截断输出等问题。
+    请使用 parse_llm_json_to_dict() 或 structured_json_generate()。
+    保留此函数仅为向后兼容（setup_main_plot_suggestion_service 等仍在引用）。
+    """
+    data, errs = parse_llm_json_to_dict(rsp)
+    if data is not None:
+        return data
+    # 兼容旧调用方：抛出 JSONDecodeError
+    raise json.JSONDecodeError(errs[0] if errs else "parse failed", rsp, 0)
+
+
+def parse_initial_knowledge_llm_response(
+    raw: str,
+) -> Tuple[Optional[LlmInitialKnowledgePayload], List[str]]:
+    """解析并校验 LLM 返回文本。成功返回 (payload, [])；失败返回 (None, [人类可读错误…])。"""
+    # 🔥 使用统一管线（json_repair + 思考链清洗）
+    data, errs = parse_llm_json_to_dict(raw)
+    if data is None:
+        return None, errs
+
+    try:
+        payload = LlmInitialKnowledgePayload.model_validate(data)
+        return payload, []
+    except ValidationError as e:
+        err_list = e.errors()
+        msg = "; ".join(
+            f"{'/'.join(str(x) for x in err.get('loc', ()))}: {err.get('msg', '')}"
+            for err in err_list[:12]
+        )
+        return None, [msg or str(e)]
+
+
+def to_knowledge_service_update_dict(
+    payload: LlmInitialKnowledgePayload,
+    *,
+    version: int = 1,
+    source_type: str = "ai_generated",
+) -> Dict[str, Any]:
+    """转为 `KnowledgeService.update_knowledge` 所需字典（补全 chapter_id、统一来源）。"""
+    facts: List[Dict[str, Any]] = []
+    for i, f in enumerate(payload.facts):
+        facts.append(
+            {
+                "id": f.id or f"fact-{i+1:03d}",
+                "subject": f.subject,
+                "predicate": f.predicate,
+                "object": f.obj,
+                "chapter_id": None,
+                "note": f.note or "",
+                "source_type": source_type,
+            }
+        )
+    return {
+        "version": version,
+        "premise_lock": payload.premise_lock,
+        "chapters": [],
+        "facts": facts,
+    }

@@ -1,0 +1,2486 @@
+"""章节保存后：LLM 生成章末总结 → StoryKnowledge → 向量索引。
+
+beat_sections：`_resolve_beat_sections`（宏观条，叙事节拍或结构树大纲）。
+micro_beats：写作指挥器快照或 bundle；**不作为** magnify_outline 的假微观节拍。
+"""
+from __future__ import annotations
+
+import asyncio
+import json
+import logging
+import re
+import uuid
+from datetime import datetime
+from difflib import SequenceMatcher
+from typing import Any, Dict, List, Optional, Tuple
+
+from domain.ai.services.llm_service import LLMService, GenerationConfig
+from domain.novel.value_objects.foreshadowing import (
+    Foreshadowing,
+    ForeshadowingStatus,
+    ImportanceLevel,
+)
+from domain.novel.value_objects.novel_id import NovelId
+from domain.structure.story_node import NodeType
+from application.ai.structured_json_pipeline import (
+    parse_and_repair_json,
+    sanitize_llm_output,
+)
+from application.world.services.storyline_normalization import (
+    get_storyline_normalization_profile,
+)
+
+logger = logging.getLogger(__name__)
+
+
+def _stable_artifact_id(prefix: str, novel_id: str, chapter_number: int, *parts: Any) -> str:
+    """Build a deterministic artifact id for chapter aftermath idempotency."""
+    normalized = "|".join(_normalize_artifact_part(part) for part in parts)
+    key = f"{prefix}|{novel_id}|{int(chapter_number)}|{normalized}"
+    return f"{prefix}-{uuid.uuid5(uuid.NAMESPACE_URL, key).hex}"
+
+
+def _normalize_artifact_part(value: Any) -> str:
+    if isinstance(value, (list, tuple, set)):
+        return ",".join(sorted(_normalize_artifact_part(v) for v in value))
+    if isinstance(value, dict):
+        return json.dumps(value, ensure_ascii=False, sort_keys=True, default=str)
+    return re.sub(r"\s+", " ", str(value or "").strip()).lower()
+
+
+def _extract_json_object(text: str) -> dict:
+    """从模型输出中解析 JSON 对象，优先走通用清洗/修复管线。"""
+    cleaned = sanitize_llm_output(text or "")
+    if not cleaned:
+        return {}
+
+    data, errors = parse_and_repair_json(cleaned)
+    if data is not None:
+        return data
+
+    raise json.JSONDecodeError(
+        "Unable to parse chapter bundle JSON",
+        cleaned,
+        0,
+    )
+
+
+def _beats_from_structure_outline(novel_id: str, chapter_number: int) -> List[str]:
+    """从结构树章节节点的 outline 拆成节拍条（规划层本来就有）。"""
+    try:
+        from application.paths import get_db_path
+        from infrastructure.persistence.database.story_node_repository import StoryNodeRepository
+
+        repo = StoryNodeRepository(str(get_db_path()))
+        nodes = repo.get_by_novel_sync(novel_id)
+        for n in nodes:
+            if n.node_type != NodeType.CHAPTER:
+                continue
+            if int(n.number) != int(chapter_number):
+                continue
+            outline = (n.outline or "").strip()
+            if not outline:
+                return []
+            # 优先按“行”拆分；若为一段式大纲，则再按常见中文标点拆分，避免 beat_sections 为空
+            parts = re.split(r"[\n\r]+", outline)
+            cleaned = [p.strip() for p in parts if p.strip()]
+            if len(cleaned) <= 1:
+                parts = re.split(r"[；;。！？!?]+", outline)
+                cleaned = [p.strip() for p in parts if p.strip()]
+            return cleaned[:32]
+    except Exception as e:
+        logger.debug("从结构树取 outline 失败 novel=%s ch=%s: %s", novel_id, chapter_number, e)
+    return []
+
+
+def _resolve_beat_sections(
+    novel_id: str,
+    chapter_number: int,
+    existing_beats: List[str],
+) -> List[str]:
+    """节拍：优先已有知识库条；否则用结构树 outline。"""
+    cleaned = [str(b).strip() for b in (existing_beats or []) if str(b).strip()]
+    if cleaned:
+        return cleaned
+    return _beats_from_structure_outline(novel_id, chapter_number)
+
+
+def _storyline_arc_label(progress_item: dict) -> str:
+    """从抽取结果中取「这一条线在书中的短标签」，用于和多主线区分。
+
+    兼容字段 arc_label / arc_name；否则尝试从 description 里抠 「……」书名号片段。
+    """
+    if not isinstance(progress_item, dict):
+        return ""
+    arc = str(progress_item.get("arc_label") or progress_item.get("arc_name") or "").strip()
+    if arc:
+        return arc[:80]
+    desc = str(progress_item.get("description") or "").strip()
+    m = re.search(r"「([^」]{2,48})」", desc)
+    if m:
+        return m.group(1).strip()
+    return ""
+
+
+def _normalize_storyline_text(text: str) -> str:
+    """Normalize labels so LLM wording variants can map to one storyline."""
+    s = re.sub(r"\s+", "", text or "")
+    s = re.sub(r"[《》「」『』【】（）()，,。；;：:、!！?？\"']", "", s)
+    profile = get_storyline_normalization_profile()
+    for src, dst in profile.replacements.items():
+        s = s.replace(src, dst)
+    return s[:120]
+
+
+def _storyline_tokens(*texts: str) -> set[str]:
+    body = _normalize_storyline_text("".join(t for t in texts if t))
+    profile = get_storyline_normalization_profile()
+    tokens = {w for w in profile.alias_words if w and w in body}
+    tokens.update(re.findall(r"[\u4e00-\u9fff]{2,6}", body))
+    return {t for t in tokens if len(t) >= 2}
+
+
+def _storyline_similarity(
+    candidate_name: str,
+    candidate_desc: str,
+    arc_label: str,
+    description: str,
+) -> float:
+    left = _normalize_storyline_text(candidate_name or candidate_desc)
+    right = _normalize_storyline_text(arc_label or description)
+    if not left or not right:
+        return 0.0
+    if left == right or left in right or right in left:
+        return 1.0
+
+    l_tokens = _storyline_tokens(candidate_name, candidate_desc)
+    r_tokens = _storyline_tokens(arc_label, description)
+    overlap = 0.0
+    if l_tokens and r_tokens:
+        overlap = len(l_tokens & r_tokens) / max(1, min(len(l_tokens), len(r_tokens)))
+    ratio = SequenceMatcher(None, left, right).ratio()
+    return max(ratio, overlap)
+
+
+def _storyline_role_type_from_cn(line_type: str) -> Tuple[Any, Any]:
+    """中文类型标签 → StorylineRole + StorylineType。"""
+    from domain.novel.value_objects.storyline_role import StorylineRole
+    from domain.novel.value_objects.storyline_type import StorylineType
+
+    lt = line_type or ""
+    role = StorylineRole.MAIN
+    stype = StorylineType.MAIN_PLOT
+    if "暗" in lt:
+        role = StorylineRole.DARK
+        stype = StorylineType.GROWTH
+    elif "支" in lt or "感情" in lt:
+        role = StorylineRole.SUB
+        stype = StorylineType.ROMANCE if "感情" in lt else StorylineType.GROWTH
+    elif "主" in lt:
+        role = StorylineRole.MAIN
+        stype = StorylineType.MAIN_PLOT
+    return role, stype
+
+
+def _match_storyline_for_progress_item(
+    storylines: List[Any],
+    line_type: str,
+    arc_label: str,
+    description: str,
+) -> Optional[Any]:
+    """按 arc_label 优先匹配；避免多条「主线」全部撞到同一条 DB 记录。"""
+    lt = (line_type or "").strip()
+    arc = (arc_label or "").strip()
+    desc = (description or "").strip()
+
+    if arc:
+        for sl in storylines:
+            nm = (sl.name or "").strip()
+            if nm == arc:
+                return sl
+        for sl in storylines:
+            nm = (sl.name or "").strip()
+            if arc in nm or nm in arc:
+                return sl
+
+    weak: List[Any] = []
+    for sl in storylines:
+        nm = (sl.name or "").strip()
+        if lt and lt in nm:
+            weak.append(sl)
+    if len(weak) == 1:
+        return weak[0]
+
+    # 唯一一条「泛主线」占位（首章初始化常见 name=主线）
+    if lt == "主线":
+        generics = [sl for sl in storylines if (sl.name or "").strip() in ("主线", "小说主线剧情", "")]
+        if len(generics) == 1:
+            return generics[0]
+
+    # description 里的书名号与已有 name 对齐（上下文块常用 「婚约政治阴谋」）
+    m = re.search(r"「([^」]{2,48})」", desc)
+    if m:
+        inner = m.group(1).strip()
+        for sl in storylines:
+            nm = (sl.name or "").strip()
+            if inner == nm or inner in nm or nm in inner:
+                return sl
+
+    scored: List[Tuple[float, Any]] = []
+    distinctive_tokens = get_storyline_normalization_profile().distinctive_tokens
+    for sl in storylines:
+        score = _storyline_similarity(
+            getattr(sl, "name", "") or "",
+            getattr(sl, "description", "") or "",
+            arc,
+            desc,
+        )
+        shared = (
+            _storyline_tokens(getattr(sl, "name", ""), getattr(sl, "description", ""))
+            & _storyline_tokens(arc, desc)
+            & distinctive_tokens
+        )
+        if score >= 0.66 or (score >= 0.50 and shared):
+            scored.append((score, sl))
+    if scored:
+        scored.sort(
+            key=lambda item: (
+                item[0],
+                getattr(item[1], "last_active_chapter", 0) or 0,
+                -(getattr(item[1], "estimated_chapter_start", 0) or 0),
+            ),
+            reverse=True,
+        )
+        return scored[0][1]
+
+    return None
+
+
+def _make_storyline_from_progress_item(
+    novel_id: str,
+    chapter_number: int,
+    line_type: str,
+    arc_label: str,
+    description: str,
+) -> Any:
+    """storyline_repository.save 前构造实体。"""
+    from domain.novel.entities.storyline import Storyline
+    from domain.novel.value_objects.storyline_status import StorylineStatus
+
+    role, stype = _storyline_role_type_from_cn(line_type)
+    name = (arc_label or "").strip() or (line_type or "故事线").strip() or "故事线"
+    if len(name) > 80:
+        name = name[:77] + "…"
+
+    return Storyline(
+        id=str(uuid.uuid4()),
+        novel_id=NovelId(novel_id),
+        storyline_type=stype,
+        status=StorylineStatus.ACTIVE,
+        estimated_chapter_start=chapter_number,
+        estimated_chapter_end=chapter_number + 12,
+        name=name,
+        description=(description or "")[:800],
+        role=role,
+        chapter_weight=1.0,
+        progress_summary=f"在第{chapter_number}章引入",
+    )
+
+
+async def llm_chapter_extract_bundle(
+    llm: LLMService,
+    chapter_content: str,
+    chapter_number: int,
+    pending_foreshadows: Optional[List[str]] = None,
+) -> dict:
+    """一次 LLM 调用：叙事摘要 + 关键事件/埋线 + 人物关系三元组 + 伏笔线索 + 伏笔消费检测 + 故事线进展 + 张力值 + 对话提取（避免多次调用）。
+    
+    Args:
+        llm: LLM 服务
+        chapter_content: 章节正文
+        chapter_number: 章节号
+        pending_foreshadows: 待回收伏笔描述列表（用于消费检测）
+    """
+    body = chapter_content.strip()
+    if len(body) > 24000:
+        body = body[:24000] + "\n\n…（正文过长已截断）"
+
+    # 构建待回收伏笔提示
+    foreshadow_context = ""
+    if pending_foreshadows:
+        foreshadow_list = "\n".join(f"  - {f}" for f in pending_foreshadows[:15])
+        foreshadow_context = f"""
+【待回收伏笔清单】
+{foreshadow_list}
+
+请判断本章是否呼应/回收了上述伏笔。如果章节内容明确揭示或回应了某个伏笔的悬念，则在 consumed_foreshadows 中列出该伏笔的原描述（需与清单中的描述高度匹配）。"""
+
+    from infrastructure.ai.prompt_keys import CHAPTER_NARRATIVE_SYNC
+    from infrastructure.ai.prompt_utils import render_required_prompt
+
+    variables = {
+        "content": body,
+        "foreshadow_context": foreshadow_context,
+    }
+    prompt = render_required_prompt(CHAPTER_NARRATIVE_SYNC, variables)
+    config = GenerationConfig(max_tokens=4096, temperature=0.45)
+
+    result = await llm.generate(prompt, config)
+    raw = result.content if hasattr(result, "content") else str(result)
+    data = _extract_json_object(raw)
+
+    triples_raw = data.get("relation_triples") or data.get("triples") or []
+    if not isinstance(triples_raw, list):
+        triples_raw = []
+    hints_raw = data.get("foreshadow_hints") or data.get("foreshadows") or []
+    if not isinstance(hints_raw, list):
+        hints_raw = []
+    consumed_raw = data.get("consumed_foreshadows") or data.get("consumed") or []
+    if not isinstance(consumed_raw, list):
+        consumed_raw = []
+    storyline_raw = data.get("storyline_progress") or []
+    if not isinstance(storyline_raw, list):
+        storyline_raw = []
+    dialogues_raw = data.get("dialogues") or []
+    if not isinstance(dialogues_raw, list):
+        dialogues_raw = []
+    timeline_raw = data.get("timeline_events") or []
+    if not isinstance(timeline_raw, list):
+        timeline_raw = []
+    causal_raw = data.get("causal_edges") or []
+    if not isinstance(causal_raw, list):
+        causal_raw = []
+    mutations_raw = data.get("character_mutations") or []
+    if not isinstance(mutations_raw, list):
+        mutations_raw = []
+    states_raw = data.get("character_states") or []
+    if not isinstance(states_raw, list):
+        states_raw = []
+
+    return {
+        "summary": str(data.get("summary", "")).strip(),
+        "key_events": str(data.get("key_events", "")).strip(),
+        "open_threads": str(data.get("open_threads", "")).strip(),
+        # V9: 所有 LLM 提取的元数据默认标记为 "pending"，需要人类校准器确认
+        # 原来直接截断不验证（[:8], [:4], [:3]），现在至少增加了状态标记
+        # 后续 UI 界面可以展示 pending 项让作者确认/修改
+        "relation_triples": [{"data": t, "status": "pending"} for t in triples_raw[:8]],
+        "foreshadow_hints": [{"data": h, "status": "pending"} for h in hints_raw[:4]],
+        "consumed_foreshadows": [str(c).strip() for c in consumed_raw[:5] if str(c).strip()],
+        "storyline_progress": storyline_raw[:5],
+        "dialogues": dialogues_raw[:10],
+        "timeline_events": timeline_raw[:5],
+        "causal_edges": [{"data": c, "status": "pending"} for c in causal_raw[:3]],
+        "character_mutations": [{"data": m, "status": "pending"} for m in mutations_raw[:3]],
+        "character_states": states_raw[:5],
+        # V9: 新增提取元数据，记录提取时的元信息
+        "_meta": {
+            "extract_version": "v9",
+            "extraction_method": "llm",
+            "needs_human_review": True,  # 默认需要人类审核
+        },
+    }
+
+
+def _fuzzy_match_foreshadow(consumed_desc: str, pending_list: List[Any]) -> Optional[Any]:
+    """模糊匹配消费的伏笔描述与待回收列表。
+    
+    Args:
+        consumed_desc: LLM 返回的消费伏笔描述
+        pending_list: 待回收伏笔列表（Foreshadowing 或 SubtextLedgerEntry）
+    
+    Returns:
+        匹配到的伏笔对象，未匹配返回 None
+    """
+    if not consumed_desc or not pending_list:
+        return None
+    
+    consumed_lower = consumed_desc.lower().strip()
+    
+    # 优先精确匹配
+    for f in pending_list:
+        desc = getattr(f, 'description', None) or getattr(f, 'question', None)
+        if desc and desc.lower().strip() == consumed_lower:
+            return f
+    
+    # 其次模糊匹配（包含关系）
+    for f in pending_list:
+        desc = getattr(f, 'description', None) or getattr(f, 'question', None)
+        if desc:
+            desc_lower = desc.lower().strip()
+            # 检查是否有足够的重叠
+            if consumed_lower in desc_lower or desc_lower in consumed_lower:
+                return f
+            # 检查关键词重叠（至少 50% 的词匹配）
+            consumed_words = set(consumed_lower)
+            desc_words = set(desc_lower)
+            if consumed_words and desc_words:
+                overlap = len(consumed_words & desc_words) / min(len(consumed_words), len(desc_words))
+                if overlap >= 0.5:
+                    return f
+    
+    return None
+
+
+def persist_bundle_triples_and_foreshadows(
+    novel_id: str,
+    chapter_number: int,
+    bundle: dict,
+    triple_repository: Any,
+    foreshadowing_repo: Any,
+) -> None:
+    """将 bundle 中的三元组与伏笔写入表，并处理伏笔消费状态更新。
+    
+    功能：
+    1. 三元组落库
+    2. 新伏笔注册（PLANTED 状态）
+    3. 已消费伏笔状态更新（PLANTED -> RESOLVED / pending -> consumed）
+    """
+    triples = bundle.get("relation_triples") or []
+    hints = bundle.get("foreshadow_hints") or []
+    consumed = bundle.get("consumed_foreshadows") or []
+
+    if triple_repository and triples:
+        kr = getattr(triple_repository, "_kr", None)
+        if kr is None:
+            logger.warning("triple_repository 无 _kr，跳过三元组落库")
+        else:
+            for item in triples:
+                # V9: 兼容新格式 {"data": t, "status": "pending"} 和旧格式（直接 dict）
+                if isinstance(item, dict) and "data" in item:
+                    actual_item = item["data"]
+                    item_status = item.get("status", "pending")
+                    # V9: pending 状态的项也落库，但 confidence 标记为 0.5（待人类确认）
+                    confidence = 0.5 if item_status == "pending" else 0.7
+                else:
+                    actual_item = item
+                    confidence = 0.7
+                if not isinstance(actual_item, dict):
+                    continue
+                s = str(actual_item.get("subject", "")).strip()
+                p = str(actual_item.get("predicate", "")).strip()
+                o = str(actual_item.get("object", "")).strip()
+                if not (s and p and o):
+                    continue
+                row = {
+                    "id": _stable_artifact_id("triple", novel_id, chapter_number, s, p, o, "autopilot_extract"),
+                    "subject": s,
+                    "predicate": p,
+                    "object": o,
+                    "chapter_number": chapter_number,
+                    "source_type": "autopilot_extract",
+                    "confidence": confidence,  # V9: pending=0.5, confirmed=0.7
+                    "entity_type": "character",
+                    "note": "",
+                }
+                try:
+                    kr.save_triple(novel_id, row)
+                except Exception as e:
+                    logger.debug("三元组落库跳过: %s", e)
+
+    if foreshadowing_repo and hints:
+        try:
+            registry = foreshadowing_repo.get_by_novel_id(NovelId(novel_id))
+            if not registry:
+                # 创建新的 ForeshadowingRegistry
+                from domain.novel.entities.foreshadowing_registry import ForeshadowingRegistry
+                registry = ForeshadowingRegistry(
+                    id=str(uuid.uuid4()),
+                    novel_id=NovelId(novel_id)
+                )
+                logger.info("创建新伏笔账本 novel=%s", novel_id)
+
+            # ★ Phase 2: 伏笔种植预算限制
+            MAX_NEW_PER_CHAPTER = 2   # 每章最多种 2 条新伏笔
+            MAX_TOTAL_PENDING = 15    # 总 pending 上限 15 条
+            planted_count = 0
+            current_pending = len(registry.get_unresolved())
+
+            # ★ Phase 2: TTL 自动降级（每 10 章执行一次）
+            if chapter_number % 10 == 0:
+                try:
+                    abandoned = registry.apply_ttl_downgrade(chapter_number, ttl_chapters=30)
+                    if abandoned > 0:
+                        logger.info(
+                            "伏笔 TTL 降级 novel=%s ch=%s: 放弃 %d 条过期伏笔",
+                            novel_id, chapter_number, abandoned
+                        )
+                        current_pending -= abandoned
+                except Exception as e:
+                    logger.warning("伏笔 TTL 降级失败: %s", e)
+
+            for h in hints:
+                # V9: 兼容新格式 {"data": h, "status": "pending"}
+                if isinstance(h, dict) and "data" in h:
+                    h = h["data"]
+                if not isinstance(h, dict):
+                    desc = str(h).strip()
+                    resolve_offset = 5  # 默认 5 章后回收
+                    importance_val = "medium"
+                    resolve_hint = None
+                else:
+                    desc = str(h.get("description", "")).strip()
+                    # 获取预期回收章节偏移量
+                    resolve_offset = h.get("suggested_resolve_offset", 5)
+                    try:
+                        resolve_offset = int(resolve_offset)
+                        resolve_offset = max(2, min(30, resolve_offset))  # 限制在 2-30 章
+                    except (ValueError, TypeError):
+                        resolve_offset = 5
+                    # 获取重要性
+                    importance_val = str(h.get("importance", "medium")).strip().lower()
+                    if importance_val not in ("low", "medium", "high", "critical"):
+                        importance_val = "medium"
+                    # 获取回收提示
+                    resolve_hint = h.get("resolve_hint")
+                    if resolve_hint:
+                        resolve_hint = str(resolve_hint).strip()[:100]  # 限制长度
+                if not desc:
+                    continue
+                # ★ Phase 2: 种植预算检查
+                planted_count += 1
+                if planted_count > MAX_NEW_PER_CHAPTER:
+                    logger.info(
+                        "伏笔种植预算用尽 novel=%s ch=%s: 跳过第 %d 条（每章上限 %d）",
+                        novel_id, chapter_number, planted_count, MAX_NEW_PER_CHAPTER
+                    )
+                    continue
+                if current_pending >= MAX_TOTAL_PENDING:
+                    logger.info(
+                        "伏笔总 pending 上限达满 novel=%s ch=%s: 跳过种植（pending=%d, 上限=%d）",
+                        novel_id, chapter_number, current_pending, MAX_TOTAL_PENDING
+                    )
+                    continue
+                try:
+                    # 计算预期回收章节 = 埋设章节 + 偏移量
+                    suggested_resolve = chapter_number + resolve_offset
+                    stable_id = _stable_artifact_id(
+                        "foreshadow",
+                        novel_id,
+                        chapter_number,
+                        desc,
+                        suggested_resolve,
+                        importance_val,
+                    )
+                    registry.register(
+                        Foreshadowing(
+                            id=stable_id,
+                            planted_in_chapter=max(1, chapter_number),
+                            description=desc,
+                            importance=_importance_str_to_level(importance_val),
+                            status=ForeshadowingStatus.PLANTED,
+                            suggested_resolve_chapter=suggested_resolve,
+                        )
+                    )
+                    logger.debug(
+                        "伏笔入库 novel=%s ch=%s resolve=%s importance=%s: %s",
+                        novel_id, chapter_number, suggested_resolve, importance_val, desc[:50]
+                    )
+                    current_pending += 1  # ★ Phase 2: 跟踪 pending 计数
+                except Exception as e:
+                    logger.debug("伏笔入库跳过: %s", e)
+            
+            # 处理伏笔消费：将 LLM 识别的已消费伏笔标记为 RESOLVED/consumed
+            if consumed:
+                # 获取所有待回收伏笔
+                pending_foreshadows = registry.get_unresolved()
+                pending_subtext = registry.get_pending_subtext_entries()
+                
+                consumed_count = 0
+                for consumed_desc in consumed:
+                    if not consumed_desc:
+                        continue
+                    
+                    # 1. 尝试匹配 Foreshadowing 对象
+                    matched_foreshadow = _fuzzy_match_foreshadow(consumed_desc, pending_foreshadows)
+                    if matched_foreshadow:
+                        try:
+                            registry.mark_resolved(
+                                foreshadowing_id=matched_foreshadow.id,
+                                resolved_in_chapter=chapter_number
+                            )
+                            consumed_count += 1
+                            logger.info(
+                                "伏笔已消费 novel=%s ch=%s: %s -> RESOLVED",
+                                novel_id, chapter_number, consumed_desc[:50]
+                            )
+                            # 从待回收列表中移除已处理的
+                            pending_foreshadows = [f for f in pending_foreshadows if f.id != matched_foreshadow.id]
+                        except Exception as e:
+                            logger.warning("伏笔消费状态更新失败: %s", e)
+                        continue
+                    
+                    # 2. 尝试匹配 SubtextLedgerEntry 对象
+                    matched_entry = _fuzzy_match_foreshadow(consumed_desc, pending_subtext)
+                    if matched_entry:
+                        try:
+                            from dataclasses import replace
+                            updated_entry = replace(
+                                matched_entry,
+                                status="consumed",
+                                consumed_at_chapter=chapter_number
+                            )
+                            registry.update_subtext_entry(matched_entry.id, updated_entry)
+                            consumed_count += 1
+                            logger.info(
+                                "潜台词条目已消费 novel=%s ch=%s: %s -> consumed",
+                                novel_id, chapter_number, consumed_desc[:50]
+                            )
+                            # 从待回收列表中移除已处理的
+                            pending_subtext = [e for e in pending_subtext if e.id != matched_entry.id]
+                        except Exception as e:
+                            logger.warning("潜台词条目消费状态更新失败: %s", e)
+                
+                if consumed_count > 0:
+                    logger.info(
+                        "伏笔消费检测完成 novel=%s ch=%s consumed=%d/%d",
+                        novel_id, chapter_number, consumed_count, len(consumed)
+                    )
+            
+            foreshadowing_repo.save(registry)
+        except Exception as e:
+            logger.warning("伏笔落库失败 novel=%s ch=%s: %s", novel_id, chapter_number, e)
+
+
+def _importance_str_to_level(importance_str: str) -> ImportanceLevel:
+    """将字符串转换为 ImportanceLevel 枚举。"""
+    mapping = {
+        "low": ImportanceLevel.LOW,
+        "medium": ImportanceLevel.MEDIUM,
+        "high": ImportanceLevel.HIGH,
+        "critical": ImportanceLevel.CRITICAL,
+    }
+    return mapping.get(importance_str, ImportanceLevel.MEDIUM)
+
+
+def persist_causal_edges(
+    novel_id: str,
+    chapter_number: int,
+    bundle: dict,
+    causal_edge_repository: Any,
+) -> int:
+    """将 bundle 中的因果边写入 causal_edges 表，并检测已有因果边的闭环。
+
+    Returns:
+        成功落库的因果边数量
+    """
+    if not causal_edge_repository:
+        return 0
+
+    edges_raw = bundle.get("causal_edges") or []
+    if not edges_raw:
+        return 0
+
+    from domain.novel.value_objects.causal_edge import CausalEdge, CausalType
+
+    saved = 0
+    for item in edges_raw:
+        # V9: 兼容新格式 {"data": c, "status": "pending"}
+        if isinstance(item, dict) and "data" in item:
+            item = item["data"]
+        if not isinstance(item, dict):
+            continue
+
+        source_event = str(item.get("source_event", "")).strip()
+        target_event = str(item.get("target_event", "")).strip()
+        if not (source_event and target_event):
+            continue
+
+        # 解析 causal_type
+        causal_type_str = str(item.get("causal_type", "causes")).strip().lower()
+        try:
+            causal_type = CausalType(causal_type_str)
+        except ValueError:
+            causal_type = CausalType.CAUSES
+
+        # 解析强度
+        try:
+            strength = float(item.get("strength", 0.8))
+            strength = max(0.0, min(1.0, strength))
+        except (ValueError, TypeError):
+            strength = 0.8
+
+        # 解析关联角色
+        involved = item.get("involved_characters") or []
+        if isinstance(involved, str):
+            involved = [involved]
+
+        state_change = str(item.get("state_change", "")).strip()
+
+        edge = CausalEdge(
+            id=_stable_artifact_id(
+                "causal",
+                novel_id,
+                chapter_number,
+                source_event,
+                causal_type.value,
+                target_event,
+                state_change,
+                involved,
+            ),
+            novel_id=novel_id,
+            source_event_summary=source_event,
+            source_chapter=chapter_number,
+            causal_type=causal_type,
+            target_event_summary=target_event,
+            target_chapter=None,  # 目标事件可能尚未发生
+            strength=strength,
+            confidence=0.7,
+            state_change=state_change,
+            involved_characters=[str(c).strip() for c in involved if str(c).strip()],
+            is_resolved=False,
+        )
+
+        try:
+            causal_edge_repository.save(edge)
+            saved += 1
+            logger.debug(
+                "因果边入库 novel=%s ch=%s %s→%s type=%s strength=%.1f",
+                novel_id, chapter_number,
+                source_event[:30], target_event[:30],
+                causal_type.value, strength,
+            )
+        except Exception as e:
+            logger.debug("因果边入库跳过: %s", e)
+
+    # ★ 检测因果边闭环：如果本章的事件匹配了某个未闭环因果边的 target_event
+    if saved > 0 or bundle.get("summary") or bundle.get("key_events"):
+        try:
+            _try_resolve_causal_edges(novel_id, chapter_number, bundle, causal_edge_repository)
+        except Exception as e:
+            logger.debug("因果边闭环检测失败: %s", e)
+
+    if saved > 0:
+        logger.info("因果边落库完成 novel=%s ch=%s saved=%d", novel_id, chapter_number, saved)
+
+    return saved
+
+
+def _try_resolve_causal_edges(
+    novel_id: str,
+    chapter_number: int,
+    bundle: dict,
+    causal_edge_repository: Any,
+) -> int:
+    """检测本章事件是否闭环了已有的因果边。
+
+    策略：检查 summary + key_events 中是否包含未闭环因果边的 target_event_summary 的关键词。
+    """
+    unresolved = causal_edge_repository.get_unresolved(novel_id)
+    if not unresolved:
+        return 0
+
+    # 合并章节事件文本
+    chapter_text = " ".join([
+        str(bundle.get("summary", "")),
+        str(bundle.get("key_events", "")),
+        str(bundle.get("open_threads", "")),
+    ]).lower()
+
+    resolved_count = 0
+    for edge in unresolved:
+        # 简单关键词匹配：target_event 中的核心词出现在章节事件中
+        target_lower = edge.target_event_summary.lower()
+        # 提取关键片段（去掉常见连接词）
+        keywords = [w for w in target_lower.split() if len(w) >= 2]
+        if not keywords:
+            # 对中文，使用整体匹配
+            keywords = [target_lower]
+
+        match_count = sum(1 for kw in keywords if kw in chapter_text)
+        if keywords and match_count / len(keywords) >= 0.5:
+            try:
+                causal_edge_repository.resolve(edge.id, chapter_number)
+                resolved_count += 1
+                logger.info(
+                    "因果边闭环 novel=%s ch=%s edge=%s %s→%s",
+                    novel_id, chapter_number, edge.id[:8],
+                    edge.source_event_summary[:20], edge.target_event_summary[:20],
+                )
+            except Exception as e:
+                logger.debug("因果边闭环失败: %s", e)
+
+    return resolved_count
+
+
+def persist_character_mutations(
+    novel_id: str,
+    chapter_number: int,
+    bundle: dict,
+    character_state_repository: Any,
+    bible_repository: Any = None,
+) -> int:
+    """将 bundle 中的 character_mutations 写入 character_states 表。
+
+    策略：
+    1. 从 LLM 返回的 character_mutations 中提取角色名
+    2. 从 Bible 中查找 character_id
+    3. 加载或创建 CharacterState
+    4. 追加 Scar / Motivation / EmotionalArcNode
+
+    Returns:
+        成功处理的突变数量
+    """
+    if not character_state_repository:
+        return 0
+
+    mutations_raw = bundle.get("character_mutations") or []
+    if not mutations_raw:
+        return 0
+
+    from domain.novel.value_objects.character_state import (
+        CharacterState, Scar, Motivation, EmotionalArcNode,
+    )
+
+    # 构建 name → character_id 映射
+    name_to_id: Dict[str, str] = {}
+    if bible_repository:
+        try:
+            from domain.novel.value_objects.novel_id import NovelId
+            bible = bible_repository.get_by_novel_id(NovelId(novel_id))
+            if bible and bible.characters:
+                for char in bible.characters:
+                    name_to_id[char.name] = char.character_id.value if hasattr(char.character_id, 'value') else str(char.character_id)
+        except Exception as e:
+            logger.debug("Bible 加载失败，人物突变无法关联 character_id: %s", e)
+
+    processed = 0
+    for item in mutations_raw:
+        # V9: 兼容新格式 {"data": m, "status": "pending"}
+        if isinstance(item, dict) and "data" in item:
+            item = item["data"]
+        if not isinstance(item, dict):
+            continue
+
+        character_name = str(item.get("character_name", "")).strip()
+        if not character_name:
+            continue
+
+        # 解析 character_id
+        character_id = name_to_id.get(character_name, character_name)
+
+        mutation_type = str(item.get("mutation_type", "scar")).strip().lower()
+        source_event = str(item.get("source_event", "")).strip()
+        impact_or_desc = str(item.get("impact_or_description", "")).strip()
+        if not (source_event or impact_or_desc):
+            continue
+
+        # 解析强度
+        try:
+            intensity = int(item.get("intensity", 7))
+            intensity = max(1, min(10, intensity))
+        except (ValueError, TypeError):
+            intensity = 7
+
+        # 加载或创建 CharacterState
+        state = character_state_repository.get(character_id, novel_id)
+        if not state:
+            # 从 Bible 获取 base_traits
+            base_traits = []
+            if bible_repository and character_name in name_to_id:
+                try:
+                    bible = bible_repository.get_by_novel_id(NovelId(novel_id))
+                    if bible and bible.characters:
+                        for char in bible.characters:
+                            cid = char.character_id.value if hasattr(char.character_id, 'value') else str(char.character_id)
+                            if cid == character_id:
+                                if hasattr(char, 'traits') and char.traits:
+                                    base_traits = list(char.traits)
+                                elif hasattr(char, 'description') and char.description:
+                                    base_traits = [char.description[:50]]
+                                break
+                except Exception:
+                    pass
+
+            state = CharacterState(
+                character_id=character_id,
+                novel_id=novel_id,
+                base_traits=base_traits,
+                last_updated_chapter=chapter_number,
+            )
+
+        # 根据类型追加状态
+        if mutation_type == "scar":
+            tags_or_priority = item.get("sensitivity_tags_or_priority", [])
+            sensitivity_tags = []
+            if isinstance(tags_or_priority, list):
+                sensitivity_tags = [str(t).strip() for t in tags_or_priority if str(t).strip()]
+            elif isinstance(tags_or_priority, (int, float)):
+                # 如果误填了数字，作为 priority 提示但不用于 tags
+                pass
+
+            scar = Scar(
+                id=_stable_artifact_id(
+                    "scar",
+                    novel_id,
+                    chapter_number,
+                    character_id,
+                    source_event,
+                    impact_or_desc,
+                    sensitivity_tags,
+                ),
+                source_event=source_event,
+                source_chapter=chapter_number,
+                impact=impact_or_desc,
+                sensitivity_tags=sensitivity_tags,
+                intensity=intensity,
+            )
+            if not any(existing.id == scar.id for existing in state.scars):
+                state.add_scar(scar)
+
+        elif mutation_type == "motivation":
+            tags_or_priority = item.get("sensitivity_tags_or_priority", 5)
+            try:
+                priority = int(tags_or_priority)
+                priority = max(1, min(10, priority))
+            except (ValueError, TypeError):
+                priority = 5
+
+            motivation = Motivation(
+                id=_stable_artifact_id(
+                    "motivation",
+                    novel_id,
+                    chapter_number,
+                    character_id,
+                    source_event,
+                    impact_or_desc,
+                    priority,
+                ),
+                description=impact_or_desc,
+                source_event=source_event,
+                source_chapter=chapter_number,
+                priority=priority,
+            )
+            if not any(existing.id == motivation.id for existing in state.motivations):
+                state.add_motivation(motivation)
+
+        elif mutation_type == "emotional_arc":
+            arc_node = EmotionalArcNode(
+                chapter=chapter_number,
+                emotion=impact_or_desc,
+                trigger=source_event,
+                intensity=intensity,
+                is_breakout=intensity >= 8,  # 高强度情感转折视为 breakout
+            )
+            if not any(
+                existing.chapter == arc_node.chapter
+                and existing.emotion == arc_node.emotion
+                and existing.trigger == arc_node.trigger
+                for existing in state.emotional_arc
+            ):
+                state.add_emotional_arc_node(arc_node)
+
+        else:
+            # 未知类型，默认当 scar 处理
+            scar = Scar(
+                id=_stable_artifact_id(
+                    "scar",
+                    novel_id,
+                    chapter_number,
+                    character_id,
+                    source_event,
+                    impact_or_desc,
+                    "fallback",
+                ),
+                source_event=source_event,
+                source_chapter=chapter_number,
+                impact=impact_or_desc,
+                intensity=intensity,
+            )
+            if not any(existing.id == scar.id for existing in state.scars):
+                state.add_scar(scar)
+
+        # 更新状态摘要和章节号
+        state.current_state_summary = _build_state_summary(state)
+        state.last_updated_chapter = chapter_number
+
+        try:
+            character_state_repository.save(state)
+            processed += 1
+            logger.debug(
+                "人物状态突变入库 novel=%s ch=%s char=%s type=%s",
+                novel_id, chapter_number, character_name, mutation_type,
+            )
+        except Exception as e:
+            logger.debug("人物状态突变入库跳过: %s", e)
+
+    if processed > 0:
+        logger.info("人物状态突变落库完成 novel=%s ch=%s processed=%d", novel_id, chapter_number, processed)
+
+    return processed
+
+
+def persist_character_end_states(
+    novel_id: str,
+    chapter_number: int,
+    bundle: dict,
+    character_state_repository: Any,
+    bible_repository: Any = None,
+) -> int:
+    """将 bundle 中的 character_states（章末心理状态快照）写入 character_states 表。
+
+    每个角色更新 current_state_summary 并追加一个 EmotionalArcNode，
+    供 CurrentChapterContextPanel 读取显示「本章人物状态」。
+    """
+    if not character_state_repository:
+        return 0
+
+    states_raw = bundle.get("character_states") or []
+    if not states_raw:
+        return 0
+
+    from domain.novel.value_objects.character_state import (
+        CharacterState, EmotionalArcNode,
+    )
+
+    name_to_id: Dict[str, str] = {}
+    if bible_repository:
+        try:
+            from domain.novel.value_objects.novel_id import NovelId
+            bible = bible_repository.get_by_novel_id(NovelId(novel_id))
+            if bible and bible.characters:
+                for char in bible.characters:
+                    cid = char.character_id.value if hasattr(char.character_id, 'value') else str(char.character_id)
+                    name_to_id[char.name] = cid
+        except Exception as e:
+            logger.debug("Bible 加载失败，章末状态无法关联 character_id: %s", e)
+
+    saved = 0
+    for item in states_raw:
+        if not isinstance(item, dict):
+            continue
+        character_name = str(item.get("character_name", "")).strip()
+        mental_state = str(item.get("mental_state", "")).strip()
+        if not (character_name and mental_state):
+            continue
+
+        character_id = name_to_id.get(character_name, character_name)
+
+        state = character_state_repository.get(character_id, novel_id)
+        if not state:
+            state = CharacterState(
+                character_id=character_id,
+                novel_id=novel_id,
+                last_updated_chapter=chapter_number,
+            )
+
+        arc_node = EmotionalArcNode(
+            chapter=chapter_number,
+            emotion=mental_state,
+            trigger="章末状态快照",
+            intensity=5,
+            is_breakout=False,
+        )
+        if not any(
+            existing.chapter == arc_node.chapter
+            and existing.emotion == arc_node.emotion
+            and existing.trigger == arc_node.trigger
+            for existing in state.emotional_arc
+        ):
+            state.add_emotional_arc_node(arc_node)
+        state.current_state_summary = mental_state
+        state.last_updated_chapter = chapter_number
+
+        try:
+            character_state_repository.save(state)
+            saved += 1
+            logger.debug(
+                "章末人物状态已落库 novel=%s ch=%s char=%s state=%s",
+                novel_id, chapter_number, character_name, mental_state[:30],
+            )
+        except Exception as e:
+            logger.debug("章末人物状态落库跳过: %s", e)
+
+    if saved > 0:
+        logger.info("章末人物状态落库完成 novel=%s ch=%s saved=%d", novel_id, chapter_number, saved)
+    return saved
+
+
+def persist_bundle_memory_atoms(
+    novel_id: str,
+    chapter_number: int,
+    bundle: dict,
+    bible_repository: Any = None,
+    memory_service: Any = None,
+) -> int:
+    """Mirror chapter extraction output into the unified MemoryAtom ledger.
+
+    This is additive and intentionally does not replace the legacy writes in this
+    module. LLM-extracted memories are candidates until the author calibrates them.
+    """
+    try:
+        from application.memory.services.legacy_memory_importer import LegacyMemoryImporter
+    except Exception as e:
+        logger.debug("memory substrate imports unavailable: %s", e)
+        return 0
+
+    name_to_id: Dict[str, str] = {}
+    if bible_repository:
+        try:
+            from domain.novel.value_objects.novel_id import NovelId
+
+            bible = bible_repository.get_by_novel_id(NovelId(novel_id))
+            for char in getattr(bible, "characters", []) or []:
+                cid = char.character_id.value if hasattr(char.character_id, "value") else str(char.character_id)
+                name_to_id[str(char.name)] = cid
+        except Exception as e:
+            logger.debug("Bible 加载失败，MemoryAtom 人物名将退化为名称ID: %s", e)
+
+    if memory_service is None:
+        try:
+            from application.memory.services.narrative_memory_service import NarrativeMemoryService
+            from infrastructure.persistence.database.connection import get_database
+            from infrastructure.persistence.database.sqlite_memory_repository import (
+                SqliteNarrativeMemoryRepository,
+            )
+
+            memory_service = NarrativeMemoryService(
+                SqliteNarrativeMemoryRepository(get_database())
+            )
+        except Exception as e:
+            logger.debug("memory substrate unavailable: %s", e)
+            return 0
+
+    importer = LegacyMemoryImporter(memory_service)
+    saved = 0
+
+    def _char_id(name: str) -> str:
+        return name_to_id.get(name, name)
+
+    for item in bundle.get("character_states") or []:
+        if not isinstance(item, dict):
+            continue
+        name = str(item.get("character_name", "")).strip()
+        if not name:
+            continue
+        importer.remember_bundle_item(
+            novel_id,
+            _char_id(name),
+            "state",
+            dict(item),
+            chapter_number=chapter_number,
+            name=name,
+            source="chapter_extract",
+            status="candidate",
+            confidence=0.55,
+        )
+        saved += 1
+
+    for wrapper in bundle.get("character_mutations") or []:
+        item = wrapper.get("data") if isinstance(wrapper, dict) and "data" in wrapper else wrapper
+        if not isinstance(item, dict):
+            continue
+        name = str(item.get("character_name", "")).strip()
+        if not name:
+            continue
+        mutation_type = str(item.get("mutation_type", "")).strip().lower()
+        memory_type = "scar" if mutation_type == "scar" else ("motivation" if mutation_type == "motivation" else "emotion")
+        importer.remember_bundle_item(
+            novel_id,
+            _char_id(name),
+            memory_type,
+            dict(item),
+            chapter_number=chapter_number,
+            name=name,
+            source="chapter_extract",
+            status="candidate",
+            confidence=0.55,
+        )
+        saved += 1
+
+    for dialogue in bundle.get("dialogues") or []:
+        if not isinstance(dialogue, dict):
+            continue
+        name = str(dialogue.get("speaker", "")).strip()
+        content = str(dialogue.get("content", "")).strip()
+        if not (name and content):
+            continue
+        importer.remember_bundle_item(
+            novel_id,
+            _char_id(name),
+            "voice",
+            dict(dialogue),
+            chapter_number=chapter_number,
+            name=name,
+            source="dialogue_extract",
+            status="candidate",
+            confidence=0.5,
+        )
+        saved += 1
+
+    for wrapper in bundle.get("relation_triples") or []:
+        item = wrapper.get("data") if isinstance(wrapper, dict) and "data" in wrapper else wrapper
+        if not isinstance(item, dict):
+            continue
+        subject = str(item.get("subject", "")).strip()
+        if not subject:
+            continue
+        importer.remember_bundle_item(
+            novel_id,
+            _char_id(subject),
+            "relationship",
+            dict(item),
+            chapter_number=chapter_number,
+            name=subject,
+            source="triple_extract",
+            status="candidate",
+            confidence=0.5,
+        )
+        saved += 1
+
+    for wrapper in bundle.get("causal_edges") or []:
+        item = wrapper.get("data") if isinstance(wrapper, dict) and "data" in wrapper else wrapper
+        if not isinstance(item, dict):
+            continue
+        involved = item.get("involved_characters") or []
+        if isinstance(involved, str):
+            involved = [involved]
+        for name_raw in involved[:4]:
+            name = str(name_raw).strip()
+            if not name:
+                continue
+            importer.remember_bundle_item(
+                novel_id,
+                _char_id(name),
+                "debt",
+                dict(item),
+                chapter_number=chapter_number,
+                name=name,
+                source="causal_extract",
+                status="candidate",
+                confidence=0.5,
+            )
+            saved += 1
+
+    if saved:
+        logger.info("MemoryAtom 双写完成 novel=%s ch=%s saved=%d", novel_id, chapter_number, saved)
+    return saved
+
+
+def _build_state_summary(state: Any) -> str:
+    """根据当前状态构建简短摘要"""
+    parts = []
+    active_scars = state.get_active_scars()
+    if active_scars:
+        scar_desc = "; ".join(f"{s.impact}({s.intensity}/10)" for s in active_scars[:3])
+        parts.append(f"伤疤: {scar_desc}")
+    active_motivations = state.get_active_motivations()
+    if active_motivations:
+        top = state.get_top_motivations(3)
+        mot_desc = "; ".join(f"{m.description}(P{m.priority})" for m in top)
+        parts.append(f"执念: {mot_desc}")
+    return " | ".join(parts) if parts else state.current_state_summary
+
+
+def update_narrative_debts(
+    novel_id: str,
+    chapter_number: int,
+    bundle: dict,
+    debt_repository: Any,
+    causal_edge_repository: Any = None,
+) -> int:
+    """根据本章内容更新叙事债务：新增债务 + 结算已回收债务 + 逾期标记。
+
+    新增来源：
+    1. 因果类债务：未闭环的高强度因果边
+    2. 伏笔类债务：bundle 中的 foreshadow_hints
+    3. 角色弧债务：character_mutations 中的 scar/motivation（已有优先级≥8 的执念需要闭环）
+
+    结算来源：
+    1. consumed_foreshadows 匹配已有债务
+    2. 因果边闭环后自动结算对应债务
+
+    Returns:
+        新增债务数量
+    """
+    if not debt_repository:
+        return 0
+
+    from domain.novel.value_objects.narrative_debt import NarrativeDebt, DebtType
+
+    new_debts = 0
+
+    # ---- 1. 因果类债务：从 bundle 的 causal_edges 生成 ----
+    causal_edges_raw = bundle.get("causal_edges") or []
+    for edge_item in causal_edges_raw:
+        # V9: 兼容新格式 {"data": c, "status": "pending"}
+        if isinstance(edge_item, dict) and "data" in edge_item:
+            edge_item = edge_item["data"]
+        if not isinstance(edge_item, dict):
+            continue
+        source_event = str(edge_item.get("source_event", "")).strip()
+        target_event = str(edge_item.get("target_event", "")).strip()
+        if not (source_event and target_event):
+            continue
+
+        try:
+            strength = float(edge_item.get("strength", 0.8))
+        except (ValueError, TypeError):
+            strength = 0.8
+
+        # 只为高强度因果边创建债务（避免低强度边造成噪音）
+        if strength < 0.6:
+            continue
+
+        importance = 4 if strength >= 0.9 else (3 if strength >= 0.7 else 2)
+        involved_chars = edge_item.get("involved_characters") or []
+        if isinstance(involved_chars, str):
+            involved_chars = [involved_chars]
+
+        # 预期回收章节：源事件后 10-20 章
+        due_offset = 15 if strength >= 0.8 else 10
+        due_chapter = chapter_number + due_offset
+
+        debt = NarrativeDebt(
+            id=_stable_artifact_id(
+                "debt",
+                novel_id,
+                chapter_number,
+                DebtType.CAUSAL_CHAIN.value,
+                source_event,
+                target_event,
+                involved_chars,
+            ),
+            novel_id=novel_id,
+            debt_type=DebtType.CAUSAL_CHAIN,
+            description=f"{source_event} → {target_event}",
+            planted_chapter=chapter_number,
+            due_chapter=due_chapter,
+            importance=importance,
+            involved_entities=[str(c).strip() for c in involved_chars if str(c).strip()],
+            context=f"因果链未闭环，{target_event}尚未发生",
+        )
+
+        try:
+            debt_repository.save(debt)
+            new_debts += 1
+        except Exception as e:
+            logger.debug("因果债务入库跳过: %s", e)
+
+    # ---- 2. 角色弧债务：从 character_mutations 中的高优先级执念 ----
+    mutations_raw = bundle.get("character_mutations") or []
+    for mut_item in mutations_raw:
+        # V9: 兼容新格式 {"data": m, "status": "pending"}
+        if isinstance(mut_item, dict) and "data" in mut_item:
+            mut_item = mut_item["data"]
+        if not isinstance(mut_item, dict):
+            continue
+        mutation_type = str(mut_item.get("mutation_type", "")).strip().lower()
+        if mutation_type != "motivation":
+            continue
+
+        character_name = str(mut_item.get("character_name", "")).strip()
+        impact_or_desc = str(mut_item.get("impact_or_description", "")).strip()
+        if not impact_or_desc:
+            continue
+
+        tags_or_priority = mut_item.get("sensitivity_tags_or_priority", 5)
+        try:
+            priority = int(tags_or_priority)
+        except (ValueError, TypeError):
+            priority = 5
+
+        # 只为高优先级执念创建角色弧债务
+        if priority < 7:
+            continue
+
+        importance = 4 if priority >= 9 else 3
+        due_chapter = chapter_number + 20  # 执念通常需要更长时间闭环
+
+        debt = NarrativeDebt(
+            id=_stable_artifact_id(
+                "debt",
+                novel_id,
+                chapter_number,
+                DebtType.CHARACTER_ARC.value,
+                character_name,
+                impact_or_desc,
+                priority,
+            ),
+            novel_id=novel_id,
+            debt_type=DebtType.CHARACTER_ARC,
+            description=f"{character_name}的执念: {impact_or_desc}",
+            planted_chapter=chapter_number,
+            due_chapter=due_chapter,
+            importance=importance,
+            involved_entities=[character_name] if character_name else [],
+            context=f"高优先级执念(P{priority})需要最终闭环",
+        )
+
+        try:
+            debt_repository.save(debt)
+            new_debts += 1
+        except Exception as e:
+            logger.debug("角色弧债务入库跳过: %s", e)
+
+    # ---- 3. 结算已消费的伏笔债务 ----
+    consumed = bundle.get("consumed_foreshadows") or []
+    if consumed:
+        try:
+            foreshadow_debts = debt_repository.get_by_type(novel_id, DebtType.FORESHADOWING)
+            for consumed_desc in consumed:
+                if not consumed_desc:
+                    continue
+                consumed_lower = consumed_desc.lower().strip()
+                for debt in foreshadow_debts:
+                    if debt.is_resolved:
+                        continue
+                    debt_lower = debt.description.lower().strip()
+                    # 模糊匹配
+                    if consumed_lower in debt_lower or debt_lower in consumed_lower:
+                        try:
+                            debt_repository.resolve(debt.id, chapter_number)
+                            logger.info(
+                                "叙事债务结算 novel=%s ch=%s debt=%s",
+                                novel_id, chapter_number, debt.description[:40],
+                            )
+                            break  # 一条消费对应一条债务
+                        except Exception as e:
+                            logger.debug("叙事债务结算失败: %s", e)
+        except Exception as e:
+            logger.debug("伏笔债务结算失败: %s", e)
+
+    # ---- 4. 因果边闭环 → 结算对应债务 ----
+    if causal_edge_repository:
+        try:
+            resolved_edges = [
+                e for e in causal_edge_repository.get_by_novel(novel_id)
+                if e.is_resolved and e.resolved_chapter == chapter_number
+            ]
+            if resolved_edges:
+                causal_debts = debt_repository.get_by_type(novel_id, DebtType.CAUSAL_CHAIN)
+                for edge in resolved_edges:
+                    for debt in causal_debts:
+                        if debt.is_resolved:
+                            continue
+                        if edge.source_event_summary in debt.description and edge.target_event_summary in debt.description:
+                            try:
+                                debt_repository.resolve(debt.id, chapter_number)
+                                logger.info(
+                                    "因果债务自动结算 novel=%s ch=%s debt=%s",
+                                    novel_id, chapter_number, debt.description[:40],
+                                )
+                            except Exception as e:
+                                logger.debug("因果债务结算失败: %s", e)
+        except Exception as e:
+            logger.debug("因果边闭环债务结算失败: %s", e)
+
+    # ---- 5. 逾期标记 ----
+    try:
+        overdue_count = debt_repository.mark_overdue_batch(novel_id, chapter_number)
+        if overdue_count > 0:
+            logger.info("叙事债务逾期标记 novel=%s ch=%s overdue=%d", novel_id, chapter_number, overdue_count)
+    except Exception as e:
+        logger.debug("逾期标记失败: %s", e)
+
+    if new_debts > 0:
+        logger.info("叙事债务更新完成 novel=%s ch=%s new_debts=%d", novel_id, chapter_number, new_debts)
+
+    return new_debts
+
+
+def _auto_generate_plot_point(
+    novel_id: str,
+    chapter_number: int,
+    tension_score: float,
+    chapter_repository: Any,
+    plot_arc_repository: Any,
+) -> None:
+    """自动生成剧情点：当张力值显著变化时添加到情节弧。
+
+    优化后的触发阈值（原20分太苛刻，导致 PlotArc 几乎从不积累）：
+    - 张力跃升 ≥10 分：标记为上升/转折/高潮
+    - 张力骤降 ≥10 分：标记为回落/缓和
+    - 绝对阈值：≥65 即标记为高潮（原85几乎不可达）
+    """
+    try:
+        from domain.novel.value_objects.novel_id import NovelId
+        from domain.novel.value_objects.plot_point import PlotPoint, PlotPointType
+        from domain.novel.value_objects.tension_level import TensionLevel
+        from domain.novel.value_objects.tension_dimensions import UNEVALUATED
+
+        # 跳过未评估的章节
+        if tension_score == UNEVALUATED:
+            return
+
+        # 🔥 性能优化：用轻量 SQL 查询替代 list_by_novel
+        # 获取前一章的张力值
+        prev_tension = None
+        try:
+            db = chapter_repository.db if hasattr(chapter_repository, 'db') else None
+            if db is not None:
+                row = db.fetch_one(
+                    "SELECT tension_score FROM chapters WHERE novel_id = ? AND number = ?",
+                    (novel_id, chapter_number - 1)
+                )
+                if row and row['tension_score'] is not None and row['tension_score'] != UNEVALUATED:
+                    prev_tension = float(row['tension_score'])
+        except Exception:
+            pass
+
+        if prev_tension is None:
+            return  # 第一章不生成剧情点
+
+        tension_diff = abs(tension_score - prev_tension)
+
+        # 判断是否需要生成剧情点
+        should_generate = False
+        point_type = PlotPointType.RISING_ACTION
+        description = ""
+
+        # 1. 张力显著上升（≥10分，原阈值20）
+        if tension_score - prev_tension >= 10:
+            should_generate = True
+            if tension_score >= 75:
+                point_type = PlotPointType.CLIMAX
+                description = f"高潮：张力从 {prev_tension:.0f} 跃升至 {tension_score:.0f}"
+            elif tension_score >= 55:
+                point_type = PlotPointType.TURNING_POINT
+                description = f"转折：张力从 {prev_tension:.0f} 上升至 {tension_score:.0f}"
+            else:
+                point_type = PlotPointType.RISING_ACTION
+                description = f"升温：张力从 {prev_tension:.0f} 提升至 {tension_score:.0f}"
+
+        # 2. 张力显著下降（≥10分，原阈值20）
+        elif prev_tension - tension_score >= 10:
+            should_generate = True
+            if prev_tension >= 65 and tension_score < 45:
+                point_type = PlotPointType.FALLING_ACTION
+                description = f"回落：张力从 {prev_tension:.0f} 降至 {tension_score:.0f}"
+            else:
+                point_type = PlotPointType.RESOLUTION
+                description = f"缓和：张力从 {prev_tension:.0f} 回落至 {tension_score:.0f}"
+
+        # 3. 达到高张力（≥65，原阈值85）
+        elif tension_score >= 65 and prev_tension < 65:
+            should_generate = True
+            point_type = PlotPointType.CLIMAX
+            description = f"高峰：张力达到 {tension_score:.0f}"
+
+        # 4. 连续低张力（连续2章<30）——标记为需要调整的平缓段
+        elif tension_score <= 30 and prev_tension <= 30:
+            should_generate = True
+            point_type = PlotPointType.OPENING
+            description = f"持续低张：{prev_tension:.0f}→{tension_score:.0f}（需注入冲突）"
+
+        if not should_generate:
+            return
+
+        # 使用 TensionLevel.from_score 将 0-100 分映射到 1-10 档
+        tension_level = TensionLevel.from_score(tension_score)
+
+        # 获取或创建情节弧
+        plot_arc = plot_arc_repository.get_by_novel_id(NovelId(novel_id))
+        if not plot_arc:
+            from domain.novel.entities.plot_arc import PlotArc
+            plot_arc = PlotArc(
+                id=str(uuid.uuid4()),
+                novel_id=NovelId(novel_id),
+                slug="default",
+                display_name="主情节弧"
+            )
+
+        # 检查该章是否已有剧情点
+        existing = any(p.chapter_number == chapter_number for p in plot_arc.key_points)
+        if existing:
+            return
+
+        # 添加剧情点
+        plot_point = PlotPoint(
+            chapter_number=chapter_number,
+            point_type=point_type,
+            description=description,
+            tension=tension_level
+        )
+        plot_arc.add_plot_point(plot_point)
+        plot_arc_repository.save(plot_arc)
+
+        logger.info("自动生成剧情点 novel=%s ch=%s type=%s tension=%.0f level=%s",
+                   novel_id, chapter_number, point_type.value, tension_score, tension_level.display_name)
+
+    except Exception as e:
+        logger.warning("自动生成剧情点失败 novel=%s ch=%s: %s", novel_id, chapter_number, e)
+
+
+def _auto_advance_milestone(
+    novel_id: str,
+    chapter_number: int,
+    storyline_progress: List[dict],
+    storyline_repository: Any,
+) -> None:
+    """自动推进里程碑：根据进展描述判断是否达成里程碑条件。"""
+    try:
+        from domain.novel.value_objects.novel_id import NovelId
+
+        storylines = storyline_repository.get_by_novel_id(NovelId(novel_id))
+
+        for progress_item in storyline_progress:
+            if not isinstance(progress_item, dict):
+                continue
+
+            line_type = str(progress_item.get("type", "")).strip()
+            description = str(progress_item.get("description", "")).strip()
+
+            if not description:
+                continue
+
+            # 匹配故事线
+            matched = None
+            for sl in storylines:
+                if line_type in sl.name or line_type in sl.storyline_type.value:
+                    matched = sl
+                    break
+
+            if not matched or not matched.milestones:
+                continue
+
+            # 检查当前里程碑是否应该推进
+            current_idx = matched.current_milestone_index
+            if current_idx >= len(matched.milestones):
+                continue  # 已完成所有里程碑
+
+            current_milestone = matched.milestones[current_idx]
+
+            # 判断是否达成里程碑（章节号在目标范围内）
+            if (current_milestone.target_chapter_start <= chapter_number <=
+                current_milestone.target_chapter_end):
+
+                # 检查关键词匹配（简单实现）
+                milestone_keywords = current_milestone.description.lower()
+                progress_keywords = description.lower()
+
+                # 如果进展描述包含里程碑关键词，认为达成
+                keyword_match = any(
+                    word in progress_keywords
+                    for word in milestone_keywords.split()[:3]  # 取前3个词
+                )
+
+                if keyword_match or chapter_number >= current_milestone.target_chapter_end:
+                    matched.current_milestone_index = current_idx + 1
+                    storyline_repository.save(matched)
+                    logger.info("自动推进里程碑 novel=%s storyline=%s milestone=%d->%d ch=%s",
+                               novel_id, matched.name, current_idx, current_idx + 1, chapter_number)
+
+    except Exception as e:
+        logger.warning("自动推进里程碑失败 novel=%s ch=%s: %s", novel_id, chapter_number, e)
+
+
+def _initialize_first_chapter_snapshot(
+    novel_id: str,
+    chapter_number: int,
+) -> None:
+    """首章初始化：创建初始快照。"""
+    try:
+        from infrastructure.persistence.database.connection import get_database
+
+        db = get_database()
+        conn = db.get_connection()
+        cursor = conn.cursor()
+
+        # 检查是否已有快照
+        cursor.execute(
+            "SELECT COUNT(*) FROM novel_snapshots WHERE novel_id = ?",
+            (novel_id,)
+        )
+        count = cursor.fetchone()[0]
+
+        if count > 0:
+            logger.info("首章已有快照，跳过初始化 novel=%s", novel_id)
+            return
+
+        # 创建初始快照
+        snapshot_id = f"snapshot-{uuid.uuid4()}"
+        now = datetime.utcnow().isoformat()
+
+        cursor.execute("""
+            INSERT INTO novel_snapshots (
+                id, novel_id, trigger_type, name, description,
+                chapter_pointers, bible_state, foreshadow_state, graph_state,
+                branch_name, parent_snapshot_id, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
+            snapshot_id,
+            novel_id,
+            "AUTO",
+            "第1章完成",
+            "小说开篇，自动创建初始快照",
+            json.dumps([f"{novel_id}-ch{chapter_number}"]),
+            json.dumps({"exists": True, "timestamp": now}),
+            json.dumps({}),
+            json.dumps({}),
+            "main",
+            None,
+            now
+        ))
+
+        conn.commit()
+        logger.info("首章自动创建快照 novel=%s snapshot=%s", novel_id, snapshot_id)
+
+    except Exception as e:
+        logger.warning("首章快照初始化失败 novel=%s: %s", novel_id, e)
+
+
+def _initialize_first_chapter_storyline(
+    novel_id: str,
+    chapter_number: int,
+    bundle: dict,
+    storyline_repository: Any,
+) -> None:
+    """首章初始化：基于章末总结创建主线故事线。
+
+    使用 LLM 生成的 summary 作为依据，而不是硬匹配关键词。
+    summary 来自 sync_chapter_narrative_after_save 中的 llm_chapter_extract_bundle。
+    """
+    try:
+        from domain.novel.value_objects.novel_id import NovelId
+        from domain.novel.value_objects.storyline_type import StorylineType
+        from domain.novel.value_objects.storyline_status import StorylineStatus
+        from domain.novel.entities.storyline import Storyline
+
+        # 检查是否已有故事线
+        existing = storyline_repository.get_by_novel_id(NovelId(novel_id))
+        if existing:
+            logger.info("首章已有故事线，跳过初始化 novel=%s", novel_id)
+            return
+
+        # 使用 LLM 生成的章末总结作为故事线描述
+        summary = bundle.get("summary", "")
+
+        # 默认创建主线，名称和描述基于首章内容
+        storyline_name = "主线"
+        storyline_desc = summary if summary else "小说主线剧情"
+
+        # 创建主线
+        main_storyline = Storyline(
+            id=str(uuid.uuid4()),
+            novel_id=NovelId(novel_id),
+            storyline_type=StorylineType.MAIN_PLOT,
+            status=StorylineStatus.ACTIVE,
+            estimated_chapter_start=chapter_number,
+            estimated_chapter_end=chapter_number + 20,  # 预估20章
+            name=storyline_name,
+            description=storyline_desc,
+            progress_summary=summary  # 将首章摘要作为初始进展
+        )
+        storyline_repository.save(main_storyline)
+        logger.info("首章自动初始化主线 novel=%s desc=%s", novel_id, storyline_desc[:50])
+
+    except Exception as e:
+        logger.warning("首章故事线初始化失败 novel=%s: %s", novel_id, e)
+
+
+def _auto_adjust_storyline_range(
+    novel_id: str,
+    chapter_number: int,
+    storyline_progress: List[dict],
+    storyline_repository: Any,
+) -> None:
+    """自动调整故事线范围：检测结束或延期。
+
+    注：新建故事线已在 persist_bundle_extras 内按 arc_label 完成，此处不再重复建档。
+    """
+    try:
+        from domain.novel.value_objects.novel_id import NovelId
+        from domain.novel.value_objects.storyline_status import StorylineStatus
+
+        storylines = list(storyline_repository.get_by_novel_id(NovelId(novel_id)))
+
+        for progress_item in storyline_progress:
+            if not isinstance(progress_item, dict):
+                continue
+
+            line_type = str(progress_item.get("type", "")).strip()
+            description = str(progress_item.get("description", "")).strip()
+
+            if not description:
+                continue
+
+            is_end = any(kw in description for kw in ["结束", "完成", "解决", "落幕"])
+            arc_label = _storyline_arc_label(progress_item)
+            matched = _match_storyline_for_progress_item(
+                storylines, line_type, arc_label, description
+            )
+
+            if not matched:
+                continue
+
+            if is_end and matched.status != StorylineStatus.COMPLETED:
+                if chapter_number > matched.estimated_chapter_end:
+                    matched.estimated_chapter_end = chapter_number
+                matched.status = StorylineStatus.COMPLETED
+                storyline_repository.save(matched)
+                logger.info(
+                    "自动结束故事线 novel=%s storyline=%s end_ch=%d",
+                    novel_id,
+                    matched.name,
+                    chapter_number,
+                )
+
+            elif chapter_number > matched.estimated_chapter_end:
+                matched.estimated_chapter_end = chapter_number + 5
+                storyline_repository.save(matched)
+                logger.info(
+                    "自动延长故事线 novel=%s storyline=%s new_end=%d",
+                    novel_id,
+                    matched.name,
+                    matched.estimated_chapter_end,
+                )
+
+    except Exception as e:
+        logger.warning("自动调整故事线范围失败 novel=%s ch=%s: %s", novel_id, chapter_number, e)
+
+
+def _write_tension_ephemeral(
+    novel_id: str,
+    chapter_number: int,
+    tension_score: Optional[float],
+    tension_dims: Optional[dict],
+) -> bool:
+    """将章节张力写入 DB（经 `get_database` → 持久化单写者；与 API 进程其它写路径一致）。"""
+    import sqlite3
+
+    from application.paths import get_db_path
+    from infrastructure.persistence.database.connection import get_database
+
+    try:
+        db = get_database(get_db_path())
+        if tension_dims:
+            composite = tension_dims.get("composite_score", -1)
+            if composite == -1:
+                logger.warning(
+                    "跳过 unevaluated 张力写入 novel=%s ch=%s",
+                    novel_id,
+                    chapter_number,
+                )
+            else:
+                db.execute(
+                    """UPDATE chapters SET
+                        tension_score = ?,
+                        plot_tension = ?,
+                        emotional_tension = ?,
+                        pacing_tension = ?,
+                        updated_at = CURRENT_TIMESTAMP
+                    WHERE novel_id = ? AND number = ?""",
+                    (
+                        tension_dims["composite_score"],
+                        tension_dims["plot_tension"],
+                        tension_dims["emotional_tension"],
+                        tension_dims["pacing_tension"],
+                        novel_id,
+                        chapter_number,
+                    ),
+                )
+                logger.debug(
+                    "张力维度已落库 novel=%s ch=%s composite=%.1f",
+                    novel_id,
+                    chapter_number,
+                    tension_dims["composite_score"],
+                )
+        elif tension_score is not None:
+            db.execute(
+                "UPDATE chapters SET tension_score = ?, updated_at = CURRENT_TIMESTAMP WHERE novel_id = ? AND number = ?",
+                (float(tension_score), novel_id, chapter_number),
+            )
+            logger.debug(
+                "张力值已落库 novel=%s ch=%s tension=%.1f",
+                novel_id,
+                chapter_number,
+                tension_score,
+            )
+
+        db.commit()
+        return True
+    except sqlite3.OperationalError as e:
+        if "locked" in str(e).lower() or "busy" in str(e).lower():
+            logger.warning("_write_tension_ephemeral: DB 被锁，写入失败: %s", e)
+            return False
+        raise
+    except Exception as e:
+        logger.warning("_write_tension_ephemeral: 张力值落库失败 novel=%s ch=%s: %s", novel_id, chapter_number, e)
+        return False
+
+
+def persist_bundle_extras(
+    novel_id: str,
+    chapter_number: int,
+    bundle: dict,
+    storyline_repository: Any = None,
+    chapter_repository: Any = None,
+    plot_arc_repository: Any = None,
+    narrative_event_repository: Any = None,
+) -> None:
+    """将 bundle 中的故事线进展、张力值、对话写入表，并自动生成剧情点、推进里程碑、调整故事线范围。
+
+    🔥 核心修复：张力值写入改用独立短连接（_write_tension_ephemeral），
+    避免在守护进程（multiprocessing.Process）中持有长连接写锁阻塞 API 进程。
+    """
+    # 1. 张力值写入 chapters 表
+    # 🔥 核心修复：改用独立短连接，避免守护进程长连接写锁阻塞 API
+    tension_score = bundle.get("tension_score")
+    tension_dims = bundle.get("tension_dimensions")
+    if tension_score is not None or tension_dims:
+        _write_tension_ephemeral(novel_id, chapter_number, tension_score, tension_dims)
+
+    # 2. 自动生成剧情点（基于张力变化）
+    if chapter_repository and plot_arc_repository and tension_score is not None:
+        _auto_generate_plot_point(
+            novel_id, chapter_number, tension_score,
+            chapter_repository, plot_arc_repository
+        )
+
+    # 3. 故事线进展更新
+    # 🔥 核心修复：改用持久化队列写入，避免守护进程长连接写锁阻塞 API
+    storyline_progress = bundle.get("storyline_progress") or []
+    if storyline_repository and storyline_progress:
+        try:
+            from domain.novel.value_objects.novel_id import NovelId
+            storylines = list(storyline_repository.get_by_novel_id(NovelId(novel_id)))
+            updated_storylines = []
+            touched_ids: set[str] = set()
+
+            for progress_item in storyline_progress:
+                if not isinstance(progress_item, dict):
+                    continue
+                line_type = str(progress_item.get("type", "")).strip()
+                description = str(progress_item.get("description", "")).strip()
+                if not description:
+                    continue
+
+                arc_label = _storyline_arc_label(progress_item)
+                matched = _match_storyline_for_progress_item(
+                    storylines, line_type, arc_label, description
+                )
+
+                if matched is None:
+                    matched = _make_storyline_from_progress_item(
+                        novel_id, chapter_number, line_type, arc_label, description
+                    )
+                    storyline_repository.save(matched)
+                    storylines.append(matched)
+                    logger.info(
+                        "故事线自动建档 novel=%s ch=%s name=%s type=%s",
+                        novel_id,
+                        chapter_number,
+                        matched.name,
+                        line_type,
+                    )
+
+                matched.update_progress(chapter_number, description)
+                sid = getattr(matched, "id", None)
+                if sid and sid not in touched_ids:
+                    touched_ids.add(sid)
+                    updated_storylines.append({
+                        "id": matched.id,
+                        "storyline_type": matched.storyline_type.value,
+                        "status": matched.status.value,
+                        "name": matched.name,
+                        "description": matched.description,
+                        "estimated_chapter_start": matched.estimated_chapter_start,
+                        "estimated_chapter_end": matched.estimated_chapter_end,
+                        "current_milestone_index": matched.current_milestone_index,
+                        "last_active_chapter": matched.last_active_chapter,
+                        "progress_summary": matched.progress_summary,
+                    })
+                    logger.debug(
+                        "故事线进展已更新 novel=%s ch=%s name=%s",
+                        novel_id,
+                        chapter_number,
+                        matched.name,
+                    )
+
+            # 🔥 通过持久化队列写入（主进程执行，无锁竞争）
+            if updated_storylines:
+                try:
+                    from application.engine.services.persistence_queue import get_persistence_queue, PersistenceCommandType
+                    get_persistence_queue().push(
+                        PersistenceCommandType.UPDATE_STORYLINES.value,
+                        {"novel_id": novel_id, "storylines": updated_storylines},
+                    )
+                    logger.debug("故事线已推送持久化队列 novel=%s count=%d", novel_id, len(updated_storylines))
+                except Exception as pq_err:
+                    # 持久化队列不可用，降级到直接写入（可能持锁）
+                    logger.warning("持久化队列不可用，降级直接写入故事线: %s", pq_err)
+                    row_ids = {row["id"] for row in updated_storylines if row.get("id")}
+                    for sl in storylines:
+                        if getattr(sl, "id", None) in row_ids:
+                            storyline_repository.save(sl)
+        except Exception as e:
+            logger.warning("故事线进展落库失败 novel=%s ch=%s: %s", novel_id, chapter_number, e)
+
+    # 4. 自动推进里程碑
+    if storyline_repository and storyline_progress:
+        _auto_advance_milestone(novel_id, chapter_number, storyline_progress, storyline_repository)
+
+    # 5. 自动调整故事线范围（或首章初始化）
+    if storyline_repository:
+        if chapter_number == 1 and not storyline_progress:
+            # 首章且 LLM 未返回故事线进展，强制初始化主线
+            _initialize_first_chapter_storyline(novel_id, chapter_number, bundle, storyline_repository)
+        elif storyline_progress:
+            _auto_adjust_storyline_range(novel_id, chapter_number, storyline_progress, storyline_repository)
+
+    # 6. 首章初始化快照
+    if chapter_number == 1:
+        _initialize_first_chapter_snapshot(novel_id, chapter_number)
+
+    # 7. 对话提取（写入 narrative_events 表）
+    dialogues = bundle.get("dialogues") or []
+    if narrative_event_repository and dialogues:
+        try:
+            for dialogue in dialogues:
+                if not isinstance(dialogue, dict):
+                    continue
+                speaker = str(dialogue.get("speaker", "")).strip()
+                content = str(dialogue.get("content", "")).strip()
+                context = str(dialogue.get("context", "")).strip()
+
+                if not (speaker and content):
+                    continue
+
+                # 构建事件摘要
+                event_summary = f"{speaker}: {content[:100]}"
+                if len(content) > 100:
+                    event_summary += "..."
+
+                # 构建 mutations（对话不涉及实体变更，可为空）
+                mutations = []
+
+                # 构建 tags
+                tags = [f"对话:{speaker}"]
+                if context:
+                    tags.append(f"场景:{context}")
+
+                event_id = _stable_artifact_id(
+                    "event",
+                    novel_id,
+                    chapter_number,
+                    "dialogue",
+                    speaker,
+                    content,
+                    context,
+                )
+                if hasattr(narrative_event_repository, "upsert_event"):
+                    narrative_event_repository.upsert_event(
+                        event_id=event_id,
+                        novel_id=novel_id,
+                        chapter_number=chapter_number,
+                        event_summary=event_summary,
+                        mutations=mutations,
+                        tags=tags,
+                    )
+                else:
+                    narrative_event_repository.append_event(
+                        novel_id=novel_id,
+                        chapter_number=chapter_number,
+                        event_summary=event_summary,
+                        mutations=mutations,
+                        tags=tags,
+                    )
+
+            logger.info("对话提取完成 novel=%s ch=%s count=%d", novel_id, chapter_number, len(dialogues))
+        except Exception as e:
+            logger.warning("对话落库失败 novel=%s ch=%s: %s", novel_id, chapter_number, e)
+
+    # 8. 时间轴事件提取（写入 timeline_notes）
+    timeline_events = bundle.get("timeline_events") or []
+    if timeline_events:
+        try:
+            from infrastructure.persistence.database.connection import get_database
+            db = get_database()
+            conn = db.get_connection()
+            cursor = conn.cursor()
+
+            for evt in timeline_events:
+                if not isinstance(evt, dict):
+                    continue
+                time_point = str(evt.get("time_point", "")).strip()
+                event = str(evt.get("event", "")).strip()
+                description = str(evt.get("description", "")).strip()
+
+                if not event:
+                    continue
+
+                # 写入 bible_timeline_notes 表
+                note_id = f"tl-{uuid.uuid4()}"
+                cursor.execute("""
+                    INSERT INTO bible_timeline_notes (id, novel_id, time_point, event, description)
+                    VALUES (?, ?, ?, ?, ?)
+                """, (note_id, novel_id, time_point or f"第{chapter_number}章", event, description))
+
+            conn.commit()
+            logger.info("时间轴事件提取完成 novel=%s ch=%s count=%d", novel_id, chapter_number, len(timeline_events))
+        except Exception as e:
+            logger.warning("时间轴落库失败 novel=%s ch=%s: %s", novel_id, chapter_number, e)
+
+
+async def sync_chapter_narrative_after_save(
+    novel_id: str,
+    chapter_number: int,
+    content: str,
+    knowledge_service: Any,
+    indexing_svc: Any,
+    llm_service: LLMService,
+    triple_repository: Any = None,
+    foreshadowing_repo: Any = None,
+    storyline_repository: Any = None,
+    chapter_repository: Any = None,
+    plot_arc_repository: Any = None,
+    narrative_event_repository: Any = None,
+    causal_edge_repository: Any = None,
+    character_state_repository: Any = None,
+    debt_repository: Any = None,
+    bible_repository: Any = None,
+    chapter_micro_beats: Optional[List[Dict[str, Any]]] = None,
+) -> Dict[str, bool]:
+    """异步：LLM bundle + 向量等落库。
+
+    ``chapter_micro_beats``：全托管等管线传入的写作侧 Beat 快照；若缺省则仅从 bundle 继承，
+    **不再**用章纲放大镜伪造微观节拍。
+
+    返回各子步骤是否成功落库，供章后管线写入 last_audit_* 审阅快照。
+    """
+    empty_flags: Dict[str, bool] = {
+        "vector_stored": False,
+        "foreshadow_stored": False,
+        "triples_extracted": False,
+        "causal_edges_stored": False,
+        "character_mutations_stored": False,
+        "memory_atoms_stored": False,
+        "debt_updated": False,
+    }
+    if not content or not str(content).strip():
+        logger.debug("跳过叙事同步：正文为空 novel=%s ch=%s", novel_id, chapter_number)
+        return empty_flags
+
+    flags: Dict[str, bool] = {
+        "vector_stored": False,
+        "foreshadow_stored": False,
+        "triples_extracted": False,
+        "causal_edges_stored": False,
+        "character_mutations_stored": False,
+        "memory_atoms_stored": False,
+        "debt_updated": False,
+    }
+
+    existing = None
+    existing_beats: List[str] = []
+    try:
+        k = knowledge_service.get_knowledge(novel_id)
+        for ch in getattr(k, "chapters", []) or []:
+            if getattr(ch, "chapter_id", None) == chapter_number:
+                existing = ch
+                break
+        if existing and getattr(existing, "beat_sections", None):
+            existing_beats = list(existing.beat_sections or [])
+    except Exception:
+        pass
+
+    # 获取待回收伏笔列表（用于 LLM 消费检测）
+    pending_foreshadow_descs: List[str] = []
+    if foreshadowing_repo:
+        try:
+            registry = foreshadowing_repo.get_by_novel_id(NovelId(novel_id))
+            if registry:
+                # 从 Foreshadowing 对象获取描述
+                for f in registry.get_unresolved():
+                    if f.description:
+                        pending_foreshadow_descs.append(f.description)
+                # 从 SubtextLedgerEntry 获取描述
+                for e in registry.get_pending_subtext_entries():
+                    if e.question:
+                        pending_foreshadow_descs.append(e.question)
+                if pending_foreshadow_descs:
+                    logger.debug(
+                        "伏笔消费检测：获取到 %d 个待回收伏笔 novel=%s ch=%s",
+                        len(pending_foreshadow_descs), novel_id, chapter_number
+                    )
+        except Exception as e:
+            logger.warning("获取待回收伏笔失败: %s", e)
+
+    try:
+        bundle = await llm_chapter_extract_bundle(
+            llm_service, content, chapter_number,
+            pending_foreshadows=pending_foreshadow_descs if pending_foreshadow_descs else None
+        )
+        summary = bundle.get("summary") or ""
+        key_events = bundle.get("key_events") or ""
+        open_threads = bundle.get("open_threads") or ""
+    except Exception as e:
+        logger.warning("LLM 章末 bundle 失败 novel=%s ch=%s: %s", novel_id, chapter_number, e)
+        summary, key_events, open_threads = "", "", ""
+        bundle = {"relation_triples": [], "foreshadow_hints": []}
+
+    # --- 独立多维张力评分 ---
+    from application.analyst.services.tension_scoring_service import TensionScoringService
+    from domain.novel.value_objects.tension_dimensions import TensionDimensions, UNEVALUATED
+
+    tension_dimensions: Optional[TensionDimensions] = None
+    try:
+        prev_tension = 50.0
+        if chapter_repository:
+            try:
+                # 🔥 性能优化：用轻量 SQL 查询替代 list_by_novel
+                # 原来加载所有章节内容（可能几百 KB），现在只查一个值
+                db = chapter_repository.db if hasattr(chapter_repository, 'db') else None
+                if db is not None:
+                    row = db.fetch_one(
+                        "SELECT tension_score FROM chapters WHERE novel_id = ? AND number = ?",
+                        (novel_id, chapter_number - 1)
+                    )
+                    if row and row['tension_score'] is not None and row['tension_score'] != -1:
+                        prev_tension = float(row['tension_score'])
+                else:
+                    # 降级：用原方法
+                    chapters = chapter_repository.list_by_novel(NovelId(novel_id))
+                    prev_ch = next((ch for ch in chapters if ch.number == chapter_number - 1), None)
+                    if prev_ch:
+                        prev_tension = prev_ch.tension_score
+            except Exception:
+                pass
+
+        tension_svc = TensionScoringService(llm_service)
+        tension_dimensions = await tension_svc.score_chapter(
+            chapter_content=content,
+            chapter_number=chapter_number,
+            prev_chapter_tension=prev_tension,
+        )
+        logger.info(
+            "独立张力评分完成 novel=%s ch=%s composite=%.1f plot=%.0f emotional=%.0f pacing=%.0f",
+            novel_id, chapter_number,
+            tension_dimensions.composite_score,
+            tension_dimensions.plot_tension,
+            tension_dimensions.emotional_tension,
+            tension_dimensions.pacing_tension,
+        )
+    except Exception as e:
+        logger.warning("独立张力评分失败 novel=%s ch=%s: %s", novel_id, chapter_number, e)
+
+    # 将张力结果注入 bundle，供 persist_bundle_extras 使用
+    if tension_dimensions is not None:
+        bundle["tension_score"] = tension_dimensions.composite_score
+        bundle["tension_dimensions"] = {
+            "plot_tension": tension_dimensions.plot_tension,
+            "emotional_tension": tension_dimensions.emotional_tension,
+            "pacing_tension": tension_dimensions.pacing_tension,
+            "composite_score": tension_dimensions.composite_score,
+        }
+    else:
+        bundle["tension_score"] = UNEVALUATED
+        bundle["tension_dimensions"] = {
+            "plot_tension": UNEVALUATED,
+            "emotional_tension": UNEVALUATED,
+            "pacing_tension": UNEVALUATED,
+            "composite_score": UNEVALUATED,
+        }
+
+    consistency_note = ""
+    if existing:
+        consistency_note = (existing.consistency_note or "") or ""
+        if not key_events:
+            key_events = existing.key_events or ""
+        if not open_threads:
+            open_threads = existing.open_threads or ""
+
+    beat_sections = _resolve_beat_sections(novel_id, chapter_number, existing_beats)
+
+    mb_out: List[Any] = []
+    try:
+        if chapter_micro_beats:
+            mb_out = list(chapter_micro_beats)
+        elif bundle.get("micro_beats"):
+            mb_out = bundle.get("micro_beats") or []
+        elif existing and getattr(existing, "micro_beats", None):
+            mb_out = list(existing.micro_beats or [])
+    except Exception as e:
+        logger.debug("微观节拍赋值失败 novel=%s ch=%s: %s", novel_id, chapter_number, e)
+    
+    knowledge_service.upsert_chapter_summary(
+        novel_id=novel_id,
+        chapter_id=chapter_number,
+        summary=summary,
+        key_events=key_events or "（未提取）",
+        open_threads=open_threads or "无",
+        consistency_note=consistency_note,
+        beat_sections=beat_sections,
+        micro_beats=mb_out if mb_out else None,
+        sync_status="synced" if summary else "draft",
+    )
+
+    if triple_repository is not None or foreshadowing_repo is not None:
+        try:
+            persist_bundle_triples_and_foreshadows(
+                novel_id,
+                chapter_number,
+                bundle,
+                triple_repository,
+                foreshadowing_repo,
+            )
+            if triple_repository is not None:
+                flags["triples_extracted"] = True
+            if foreshadowing_repo is not None:
+                flags["foreshadow_stored"] = True
+        except Exception as e:
+            logger.warning(
+                "bundle 三元组/伏笔落库失败 novel=%s ch=%s: %s", novel_id, chapter_number, e
+            )
+
+    if storyline_repository is not None or chapter_repository is not None or narrative_event_repository is not None:
+        try:
+            persist_bundle_extras(
+                novel_id,
+                chapter_number,
+                bundle,
+                storyline_repository,
+                chapter_repository,
+                plot_arc_repository,
+                narrative_event_repository,
+            )
+        except Exception as e:
+            logger.warning(
+                "bundle 故事线/张力/对话落库失败 novel=%s ch=%s: %s", novel_id, chapter_number, e
+            )
+
+    # ★ V8 Feed-forward: 因果边提取 + 人物状态突变 + 叙事债务更新
+    if causal_edge_repository is not None:
+        try:
+            saved_edges = persist_causal_edges(
+                novel_id, chapter_number, bundle, causal_edge_repository
+            )
+            if saved_edges > 0:
+                flags["causal_edges_stored"] = True
+        except Exception as e:
+            logger.warning(
+                "因果边落库失败 novel=%s ch=%s: %s", novel_id, chapter_number, e
+            )
+
+    if character_state_repository is not None:
+        try:
+            saved_mutations = persist_character_mutations(
+                novel_id, chapter_number, bundle, character_state_repository, bible_repository
+            )
+            if saved_mutations > 0:
+                flags["character_mutations_stored"] = True
+        except Exception as e:
+            logger.warning(
+                "人物状态突变落库失败 novel=%s ch=%s: %s", novel_id, chapter_number, e
+            )
+        try:
+            persist_character_end_states(
+                novel_id, chapter_number, bundle, character_state_repository, bible_repository
+            )
+        except Exception as e:
+            logger.warning(
+                "章末人物状态落库失败 novel=%s ch=%s: %s", novel_id, chapter_number, e
+            )
+
+    try:
+        memory_saved = persist_bundle_memory_atoms(
+            novel_id, chapter_number, bundle, bible_repository
+        )
+        if memory_saved > 0:
+            flags["memory_atoms_stored"] = True
+    except Exception as e:
+        logger.warning(
+            "MemoryAtom 双写失败 novel=%s ch=%s: %s", novel_id, chapter_number, e
+        )
+
+    if debt_repository is not None:
+        try:
+            new_debts = update_narrative_debts(
+                novel_id, chapter_number, bundle, debt_repository, causal_edge_repository
+            )
+            if new_debts >= 0:  # 0 也算成功（可能没有新债务）
+                flags["debt_updated"] = True
+        except Exception as e:
+            logger.warning(
+                "叙事债务更新失败 novel=%s ch=%s: %s", novel_id, chapter_number, e
+            )
+
+    logger.info(
+        "分章叙事已落库 novel=%s ch=%s beats=%d(src=planning/knowledge) summary_len=%d",
+        novel_id,
+        chapter_number,
+        len(beat_sections),
+        len(summary),
+    )
+
+    if indexing_svc is not None:
+        text_for_vector = summary.strip() if summary.strip() else "；".join(beat_sections) if beat_sections else content[:800]
+        try:
+            await indexing_svc.ensure_collection(novel_id)
+            await indexing_svc.index_chapter_summary(novel_id, chapter_number, text_for_vector)
+            flags["vector_stored"] = True
+            logger.debug("章节向量索引完成 novel=%s ch=%s", novel_id, chapter_number)
+        except Exception as e:
+            logger.warning("章节向量索引失败 novel=%s ch=%s: [%s] %s", novel_id, chapter_number, type(e).__name__, e, exc_info=True)
+
+    # 🔥 将多维张力评分（0-100）传递给调用方，供审计流程替代旧式 _score_tension
+    tension_composite = bundle.get("tension_score")
+    if tension_composite is not None and tension_composite != UNEVALUATED:
+        flags["tension_composite"] = tension_composite
+
+    return flags
+
+
+def sync_chapter_narrative_after_save_blocking(
+    novel_id: str,
+    chapter_number: int,
+    content: str,
+    knowledge_service: Any,
+    indexing_svc: Any,
+    llm_service: LLMService,
+    triple_repository: Any = None,
+    foreshadowing_repo: Any = None,
+    storyline_repository: Any = None,
+    chapter_repository: Any = None,
+    causal_edge_repository: Any = None,
+    character_state_repository: Any = None,
+    debt_repository: Any = None,
+    bible_repository: Any = None,
+    chapter_micro_beats: Optional[List[Dict[str, Any]]] = None,
+) -> None:
+    """供 FastAPI BackgroundTasks 同步入口调用。"""
+    _kwargs = dict(
+        triple_repository=triple_repository,
+        foreshadowing_repo=foreshadowing_repo,
+        storyline_repository=storyline_repository,
+        chapter_repository=chapter_repository,
+        causal_edge_repository=causal_edge_repository,
+        character_state_repository=character_state_repository,
+        debt_repository=debt_repository,
+        bible_repository=bible_repository,
+        chapter_micro_beats=chapter_micro_beats,
+    )
+    try:
+        asyncio.run(
+            sync_chapter_narrative_after_save(
+                novel_id,
+                chapter_number,
+                content,
+                knowledge_service,
+                indexing_svc,
+                llm_service,
+                **_kwargs,
+            )
+        )
+    except RuntimeError as e:
+        if "asyncio.run() cannot be called from a running event loop" in str(e):
+            loop = asyncio.new_event_loop()
+            try:
+                loop.run_until_complete(
+                    sync_chapter_narrative_after_save(
+                        novel_id,
+                        chapter_number,
+                        content,
+                        knowledge_service,
+                        indexing_svc,
+                        llm_service,
+                        **_kwargs,
+                    )
+                )
+            finally:
+                loop.close()
+        else:
+            raise
+    except Exception as e:
+        logger.warning("分章叙事同步失败 novel=%s ch=%s: %s", novel_id, chapter_number, e)

@@ -1,0 +1,37 @@
+[package]
+name = "alex-desktop"
+version = "4.6.0"
+description = "Alex · AI 小说创作平台"
+authors = ["Alex Team"]
+edition = "2021"
+
+[lib]
+name = "alex_desktop_lib"
+crate-type = ["lib", "cdylib", "staticlib"]
+
+[dependencies]
+tauri = { version = "2", features = ["tray-icon", "image-png", "devtools"] }
+tauri-plugin-single-instance = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["full"] }
+log = "0.4"
+env_logger = "0.11"
+which = "7"
+dirs = "6"
+ureq = "3"
+webbrowser = "1"
+zip = "2.1"
+
+[target.'cfg(windows)'.dependencies]
+win32job = "2"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[profile.release]
+panic = "abort"
+codegen-units = 1
+lto = true
+opt-level = "s"
+strip = true

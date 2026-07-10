@@ -1,0 +1,29 @@
+name: 章前执行剧本规划
+category: planning
+source: application/blueprint/services/chapter_preplanning_service.py
+description: 在正文写作前，将单章轻量主事件链和前3章规划上下文落地为七段章节执行剧本。
+builtin: true
+tags:
+- 规划
+- 章前
+- JSON输出
+output_format: json
+variables:
+- name: chapter_number
+  desc: 全书章节号
+  type: integer
+  required: true
+- name: chapter_title
+  desc: 章节标题
+  type: string
+  required: true
+- name: act_chapter_plan
+  desc: 幕级轻量主事件链中的本章数据
+  type: string
+  required: true
+- name: continuity_context
+  desc: 连续性上下文，使用近3章承接摘要
+  type: string
+  required: true
+id: planning-chapter-preplan
+sort_order: 25

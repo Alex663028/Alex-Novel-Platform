@@ -1,0 +1,20 @@
+﻿name: 章节摘要
+category: extraction
+source: infrastructure/ai/claude_chapter_summarizer.py::summarize()
+description: 高效提炼章节核心情节，去水留金并保留叙事因果
+builtin: true
+tags:
+- 摘要
+- 章节
+output_format: text
+variables:
+- name: content
+  desc: 章节内容
+  type: string
+  required: true
+- name: max_length
+  desc: 最大长度（字符）
+  type: integer
+  default: 300
+id: chapter-summarizer
+sort_order: 11

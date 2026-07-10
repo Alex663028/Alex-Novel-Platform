@@ -1,0 +1,73 @@
+name: 极速宏观规划 · 源设定优先
+category: planning
+source: application/blueprint/services/continuous_planning_service.py::_build_quick_macro_prompt
+description: 极速模式下的长篇宏观结构规划，按目标篇幅动态选择部、卷、幕粒度，并优先服从作者原始设定。
+builtin: true
+tags:
+- 宏观规划
+- 极速模式
+- 源设定优先
+output_format: json
+variables:
+- name: premise
+  desc: 作者原始梗概或核心创意
+  type: string
+  default: ''
+- name: target_chapters
+  desc: 目标总章节数
+  type: integer
+  required: true
+- name: worldview
+  desc: 世界观、地点、时间线等设定块
+  type: string
+  default: ''
+- name: worldbuilding.content
+  desc: 世界观与时间线设定块（兼容嵌套模板变量）
+  type: string
+  default: ''
+- name: locations.list
+  desc: 关键地点列表（兼容嵌套模板变量）
+  type: string
+  default: ''
+- name: characters
+  desc: 主要角色与关系设定块
+  type: string
+  default: ''
+- name: genre_opening_profile
+  desc: 新书引导解析出的类型开篇画像
+  type: object
+  default: {}
+- name: genre_reader_contract
+  desc: 新书引导解析出的读者留存契约
+  type: object
+  default: {}
+- name: genre_rhythm_constraints
+  desc: 新书引导解析出的类型节奏约束
+  type: object
+  default: {}
+- name: planning_depth
+  desc: 规划深度：framework、partial 或 full
+  type: string
+  default: full
+- name: rec_parts
+  desc: 推荐部数
+  type: integer
+  required: true
+- name: rec_volumes_per_part
+  desc: 推荐每部卷数
+  type: integer
+  required: true
+- name: rec_acts_per_volume
+  desc: 推荐每卷幕数
+  type: integer
+  required: true
+- name: rec_chapters_per_act
+  desc: 推荐每幕章数
+  type: integer
+  required: true
+- name: total_recommended_acts
+  desc: 推荐总幕数
+  type: integer
+  required: true
+id: planning-quick-macro
+sort_order: 19

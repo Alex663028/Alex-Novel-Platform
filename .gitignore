@@ -1,0 +1,52 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+*.egg-info/
+dist/
+build/
+data/
+logs/
+*.log
+.pytest_cache/
+.mypy_cache/
+
+# Node/frontend
+node_modules/
+dist/
+dist-ssr/
+.vite/
+.turbo/
+*.local
+.eslintcache
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+
+# Tauri/Rust build artifacts
+src-tauri/target/
+out/
+frontend/src-tauri/target/
+
+# OS
+Thumbs.db
+Desktop.ini
+
+# Config/secrets
+config/*.local.*
+config/*.secret.*
+*.env
+.env
+.env.*
+
+# Locked/temp state
+aitext.lock
+
+# Local frontend deploy copy
+frontend_dist/
