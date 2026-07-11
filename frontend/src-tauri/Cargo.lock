@@ -30,7 +30,7 @@ dependencies = [
 
 [[package]]
 name = "alex-desktop"
-version = "4.6.0"
+version = "1.0.1"
 dependencies = [
  "dirs",
  "env_logger",

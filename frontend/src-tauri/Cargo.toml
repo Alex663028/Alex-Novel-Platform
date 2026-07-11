@@ -1,6 +1,6 @@
 [package]
 name = "alex-desktop"
-version = "4.6.0"
+version = "1.0.1"
 description = "Alex · AI 小说创作平台"
 authors = ["Alex Team"]
 edition = "2021"
