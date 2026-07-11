@@ -18,8 +18,8 @@
   <a href="https://www.python.org/"><img src="https://img.shields.io/badge/Python-3.14.x-3776AB?style=flat&logo=python&logoColor=white" alt="Python"></a>
   <a href="https://vuejs.org/"><img src="https://img.shields.io/badge/Vue-3.5-4FC08D?style=flat&logo=vuedotjs&logoColor=white" alt="Vue"></a>
   <a href="https://fastapi.tiangolo.com/"><img src="https://img.shields.io/badge/FastAPI-0.109%2B-009688?style=flat&logo=fastapi&logoColor=white" alt="FastAPI"></a>
-  <a href="https://github.com/shenminglinyi/Alex/releases"><img src="https://img.shields.io/github/v/release/shenminglinyi/Alex?style=flat&logo=github&color=6e40c9" alt="Release"></a>
-  <a href="https://github.com/shenminglinyi/Alex/stargazers"><img src="https://img.shields.io/github/stars/shenminglinyi/Alex?style=flat&logo=github" alt="Stars"></a>
+  <a href="https://github.com/Alex663028/Alex-Novel-Platform/releases"><img src="https://img.shields.io/github/v/release/Alex663028/Alex-Novel-Platform?style=flat&logo=github&color=6e40c9" alt="Release"></a>
+  <a href="https://github.com/Alex663028/Alex-Novel-Platform/stargazers"><img src="https://img.shields.io/github/stars/Alex663028/Alex-Novel-Platform?style=flat&logo=github" alt="Stars"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache%202.0%20%2B%20Commons%20Clause-D22128?style=flat&logo=apache&logoColor=white" alt="License"></a>
 </p>
 
@@ -185,7 +185,7 @@ Alex 内核（本仓库）
 
 ### 方式二：桌面安装版（Windows · Tauri）
 
-前往 [GitHub Releases](https://github.com/shenminglinyi/Alex/releases) 下载最新安装包，内含冻结后端，无需单独安装 Python。
+前往 [GitHub Releases](https://github.com/Alex663028/Alex-Novel-Platform/releases) 下载最新安装包，内含冻结后端，无需单独安装 Python。如 Releases 暂无安装包，可先使用源码方式启动，或等待维护者上传桌面安装包。
 
 构建流程见 [docs/BUILD_INSTALLER.md](docs/BUILD_INSTALLER.md)。
 
@@ -378,10 +378,10 @@ pytest tests/ --cov=. --cov-report=term-missing
 
 ## Star History
 
-<a href="https://www.star-history.com/?repos=shenminglinyi%2FAlex&type=date&legend=top-left">
+<a href="https://www.star-history.com/?repos=Alex663028%2FAlex-Novel-Platform&type=date&legend=top-left">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=shenminglinyi/Alex&type=date&theme=dark&legend=top-left" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=shenminglinyi/Alex&type=date&legend=top-left" />
-   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=shenminglinyi/Alex&type=date&legend=top-left" />
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=Alex663028/Alex-Novel-Platform&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=Alex663028/Alex-Novel-Platform&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=Alex663028/Alex-Novel-Platform&type=date&legend=top-left" />
  </picture>
 </a>
