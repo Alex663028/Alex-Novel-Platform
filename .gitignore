@@ -50,3 +50,4 @@ aitext.lock
 
 # Local frontend deploy copy
 frontend_dist/
+_verify_installer/

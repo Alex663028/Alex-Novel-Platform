@@ -276,9 +276,7 @@ async function handlePreview() {
       const result = await importApi.parsePreview(selectedFile.value)
       previewResult.value = result
     } else if (importMode.value === 'text' && textContent.value.trim()) {
-      const blob = new Blob([textContent.value], { type: 'text/markdown' })
-      const file = new File([blob], 'outline.md', { type: 'text/markdown' })
-      const result = await importApi.parsePreview(file)
+      const result = await importApi.parsePreview(textContent.value)
       previewResult.value = result
     }
   } catch (err: any) {

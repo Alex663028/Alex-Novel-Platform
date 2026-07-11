@@ -96,6 +96,11 @@ async def parse_preview(
 
     text = ""
     content_type = request.headers.get("content-type", "")
+    logger.info(
+        "[/import/parse-preview] content_type=%s, file=%s",
+        content_type,
+        getattr(file, "filename", None),
+    )
 
     # 兼容 multipart/form-data 和 application/json
     if "multipart/form-data" in content_type and file is not None:

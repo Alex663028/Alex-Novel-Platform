@@ -67,8 +67,13 @@ export const importApi = {
   /**
    * 解析预览（不保存）
    */
-  parsePreview: (file: File) => {
-    const fd = makeFormData(file)
+  parsePreview: (fileOrContent: File | string) => {
+    if (typeof fileOrContent === 'string') {
+      return apiClient.post<ImportPreviewResponse>('/import/parse-preview', {
+        content: fileOrContent,
+      })
+    }
+    const fd = makeFormData(fileOrContent)
     return apiClient.post<ImportPreviewResponse>('/import/parse-preview', fd, {
       headers: { 'Content-Type': undefined },
     })

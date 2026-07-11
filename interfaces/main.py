@@ -151,6 +151,9 @@ def _sync_daemon_compat_state() -> None:
     _daemon_stop_event = manager.stop_event
 
 
+_COMPAT_PREFIXES = ("novels/", "bible/", "chapters/", "autopilot/", "planning/", "anti-ai/")
+
+
 def _register_spa_fallback(created: FastAPI) -> None:
     @created.get("/{full_path:path}", include_in_schema=False)
     @created.post("/{full_path:path}", include_in_schema=False)
@@ -160,8 +163,7 @@ def _register_spa_fallback(created: FastAPI) -> None:
     async def spa_fallback(full_path: str, req: Request):
         """SPA fallback — 所有未匹配的路径返回 index.html"""
         # === 兼容旧 API 前缀：无前缀路径 307 跳转到 /api/v1 ===
-        _compat_prefixes = ("novels/", "bible/", "chapters/", "autopilot/", "planning/", "anti-ai/")
-        if any(full_path.startswith(p) for p in _compat_prefixes):
+        if any(full_path.startswith(p) for p in _COMPAT_PREFIXES):
             target = f"/api/v1/{full_path}"
             if req.url.query:
                 target += f"?{req.url.query}"

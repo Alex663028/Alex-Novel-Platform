@@ -85,7 +85,7 @@ impl BackendManager {
         }
     }
 
-    pub fn graceful_shutdown(&self, timeout: Duration) {
+    pub fn graceful_shutdown(&self, _timeout: Duration) {
         {
             let child = self.child.lock().unwrap();
             if let Some(ref c) = *child {
@@ -220,7 +220,8 @@ impl BackendManager {
 
     fn detect_project_root(handle: &AppHandle) -> PathBuf {
         if let Ok(resource_dir) = handle.path().resource_dir() {
-            if Self::find_frozen_backend_exe(handle).is_some() {
+            let has_frozen = Self::find_frozen_backend_exe(handle).is_some();
+            if has_frozen {
                 log::info!("📂 资源根目录（冻结后端）: {}", resource_dir.display());
                 return resource_dir;
             }
@@ -246,14 +247,14 @@ impl BackendManager {
         std::env::var("PLOTPILOT_BACKEND_PORT_START")
             .ok()
             .and_then(|raw| raw.parse::<u16>().ok())
-            .filter(|port| *port > 0 && *port < u16::MAX - BACKEND_PORT_SCAN_LIMIT)
+            .filter(|&port| (1024..=u16::MAX - BACKEND_PORT_SCAN_LIMIT).contains(&port))
             .unwrap_or(DEFAULT_BACKEND_PORT_START)
     }
 
     fn pick_free_port() -> Option<u16> {
         let start = Self::configured_port_start();
         (start..start + BACKEND_PORT_SCAN_LIMIT)
-            .find(|&port| std::net::TcpListener::bind(("127.0.0.1", port)).is_ok())
+            .find(|&port| std::net::TcpStream::connect(("127.0.0.1", port)).is_err())
     }
 
     fn python_version(path: &PathBuf) -> Option<String> {
