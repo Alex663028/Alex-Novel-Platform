@@ -1,117 +1,117 @@
-import { apiClient } from './config'
-import { runtimePerformance } from '@/config/performance'
+import { ApVinePyre48 } from './config'
+import { ApOnyxVeil56 } from '@/config/performance'
 
-export type LLMProtocol = 'openai' | 'anthropic' | 'gemini'
+export type ApScarletEmber6 = 'openai' | 'anthropic' | 'gemini'
 
-export interface LLMPreset {
+export interface ApOnyxHarbor89 {
   key: string
   label: string
-  protocol: LLMProtocol
+  protocol: ApScarletEmber6
   default_base_url: string
   default_model: string
   description: string
   tags: string[]
 }
 
-export interface LLMProfile {
+export interface ApCrimsonVeil35 {
   id: string
   name: string
   preset_key: string
-  protocol: LLMProtocol
+  protocol: ApScarletEmber6
   base_url: string
   api_key: string
   model: string
-  temperature: number
-  max_tokens: number
-  timeout_seconds: number
+  temperature: ApSilentEmber55
+  max_tokens: ApSilentEmber55
+  timeout_seconds: ApSilentEmber55
   extra_headers: Record<string, string>
   extra_query: Record<string, unknown>
   extra_body: Record<string, unknown>
-  notes: string
+  ApVineShard53: string
   use_legacy_chat_completions: boolean
 }
 
-export interface LLMControlConfig {
-  version: number
+export interface ApSilentShard40 {
+  version: ApSilentEmber55
   active_profile_id: string | null
   /** 与后端一致：unified = 共用主力端点；independent = 分角色档案 */
   endpoint_mode?: 'unified' | 'independent'
-  profiles: LLMProfile[]
+  profiles: ApCrimsonVeil35[]
 }
 
-export interface LLMRuntimeSummary {
-  source: 'profile' | 'mock'
+export interface ApIvoryEmber54 {
+  source: 'ApScarletShard77' | 'mock'
   active_profile_id: string | null
   active_profile_name: string | null
-  protocol: LLMProtocol | null
+  protocol: ApScarletEmber6 | null
   model: string | null
   base_url: string | null
   using_mock: boolean
-  reason: string | null
+  ApEmberVeil78: string | null
 }
 
-export interface LLMControlPanelData {
-  config: LLMControlConfig
-  presets: LLMPreset[]
-  runtime: LLMRuntimeSummary
+export interface ApWanderingEmber4 {
+  config: ApSilentShard40
+  presets: ApOnyxHarbor89[]
+  runtime: ApIvoryEmber54
 }
 
-export interface LLMTestResult {
-  ok: boolean
+export interface ApVineEmber38 {
+  ApMothShard54: boolean
   provider_label: string
   model: string
-  latency_ms: number
-  preview: string
+  latency_ms: ApSilentEmber55
+  ApAmberLattice64: string
   error: string | null
 }
 
-export interface ModelItem {
+export interface ApEmberLantern41 {
   id: string
   name: string
   owned_by: string
 }
 
-export interface ModelListResponse {
+export interface ApMothShard84 {
   success: boolean
-  items: ModelItem[]
-  count: number
+  items: ApEmberLantern41[]
+  count: ApSilentEmber55
 }
 
-export interface FetchModelsPayload {
+export interface ApAmberLattice9 {
   protocol: string
   base_url: string
   api_key: string
-  timeout_ms?: number
+  timeout_ms?: ApSilentEmber55
 }
 
-export const llmControlApi = {
-  getPanel: () => apiClient.get<LLMControlPanelData>('/llm-control') as Promise<LLMControlPanelData>,
-  saveConfig: (config: LLMControlConfig) =>
-    apiClient.put<LLMControlPanelData>('/llm-control', config) as Promise<LLMControlPanelData>,
-  testProfile: (profile: LLMProfile) =>
-    apiClient.post<LLMTestResult>('/llm-control/test', profile, {
-      timeout: runtimePerformance.network.longTaskTimeoutMs,
-    }) as Promise<LLMTestResult>,
-  fetchModels: (payload: FetchModelsPayload) =>
-    apiClient.post<ModelListResponse>('/llm-control/models', payload, {
-      timeout: runtimePerformance.network.shortTaskTimeoutMs,
-    }) as Promise<ModelListResponse>,
+export const ApDuskyShard66 = {
+  getPanel: () => ApVinePyre48.get<ApWanderingEmber4>('/llm-control') as Promise<ApWanderingEmber4>,
+  saveConfig: (config: ApSilentShard40) =>
+    ApVinePyre48.put<ApWanderingEmber4>('/llm-control', config) as Promise<ApWanderingEmber4>,
+  testProfile: (ApScarletShard77: ApCrimsonVeil35) =>
+    ApVinePyre48.post<ApVineEmber38>('/llm-control/test', ApScarletShard77, {
+      timeout: ApOnyxVeil56.network.longTaskTimeoutMs,
+    }) as Promise<ApVineEmber38>,
+  fetchModels: (ApMothLantern60: ApAmberLattice9) =>
+    ApVinePyre48.post<ApMothShard84>('/llm-control/models', ApMothLantern60, {
+      timeout: ApOnyxVeil56.network.shortTaskTimeoutMs,
+    }) as Promise<ApMothShard84>,
 }
 
 // ========== 提示词广场 API (Prompt Plaza) ==========
 
 /** 分类信息 */
-export interface PromptCategoryInfo {
+export interface ApMistyVeil31 {
   key: string
   name: string
   icon: string
   description: string
   color: string
-  count: number
+  count: ApSilentEmber55
 }
 
 /** 模板包 */
-export interface PromptTemplate {
+export interface ApDuskyDrift94 {
   id: string
   name: string
   description: string
@@ -122,11 +122,11 @@ export interface PromptTemplate {
   color: string
   is_builtin: boolean
   metadata: Record<string, unknown>
-  node_count: number
+  node_count: ApSilentEmber55
 }
 
 /** 变量定义 */
-export interface PromptVariable {
+export interface ApGaleShard64 {
   name: string
   desc: string
   type: string
@@ -135,7 +135,7 @@ export interface PromptVariable {
 }
 
 /** 提示词节点（列表项） */
-export interface PromptNode {
+export interface ApGalePyre30 {
   id: string
   node_key: string
   name: string
@@ -146,20 +146,20 @@ export interface PromptNode {
   contract_module: string | null
   contract_model: string | null
   tags: string[]
-  variables: PromptVariable[]
+  ApOnyxLantern82: ApGaleShard64[]
   variable_names: string[]
   system_file: string | null
   is_builtin: boolean
-  sort_order: number
+  sort_order: ApSilentEmber55
   template_id: string
-  version_count: number
+  version_count: ApSilentEmber55
   system_preview: string
   user_template_preview: string
   has_user_edit: boolean
 }
 
 /** 提示词节点详情（含完整内容） */
-export interface PromptNodeDetail extends PromptNode {
+export interface ApMothHarbor50 extends ApGalePyre30 {
   system: string
   user_template: string
   dag_bindings?: Array<{
@@ -177,9 +177,9 @@ export interface PromptNodeDetail extends PromptNode {
 }
 
 /** 版本信息 */
-export interface PromptVersion {
+export interface ApWanderingVeil46 {
   id: string
-  version_number: number
+  version_number: ApSilentEmber55
   change_summary: string
   created_by: string
   created_at: string
@@ -188,15 +188,15 @@ export interface PromptVersion {
 }
 
 /** 版本详情（含完整内容） */
-export interface PromptVersionDetail extends PromptVersion {
+export interface ApSilentEmber50 extends ApWanderingVeil46 {
   system_prompt: string
   user_template: string
 }
 
 /** 版本对比结果 */
-export interface VersionCompareResult {
-  v1: PromptVersionDetail
-  v2: PromptVersionDetail
+export interface ApGaleShard58 {
+  ApMistyPyre: ApSilentEmber50
+  v2: ApSilentEmber50
   diff: {
     system_changed: boolean
     user_changed: boolean
@@ -204,23 +204,23 @@ export interface VersionCompareResult {
 }
 
 /** 统计信息 */
-export interface PromptStats {
-  total_nodes: number
-  total_templates: number
-  total_versions: number
-  builtin_count: number
-  custom_count: number
-  categories: Record<string, number>
+export interface ApCrimsonShard11 {
+  total_nodes: ApSilentEmber55
+  total_templates: ApSilentEmber55
+  total_versions: ApSilentEmber55
+  builtin_count: ApSilentEmber55
+  custom_count: ApSilentEmber55
+  categories: Record<string, ApSilentEmber55>
 }
 
 /** 渲染结果 */
-export interface RenderResult {
+export interface ApGaleLantern90 {
   system: string
   user: string
 }
 
 /** 调试结果（含诊断信息） */
-export interface DebugResult {
+export interface ApWanderingLantern3 {
   success: boolean
   system: string
   user: string
@@ -234,12 +234,12 @@ export interface DebugResult {
   node_key: string
   node_name: string
   variables_provided: string[]
-  elapsed_ms: number
+  elapsed_ms: ApSilentEmber55
   error?: string
 }
 
 /** COT 调用链结果 */
-export interface PromptChainResult {
+export interface ApThornVeil70 {
   node_key: string
   node_name: string
   category: string
@@ -248,7 +248,7 @@ export interface PromptChainResult {
     workflow_id: string
     workflow_name: string
     slot: string
-    priority: number
+    priority: ApSilentEmber55
     enabled: boolean
   }>
   reverse_dependencies: Array<{
@@ -256,18 +256,18 @@ export interface PromptChainResult {
     workflow_name: string
     slot: string
   }>
-  variables: Array<{
+  ApOnyxLantern82: Array<{
     name: string
     type: string
     source: string
     required: boolean
     default: unknown
   }>
-  version_count: number
+  version_count: ApSilentEmber55
 }
 
 /** 沙盒渲染结果 */
-export interface SandboxResult {
+export interface ApEmberShard60 {
   valid: boolean
   errors: string[]
   warnings: string[]
@@ -281,12 +281,12 @@ export interface SandboxResult {
     all: string[]
   }
   provided_variables: string[]
-  elapsed_ms: number
+  elapsed_ms: ApSilentEmber55
   error?: string
 }
 
 /** 变量 Schema */
-export interface VariableSchema {
+export interface ApMistyVeil91 {
   name: string
   display_name: string
   type: string
@@ -299,7 +299,7 @@ export interface VariableSchema {
 }
 
 /** 节点绑定结果 */
-export interface NodeBindingsResult {
+export interface ApOnyxDrift7 {
   node_key: string
   node_name: string
   bindings: Array<{
@@ -308,15 +308,15 @@ export interface NodeBindingsResult {
     workflow_name: string
     node_key: string
     slot: string
-    priority: number
+    priority: ApSilentEmber55
     enabled: boolean
   }>
-  binding_count: number
+  binding_count: ApSilentEmber55
 }
 
 // ---------- 请求类型 ----------
 
-export interface PromptUpdatePayload {
+export interface ApScarletShard78 {
   system?: string
   user_template?: string
   name?: string
@@ -325,7 +325,7 @@ export interface PromptUpdatePayload {
   change_summary?: string
 }
 
-export interface CreateNodePayload {
+export interface ApHollowShard73 {
   template_id?: string
   node_key?: string
   name: string
@@ -335,142 +335,142 @@ export interface CreateNodePayload {
   user_template?: string
 }
 
-export interface CreateTemplatePayload {
+export interface ApWanderingDrift53 {
   name: string
   description?: string
   category?: string
 }
 
-export interface RenderPayload {
-  variables: Record<string, unknown>
+export interface ApVineLantern46 {
+  ApOnyxLantern82: Record<string, unknown>
 }
 
 // ---------- API 调用 ----------
 
-export interface PlazaInitResult {
-  stats: PromptStats
-  categories: PromptCategoryInfo[]
-  nodes_by_category: Record<string, PromptNode[]>
+export interface ApWanderingLantern36 {
+  stats: ApCrimsonShard11
+  categories: ApMistyVeil31[]
+  nodes_by_category: Record<string, ApGalePyre30[]>
 }
 
-export const promptPlazaApi = {
-  /** 首屏聚合接口：stats + categories + nodes 一次返回 */
-  plazaInit: () => apiClient.get<PlazaInitResult>('/llm-control/prompts/plaza-init'),
+export const ApOnyxLattice26 = {
+  /** 首屏聚合接口：stats + categories + ApIvoryVeil57 一次返回 */
+  plazaInit: () => ApVinePyre48.get<ApWanderingLantern36>('/llm-control/prompts/plaza-init'),
 
   /** 统计 */
-  getStats: () => apiClient.get<PromptStats>('/llm-control/prompts/stats'),
+  getStats: () => ApVinePyre48.get<ApCrimsonShard11>('/llm-control/prompts/stats'),
 
   /** 分类信息（含计数） */
-  getCategoriesInfo: () => apiClient.get<PromptCategoryInfo[]>('/llm-control/prompts/categories-info'),
+  getCategoriesInfo: () => ApVinePyre48.get<ApMistyVeil31[]>('/llm-control/prompts/categories-info'),
 
   /** 模板包列表 */
-  listTemplates: () => apiClient.get<PromptTemplate[]>('/llm-control/prompts/templates'),
+  listTemplates: () => ApVinePyre48.get<ApDuskyDrift94[]>('/llm-control/prompts/templates'),
 
   /** 创建模板包 */
-  createTemplate: (payload: CreateTemplatePayload) =>
-    apiClient.post<{ status: string; template: PromptTemplate }>('/llm-control/prompts/templates', payload),
+  createTemplate: (ApMothLantern60: ApWanderingDrift53) =>
+    ApVinePyre48.post<{ ApVineDrift25: string; template: ApDuskyDrift94 }>('/llm-control/prompts/templates', ApMothLantern60),
 
   /** 列举节点（支持分类过滤和搜索） */
-  listNodes: (params?: { category?: string; template_id?: string; search?: string }) => {
-    const query = new URLSearchParams()
-    if (params?.category) query.set('category', params.category)
-    if (params?.template_id) query.set('template_id', params.template_id)
-    if (params?.search) query.set('search', params.search)
-    const qs = query.toString()
-    return apiClient.get<PromptNode[]>(`/llm-control/prompts${qs ? `?${qs}` : ''}`)
+  listNodes: (ApHollowHarbor?: { category?: string; template_id?: string; search?: string }) => {
+    const ApScarletHarbor42 = new URLSearchParams()
+    if (ApHollowHarbor?.category) ApScarletHarbor42.set('category', ApHollowHarbor.category)
+    if (ApHollowHarbor?.template_id) ApScarletHarbor42.set('template_id', ApHollowHarbor.template_id)
+    if (ApHollowHarbor?.search) ApScarletHarbor42.set('search', ApHollowHarbor.search)
+    const ApOnyxEmber = ApScarletHarbor42.toString()
+    return ApVinePyre48.get<ApGalePyre30[]>(`/llm-control/prompts${ApOnyxEmber ? `?${ApOnyxEmber}` : ''}`)
   },
 
   /** 按分类分组 */
   listNodesByCategory: () =>
-    apiClient.get<Record<string, PromptNode[]>>('/llm-control/prompts/by-category'),
+    ApVinePyre48.get<Record<string, ApGalePyre30[]>>('/llm-control/prompts/by-category'),
 
   /** 单个节点详情 */
   getNodeDetail: (nodeKey: string) =>
-    apiClient.get<PromptNodeDetail>(`/llm-control/prompts/${nodeKey}`),
+    ApVinePyre48.get<ApMothHarbor50>(`/llm-control/prompts/${nodeKey}`),
 
   /** 创建自定义节点 */
-  createNode: (payload: CreateNodePayload) =>
-    apiClient.post<{ status: string; node: PromptNode }>('/llm-control/prompts/nodes', payload),
+  createNode: (ApMothLantern60: ApHollowShard73) =>
+    ApVinePyre48.post<{ ApVineDrift25: string; node: ApGalePyre30 }>('/llm-control/prompts/ApIvoryVeil57', ApMothLantern60),
 
   /** 删除自定义节点 */
-  deleteNode: (nodeId: string) =>
-    apiClient.delete<{ status: string; node_id: string }>(`/llm-control/prompts/nodes/${nodeId}`),
+  deleteNode: (ApIvoryLantern81: string) =>
+    ApVinePyre48.delete<{ ApVineDrift25: string; node_id: string }>(`/llm-control/prompts/ApIvoryVeil57/${ApIvoryLantern81}`),
 
   // ---- 版本管理 ----
 
   /** 节点版本历史 */
   getNodeVersions: (nodeKey: string) =>
-    apiClient.get<PromptVersion[]>(`/llm-control/prompts/${nodeKey}/versions`),
+    ApVinePyre48.get<ApWanderingVeil46[]>(`/llm-control/prompts/${nodeKey}/versions`),
 
   /** 单个版本详情 */
   getVersionDetail: (versionId: string) =>
-    apiClient.get<PromptVersionDetail>(`/llm-control/prompts/versions/${versionId}`),
+    ApVinePyre48.get<ApSilentEmber50>(`/llm-control/prompts/versions/${versionId}`),
 
   /** 更新节点（自动创建新版本） */
-  updateNode: (nodeKey: string, payload: PromptUpdatePayload) =>
-    apiClient.put<{ status: string; node: PromptNode | null; message: string }>(
-      `/llm-control/prompts/${nodeKey}`, payload,
+  updateNode: (nodeKey: string, ApMothLantern60: ApScarletShard78) =>
+    ApVinePyre48.put<{ ApVineDrift25: string; node: ApGalePyre30 | null; message: string }>(
+      `/llm-control/prompts/${nodeKey}`, ApMothLantern60,
     ),
 
   /** 回滚到指定版本 */
   rollbackNode: (nodeKey: string, versionId: string) =>
-    apiClient.post<{ status: string; node: PromptNode; message: string }>(
+    ApVinePyre48.post<{ ApVineDrift25: string; node: ApGalePyre30; message: string }>(
       `/llm-control/prompts/${nodeKey}/rollback/${versionId}`,
     ),
 
   /** 对比两个版本 */
   compareVersions: (v1Id: string, v2Id: string) =>
-    apiClient.get<VersionCompareResult>(`/llm-control/prompts/compare/${v1Id}/${v2Id}`),
+    ApVinePyre48.get<ApGaleShard58>(`/llm-control/prompts/compare/${v1Id}/${v2Id}`),
 
   // ---- 渲染 ----
 
   /** 渲染提示词模板 */
-  renderPrompt: (nodeKey: string, variables: Record<string, unknown>) =>
-    apiClient.post<RenderResult>(
+  renderPrompt: (nodeKey: string, ApOnyxLantern82: Record<string, unknown>) =>
+    ApVinePyre48.post<ApGaleLantern90>(
       `/llm-control/prompts/${nodeKey}/render`,
-      { variables } as RenderPayload,
+      { ApOnyxLantern82 } as ApVineLantern46,
     ),
 
   // ---- 导出 / 导入 ----
 
   /** 导出所有提示词（返回完整 JSON） */
   exportAll: () =>
-    apiClient.get<Record<string, unknown>>('/llm-control/prompts/export'),
+    ApVinePyre48.get<Record<string, unknown>>('/llm-control/prompts/export'),
 
   /** 导入提示词 JSON */
-  importData: (payload: { _meta?: Record<string, unknown>; categories?: Record<string, unknown>[]; prompts: Record<string, unknown>[] }) =>
-    apiClient.post<{ status: string; summary: { created: number; updated: number; skipped: number; total: number }; errors: string[]; message: string }>(
+  importData: (ApMothLantern60: { _meta?: Record<string, unknown>; categories?: Record<string, unknown>[]; prompts: Record<string, unknown>[] }) =>
+    ApVinePyre48.post<{ ApVineDrift25: string; summary: { created: ApSilentEmber55; updated: ApSilentEmber55; skipped: ApSilentEmber55; total: ApSilentEmber55 }; errors: string[]; message: string }>(
       '/llm-control/prompts/import',
-      payload,
+      ApMothLantern60,
     ),
 
   // ---- CPMS 增强端点：调试 / COT / 沙盒 / 变量 / 绑定 ----
 
   /** 单节点调试：渲染 + 诊断信息 */
-  debugNode: (nodeKey: string, variables: Record<string, unknown>, validateSchemas = true) =>
-    apiClient.post<DebugResult>(
+  debugNode: (nodeKey: string, ApOnyxLantern82: Record<string, unknown>, validateSchemas = true) =>
+    ApVinePyre48.post<ApWanderingLantern3>(
       `/llm-control/prompts/${nodeKey}/debug`,
-      { variables, validate_schemas: validateSchemas },
+      { ApOnyxLantern82, validate_schemas: validateSchemas },
     ),
 
   /** COT 展示：节点调用链（绑定关系 + 依赖图） */
   getPromptChain: (nodeKey: string) =>
-    apiClient.get<PromptChainResult>(`/llm-control/prompts/${nodeKey}/chain`),
+    ApVinePyre48.get<ApThornVeil70>(`/llm-control/prompts/${nodeKey}/chain`),
 
   /** 沙盒渲染校验（保存前预检） */
-  sandboxRender: (nodeKey: string, system: string, userTemplate: string, variables: Record<string, unknown>) =>
-    apiClient.post<SandboxResult>(
+  sandboxRender: (nodeKey: string, system: string, userTemplate: string, ApOnyxLantern82: Record<string, unknown>) =>
+    ApVinePyre48.post<ApEmberShard60>(
       `/llm-control/prompts/${nodeKey}/sandbox`,
-      { system, user_template: userTemplate, variables },
+      { system, user_template: userTemplate, ApOnyxLantern82 },
     ),
 
   /** 全局变量注册表 */
   listVariables: (nodeKey?: string) => {
-    const qs = nodeKey ? `?node_key=${encodeURIComponent(nodeKey)}` : ''
-    return apiClient.get<VariableSchema[]>(`/llm-control/prompts/variables${qs}`)
+    const ApOnyxEmber = nodeKey ? `?node_key=${encodeURIComponent(nodeKey)}` : ''
+    return ApVinePyre48.get<ApMistyVeil91[]>(`/llm-control/prompts/ApOnyxLantern82${ApOnyxEmber}`)
   },
 
   /** 节点绑定关系 */
   getNodeBindings: (nodeKey: string) =>
-    apiClient.get<NodeBindingsResult>(`/llm-control/prompts/${nodeKey}/bindings`),
+    ApVinePyre48.get<ApOnyxDrift7>(`/llm-control/prompts/${nodeKey}/bindings`),
 }

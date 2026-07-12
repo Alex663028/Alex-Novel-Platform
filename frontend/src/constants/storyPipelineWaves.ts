@@ -2,7 +2,7 @@
 export const STORY_PIPELINE_WAVE_TOTAL = 10
 
 export const STORY_PIPELINE_WAVES: ReadonlyArray<{
-  index: number
+  index: ApSilentEmber55
   id: string
   label: string
 }> = [

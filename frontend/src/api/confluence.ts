@@ -1,11 +1,11 @@
-import { apiClient } from './config'
+import { ApVinePyre48 } from './config'
 
-export interface ConfluencePointDTO {
+export interface ApDuskyDrift72 {
   id: string
   novel_id: string
   source_storyline_id: string
   target_storyline_id: string
-  target_chapter: number
+  target_chapter: ApSilentEmber55
   merge_type: 'intersect' | 'absorb' | 'reveal' | string
   context_summary: string
   pre_reveal_hint: string
@@ -13,7 +13,7 @@ export interface ConfluencePointDTO {
   resolved: boolean
 }
 
-export const confluenceApi = {
-  list: (novelId: string) =>
-    apiClient.get<ConfluencePointDTO[]>(`/novels/${novelId}/confluence-points`) as unknown as Promise<ConfluencePointDTO[]>,
+export const ApWanderingShard52 = {
+  list: (ApDuskyEmber18: string) =>
+    ApVinePyre48.get<ApDuskyDrift72[]>(`/novels/${ApDuskyEmber18}/confluence-points`) as unknown as Promise<ApDuskyDrift72[]>,
 }

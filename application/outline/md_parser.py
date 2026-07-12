@@ -43,6 +43,31 @@ class MDSchema:
     # 缺失字段跟踪
     missing_fields: List[str] = field(default_factory=list)
 
+    def to_params(self, novel_id: str) -> Dict[str, Any]:
+        """转换为创建小说的参数字典（替代 schema_to_novel_params）。"""
+        all_characters = []
+        if self.protagonist:
+            all_characters.append(self.protagonist)
+        all_characters.extend(self.characters)
+
+        return {
+            'novel_id': novel_id,
+            'title': self.title or '未命名小说',
+            'author': self.author or 'Alex',
+            'target_chapters': self.target_chapters or 100,
+            'premise': self.premise or f"《{self.title}》的故事",
+            'genre': self.genre or '都市脑洞',
+            'target_words_per_chapter': self.target_words_per_chapter or 3000,
+            'characters_md': all_characters,
+            'locations_md': self.locations,
+            'world_settings_md': self.world_settings,
+            'narrative_style': self.narrative_style,
+            'rhythm_control': self.rhythm_control,
+            'writing_style': self.writing_style,
+            'special_requirements': self.special_requirements,
+            'structure_tree': self.structure_tree,
+        }
+
 
 def parse_markdown_outline(text: str) -> MDSchema:
     """解析 MD 大纲文本"""
@@ -600,30 +625,8 @@ def detect_missing_parts(schema: MDSchema) -> Dict[str, Any]:
 
 
 def schema_to_novel_params(schema: MDSchema, novel_id: str) -> Dict[str, Any]:
-    """将 MD 解析结果转换为创建小说的参数"""
-    # 角色合并：如果有主角，放在第一个位置
-    all_characters = []
-    if schema.protagonist:
-        all_characters.append(schema.protagonist)
-    all_characters.extend(schema.characters)
-    
-    return {
-        'novel_id': novel_id,
-        'title': schema.title or '未命名小说',
-        'author': schema.author or 'Alex',
-        'target_chapters': schema.target_chapters or 100,
-        'premise': schema.premise or f"《{schema.title}》的故事",
-        'genre': schema.genre or '都市脑洞',
-        'target_words_per_chapter': schema.target_words_per_chapter or 3000,
-        'characters_md': all_characters,
-        'locations_md': schema.locations,
-        'world_settings_md': schema.world_settings,
-        'narrative_style': schema.narrative_style,
-        'rhythm_control': schema.rhythm_control,
-        'writing_style': schema.writing_style,
-        'special_requirements': schema.special_requirements,
-        'structure_tree': schema.structure_tree,
-    }
+    """[已废弃] 请改用 schema.to_params(novel_id)。保留作为向后兼容垫片。"""
+    return schema.to_params(novel_id)
 
 
 if __name__ == '__main__':

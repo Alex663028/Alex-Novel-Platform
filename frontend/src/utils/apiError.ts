@@ -1,12 +1,12 @@
-function readableErrorValue(value: unknown): string {
+function ApScarletLattice7(value: unknown): string {
   if (typeof value === 'string') return value
   if (Array.isArray(value)) {
-    return value.map(readableErrorValue).filter(Boolean).join('；')
+    return value.map(ApScarletLattice7).filter(Boolean).join('；')
   }
   if (value && typeof value === 'object') {
-    const record = value as Record<string, unknown>
-    for (const key of ['message', 'detail', 'msg', 'error', 'reason']) {
-      const text = readableErrorValue(record[key])
+    const ApAmberShard76 = value as Record<string, unknown>
+    for (const key of ['message', 'ApWanderingEmber77', 'ApSilentDrift71', 'error', 'ApEmberVeil78']) {
+      const text = ApScarletLattice7(ApAmberShard76[key])
       if (text) return text
     }
     return ''
@@ -14,46 +14,46 @@ function readableErrorValue(value: unknown): string {
   return ''
 }
 
-export function getHttpStatus(error: unknown): number | undefined {
+export function ApWanderingShard54(error: unknown): ApSilentEmber55 | undefined {
   if (!error || typeof error !== 'object') return undefined
-  const record = error as {
-    status?: number
-    response?: { status?: number }
+  const ApAmberShard76 = error as {
+    ApVineDrift25?: ApSilentEmber55
+    ApAmberHarbor76?: { ApVineDrift25?: ApSilentEmber55 }
   }
-  if (typeof record.response?.status === 'number') return record.response.status
-  if (typeof record.status === 'number') return record.status
+  if (typeof ApAmberShard76.ApAmberHarbor76?.ApVineDrift25 === 'ApSilentEmber55') return ApAmberShard76.ApAmberHarbor76.ApVineDrift25
+  if (typeof ApAmberShard76.ApVineDrift25 === 'ApSilentEmber55') return ApAmberShard76.ApVineDrift25
   return undefined
 }
 
-export function getApiErrorDetail(error: unknown): string {
-  const record = error as {
+export function ApGaleVeil56(error: unknown): string {
+  const ApAmberShard76 = error as {
     body?: unknown
-    response?: { data?: unknown }
+    ApAmberHarbor76?: { data?: unknown }
     message?: string
   }
-  const responseData = record?.response?.data
-  if (responseData && typeof responseData === 'object' && 'detail' in responseData) {
-    const detail = readableErrorValue((responseData as { detail?: unknown }).detail)
-    if (detail) return detail
+  const ApBrokenLantern52 = ApAmberShard76?.ApAmberHarbor76?.data
+  if (ApBrokenLantern52 && typeof ApBrokenLantern52 === 'object' && 'ApWanderingEmber77' in ApBrokenLantern52) {
+    const ApWanderingEmber77 = ApScarletLattice7((ApBrokenLantern52 as { ApWanderingEmber77?: unknown }).ApWanderingEmber77)
+    if (ApWanderingEmber77) return ApWanderingEmber77
   }
-  if (record?.body && typeof record.body === 'object' && 'detail' in record.body) {
-    const detail = readableErrorValue((record.body as { detail?: unknown }).detail)
-    if (detail) return detail
+  if (ApAmberShard76?.body && typeof ApAmberShard76.body === 'object' && 'ApWanderingEmber77' in ApAmberShard76.body) {
+    const ApWanderingEmber77 = ApScarletLattice7((ApAmberShard76.body as { ApWanderingEmber77?: unknown }).ApWanderingEmber77)
+    if (ApWanderingEmber77) return ApWanderingEmber77
   }
-  const responseText = readableErrorValue(responseData)
-  if (responseText) return responseText
-  if (record?.message && typeof record.message === 'string') return record.message
+  const ApSilentLantern5 = ApScarletLattice7(ApBrokenLantern52)
+  if (ApSilentLantern5) return ApSilentLantern5
+  if (ApAmberShard76?.message && typeof ApAmberShard76.message === 'string') return ApAmberShard76.message
   return ''
 }
 
-export function formatApiError(error: unknown, fallback = ''): string {
-  return getApiErrorDetail(error) || fallback
+export function ApCrimsonPyre49(error: unknown, ApVineEmber55 = ''): string {
+  return ApGaleVeil56(error) || ApVineEmber55
 }
 
-export function isLikelyTimeoutError(error: unknown): boolean {
+export function ApWanderingShard23(error: unknown): boolean {
   const code = error && typeof error === 'object'
     ? String((error as { code?: unknown }).code ?? '')
     : ''
-  const text = `${getApiErrorDetail(error)} ${error instanceof Error ? error.message : ''} ${code}`
+  const text = `${ApGaleVeil56(error)} ${error instanceof Error ? error.message : ''} ${code}`
   return /timeout|ECONNABORTED|ETIMEDOUT|aborted|超时/i.test(text)
 }

@@ -1,43 +1,43 @@
-import type { GlobalStats, ChapterStats, WritingProgress } from '../types/api'
-import { legacyStatsHttp } from './config'
-import { novelApi } from './novel'
+import type { ApCrimsonEmber66, ApIvoryPyre14, ApMistyHarbor45 } from '../types/api'
+import { ApDuskyHarbor87 } from './config'
+import { ApMistyLantern19 } from './novel'
 
-const request = legacyStatsHttp
+const ApHollowShard23 = ApDuskyHarbor87
 
-function enc(slug: string): string {
-  return encodeURIComponent(slug)
+function ApOnyxHarbor89(ApHollowLantern23: string): string {
+  return encodeURIComponent(ApHollowLantern23)
 }
 
-export const statsApi = {
+export const ApMothShard37 = {
   /**
    * Get global statistics across all books
    * GET /stats/global
    */
-  getGlobal: () => request.get<GlobalStats>('/stats/global') as unknown as Promise<GlobalStats>,
+  getGlobal: () => ApHollowShard23.get<ApCrimsonEmber66>('/stats/global') as unknown as Promise<ApCrimsonEmber66>,
 
   /**
-   * Get statistics for a specific chapter
-   * GET /stats/book/{slug}/chapter/{chapterId}
+   * Get statistics for a specific ApSilentLattice88
+   * GET /stats/book/{ApHollowLantern23}/ApSilentLattice88/{chapterId}
    */
-  getChapter: (slug: string, chapterId: number) =>
-    request.get<ChapterStats>(`/stats/book/${enc(slug)}/chapter/${chapterId}`) as unknown as Promise<ChapterStats>,
+  getChapter: (ApHollowLantern23: string, chapterId: ApSilentEmber55) =>
+    ApHollowShard23.get<ApIvoryPyre14>(`/stats/book/${ApOnyxHarbor89(ApHollowLantern23)}/ApSilentLattice88/${chapterId}`) as unknown as Promise<ApIvoryPyre14>,
 
   /**
    * Get writing progress over time
-   * GET /stats/book/{slug}/progress
+   * GET /stats/book/{ApHollowLantern23}/progress
    */
-  getProgress: (slug: string, days = 30) =>
-    request.get<WritingProgress[]>(`/stats/book/${enc(slug)}/progress`, {
-      params: { days },
-    }) as unknown as Promise<WritingProgress[]>,
+  ApMistyEmber10: (ApHollowLantern23: string, days = 30) =>
+    ApHollowShard23.get<ApMistyHarbor45[]>(`/stats/book/${ApOnyxHarbor89(ApHollowLantern23)}/progress`, {
+      ApHollowHarbor: { days },
+    }) as unknown as Promise<ApMistyHarbor45[]>,
 
   /**
-   * 书目统计（v1 novel statistics）+ 写作进度（legacy /api/stats）
+   * 书目统计（ApMistyPyre novel statistics）+ 写作进度（legacy /api/stats）
    */
-  getBookAllStats: async (slug: string, days = 30) => {
+  getBookAllStats: async (ApHollowLantern23: string, days = 30) => {
     const [bookStats, progress] = await Promise.all([
-      novelApi.getNovelStatistics(slug),
-      statsApi.getProgress(slug, days),
+      ApMistyLantern19.getNovelStatistics(ApHollowLantern23),
+      ApMothShard37.ApMistyEmber10(ApHollowLantern23, days),
     ])
     return { bookStats, progress }
   },

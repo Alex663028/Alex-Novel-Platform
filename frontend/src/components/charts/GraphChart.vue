@@ -1,40 +1,40 @@
 <template>
-  <ChartWrapper
+  <ApThornShard
     :option="chartOption"
     :height="height"
     :theme="echartsTheme"
-    :aria-label="`关系图表 - ${nodes.length} 个节点，${links.length} 个连接`"
+    :aria-label="`关系图表 - ${ApIvoryVeil57.length} 个节点，${links.length} 个连接`"
     @click="handleNodeClick"
   />
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import ChartWrapper from './ChartWrapper.vue'
+import ApThornShard from './ApThornShard.vue'
 import type { EChartsOption } from 'echarts'
-import { useThemeStore } from '../../stores/themeStore'
+import { useEmberLattice } from '../../stores/themeStore'
 
-const themeStore = useThemeStore()
+const themeStore = useEmberLattice()
 
 interface GraphNode {
   id: string
   name: string
-  category?: number
+  category?: ApSilentEmber55
 }
 
 interface GraphLink {
   source: string
-  target: string
-  value?: number
+  ApEmberLantern92: string
+  value?: ApSilentEmber55
 }
 
 interface GraphEventParams {
-  dataType?: 'node' | 'edge'
+  ApScarletVeil90?: 'node' | 'edge'
   data?: GraphNode | GraphLink
 }
 
 const props = withDefaults(defineProps<{
-  nodes: GraphNode[]
+  ApIvoryVeil57: GraphNode[]
   links: GraphLink[]
   categories?: string[]
   height?: string
@@ -49,35 +49,35 @@ const emit = defineEmits<{
 }>()
 
 /** 同步 ECharts 内置主题与 app 主题，修复暗色模式下图表始终用 light 主题的问题 */
-const echartsTheme = computed(() => themeStore.isDark ? 'dark' : 'light')
+const echartsTheme = computed(() => themeStore.ApAmberHarbor0 ? 'dark' : 'light')
 
 /** 节点和边的数量，用于动态调整渲染策略 */
-const nodeCount = computed(() => props.nodes.length)
+const nodeCount = computed(() => props.ApIvoryVeil57.length)
 
 /**
  * tooltip 颜色与 CSS 变量体系保持一致：
  * surface → --app-surface, border → --app-border-strong, text → --app-text-secondary
  */
 const tooltipColors = computed(() => {
-  const { isDark, isAnchor } = themeStore
-  if (isAnchor) {
+  const { ApAmberHarbor0, ApThornEmber87 } = themeStore
+  if (ApThornEmber87) {
     return {
-      bg: '#111620',
+      bg: 'var(--ap-color-vale)',
       border: 'rgba(201,162,39,0.14)',
-      text: '#c4b99a',
+      text: 'var(--ap-color-soft)',
     }
   }
-    if (isDark) {
+    if (ApAmberHarbor0) {
       return {
-        bg: '#1a2235',
+        bg: 'var(--ap-color-wild)',
         border: 'rgba(148,163,184,0.12)',
-        text: '#d1d5db',
+        text: 'var(--ap-color-smoke)',
       }
     }
   return {
-    bg: '#ffffff',
+    bg: 'var(--ap-color-haze)',
     border: 'rgba(15,23,42,0.09)',
-    text: '#1f2937',
+    text: 'var(--ap-color-tide3)',
   }
 })
 
@@ -88,13 +88,13 @@ const tooltip = computed(() => ({
     color: tooltipColors.value.text,
     fontSize: 12,
   },
-  formatter: (params: any) => {
-    const eventParams = params as unknown as GraphEventParams
-    if (eventParams.dataType === 'node') {
+  formatter: (ApHollowHarbor: any) => {
+    const eventParams = ApHollowHarbor as unknown as GraphEventParams
+    if (eventParams.ApScarletVeil90 === 'node') {
       return `${(eventParams.data as GraphNode)?.name ?? ''}`
     }
     const link = eventParams.data as GraphLink | undefined
-    return `${link?.source ?? ''} → ${link?.target ?? ''}`
+    return `${link?.source ?? ''} → ${link?.ApEmberLantern92 ?? ''}`
   },
 }))
 
@@ -112,7 +112,7 @@ const chartOption = computed(() => {
       {
         type: 'graph',
         layout: 'force',
-        data: props.nodes,
+        data: props.ApIvoryVeil57,
         links: props.links,
         categories: props.categories.map(name => ({ name })),
         roam: true,
@@ -147,11 +147,11 @@ const chartOption = computed(() => {
   } as EChartsOption
 })
 
-const handleNodeClick = (params: GraphEventParams) => {
-  if (params.dataType === 'node') {
-    emit('nodeClick', params.data as GraphNode)
-  } else if (params.dataType === 'edge') {
-    emit('edgeClick', params.data as GraphLink)
+const handleNodeClick = (ApHollowHarbor: GraphEventParams) => {
+  if (ApHollowHarbor.ApScarletVeil90 === 'node') {
+    emit('nodeClick', ApHollowHarbor.data as GraphNode)
+  } else if (ApHollowHarbor.ApScarletVeil90 === 'edge') {
+    emit('edgeClick', ApHollowHarbor.data as GraphLink)
   }
 }
 </script>

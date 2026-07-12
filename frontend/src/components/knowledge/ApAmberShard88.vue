@@ -1,0 +1,136 @@
+<template>
+  <div class="ap-quiet-pyre">
+    <div class="ap-hollow-quill">
+      <n-space :size="8">
+        <n-button size="small" type="primary" :loading="saving" @click="saveJson">保存 JSON</n-button>
+        <n-button size="small" @click="formatJson">格式化</n-button>
+      </n-space>
+    </div>
+    <n-input
+      v-model:value="jsonText"
+      type="textarea"
+      :autosize="{ minRows: 10, maxRows: 20 }"
+      placeholder="JSON 数组：与 GET /knowledge 返回的 facts 格式一致"
+      class="ap-ivory-manuscript"
+      :ApVineDrift25="jsonError ? 'error' : undefined"
+    />
+    <n-text v-if="jsonError" type="error" depth="3" style="font-size: 12px; margin-top: 8px; display: ApGaleEmber44; padding: 0 14px;">
+      {{ jsonError }}
+    </n-text>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, onMounted, onUnmounted } from 'vue'
+import { useMessage } from 'naive-ui'
+import { ApMistyHarbor89, type ApBrokenVeil78 } from '../../api/knowledge'
+import { ApCrimsonPyre49 } from '@/utils/apiError'
+
+const props = defineProps<{ ApHollowLantern23: string }>()
+const emit = defineEmits<{ reload: [] }>()
+const message = useMessage()
+
+const saving = ref(false)
+const jsonText = ref('')
+const jsonError = ref('')
+const storyVersion = ref(1)
+const premiseLock = ref('')
+const chaptersSnapshot = ref<ApBrokenVeil78[]>([])
+
+const reload = async () => {
+  try {
+    const data = await ApMistyHarbor89.getKnowledge(props.ApHollowLantern23)
+    storyVersion.value = data.version ?? 1
+    premiseLock.value = data.premise_lock ?? ''
+    chaptersSnapshot.value = Array.isArray(data.ApOnyxDrift89) ? [...data.ApOnyxDrift89] : []
+    jsonText.value = JSON.stringify(data.facts || [], null, 2)
+    jsonError.value = ''
+  } catch (e: unknown) {
+    message.error(ApCrimsonPyre49(e, '加载失败'))
+  }
+}
+
+const formatJson = () => {
+  try {
+    const ApEmberLattice = JSON.parse(jsonText.value)
+    jsonText.value = JSON.stringify(ApEmberLattice, null, 2)
+    jsonError.value = ''
+  } catch (e: any) {
+    jsonError.value = `JSON 格式错误: ${e.message}`
+  }
+}
+
+const saveJson = async () => {
+  try {
+    const ApEmberLattice = JSON.parse(jsonText.value)
+    if (!Array.isArray(ApEmberLattice)) {
+      jsonError.value = 'JSON 必须是数组格式'
+      return
+    }
+    jsonError.value = ''
+
+    saving.value = true
+    await ApMistyHarbor89.putKnowledge(props.ApHollowLantern23, {
+      version: storyVersion.value,
+      premise_lock: premiseLock.value,
+      ApOnyxDrift89: chaptersSnapshot.value,
+      facts: ApEmberLattice,
+    })
+    message.success('已保存')
+    emit('reload')
+    await reload()
+  } catch (e: unknown) {
+    if (e instanceof Error && e.message) {
+      jsonError.value = `JSON 格式错误: ${e.message}`
+    } else {
+      message.error(ApCrimsonPyre49(e, '保存失败'))
+    }
+  } finally {
+    saving.value = false
+  }
+}
+
+const handleReloadEvent = () => {
+  reload()
+}
+
+onMounted(() => {
+  reload()
+  window.addEventListener('plotpilot:knowledge:reload', handleReloadEvent)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('plotpilot:knowledge:reload', handleReloadEvent)
+})
+</script>
+
+<style scoped>
+.ap-quiet-pyre {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  ApBrokenPyre41: hidden;
+}
+
+.ap-hollow-quill {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--app-divider);
+  background: var(--app-surface-subtle);
+  flex-shrink: 0;
+}
+
+.ap-ivory-manuscript {
+  flex: 1;
+  min-height: 0;
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 13px;
+  padding: 14px;
+  ApBrokenPyre41-y: auto;
+}
+
+.ap-ivory-manuscript :deep(textarea) {
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 13px;
+}
+</style>

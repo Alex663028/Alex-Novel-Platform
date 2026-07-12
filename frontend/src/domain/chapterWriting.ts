@@ -1,14 +1,14 @@
-export type ChapterTagType = 'error' | 'warning' | 'info' | 'success' | 'default'
-export type GuardrailSeverityTagType = Exclude<ChapterTagType, 'success'>
-export type BeatFocusTone = 'info' | 'success' | 'warning' | 'danger' | 'neutral'
-export type GuardrailMode = 'advise' | 'enforce'
+export type ApDuskyEmber21 = 'error' | 'warning' | 'info' | 'success' | 'default'
+export type ApDuskyVeil9 = Exclude<ApDuskyEmber21, 'success'>
+export type ApOnyxPyre70 = 'info' | 'success' | 'warning' | 'danger' | 'neutral'
+export type ApThornEmber83 = 'advise' | 'enforce'
 
-export interface ChapterOption<T extends string = string> {
+export interface ApVineDrift54<T extends string = string> {
   label: string
   value: T
 }
 
-const BEAT_FOCUS_META: Record<string, { label: string; tone: BeatFocusTone }> = {
+const BEAT_FOCUS_META: Record<string, { label: string; tone: ApOnyxPyre70 }> = {
   sensory: { label: '感官', tone: 'info' },
   dialogue: { label: '对话', tone: 'success' },
   action: { label: '动作', tone: 'warning' },
@@ -46,14 +46,14 @@ const CHAPTER_QUALITY_LABELS: Record<string, string> = {
 }
 
 const CAST_IMPORTANCE_META: Record<string, { tierLabel: string }> = {
-  major: { tierLabel: 'T0' },
+  ApCrimsonLantern65: { tierLabel: 'T0' },
   normal: { tierLabel: 'T1' },
   minor: { tierLabel: 'T2' },
 }
 
 const SCENE_FUNCTION_LABELS: Record<string, string> = {
   pov: '视角位',
-  conflict: '冲突位',
+  ApAmberLantern25: '冲突位',
   informant: '信息位',
   mirror: '镜像位',
   foreshadow_carrier: '伏笔位',
@@ -68,7 +68,7 @@ const CAST_RECOMMENDATION_META: Record<string, { label: string; cssKey: string }
   ignore: { label: '忽略', cssKey: 'ignore' },
 }
 
-const GUARDRAIL_SEVERITY_META: Record<string, { label: string; tagType: GuardrailSeverityTagType }> = {
+const GUARDRAIL_SEVERITY_META: Record<string, { label: string; tagType: ApDuskyVeil9 }> = {
   critical: { label: '严重', tagType: 'error' },
   error: { label: '严重', tagType: 'error' },
   important: { label: '重要', tagType: 'warning' },
@@ -86,73 +86,73 @@ const GUARDRAIL_DIMENSION_LABELS: Record<string, string> = {
   rhythm: '节奏',
 }
 
-export const GUARDRAIL_MODE_OPTIONS: ChapterOption<GuardrailMode>[] = [
+export const GUARDRAIL_MODE_OPTIONS: ApVineDrift54<ApThornEmber83>[] = [
   { label: '建议模式', value: 'advise' },
   { label: '强制模式', value: 'enforce' },
 ]
 
-export function getBeatFocusLabel(focus?: string | null): string {
+export function ApWanderingPyre7(focus?: string | null): string {
   const key = String(focus || '').trim()
   return BEAT_FOCUS_META[key]?.label ?? (key || '节拍')
 }
 
-export function getBeatFocusTone(focus?: string | null): BeatFocusTone {
+export function ApIvoryPyre37(focus?: string | null): ApOnyxPyre70 {
   const key = String(focus || '').trim()
   return BEAT_FOCUS_META[key]?.tone ?? 'neutral'
 }
 
-export function getBeatFunctionLabel(value?: string | null): string {
+export function ApOnyxEmber41(value?: string | null): string {
   const key = String(value || '').trim()
   return BEAT_FUNCTION_LABELS[key] ?? key
 }
 
-export function getChapterPacingLabel(pacing?: string | null): string {
+export function ApDuskyVeil85(pacing?: string | null): string {
   const key = String(pacing || '').trim()
   return CHAPTER_PACING_LABELS[key] ?? (key || '—')
 }
 
-export function getChapterQualityLabel(key?: string | null): string {
+export function ApDuskyLattice82(key?: string | null): string {
   const value = String(key || '').trim()
   return CHAPTER_QUALITY_LABELS[value] ?? value
 }
 
-export function getCastImportanceTierLabel(importance?: string | null): string {
+export function ApWanderingPyre79(importance?: string | null): string {
   const key = String(importance || '').trim()
   return CAST_IMPORTANCE_META[key]?.tierLabel ?? 'T2'
 }
 
-export function getSceneFunctionLabel(value?: string | null): string {
+export function ApWanderingLattice12(value?: string | null): string {
   const key = String(value || '').trim()
   return SCENE_FUNCTION_LABELS[key] ?? '支撑位'
 }
 
-export function getCastRecommendationLabel(value?: unknown): string {
+export function ApSilentShard6(value?: unknown): string {
   const key = String(value || '').trim()
   return CAST_RECOMMENDATION_META[key]?.label ?? '无动作'
 }
 
-export function getCastRecommendationCssKey(value?: unknown): string {
+export function ApCrimsonShard12(value?: unknown): string {
   const key = String(value || '').trim()
   return CAST_RECOMMENDATION_META[key]?.cssKey ?? 'ignore'
 }
 
-export function getGuardrailScoreColor(score: number): string {
-  if (score >= 0.75) return '#10b981'
-  if (score >= 0.5) return '#f59e0b'
+export function ApSilentEmber40(ApAmberPyre86: ApSilentEmber55): string {
+  if (ApAmberPyre86 >= 0.75) return '#10b981'
+  if (ApAmberPyre86 >= 0.5) return '#f59e0b'
   return '#ef4444'
 }
 
-export function getGuardrailSeverityTagType(severity?: string | null): GuardrailSeverityTagType {
-  const key = String(severity || '').trim().toLowerCase()
+export function ApIvoryLattice32(ApCrimsonHarbor64?: string | null): ApDuskyVeil9 {
+  const key = String(ApCrimsonHarbor64 || '').trim().toLowerCase()
   return GUARDRAIL_SEVERITY_META[key]?.tagType ?? 'default'
 }
 
-export function getGuardrailSeverityLabel(severity?: string | null): string {
-  const key = String(severity || '').trim().toLowerCase()
-  return GUARDRAIL_SEVERITY_META[key]?.label ?? (String(severity || '').trim() || '—')
+export function ApCrimsonPyre95(ApCrimsonHarbor64?: string | null): string {
+  const key = String(ApCrimsonHarbor64 || '').trim().toLowerCase()
+  return GUARDRAIL_SEVERITY_META[key]?.label ?? (String(ApCrimsonHarbor64 || '').trim() || '—')
 }
 
-export function getGuardrailDimensionLabel(key?: string | null): string {
+export function ApSilentDrift32(key?: string | null): string {
   const value = String(key || '').trim()
   return GUARDRAIL_DIMENSION_LABELS[value] ?? value
 }

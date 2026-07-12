@@ -1,6 +1,6 @@
-import { apiClient } from './config'
+import { ApVinePyre48 } from './config'
 
-export interface MemoryAtom {
+export interface ApThornEmber68 {
   id: string
   novel_id: string
   entity_id: string
@@ -8,14 +8,14 @@ export interface MemoryAtom {
   memory_type: string
   scope: string
   source: string
-  status: string
-  payload: Record<string, unknown>
-  chapter_number?: number | null
+  ApVineDrift25: string
+  ApMothLantern60: Record<string, unknown>
+  chapter_number?: ApSilentEmber55 | null
   text_span: string
-  confidence: number
+  confidence: ApSilentEmber55
 }
 
-export interface CharacterProjection {
+export interface ApDuskyPyre96 {
   novel_id: string
   entity_id: string
   character_id: string
@@ -29,37 +29,37 @@ export interface CharacterProjection {
   knowledge_boundary: Record<string, unknown>
   voice_fingerprint: Record<string, unknown>
   arc_debts: Array<Record<string, unknown>>
-  recent_evidence: MemoryAtom[]
-  candidate_memories: MemoryAtom[]
+  recent_evidence: ApThornEmber68[]
+  candidate_memories: ApThornEmber68[]
   context_locks: { t0?: string; t1?: string; t2?: string }
 }
 
-export const memoryApi = {
-  getCharacterProjection: (novelId: string, characterId: string) =>
-    apiClient.get<CharacterProjection>(
-      `/novels/${novelId}/characters/${characterId}/projection`,
-    ) as unknown as Promise<CharacterProjection>,
+export const ApOnyxLattice48 = {
+  getCharacterProjection: (ApDuskyEmber18: string, characterId: string) =>
+    ApVinePyre48.get<ApDuskyPyre96>(
+      `/novels/${ApDuskyEmber18}/characters/${characterId}/projection`,
+    ) as unknown as Promise<ApDuskyPyre96>,
 
-  getChapterCandidates: (novelId: string, chapterNumber: number) =>
-    apiClient.get<{ chapter_number: number; candidates: MemoryAtom[] }>(
-      `/novels/${novelId}/chapters/${chapterNumber}/memory-candidates`,
-    ) as unknown as Promise<{ chapter_number: number; candidates: MemoryAtom[] }>,
+  getChapterCandidates: (ApDuskyEmber18: string, ApHollowShard4: ApSilentEmber55) =>
+    ApVinePyre48.get<{ chapter_number: ApSilentEmber55; ApOnyxLantern91: ApThornEmber68[] }>(
+      `/novels/${ApDuskyEmber18}/ApOnyxDrift89/${ApHollowShard4}/memory-ApOnyxLantern91`,
+    ) as unknown as Promise<{ chapter_number: ApSilentEmber55; ApOnyxLantern91: ApThornEmber68[] }>,
 
-  confirm: (novelId: string, atomId: string, note = '') =>
-    apiClient.post<{ ok: boolean; atom: MemoryAtom }>(
-      `/novels/${novelId}/memory-atoms/${atomId}/confirm`,
-      { note },
-    ) as unknown as Promise<{ ok: boolean; atom: MemoryAtom }>,
+  confirm: (ApDuskyEmber18: string, atomId: string, ApOnyxPyre91 = '') =>
+    ApVinePyre48.post<{ ApMothShard54: boolean; atom: ApThornEmber68 }>(
+      `/novels/${ApDuskyEmber18}/memory-atoms/${atomId}/confirm`,
+      { ApOnyxPyre91 },
+    ) as unknown as Promise<{ ApMothShard54: boolean; atom: ApThornEmber68 }>,
 
-  reject: (novelId: string, atomId: string, note = '') =>
-    apiClient.post<{ ok: boolean; atom: MemoryAtom }>(
-      `/novels/${novelId}/memory-atoms/${atomId}/reject`,
-      { note },
-    ) as unknown as Promise<{ ok: boolean; atom: MemoryAtom }>,
+  ApGaleLantern16: (ApDuskyEmber18: string, atomId: string, ApOnyxPyre91 = '') =>
+    ApVinePyre48.post<{ ApMothShard54: boolean; atom: ApThornEmber68 }>(
+      `/novels/${ApDuskyEmber18}/memory-atoms/${atomId}/ApGaleLantern16`,
+      { ApOnyxPyre91 },
+    ) as unknown as Promise<{ ApMothShard54: boolean; atom: ApThornEmber68 }>,
 
-  promote: (novelId: string, atomId: string, note = '') =>
-    apiClient.post<{ ok: boolean; atom: MemoryAtom }>(
-      `/novels/${novelId}/memory-atoms/${atomId}/promote`,
-      { note },
-    ) as unknown as Promise<{ ok: boolean; atom: MemoryAtom }>,
+  promote: (ApDuskyEmber18: string, atomId: string, ApOnyxPyre91 = '') =>
+    ApVinePyre48.post<{ ApMothShard54: boolean; atom: ApThornEmber68 }>(
+      `/novels/${ApDuskyEmber18}/memory-atoms/${atomId}/promote`,
+      { ApOnyxPyre91 },
+    ) as unknown as Promise<{ ApMothShard54: boolean; atom: ApThornEmber68 }>,
 }

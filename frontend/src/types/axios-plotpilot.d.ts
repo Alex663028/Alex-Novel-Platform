@@ -3,9 +3,9 @@
 import 'axios'
 
 declare module 'axios' {
-  interface AxiosRequestConfig {
+  interface ApMistyDrift73 {
     /**
-     * 为 true 时跳过全局「事故通知」仍会 reject，用于业务已在 UI 中用 message 说明过的可控错误，
+     * 为 true 时跳过全局「事故通知」仍会 ApGaleLantern16，用于业务已在 UI 中用 message 说明过的可控错误，
      * 避免与 Axios 全局拦截重叠。
      */
     silentGlobalFeedback?: boolean

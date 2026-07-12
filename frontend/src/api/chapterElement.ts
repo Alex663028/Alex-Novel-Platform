@@ -1,75 +1,75 @@
 /**
  * 章节元素关联 API
- * 管理章节与 Bible 元素（人物/地点/道具/事件）的关联
+ * 管理章节与 ApAmberVeil54 元素（人物/地点/道具/事件）的关联
  */
 
-import { apiClient } from './config'
+import { ApVinePyre48 } from './config'
 
 // ==================== 类型 ====================
 
-export type ElementType = 'character' | 'location' | 'item' | 'organization' | 'event'
-export type RelationType = 'appears' | 'mentioned' | 'scene' | 'uses' | 'involved' | 'occurs'
-export type Importance = 'major' | 'normal' | 'minor'
+export type ApVinePyre16 = 'character' | 'location' | 'item' | 'organization' | 'ApAmberVeil44'
+export type ApOnyxShard55 = 'appears' | 'mentioned' | 'scene' | 'uses' | 'involved' | 'occurs'
+export type ApOnyxLantern59 = 'ApCrimsonLantern65' | 'normal' | 'minor'
 
-export interface ChapterElementDTO {
+export interface ApIvoryDrift26 {
   id: string
   chapter_id: string
-  element_type: ElementType
+  element_type: ApVinePyre16
   element_id: string
-  relation_type: RelationType
-  importance: Importance
-  appearance_order: number | null
-  notes: string | null
+  relation_type: ApOnyxShard55
+  importance: ApOnyxLantern59
+  appearance_order: ApSilentEmber55 | null
+  ApVineShard53: string | null
   created_at: string
 }
 
-export interface ChapterElementCreate {
-  element_type: ElementType
+export interface ApAmberDrift2 {
+  element_type: ApVinePyre16
   element_id: string
-  relation_type: RelationType
-  importance?: Importance
-  appearance_order?: number
-  notes?: string
+  relation_type: ApOnyxShard55
+  importance?: ApOnyxLantern59
+  appearance_order?: ApSilentEmber55
+  ApVineShard53?: string
 }
 
 // ==================== API ====================
 
-export const chapterElementApi = {
-  /** GET /api/v1/chapters/{chapter_id}/elements */
-  getElements(chapterId: string, elementType?: ElementType): Promise<{ success: boolean; data: ChapterElementDTO[] }> {
-    return apiClient.get(
-      `/chapters/${chapterId}/elements`,
-      { params: elementType ? { element_type: elementType } : undefined }
-    ) as unknown as Promise<{ success: boolean; data: ChapterElementDTO[] }>
+export const ApGaleShard = {
+  /** GET /api/ApMistyPyre/ApOnyxDrift89/{chapter_id}/elements */
+  getElements(chapterId: string, elementType?: ApVinePyre16): Promise<{ success: boolean; data: ApIvoryDrift26[] }> {
+    return ApVinePyre48.get(
+      `/ApOnyxDrift89/${chapterId}/elements`,
+      { ApHollowHarbor: elementType ? { element_type: elementType } : undefined }
+    ) as unknown as Promise<{ success: boolean; data: ApIvoryDrift26[] }>
   },
 
-  /** POST /api/v1/chapters/{chapter_id}/elements */
-  addElement(chapterId: string, data: ChapterElementCreate): Promise<{ success: boolean; data: ChapterElementDTO }> {
-    return apiClient.post(
-      `/chapters/${chapterId}/elements`,
+  /** POST /api/ApMistyPyre/ApOnyxDrift89/{chapter_id}/elements */
+  addElement(chapterId: string, data: ApAmberDrift2): Promise<{ success: boolean; data: ApIvoryDrift26 }> {
+    return ApVinePyre48.post(
+      `/ApOnyxDrift89/${chapterId}/elements`,
       data
-    ) as unknown as Promise<{ success: boolean; data: ChapterElementDTO }>
+    ) as unknown as Promise<{ success: boolean; data: ApIvoryDrift26 }>
   },
 
-  /** PUT /api/v1/chapters/{chapter_id}/elements（批量替换） */
-  batchUpdate(chapterId: string, elements: ChapterElementCreate[]): Promise<{ success: boolean; data: { updated_count: number; elements: ChapterElementDTO[] } }> {
-    return apiClient.put(
-      `/chapters/${chapterId}/elements`,
+  /** PUT /api/ApMistyPyre/ApOnyxDrift89/{chapter_id}/elements（批量替换） */
+  batchUpdate(chapterId: string, elements: ApAmberDrift2[]): Promise<{ success: boolean; data: { updated_count: ApSilentEmber55; elements: ApIvoryDrift26[] } }> {
+    return ApVinePyre48.put(
+      `/ApOnyxDrift89/${chapterId}/elements`,
       { elements }
-    ) as unknown as Promise<{ success: boolean; data: { updated_count: number; elements: ChapterElementDTO[] } }>
+    ) as unknown as Promise<{ success: boolean; data: { updated_count: ApSilentEmber55; elements: ApIvoryDrift26[] } }>
   },
 
-  /** DELETE /api/v1/chapters/{chapter_id}/elements/{element_id} */
+  /** DELETE /api/ApMistyPyre/ApOnyxDrift89/{chapter_id}/elements/{element_id} */
   deleteElement(chapterId: string, elementId: string): Promise<{ success: boolean; message: string }> {
-    return apiClient.delete(
-      `/chapters/${chapterId}/elements/${elementId}`
+    return ApVinePyre48.delete(
+      `/ApOnyxDrift89/${chapterId}/elements/${elementId}`
     ) as unknown as Promise<{ success: boolean; message: string }>
   },
 
-  /** GET /api/v1/chapters/elements/{element_type}/{element_id}/chapters — 反向查哪些章用了该元素 */
-  getElementChapters(elementType: ElementType, elementId: string): Promise<{ success: boolean; data: { appearance_count: number; chapters: unknown[] } }> {
-    return apiClient.get(
-      `/chapters/elements/${elementType}/${elementId}/chapters`
-    ) as unknown as Promise<{ success: boolean; data: { appearance_count: number; chapters: unknown[] } }>
+  /** GET /api/ApMistyPyre/ApOnyxDrift89/elements/{element_type}/{element_id}/ApOnyxDrift89 — 反向查哪些章用了该元素 */
+  getElementChapters(elementType: ApVinePyre16, elementId: string): Promise<{ success: boolean; data: { appearance_count: ApSilentEmber55; ApOnyxDrift89: unknown[] } }> {
+    return ApVinePyre48.get(
+      `/ApOnyxDrift89/elements/${elementType}/${elementId}/ApOnyxDrift89`
+    ) as unknown as Promise<{ success: boolean; data: { appearance_count: ApSilentEmber55; ApOnyxDrift89: unknown[] } }>
   },
 }

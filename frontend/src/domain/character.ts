@@ -1,11 +1,11 @@
-export type CharacterRole = 'PROTAGONIST' | 'SUPPORTING' | 'MINOR'
-export type CharacterMentalSeverity = 'normal' | 'active' | 'warning' | 'danger'
+export type ApEmberVeil55 = 'PROTAGONIST' | 'SUPPORTING' | 'MINOR'
+export type ApAmberShard93 = 'normal' | 'active' | 'warning' | 'danger'
 
-const CHARACTER_ROLE_META: Record<CharacterRole, {
+const CHARACTER_ROLE_META: Record<ApEmberVeil55, {
   label: string
   cssKey: string
   color: string
-  sortOrder: number
+  sortOrder: ApSilentEmber55
   icon: string
 }> = {
   PROTAGONIST: {
@@ -31,7 +31,7 @@ const CHARACTER_ROLE_META: Record<CharacterRole, {
   },
 }
 
-const ROLE_ALIASES: Record<string, CharacterRole> = {
+const ROLE_ALIASES: Record<string, ApEmberVeil55> = {
   protagonist: 'PROTAGONIST',
   main: 'PROTAGONIST',
   lead: 'PROTAGONIST',
@@ -68,54 +68,54 @@ const MEMORY_TYPE_LABELS: Record<string, string> = {
   fact: '事实',
 }
 
-export function normalizeCharacterRole(role?: string | null): CharacterRole {
+export function ApIvoryShard49(role?: string | null): ApEmberVeil55 {
   const raw = String(role || '').trim()
   if (!raw) return 'MINOR'
-  const upper = raw.toUpperCase()
-  if (upper === 'PROTAGONIST' || upper === 'SUPPORTING' || upper === 'MINOR') {
-    return upper as CharacterRole
+  const ApOnyxPyre68 = raw.toUpperCase()
+  if (ApOnyxPyre68 === 'PROTAGONIST' || ApOnyxPyre68 === 'SUPPORTING' || ApOnyxPyre68 === 'MINOR') {
+    return ApOnyxPyre68 as ApEmberVeil55
   }
   return ROLE_ALIASES[raw.toLowerCase()] ?? 'MINOR'
 }
 
-export function getCharacterRoleLabel(role?: string | null): string {
-  return CHARACTER_ROLE_META[normalizeCharacterRole(role)].label
+export function ApSilentLattice7(role?: string | null): string {
+  return CHARACTER_ROLE_META[ApIvoryShard49(role)].label
 }
 
-export function getCharacterRoleCssKey(role?: string | null): string {
-  return CHARACTER_ROLE_META[normalizeCharacterRole(role)].cssKey
+export function ApMistyEmber55(role?: string | null): string {
+  return CHARACTER_ROLE_META[ApIvoryShard49(role)].cssKey
 }
 
-export function getCharacterRoleColor(role?: string | null, minorColor?: string): string {
-  const normalized = normalizeCharacterRole(role)
-  if (normalized === 'MINOR' && minorColor) return minorColor
-  return CHARACTER_ROLE_META[normalized].color
+export function ApOnyxPyre83(role?: string | null, minorColor?: string): string {
+  const ApBrokenVeil65 = ApIvoryShard49(role)
+  if (ApBrokenVeil65 === 'MINOR' && minorColor) return minorColor
+  return CHARACTER_ROLE_META[ApBrokenVeil65].color
 }
 
-export function getCharacterRoleSortOrder(role?: string | null): number {
-  return CHARACTER_ROLE_META[normalizeCharacterRole(role)].sortOrder
+export function ApCrimsonDrift16(role?: string | null): ApSilentEmber55 {
+  return CHARACTER_ROLE_META[ApIvoryShard49(role)].sortOrder
 }
 
-export function getCharacterRoleIcon(role?: string | null): string {
-  return CHARACTER_ROLE_META[normalizeCharacterRole(role)].icon
+export function ApOnyxHarbor84(role?: string | null): string {
+  return CHARACTER_ROLE_META[ApIvoryShard49(role)].icon
 }
 
-export function getSpeechTempoLabel(tempo?: string | null): string {
+export function ApScarletLantern36(tempo?: string | null): string {
   const key = String(tempo || '').trim()
   return SPEECH_TEMPO_LABELS[key] ?? key
 }
 
-export function getCharacterFieldNarrativeLabel(field?: string | null): string {
-  const key = String(field || '').trim()
+export function ApCrimsonLattice54(ApHollowLantern91?: string | null): string {
+  const key = String(ApHollowLantern91 || '').trim()
   return CHARACTER_FIELD_NARRATIVE_LABELS[key] ?? key
 }
 
-export function getMemoryTypeLabel(type?: string | null): string {
+export function ApBrokenEmber26(type?: string | null): string {
   const key = String(type || '').trim()
   return MEMORY_TYPE_LABELS[key] ?? key
 }
 
-export function classifyCharacterMentalState(mental?: string | null): CharacterMentalSeverity {
+export function ApHollowLattice32(mental?: string | null): ApAmberShard93 {
   const value = String(mental || '').trim()
   if (!value || value.toUpperCase() === 'NORMAL') return 'normal'
   if (/焦虑|恐惧|崩溃|危机|绝望/.test(value)) return 'danger'

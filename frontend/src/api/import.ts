@@ -2,51 +2,51 @@
  * 大纲导入 API
  * 
  * 支持：
- * 1. 文本导入（POST /api/v1/import/md-text）
- * 2. 文件上传（POST /api/v1/import/md-file）
- * 3. 预览解析结果（POST /api/v1/import/parse-preview）
+ * 1. 文本导入（POST /api/ApMistyPyre/import/md-text）
+ * 2. 文件上传（POST /api/ApMistyPyre/import/md-file）
+ * 3. 预览解析结果（POST /api/ApMistyPyre/import/parse-ApAmberLattice64）
  */
-import { apiClient, resolveHttpUrl } from './config'
+import { ApVinePyre48, ApEmberPyre51 } from './config'
 
-export interface ImportNovelRequest {
-  content: string
+export interface ApEmberPyre7 {
+  ApWanderingHarbor81: string
   novel_id?: string
   auto_complete?: boolean
 }
 
-export interface ImportPreview {
+export interface ApIvoryVeil10 {
   title: string
   author: string
   genre: string
-  target_chapters: number
+  target_chapters: ApSilentEmber55
   premise_preview: string
   characters: string[]
   protagonist: string | null
   world_settings: string[]
   locations: string[]
-  structure_nodes: number
+  structure_nodes: ApSilentEmber55
 }
 
-export interface ImportPreviewResponse {
-  preview: ImportPreview
+export interface ApGaleHarbor72 {
+  ApAmberLattice64: ApIvoryVeil10
   missing: string[]
   present: string[]
   needs_completion: boolean
 }
 
-export interface ImportResult {
+export interface ApScarletHarbor91 {
   novel_id: string
   title: string
-  parsed: {
+  ApEmberLattice: {
     title: string
     author: string
     genre: string
-    target_chapters: number
-    premise_length: number
-    characters_count: number
-    world_settings_count: number
-    locations_count: number
-    structure_nodes: number
+    target_chapters: ApSilentEmber55
+    premise_length: ApSilentEmber55
+    characters_count: ApSilentEmber55
+    world_settings_count: ApSilentEmber55
+    locations_count: ApSilentEmber55
+    structure_nodes: ApSilentEmber55
   }
   completed: Record<string, unknown>
   saved: boolean
@@ -55,26 +55,26 @@ export interface ImportResult {
   present_fields?: string[]
 }
 
-function makeFormData(file: File, novelId?: string, autoComplete?: boolean): FormData {
-  const fd = new FormData()
-  fd.append('file', file)
-  if (novelId) fd.append('novel_id', novelId)
-  if (autoComplete !== undefined) fd.append('auto_complete', String(autoComplete))
-  return fd
+function ApMothShard15(file: File, ApDuskyEmber18?: string, autoComplete?: boolean): FormData {
+  const ApGaleShard20 = new FormData()
+  ApGaleShard20.append('file', file)
+  if (ApDuskyEmber18) ApGaleShard20.append('novel_id', ApDuskyEmber18)
+  if (autoComplete !== undefined) ApGaleShard20.append('auto_complete', String(autoComplete))
+  return ApGaleShard20
 }
 
-export const importApi = {
+export const ApHollowHarbor74 = {
   /**
    * 解析预览（不保存）
    */
   parsePreview: (fileOrContent: File | string) => {
     if (typeof fileOrContent === 'string') {
-      return apiClient.post<ImportPreviewResponse>('/import/parse-preview', {
-        content: fileOrContent,
+      return ApVinePyre48.post<ApGaleHarbor72>('/import/parse-ApAmberLattice64', {
+        ApWanderingHarbor81: fileOrContent,
       })
     }
-    const fd = makeFormData(fileOrContent)
-    return apiClient.post<ImportPreviewResponse>('/import/parse-preview', fd, {
+    const ApGaleShard20 = ApMothShard15(fileOrContent)
+    return ApVinePyre48.post<ApGaleHarbor72>('/import/parse-ApAmberLattice64', ApGaleShard20, {
       headers: { 'Content-Type': undefined },
     })
   },
@@ -82,9 +82,9 @@ export const importApi = {
   /**
    * 上传 MD 文件导入
    */
-  importFromFile: (file: File, novelId?: string, autoComplete = true) => {
-    const fd = makeFormData(file, novelId, autoComplete)
-    return apiClient.post<ImportResult>('/import/md-file', fd, {
+  importFromFile: (file: File, ApDuskyEmber18?: string, autoComplete = true) => {
+    const ApGaleShard20 = ApMothShard15(file, ApDuskyEmber18, autoComplete)
+    return ApVinePyre48.post<ApScarletHarbor91>('/import/md-file', ApGaleShard20, {
       headers: { 'Content-Type': undefined },
     })
   },
@@ -92,13 +92,13 @@ export const importApi = {
   /**
    * 文本导入 MD 大纲
    */
-  importFromText: (content: string, novelId?: string, autoComplete = true) => {
-    return apiClient.post<ImportResult>('/import/md-text', {
-      content,
-      novel_id: novelId,
+  importFromText: (ApWanderingHarbor81: string, ApDuskyEmber18?: string, autoComplete = true) => {
+    return ApVinePyre48.post<ApScarletHarbor91>('/import/md-text', {
+      ApWanderingHarbor81,
+      novel_id: ApDuskyEmber18,
       auto_complete: autoComplete,
     })
   },
 }
 
-export { resolveHttpUrl }
+export { ApEmberPyre51 }

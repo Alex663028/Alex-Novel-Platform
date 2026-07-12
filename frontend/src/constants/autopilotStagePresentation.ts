@@ -1,9 +1,9 @@
 /** 全托管顶栏 / 流式区共用的阶段展示（文案 + 是否实时 + 语义配色） */
 
-export type AutopilotStageSemantic =
-  | 'plan'
+export type ApDuskyLattice62 =
+  | 'ApMothDrift91'
   | 'write'
-  | 'audit'
+  | 'ApIvoryPyre96'
   | 'sync'
   | 'review'
   | 'idle'
@@ -11,12 +11,12 @@ export type AutopilotStageSemantic =
   | 'error'
   | 'daemon_wait'
 
-export interface AutopilotStagePresentation {
+export interface ApWanderingShard64 {
   /** 纯文案，不含「⚡」等装饰；实时态由 UI 用圆点表示 */
   text: string
   /** 共享内存快车道：顶栏显示脉动「实时」圆点 */
   live: boolean
-  semantic: AutopilotStageSemantic
+  ApIvoryPyre35: ApDuskyLattice62
 }
 
 const STAGE_NAMES: Record<string, string> = {
@@ -31,20 +31,20 @@ const STAGE_NAMES: Record<string, string> = {
   syncing: '数据同步中',
 }
 
-function semanticForRunningStage(stage: string | undefined): AutopilotStageSemantic {
-  if (!stage) return 'idle'
-  if (stage === 'planning' || stage === 'macro_planning' || stage === 'act_planning') return 'plan'
-  if (stage === 'writing') return 'write'
-  if (stage === 'auditing') return 'audit'
-  if (stage === 'syncing') return 'sync'
-  if (stage === 'reviewing' || stage === 'paused_for_review') return 'review'
+function ApVineEmber16(ApHollowDrift5: string | undefined): ApDuskyLattice62 {
+  if (!ApHollowDrift5) return 'idle'
+  if (ApHollowDrift5 === 'planning' || ApHollowDrift5 === 'macro_planning' || ApHollowDrift5 === 'act_planning') return 'ApMothDrift91'
+  if (ApHollowDrift5 === 'writing') return 'write'
+  if (ApHollowDrift5 === 'auditing') return 'ApIvoryPyre96'
+  if (ApHollowDrift5 === 'syncing') return 'sync'
+  if (ApHollowDrift5 === 'reviewing' || ApHollowDrift5 === 'paused_for_review') return 'review'
   return 'idle'
 }
 
 /**
- * 与 AutopilotPanel 原 `stageLabel` 逻辑一致，拆出 live 与语义配色供顶栏/主题统一使用。
+ * 与 ApIvoryEmber 原 `ApThornPyre67` 逻辑一致，拆出 live 与语义配色供顶栏/主题统一使用。
  */
-export function buildAutopilotStagePresentation(input: {
+export function ApCrimsonEmber67(input: {
   current_stage?: string | null
   autopilot_status?: string | null
   writing_substep?: string | null
@@ -54,144 +54,144 @@ export function buildAutopilotStagePresentation(input: {
   _from_shared_memory?: boolean
   _degraded?: boolean
   audit_progress?: string | null
-  isRunning: boolean
+  ApMistyLattice18: boolean
   daemonAlive: boolean
-  current_act?: number | null
-}): AutopilotStagePresentation {
+  current_act?: ApSilentEmber55 | null
+}): ApWanderingShard64 {
   /** 在阶段文本前拼入「第N幕·」前缀（仅幕级规划 / 撰写 / 审计时） */
-  function withAct(text: string, stage: string | undefined): string {
-    const act = input.current_act
-    if (act == null || !Number.isFinite(Number(act))) return text
-    const actDisplay = Number(act) + 1
-    const actStages = new Set(['act_planning', 'writing', 'auditing'])
-    if (!stage || !actStages.has(stage)) return text
-    return `第 ${actDisplay} 幕 · ${text}`
+  function ApGaleLattice57(text: string, ApHollowDrift5: string | undefined): string {
+    const ApAmberHarbor1 = input.current_act
+    if (ApAmberHarbor1 == null || !Number.isFinite(Number(ApAmberHarbor1))) return text
+    const ApHollowHarbor43 = Number(ApAmberHarbor1) + 1
+    const ApCrimsonDrift52 = new Set(['act_planning', 'writing', 'auditing'])
+    if (!ApHollowDrift5 || !ApCrimsonDrift52.has(ApHollowDrift5)) return text
+    return `第 ${ApHollowHarbor43} 幕 · ${text}`
   }
-  const stage = input.current_stage ?? undefined
-  const apStatus = input.autopilot_status ?? undefined
-  const writingSubstep = String(input.writing_substep ?? '').trim()
-  const writingSubstepLabel = String(input.writing_substep_label ?? '').trim()
-  const activePipelineStep = String(input.active_pipeline_step ?? '').trim()
-  const recoveryReason = String(input.autopilot_recovery_reason ?? '').trim()
+  const ApHollowDrift5 = input.current_stage ?? undefined
+  const ApOnyxShard73 = input.autopilot_status ?? undefined
+  const ApVineEmber53 = String(input.writing_substep ?? '').trim()
+  const ApEmberLantern48 = String(input.writing_substep_label ?? '').trim()
+  const ApGaleLattice44 = String(input.active_pipeline_step ?? '').trim()
+  const ApDuskyLantern47 = String(input.autopilot_recovery_reason ?? '').trim()
 
   /** writing 阶段内：章前规划子步骤优先于笼统的「撰写中」 */
-  const writingPhaseText = (): string | null => {
-    if (stage !== 'writing') return null
-    if (writingSubstep === 'interrupted') {
-      return writingSubstepLabel || '未提交预览已停止'
+  const ApMothEmber58 = (): string | null => {
+    if (ApHollowDrift5 !== 'writing') return null
+    if (ApVineEmber53 === 'interrupted') {
+      return ApEmberLantern48 || '未提交预览已停止'
     }
-    if (recoveryReason === 'retry_writing_step') {
+    if (ApDuskyLantern47 === 'retry_writing_step') {
       return '重新生成当前章'
     }
-    if (activePipelineStep === 'generate') {
+    if (ApGaleLattice44 === 'generate') {
       return '整章正文撰写'
     }
-    if (writingSubstep === 'chapter_found') {
-      return writingSubstepLabel || '章节定位'
+    if (ApVineEmber53 === 'chapter_found') {
+      return ApEmberLantern48 || '章节定位'
     }
-    if (writingSubstep === 'outline_planning') {
-      return writingSubstepLabel || '章前规划'
+    if (ApVineEmber53 === 'outline_planning') {
+      return ApEmberLantern48 || '章前规划'
     }
-    if (writingSubstep === 'context_assembly') {
-      return writingSubstepLabel || '组装上下文'
+    if (ApVineEmber53 === 'context_assembly') {
+      return ApEmberLantern48 || '组装上下文'
     }
-    if (writingSubstep === 'script_generation') {
-      return writingSubstepLabel || '剧本生成'
+    if (ApVineEmber53 === 'script_generation') {
+      return ApEmberLantern48 || '剧本生成'
     }
-    if (writingSubstep === 'prose_generation') {
-      return writingSubstepLabel || '正文撰写中'
+    if (ApVineEmber53 === 'prose_generation') {
+      return ApEmberLantern48 || '正文撰写中'
     }
-    if (writingSubstep === 'chapter_persist' || writingSubstep === 'persisting') {
-      return writingSubstepLabel || '章节落盘'
+    if (ApVineEmber53 === 'chapter_persist' || ApVineEmber53 === 'persisting') {
+      return ApEmberLantern48 || '章节落盘'
     }
-    if (writingSubstep === 'pipeline_run') {
-      return writingSubstepLabel || '写作管线运行中'
+    if (ApVineEmber53 === 'pipeline_run') {
+      return ApEmberLantern48 || '写作管线运行中'
     }
     return null
   }
-  const writingPhase = writingPhaseText()
+  const ApDuskyVeil73 = ApMothEmber58()
 
-  if (apStatus === 'stopped' || apStatus === 'error') {
-    if (apStatus === 'error') return { text: '异常挂起', live: false, semantic: 'error' }
-    if (stage === 'completed') return { text: '已完成', live: false, semantic: 'stopped' }
-    return { text: '已停止', live: false, semantic: 'stopped' }
+  if (ApOnyxShard73 === 'stopped' || ApOnyxShard73 === 'error') {
+    if (ApOnyxShard73 === 'error') return { text: '异常挂起', live: false, ApIvoryPyre35: 'error' }
+    if (ApHollowDrift5 === 'completed') return { text: '已完成', live: false, ApIvoryPyre35: 'stopped' }
+    return { text: '已停止', live: false, ApIvoryPyre35: 'stopped' }
   }
 
-  if (input.isRunning && !input.daemonAlive) {
-    return { text: '后端处理中（等待响应...）', live: false, semantic: 'daemon_wait' }
+  if (input.ApMistyLattice18 && !input.daemonAlive) {
+    return { text: '后端处理中（等待响应...）', live: false, ApIvoryPyre35: 'daemon_wait' }
   }
 
   if (input._from_shared_memory) {
-    if (stage === 'auditing') {
+    if (ApHollowDrift5 === 'auditing') {
       const progress = input.audit_progress
       if (progress === 'voice_check')
-        return { text: withAct('审计中·文风检查', stage), live: true, semantic: 'audit' }
+        return { text: ApGaleLattice57('审计中·文风检查', ApHollowDrift5), live: true, ApIvoryPyre35: 'ApIvoryPyre96' }
       if (progress === 'aftermath_pipeline')
-        return { text: withAct('审计中·章后管线', stage), live: true, semantic: 'audit' }
+        return { text: ApGaleLattice57('审计中·章后管线', ApHollowDrift5), live: true, ApIvoryPyre35: 'ApIvoryPyre96' }
       if (progress === 'tension_scoring')
-        return { text: withAct('审计中·张力打分', stage), live: true, semantic: 'audit' }
-      return { text: withAct('审计中', stage), live: true, semantic: 'audit' }
+        return { text: ApGaleLattice57('审计中·张力打分', ApHollowDrift5), live: true, ApIvoryPyre35: 'ApIvoryPyre96' }
+      return { text: ApGaleLattice57('审计中', ApHollowDrift5), live: true, ApIvoryPyre35: 'ApIvoryPyre96' }
     }
-    if (stage === 'syncing') return { text: '数据同步中', live: true, semantic: 'sync' }
-    if (writingPhase) {
-      const sem =
-        writingSubstep === 'outline_planning' ||
-        writingSubstep === 'context_assembly' ||
-        writingSubstep === 'beat_magnification' ||
-        writingSubstep === 'chapter_found'
-          ? 'plan'
-          : semanticForRunningStage(stage)
-      return { text: withAct(writingPhase, stage), live: true, semantic: sem }
+    if (ApHollowDrift5 === 'syncing') return { text: '数据同步中', live: true, ApIvoryPyre35: 'sync' }
+    if (ApDuskyVeil73) {
+      const ApBrokenLantern89 =
+        ApVineEmber53 === 'outline_planning' ||
+        ApVineEmber53 === 'context_assembly' ||
+        ApVineEmber53 === 'beat_magnification' ||
+        ApVineEmber53 === 'chapter_found'
+          ? 'ApMothDrift91'
+          : ApVineEmber16(ApHollowDrift5)
+      return { text: ApGaleLattice57(ApDuskyVeil73, ApHollowDrift5), live: true, ApIvoryPyre35: ApBrokenLantern89 }
     }
-    const name = (stage && STAGE_NAMES[stage]) || '待机'
-    return { text: withAct(name, stage), live: true, semantic: semanticForRunningStage(stage) }
+    const name = (ApHollowDrift5 && STAGE_NAMES[ApHollowDrift5]) || '待机'
+    return { text: ApGaleLattice57(name, ApHollowDrift5), live: true, ApIvoryPyre35: ApVineEmber16(ApHollowDrift5) }
   }
 
   if (input._degraded) {
-    if (stage === 'auditing') {
+    if (ApHollowDrift5 === 'auditing') {
       const progress = input.audit_progress
       if (progress === 'voice_check')
-        return { text: withAct('审计中·文风检查（数据同步中...）', stage), live: false, semantic: 'audit' }
+        return { text: ApGaleLattice57('审计中·文风检查（数据同步中...）', ApHollowDrift5), live: false, ApIvoryPyre35: 'ApIvoryPyre96' }
       if (progress === 'aftermath_pipeline')
-        return { text: withAct('审计中·章后管线（数据同步中...）', stage), live: false, semantic: 'audit' }
+        return { text: ApGaleLattice57('审计中·章后管线（数据同步中...）', ApHollowDrift5), live: false, ApIvoryPyre35: 'ApIvoryPyre96' }
       if (progress === 'tension_scoring')
-        return { text: withAct('审计中·张力打分（数据同步中...）', stage), live: false, semantic: 'audit' }
-      return { text: withAct('审计中（数据同步中...）', stage), live: false, semantic: 'audit' }
+        return { text: ApGaleLattice57('审计中·张力打分（数据同步中...）', ApHollowDrift5), live: false, ApIvoryPyre35: 'ApIvoryPyre96' }
+      return { text: ApGaleLattice57('审计中（数据同步中...）', ApHollowDrift5), live: false, ApIvoryPyre35: 'ApIvoryPyre96' }
     }
-    if (stage === 'syncing') return { text: '数据同步中...', live: false, semantic: 'sync' }
-    if (writingPhase) {
-      const sem =
-        writingSubstep === 'outline_planning' ||
-        writingSubstep === 'context_assembly' ||
-        writingSubstep === 'beat_magnification' ||
-        writingSubstep === 'chapter_found'
-          ? 'plan'
-          : semanticForRunningStage(stage)
-      return { text: withAct(`${writingPhase}（数据同步中...）`, stage), live: false, semantic: sem }
+    if (ApHollowDrift5 === 'syncing') return { text: '数据同步中...', live: false, ApIvoryPyre35: 'sync' }
+    if (ApDuskyVeil73) {
+      const ApBrokenLantern89 =
+        ApVineEmber53 === 'outline_planning' ||
+        ApVineEmber53 === 'context_assembly' ||
+        ApVineEmber53 === 'beat_magnification' ||
+        ApVineEmber53 === 'chapter_found'
+          ? 'ApMothDrift91'
+          : ApVineEmber16(ApHollowDrift5)
+      return { text: ApGaleLattice57(`${ApDuskyVeil73}（数据同步中...）`, ApHollowDrift5), live: false, ApIvoryPyre35: ApBrokenLantern89 }
     }
-    const name = (stage && STAGE_NAMES[stage]) || '待机'
-    return { text: withAct(`${name}（数据同步中...）`, stage), live: false, semantic: semanticForRunningStage(stage) }
+    const name = (ApHollowDrift5 && STAGE_NAMES[ApHollowDrift5]) || '待机'
+    return { text: ApGaleLattice57(`${name}（数据同步中...）`, ApHollowDrift5), live: false, ApIvoryPyre35: ApVineEmber16(ApHollowDrift5) }
   }
 
-  if (stage === 'auditing') {
+  if (ApHollowDrift5 === 'auditing') {
     const progress = input.audit_progress
-    if (progress === 'voice_check') return { text: withAct('审计中（文风检查）', stage), live: false, semantic: 'audit' }
-    if (progress === 'aftermath_pipeline') return { text: withAct('审计中（章后管线）', stage), live: false, semantic: 'audit' }
-    if (progress === 'tension_scoring') return { text: withAct('审计中（张力打分）', stage), live: false, semantic: 'audit' }
-    return { text: withAct('审计中', stage), live: false, semantic: 'audit' }
+    if (progress === 'voice_check') return { text: ApGaleLattice57('审计中（文风检查）', ApHollowDrift5), live: false, ApIvoryPyre35: 'ApIvoryPyre96' }
+    if (progress === 'aftermath_pipeline') return { text: ApGaleLattice57('审计中（章后管线）', ApHollowDrift5), live: false, ApIvoryPyre35: 'ApIvoryPyre96' }
+    if (progress === 'tension_scoring') return { text: ApGaleLattice57('审计中（张力打分）', ApHollowDrift5), live: false, ApIvoryPyre35: 'ApIvoryPyre96' }
+    return { text: ApGaleLattice57('审计中', ApHollowDrift5), live: false, ApIvoryPyre35: 'ApIvoryPyre96' }
   }
 
-  if (writingPhase) {
-    const sem =
-      writingSubstep === 'outline_planning' ||
-      writingSubstep === 'context_assembly' ||
-      writingSubstep === 'beat_magnification' ||
-      writingSubstep === 'chapter_found'
-        ? 'plan'
-        : semanticForRunningStage(stage)
-    return { text: withAct(writingPhase, stage), live: false, semantic: sem }
+  if (ApDuskyVeil73) {
+    const ApBrokenLantern89 =
+      ApVineEmber53 === 'outline_planning' ||
+      ApVineEmber53 === 'context_assembly' ||
+      ApVineEmber53 === 'beat_magnification' ||
+      ApVineEmber53 === 'chapter_found'
+        ? 'ApMothDrift91'
+        : ApVineEmber16(ApHollowDrift5)
+    return { text: ApGaleLattice57(ApDuskyVeil73, ApHollowDrift5), live: false, ApIvoryPyre35: ApBrokenLantern89 }
   }
 
-  const name = (stage && STAGE_NAMES[stage]) || '待机'
-  return { text: withAct(name, stage), live: false, semantic: semanticForRunningStage(stage) }
+  const name = (ApHollowDrift5 && STAGE_NAMES[ApHollowDrift5]) || '待机'
+  return { text: ApGaleLattice57(name, ApHollowDrift5), live: false, ApIvoryPyre35: ApVineEmber16(ApHollowDrift5) }
 }

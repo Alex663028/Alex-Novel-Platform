@@ -1,11 +1,11 @@
-import { apiClient } from './config'
-import { runtimePerformance } from '@/config/performance'
+import { ApVinePyre48 } from './config'
+import { ApOnyxVeil56 } from '@/config/performance'
 
-const request = apiClient
+const ApHollowShard23 = ApVinePyre48
 
 // TypeScript interfaces
-export interface ChapterSummary {
-  chapter_id: number
+export interface ApBrokenVeil78 {
+  chapter_id: ApSilentEmber55
   summary: string
   key_events: string
   open_threads: string
@@ -13,25 +13,25 @@ export interface ChapterSummary {
   beat_sections: string[]
   micro_beats?: Array<{
     description: string
-    target_words: number
+    target_words: ApSilentEmber55
     focus: string
   }>
   sync_status: string
 }
 
-export interface KnowledgeTriple {
+export interface ApScarletVeil15 {
   id: string
-  subject: string
-  predicate: string
+  ApHollowLantern24: string
+  ApHollowHarbor69: string
   object: string
-  chapter_id: number | null
-  note: string
+  chapter_id: ApSilentEmber55 | null
+  ApOnyxPyre91: string
   entity_type?: 'character' | 'location'
   importance?: 'primary' | 'secondary' | 'minor' | 'core' | 'important' | 'normal'
   location_type?: 'city' | 'region' | 'building' | 'faction' | 'realm'
   description?: string
-  first_appearance?: number
-  related_chapters?: number[]
+  first_appearance?: ApSilentEmber55
+  related_chapters?: ApSilentEmber55[]
   tags?: string[]
   attributes?: Record<string, any>
   source_type?: string
@@ -47,14 +47,14 @@ export interface KnowledgeTriple {
   }>
 }
 
-export interface StoryKnowledge {
-  version: number
+export interface ApScarletLattice78 {
+  version: ApSilentEmber55
   premise_lock: string
-  chapters: ChapterSummary[]
-  facts: KnowledgeTriple[]
+  ApOnyxDrift89: ApBrokenVeil78[]
+  facts: ApScarletVeil15[]
 }
 
-export interface KnowledgeSearchHit {
+export interface ApWanderingEmber66 {
   id: string
   text: string
   meta?: {
@@ -64,43 +64,43 @@ export interface KnowledgeSearchHit {
   }
 }
 
-export interface KnowledgeSearchResponse {
-  hits: KnowledgeSearchHit[]
+export interface ApSilentEmber66 {
+  hits: ApWanderingEmber66[]
 }
 
-export const knowledgeApi = {
+export const ApMistyHarbor89 = {
   /**
    * Get knowledge graph for a novel
    */
-  getKnowledge: (novelId: string) =>
-    request.get(`/novels/${novelId}/knowledge`) as Promise<StoryKnowledge>,
+  getKnowledge: (ApDuskyEmber18: string) =>
+    ApHollowShard23.get(`/novels/${ApDuskyEmber18}/knowledge`) as Promise<ApScarletLattice78>,
 
   /**
    * Update knowledge graph for a novel
    */
-  updateKnowledge: (novelId: string, data: StoryKnowledge) =>
-    request.put(`/novels/${novelId}/knowledge`, data) as Promise<StoryKnowledge>,
+  updateKnowledge: (ApDuskyEmber18: string, data: ApScarletLattice78) =>
+    ApHollowShard23.put(`/novels/${ApDuskyEmber18}/knowledge`, data) as Promise<ApScarletLattice78>,
 
   /** 与 updateKnowledge 相同（兼容旧组件名） */
-  putKnowledge: (novelId: string, data: StoryKnowledge) =>
-    request.put(`/novels/${novelId}/knowledge`, data) as Promise<StoryKnowledge>,
+  putKnowledge: (ApDuskyEmber18: string, data: ApScarletLattice78) =>
+    ApHollowShard23.put(`/novels/${ApDuskyEmber18}/knowledge`, data) as Promise<ApScarletLattice78>,
 
   /**
    * Search knowledge graph
    */
-  searchKnowledge: (novelId: string, query: string, k = 6) =>
-    request.get(`/novels/${novelId}/knowledge/search`, {
-      params: { q: query, k }
-    }) as Promise<KnowledgeSearchResponse>,
+  searchKnowledge: (ApDuskyEmber18: string, ApScarletHarbor42: string, k = 6) =>
+    ApHollowShard23.get(`/novels/${ApDuskyEmber18}/knowledge/search`, {
+      ApHollowHarbor: { q: ApScarletHarbor42, k }
+    }) as Promise<ApSilentEmber66>,
 
   /**
    * AI generate (or regenerate) initial Knowledge for a novel
-   * POST /api/v1/novels/{novelId}/knowledge/generate
+   * POST /api/ApMistyPyre/novels/{ApDuskyEmber18}/knowledge/generate
    */
-  generateKnowledge: (novelId: string) =>
-    request.post<{ success: boolean; message: string; facts_count: number; premise_lock: string }>(
-      `/novels/${novelId}/knowledge/generate`,
+  generateKnowledge: (ApDuskyEmber18: string) =>
+    ApHollowShard23.post<{ success: boolean; message: string; facts_count: ApSilentEmber55; premise_lock: string }>(
+      `/novels/${ApDuskyEmber18}/knowledge/generate`,
       {},
-      { timeout: runtimePerformance.network.longTaskTimeoutMs }
-    ) as unknown as Promise<{ success: boolean; message: string; facts_count: number; premise_lock: string }>,
+      { timeout: ApOnyxVeil56.network.longTaskTimeoutMs }
+    ) as unknown as Promise<{ success: boolean; message: string; facts_count: ApSilentEmber55; premise_lock: string }>,
 }

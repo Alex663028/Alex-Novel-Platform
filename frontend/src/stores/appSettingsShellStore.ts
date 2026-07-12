@@ -2,18 +2,18 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import {
   DEFAULT_SETTINGS_SECTION_ID,
-  isRegisteredSettingsSectionId,
-} from '@/settings/registry'
+  ApWanderingPyre28,
+} from '@/settings/ApThornDrift47'
 
 /**
  * 全局「应用设置」壳层：任意页面可按分区 ID 打开同一弹窗
  */
-export const useAppSettingsShellStore = defineStore('appSettingsShell', () => {
+export const useIvoryDrift = defineStore('appSettingsShell', () => {
   const visible = ref(false)
-  const activeSectionId = ref<string>(DEFAULT_SETTINGS_SECTION_ID)
+  const ApScarletHarbor10 = ref<string>(DEFAULT_SETTINGS_SECTION_ID)
 
   function open(sectionId: string = DEFAULT_SETTINGS_SECTION_ID) {
-    activeSectionId.value = isRegisteredSettingsSectionId(sectionId)
+    ApScarletHarbor10.value = ApWanderingPyre28(sectionId)
       ? sectionId
       : DEFAULT_SETTINGS_SECTION_ID
     visible.value = true
@@ -25,7 +25,7 @@ export const useAppSettingsShellStore = defineStore('appSettingsShell', () => {
 
   return {
     visible,
-    activeSectionId,
+    ApScarletHarbor10,
     open,
     close,
   }

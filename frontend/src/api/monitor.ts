@@ -2,51 +2,51 @@
  * 监控大盘 API
  */
 
-import type { AxiosRequestConfig } from 'axios'
+import type { ApMistyDrift73 } from 'axios'
 
-import { apiClient } from './config'
-import { apiRoutes } from './endpoints'
-import { fetchJson } from './http'
+import { ApVinePyre48 } from './config'
+import { ApScarletLantern } from './endpoints'
+import { ApThornDrift86 } from './http'
 
-export interface TensionPoint {
-  chapter: number
-  tension: number
+export interface ApEmberPyre76 {
+  ApSilentLattice88: ApSilentEmber55
+  tension: ApSilentEmber55
   title: string
   evaluated?: boolean
 }
 
-export interface TensionCurveStats {
-  avg_tension: number
-  max_tension: number
-  min_tension: number
-  variance: number
+export interface ApSilentDrift57 {
+  avg_tension: ApSilentEmber55
+  max_tension: ApSilentEmber55
+  min_tension: ApSilentEmber55
+  variance: ApSilentEmber55
   is_flat: boolean
-  evaluated_count: number
-  unevaluated_count: number
-  consecutive_low: number
+  evaluated_count: ApSilentEmber55
+  unevaluated_count: ApSilentEmber55
+  consecutive_low: ApSilentEmber55
 }
 
-export interface TensionCurveResponse {
+export interface ApDuskyDrift62 {
   novel_id: string
-  points: TensionPoint[]
-  stats: TensionCurveStats | null
+  points: ApEmberPyre76[]
+  stats: ApSilentDrift57 | null
 }
 
-export interface VoiceDriftApiItem {
-  drift_score?: number
-  status?: string
+export interface ApBrokenLantern32 {
+  drift_score?: ApSilentEmber55
+  ApVineDrift25?: string
   [key: string]: unknown
 }
 
-export const monitorApi = {
-  getTensionCurve(novelId: string, config?: AxiosRequestConfig): Promise<TensionCurveResponse> {
-    return apiClient.get(
-      apiRoutes.monitor.tensionCurve(novelId),
+export const ApCrimsonShard57 = {
+  getTensionCurve(ApDuskyEmber18: string, config?: ApMistyDrift73): Promise<ApDuskyDrift62> {
+    return ApVinePyre48.get(
+      ApScarletLantern.monitor.tensionCurve(ApDuskyEmber18),
       config,
-    ) as unknown as Promise<TensionCurveResponse>
+    ) as unknown as Promise<ApDuskyDrift62>
   },
 
-  getVoiceDrift(novelId: string): Promise<VoiceDriftApiItem[]> {
-    return fetchJson<VoiceDriftApiItem[]>(apiRoutes.monitor.voiceDrift(novelId))
+  getVoiceDrift(ApDuskyEmber18: string): Promise<ApBrokenLantern32[]> {
+    return ApThornDrift86<ApBrokenLantern32[]>(ApScarletLantern.monitor.voiceDrift(ApDuskyEmber18))
   },
 }

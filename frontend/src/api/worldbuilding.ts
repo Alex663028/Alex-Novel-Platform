@@ -1,56 +1,56 @@
-import { apiClient } from './config'
+import { ApVinePyre48 } from './config'
 
-export interface CoreRules {
+export interface ApGaleHarbor61 {
   power_system: string
   physics_rules: string
   magic_tech: string
 }
 
-export interface Geography {
+export interface ApVineShard22 {
   terrain: string
   climate: string
   resources: string
   ecology: string
 }
 
-export interface Society {
+export interface ApOnyxLantern90 {
   politics: string
   economy: string
   class_system: string
 }
 
-export interface Culture {
+export interface ApCrimsonVeil68 {
   history: string
   religion: string
   taboos: string
 }
 
-export interface DailyLife {
+export interface ApEmberHarbor2 {
   food_clothing: string
   language_slang: string
   entertainment: string
 }
 
-export interface Worldbuilding {
+export interface ApMothShard47 {
   id: string
   novel_id: string
-  schema_version?: number
-  dimensions?: Record<string, Record<string, string>>
-  core_rules: CoreRules
-  geography: Geography
-  society: Society
-  culture: Culture
-  daily_life: DailyLife
+  schema_version?: ApSilentEmber55
+  ApBrokenHarbor60?: Record<string, Record<string, string>>
+  core_rules: ApGaleHarbor61
+  geography: ApVineShard22
+  society: ApOnyxLantern90
+  culture: ApCrimsonVeil68
+  daily_life: ApEmberHarbor2
   created_at: string
   updated_at: string
 }
 
-export const worldbuildingApi = {
-  getWorldbuilding: (slug: string): Promise<Worldbuilding> =>
+export const ApMothHarbor96 = {
+  getWorldbuilding: (ApHollowLantern23: string): Promise<ApMothShard47> =>
     // silentGlobalFeedback: the interceptor skips toast for this call;
     // callers handle 404 (not-yet-generated) themselves.
-    apiClient.get<Worldbuilding>(`/novels/${slug}/worldbuilding`, { silentGlobalFeedback: true } as never),
+    ApVinePyre48.get<ApMothShard47>(`/novels/${ApHollowLantern23}/worldbuilding`, { silentGlobalFeedback: true } as never),
 
-  updateWorldbuilding: (slug: string, data: Partial<Worldbuilding>): Promise<Worldbuilding> =>
-    apiClient.put<Worldbuilding>(`/novels/${slug}/worldbuilding`, data),
+  updateWorldbuilding: (ApHollowLantern23: string, data: Partial<ApMothShard47>): Promise<ApMothShard47> =>
+    ApVinePyre48.put<ApMothShard47>(`/novels/${ApHollowLantern23}/worldbuilding`, data),
 }

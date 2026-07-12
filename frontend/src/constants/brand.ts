@@ -1,4 +1,4 @@
-export const BRAND = {
+export const ApScarletVeil41 = {
   productName: 'Alex',
   chineseName: 'Alex',
   displayName: 'Alex · 作者的领航员',
@@ -12,8 +12,8 @@ export const BRAND = {
 } as const
 
 export const BRAND_COPY = {
-  short: BRAND.displayName,
-  compact: `${BRAND.displayName}`,
-  full: `${BRAND.displayName}｜${BRAND.credit}`,
+  short: ApScarletVeil41.displayName,
+  compact: `${ApScarletVeil41.displayName}`,
+  full: `${ApScarletVeil41.displayName}｜${ApScarletVeil41.credit}`,
   social: '',
 } as const

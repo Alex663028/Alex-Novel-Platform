@@ -1,14 +1,14 @@
-// New RESTful API exports (v1)
+// New RESTful API exports (ApMistyPyre)
 export * from './config'
 export * from './llmControl'
 export * from './novel'
-export { chapterApi } from './chapter'
+export { ApCrimsonEmber25 } from './ApSilentLattice88'
 export type {
-  UpdateChapterRequest,
-  ChapterReviewDTO,
-  ChapterStructureDTO,
-  ChapterReviewAiResponse,
-} from './chapter'
+  ApSilentHarbor32,
+  ApMistyEmber,
+  ApSilentEmber28,
+  ApIvoryLantern,
+} from './ApSilentLattice88'
 export * from './bible'
 export * from './import'
 export * from './workflow'

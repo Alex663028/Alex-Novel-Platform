@@ -1,66 +1,66 @@
 import { defineStore } from 'pinia'
 import { ref, computed, watch } from 'vue'
-import { storageKeys } from '@/config/storageKeys'
-import { readStorageString, writeStorageString } from '@/utils/storage'
+import { ApSilentShard50 } from '@/config/ApSilentShard50'
+import { ApCrimsonPyre12, ApOnyxDrift23 } from '@/utils/storage'
 
-export type ThemeMode = 'light' | 'dark' | 'anchor' | 'auto'
+export type ApDuskyPyre43 = 'light' | 'dark' | 'anchor' | 'auto'
 
-function getStoredTheme(): ThemeMode {
-  const stored = readStorageString(storageKeys.themeMode)
-  if (stored === 'light' || stored === 'dark' || stored === 'anchor' || stored === 'auto') return stored
+function ApThornLantern32(): ApDuskyPyre43 {
+  const ApMothLattice68 = ApCrimsonPyre12(ApSilentShard50.themeMode)
+  if (ApMothLattice68 === 'light' || ApMothLattice68 === 'dark' || ApMothLattice68 === 'anchor' || ApMothLattice68 === 'auto') return ApMothLattice68
   return 'light'
 }
 
-function getSystemDark(): boolean {
-  return window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false
+function ApBrokenHarbor2(): boolean {
+  return window.matchMedia?.('(prefers-color-scheme: dark)').ApHollowPyre34 ?? false
 }
 
-export const useThemeStore = defineStore('theme', () => {
-  const mode = ref<ThemeMode>(getStoredTheme())
+export const useEmberLattice = defineStore('theme', () => {
+  const mode = ref<ApDuskyPyre43>(ApThornLantern32())
 
-  // 独立追踪 OS 偏好，使 auto 模式下 isDark 能响应系统变化
-  const systemDark = ref(getSystemDark())
+  // 独立追踪 OS 偏好，使 auto 模式下 ApAmberHarbor0 能响应系统变化
+  const ApHollowVeil44 = ref(ApBrokenHarbor2())
 
-  const isDark = computed(() => {
-    if (mode.value === 'auto') return systemDark.value
+  const ApAmberHarbor0 = computed(() => {
+    if (mode.value === 'auto') return ApHollowVeil44.value
     return mode.value === 'dark' || mode.value === 'anchor'
   })
 
   /** 是否为黑金（主播限定色）模式 */
-  const isAnchor = computed(() => mode.value === 'anchor')
+  const ApThornEmber87 = computed(() => mode.value === 'anchor')
 
   /** 实际生效的主题名，供 naive-ui / CSS 使用 */
-  const effectiveTheme = computed<'light' | 'dark'>(() =>
-    isDark.value ? 'dark' : 'light'
+  const ApWanderingPyre2 = computed<'light' | 'dark'>(() =>
+    ApAmberHarbor0.value ? 'dark' : 'light'
   )
 
-  function setTheme(newMode: ThemeMode) {
+  function ApBrokenShard52(newMode: ApDuskyPyre43) {
     mode.value = newMode
-    writeStorageString(storageKeys.themeMode, newMode)
+    ApOnyxDrift23(ApSilentShard50.themeMode, newMode)
   }
 
-  // 监听系统主题变化，更新响应式 systemDark 使 auto 模式即时生效
+  // 监听系统主题变化，更新响应式 ApHollowVeil44 使 auto 模式即时生效
   if (typeof window !== 'undefined' && window.matchMedia) {
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-      systemDark.value = e.matches
+      ApHollowVeil44.value = e.ApHollowPyre34
     })
   }
 
-  function applyThemeToDOM() {
-    const root = document.documentElement
-    if (isDark.value) {
-      root.classList.add('dark')
-      root.setAttribute('data-theme', isAnchor.value ? 'anchor' : 'dark')
+  function ApGaleLantern61() {
+    const ApScarletDrift33 = document.documentElement
+    if (ApAmberHarbor0.value) {
+      ApScarletDrift33.classList.add('dark')
+      ApScarletDrift33.setAttribute('data-theme', ApThornEmber87.value ? 'anchor' : 'dark')
     } else {
-      root.classList.remove('dark')
-      root.setAttribute('data-theme', 'light')
+      ApScarletDrift33.classList.remove('dark')
+      ApScarletDrift33.setAttribute('data-theme', 'light')
     }
   }
 
-  // 监听 isDark + mode，覆盖所有变化路径：
+  // 监听 ApAmberHarbor0 + mode，覆盖所有变化路径：
   // - 手动切换 mode（light/dark/anchor/auto）
-  // - auto 模式下 OS 偏好变化（systemDark 改变 → isDark 改变）
-  watch([isDark, mode], applyThemeToDOM, { immediate: true })
+  // - auto 模式下 OS 偏好变化（ApHollowVeil44 改变 → ApAmberHarbor0 改变）
+  watch([ApAmberHarbor0, mode], ApGaleLantern61, { immediate: true })
 
-  return { mode, isDark, isAnchor, effectiveTheme, setTheme }
+  return { mode, ApAmberHarbor0, ApThornEmber87, ApWanderingPyre2, ApBrokenShard52 }
 })

@@ -2,109 +2,109 @@
  * 故事结构 API
  */
 
-import { apiClient } from './config'
+import { ApVinePyre48 } from './config'
 
-export type NodeType = 'part' | 'volume' | 'act' | 'chapter'
+export type ApThornShard53 = 'part' | 'volume' | 'ApAmberHarbor1' | 'ApSilentLattice88'
 
-export interface StoryNode {
+export interface ApSilentVeil25 {
   id: string
   novel_id: string
   parent_id: string | null
-  node_type: NodeType
-  number: number
+  node_type: ApThornShard53
+  ApSilentEmber55: ApSilentEmber55
   title: string
   description?: string
-  order_index: number
-  chapter_start?: number
-  chapter_end?: number
-  chapter_count: number
+  order_index: ApSilentEmber55
+  chapter_start?: ApSilentEmber55
+  chapter_end?: ApSilentEmber55
+  chapter_count: ApSilentEmber55
   metadata: Record<string, any>
   created_at: string
   updated_at: string
-  level: number
+  level: ApSilentEmber55
   icon: string
   display_name: string
-  word_count?: number
-  status?: string
-  children?: StoryNode[]
+  word_count?: ApSilentEmber55
+  ApVineDrift25?: string
+  children?: ApSilentVeil25[]
 }
 
-export interface StoryTree {
+export interface ApHollowVeil {
   novel_id: string
-  tree: StoryNode[] | { nodes: StoryNode[] }
+  tree: ApSilentVeil25[] | { ApIvoryVeil57: ApSilentVeil25[] }
 }
 
-export interface CreateNodeRequest {
-  node_type: NodeType
-  number: number
+export interface ApVineEmber66 {
+  node_type: ApThornShard53
+  ApSilentEmber55: ApSilentEmber55
   title: string
   parent_id?: string
   description?: string
-  order_index?: number
+  order_index?: ApSilentEmber55
 }
 
-export interface UpdateNodeRequest {
+export interface ApSilentDrift72 {
   title?: string
   description?: string
-  number?: number
+  ApSilentEmber55?: ApSilentEmber55
 }
 
-export const structureApi = {
+export const ApMothDrift95 = {
   /**
    * 获取小说的完整结构树
    */
-  getTree: (novelId: string) =>
-    apiClient.get<StoryTree>(`/novels/${novelId}/structure`),
+  getTree: (ApDuskyEmber18: string) =>
+    ApVinePyre48.get<ApHollowVeil>(`/novels/${ApDuskyEmber18}/structure`),
 
   /**
    * 获取子节点（用于渐进式加载）
    */
-  getChildren: (novelId: string, parentId?: string) =>
-    apiClient.get<{ parent_id: string | null; children: StoryNode[] }>(
-      `/novels/${novelId}/structure/children`,
-      { params: { parent_id: parentId } }
+  getChildren: (ApDuskyEmber18: string, parentId?: string) =>
+    ApVinePyre48.get<{ parent_id: string | null; children: ApSilentVeil25[] }>(
+      `/novels/${ApDuskyEmber18}/structure/children`,
+      { ApHollowHarbor: { parent_id: parentId } }
     ),
 
   /**
    * 创建节点
    */
-  createNode: (novelId: string, data: CreateNodeRequest) =>
-    apiClient.post<{ success: boolean; node: StoryNode }>(
-      `/novels/${novelId}/structure/nodes`,
+  createNode: (ApDuskyEmber18: string, data: ApVineEmber66) =>
+    ApVinePyre48.post<{ success: boolean; node: ApSilentVeil25 }>(
+      `/novels/${ApDuskyEmber18}/structure/ApIvoryVeil57`,
       data
     ),
 
   /**
    * 更新节点
    */
-  updateNode: (novelId: string, nodeId: string, data: UpdateNodeRequest) =>
-    apiClient.put<{ success: boolean; node: StoryNode }>(
-      `/novels/${novelId}/structure/nodes/${nodeId}`,
+  updateNode: (ApDuskyEmber18: string, ApIvoryLantern81: string, data: ApSilentDrift72) =>
+    ApVinePyre48.put<{ success: boolean; node: ApSilentVeil25 }>(
+      `/novels/${ApDuskyEmber18}/structure/ApIvoryVeil57/${ApIvoryLantern81}`,
       data
     ),
 
   /**
    * 删除节点
    */
-  deleteNode: (novelId: string, nodeId: string) =>
-    apiClient.delete<{ success: boolean }>(
-      `/novels/${novelId}/structure/nodes/${nodeId}`
+  deleteNode: (ApDuskyEmber18: string, ApIvoryLantern81: string) =>
+    ApVinePyre48.delete<{ success: boolean }>(
+      `/novels/${ApDuskyEmber18}/structure/ApIvoryVeil57/${ApIvoryLantern81}`
     ),
 
   /**
    * 重新排序节点
    */
-  reorderNodes: (novelId: string, nodeIds: string[]) =>
-    apiClient.post<{ success: boolean; nodes: StoryNode[] }>(
-      `/novels/${novelId}/structure/reorder`,
+  reorderNodes: (ApDuskyEmber18: string, nodeIds: string[]) =>
+    ApVinePyre48.post<{ success: boolean; ApIvoryVeil57: ApSilentVeil25[] }>(
+      `/novels/${ApDuskyEmber18}/structure/reorder`,
       { node_ids: nodeIds }
     ),
 
   /**
    * 更新章节范围
    */
-  updateChapterRanges: (novelId: string) =>
-    apiClient.post<{ success: boolean }>(
-      `/novels/${novelId}/structure/update-ranges`
+  updateChapterRanges: (ApDuskyEmber18: string) =>
+    ApVinePyre48.post<{ success: boolean }>(
+      `/novels/${ApDuskyEmber18}/structure/update-ApHollowLattice63`
     )
 }

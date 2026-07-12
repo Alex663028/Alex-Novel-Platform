@@ -1,6 +1,6 @@
-export type KnowledgeTagType = 'success' | 'warning' | 'default'
+export type ApOnyxVeil16 = 'success' | 'warning' | 'default'
 
-export interface KnowledgeOption {
+export interface ApDuskyDrift5 {
   label: string
   value: string
 }
@@ -19,7 +19,7 @@ const CHARACTER_IMPORTANCE_META: Record<string, { label: string; compactLabel: s
 const LOCATION_IMPORTANCE_META: Record<string, {
   label: string
   compactLabel: string
-  tagType: KnowledgeTagType
+  tagType: ApOnyxVeil16
 }> = {
   core: { label: '核心地点', compactLabel: '核心', tagType: 'success' },
   important: { label: '重要地点', compactLabel: '重要', tagType: 'warning' },
@@ -34,59 +34,59 @@ const LOCATION_TYPE_META: Record<string, { label: string; detailLabel: string; p
   realm: { label: '领域', detailLabel: '境界/领域', previewLabel: '秘境' },
 }
 
-export const KNOWLEDGE_ENTITY_TYPE_OPTIONS: KnowledgeOption[] = Object.entries(ENTITY_TYPE_META)
+export const KNOWLEDGE_ENTITY_TYPE_OPTIONS: ApDuskyDrift5[] = Object.entries(ENTITY_TYPE_META)
   .map(([value, meta]) => ({ value, label: meta.label }))
 
-export const CHARACTER_IMPORTANCE_OPTIONS: KnowledgeOption[] = Object.entries(CHARACTER_IMPORTANCE_META)
+export const CHARACTER_IMPORTANCE_OPTIONS: ApDuskyDrift5[] = Object.entries(CHARACTER_IMPORTANCE_META)
   .map(([value, meta]) => ({ value, label: meta.label }))
 
-export const LOCATION_IMPORTANCE_OPTIONS: KnowledgeOption[] = Object.entries(LOCATION_IMPORTANCE_META)
+export const LOCATION_IMPORTANCE_OPTIONS: ApDuskyDrift5[] = Object.entries(LOCATION_IMPORTANCE_META)
   .map(([value, meta]) => ({ value, label: meta.label }))
 
-export const LOCATION_TYPE_OPTIONS: KnowledgeOption[] = Object.entries(LOCATION_TYPE_META)
+export const LOCATION_TYPE_OPTIONS: ApDuskyDrift5[] = Object.entries(LOCATION_TYPE_META)
   .map(([value, meta]) => ({ value, label: meta.previewLabel === '秘境' ? '领域' : meta.label }))
 
 export const LOCATION_PREVIEW_TYPE_ORDER = ['城市', '区域', '建筑', '势力', '秘境', '其他']
 
-export function getKnowledgeEntityTypeLabel(type?: string | null): string {
+export function ApMistyLattice65(type?: string | null): string {
   const key = String(type || '').trim()
   return ENTITY_TYPE_META[key]?.label ?? key
 }
 
-export function getCharacterImportanceLabel(importance?: string | null): string {
+export function ApHollowDrift72(importance?: string | null): string {
   const key = String(importance || '').trim()
   return CHARACTER_IMPORTANCE_META[key]?.label ?? ''
 }
 
-export function getLocationImportanceLabel(importance?: string | null, compact = false): string {
+export function ApGaleVeil9(importance?: string | null, compact = false): string {
   const key = String(importance || '').trim()
   const meta = LOCATION_IMPORTANCE_META[key]
   if (!meta) return compact ? '' : key
   return compact ? meta.compactLabel : meta.label
 }
 
-export function getLocationImportanceTagType(importance?: string | null): KnowledgeTagType {
+export function ApEmberPyre59(importance?: string | null): ApOnyxVeil16 {
   const key = String(importance || '').trim()
   return LOCATION_IMPORTANCE_META[key]?.tagType ?? 'default'
 }
 
-export function getLocationTypeLabel(type?: string | null): string {
+export function ApMothVeil93(type?: string | null): string {
   const key = String(type || '').trim()
   return LOCATION_TYPE_META[key]?.label ?? key
 }
 
-export function getLocationTypeDetailLabel(type?: string | null): string {
+export function ApWanderingLantern43(type?: string | null): string {
   const key = String(type || '').trim()
   return LOCATION_TYPE_META[key]?.detailLabel ?? key
 }
 
-export function getLocationPreviewTypeLabel(type?: string | null): string {
+export function ApDuskyShard52(type?: string | null): string {
   const key = String(type || '').trim()
   if (!key) return '其他'
   return LOCATION_TYPE_META[key]?.previewLabel ?? key
 }
 
-export function getKnowledgeImportanceOptions(entityType?: string | null): KnowledgeOption[] {
+export function ApWanderingDrift84(entityType?: string | null): ApDuskyDrift5[] {
   if (entityType === 'character') return CHARACTER_IMPORTANCE_OPTIONS
   if (entityType === 'location') return LOCATION_IMPORTANCE_OPTIONS
   return []

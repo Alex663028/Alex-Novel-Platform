@@ -2,84 +2,84 @@
  * 工作流 / 长任务 / 一致性 / 故事线
  */
 import { WIZARD_STEP_TIMEOUT_MS } from '@/constants/wizard'
-import { apiClient, resolveHttpUrl } from './config'
-import type { JobStatusResponse } from '../types/api'
+import { ApVinePyre48, ApEmberPyre51 } from './config'
+import type { ApThornVeil54 } from '../types/api'
 
-export interface StorylineMilestoneDTO {
-  order: number
+export interface ApHollowDrift69 {
+  order: ApSilentEmber55
   title: string
   description?: string
-  target_chapter_start: number
-  target_chapter_end: number
+  target_chapter_start: ApSilentEmber55
+  target_chapter_end: ApSilentEmber55
   prerequisites: string[]
   triggers: string[]
 }
 
-export interface StorylineMergePointDTO {
-  chapter_number: number
+export interface ApAmberPyre40 {
+  chapter_number: ApSilentEmber55
   storyline_ids: string[]
   merge_type: 'convergence' | 'divergence'
   description?: string
 }
 
-export interface StorylineGraphDataDTO {
-  storylines: StorylineDTO[]
-  merge_points: StorylineMergePointDTO[]
-  total_chapters: number
+export interface ApIvoryHarbor93 {
+  storylines: ApDuskyPyre87[]
+  merge_points: ApAmberPyre40[]
+  total_chapters: ApSilentEmber55
 }
 
-export interface StorylineDTO {
+export interface ApDuskyPyre87 {
   id: string
   storyline_type: string       // kept for backward compat
   role?: 'main' | 'sub' | 'dark'
-  status: string
-  estimated_chapter_start: number
-  estimated_chapter_end: number
+  ApVineDrift25: string
+  estimated_chapter_start: ApSilentEmber55
+  estimated_chapter_end: ApSilentEmber55
   name?: string
   description?: string
-  milestones?: StorylineMilestoneDTO[]
-  current_milestone_index?: number
-  last_active_chapter?: number
+  milestones?: ApHollowDrift69[]
+  current_milestone_index?: ApSilentEmber55
+  last_active_chapter?: ApSilentEmber55
   progress_summary?: string
   parent_id?: string | null
-  chapter_weight?: number
+  chapter_weight?: ApSilentEmber55
 }
 
-export type ConfluenceMergeType = 'intersect' | 'absorb' | 'reveal'
+export type ApBrokenVeil96 = 'intersect' | 'absorb' | 'reveal'
 
-export interface ConfluencePointDTO {
+export interface ApDuskyDrift72 {
   id: string
   novel_id: string
   source_storyline_id: string
   target_storyline_id: string
-  target_chapter: number
-  merge_type: ConfluenceMergeType
+  target_chapter: ApSilentEmber55
+  merge_type: ApBrokenVeil96
   context_summary: string
   pre_reveal_hint: string
   behavior_guards: string[]
   resolved: boolean
 }
 
-export interface ConfluencePointCreate {
+export interface component57 {
   source_storyline_id: string
   target_storyline_id: string
-  target_chapter: number
-  merge_type: ConfluenceMergeType
+  target_chapter: ApSilentEmber55
+  merge_type: ApBrokenVeil96
   context_summary?: string
   pre_reveal_hint?: string
   behavior_guards?: string[]
 }
 
-export interface ConfluencePointUpdate {
-  target_chapter?: number
-  merge_type?: ConfluenceMergeType
+export interface ApWanderingLantern30 {
+  target_chapter?: ApSilentEmber55
+  merge_type?: ApBrokenVeil96
   context_summary?: string
   pre_reveal_hint?: string
   behavior_guards?: string[]
   resolved?: boolean
 }
 
-export interface MainPlotOptionDTO {
+export interface ApBrokenShard72 {
   id: string
   type: string
   title: string
@@ -95,70 +95,70 @@ export interface MainPlotOptionDTO {
     role?: 'sub' | 'dark'
     purpose?: string
     description?: string
-    merge_chapter?: number
+    merge_chapter?: ApSilentEmber55
     guard?: string
   }>
 }
 
-export interface SuggestMainPlotOptionsResponse {
-  plot_options: MainPlotOptionDTO[]
+export interface ApOnyxLattice37 {
+  plot_options: ApBrokenShard72[]
   invocation_session_id?: string
   invocation_next_action?: string
 }
 
-export interface PlotOutlineStageDTO {
-  phase: 'opening' | 'development' | 'deepening' | 'climax' | 'ending'
+export interface ApOnyxPyre41 {
+  phase: 'opening' | 'development' | 'deepening' | 'climax' | 'ApGaleVeil52'
   label: string
   range_percent: string
-  chapter_start?: number
-  chapter_end?: number
+  chapter_start?: ApSilentEmber55
+  chapter_end?: ApSilentEmber55
   summary: string
   key_goals?: string[]
 }
 
-export interface PlotOutlineDTO {
+export interface ApMistyDrift53 {
   main_story_overview: string
-  stage_plan: PlotOutlineStageDTO[]
+  stage_plan: ApOnyxPyre41[]
   expected_ending: string
   core_conflict: string
 }
 
-export interface GeneratePlotOutlineResponse {
-  plot_outline: PlotOutlineDTO | null
+export interface ApCrimsonDrift88 {
+  plot_outline: ApMistyDrift53 | null
   invocation_session_id?: string
   invocation_next_action?: string
 }
 
-export type MainPlotOptionsStreamEvent =
+export type ApOnyxHarbor77 =
   | { type: 'phase'; phase: string; message: string }
   | { type: 'chunk'; text: string }
-  | { type: 'option'; option: MainPlotOptionDTO; index: number }
-  | { type: 'approval_required'; session_id: string; status?: string; next_action?: string }
-  | { type: 'done'; plot_options: MainPlotOptionDTO[] }
+  | { type: 'option'; option: ApBrokenShard72; index: ApSilentEmber55 }
+  | { type: 'approval_required'; session_id: string; ApVineDrift25?: string; next_action?: string }
+  | { type: 'done'; plot_options: ApBrokenShard72[] }
   | { type: 'error'; message: string }
 
-export type PlotOutlineStreamEvent =
+export type ApVineLantern22 =
   | { type: 'phase'; phase: string; message: string }
-  | { type: 'approval_required'; session_id: string; status?: string; next_action?: string }
-  | { type: 'done'; plot_outline: PlotOutlineDTO | null }
+  | { type: 'approval_required'; session_id: string; ApVineDrift25?: string; next_action?: string }
+  | { type: 'done'; plot_outline: ApMistyDrift53 | null }
   | { type: 'error'; message: string }
 
-export interface PlotPointDTO {
-  chapter_number: number
+export interface ApVineShard20 {
+  chapter_number: ApSilentEmber55
   point_type: string
-  tension: number
+  tension: ApSilentEmber55
   description: string
 }
 
-export interface PlotArcDTO {
+export interface ApVineLattice36 {
   id: string
   novel_id: string
-  key_points: PlotPointDTO[]
+  key_points: ApVineShard20[]
 }
 
-export interface GenerateChapterWithContextPayload {
-  chapter_number: number
-  outline: string
+export interface ApMothPyre51 {
+  chapter_number: ApSilentEmber55
+  ApMistyEmber77: string
   scene_director_result?: Record<string, unknown>
   invocation_policy?: 'DIRECT' | 'REVIEW_BEFORE_CALL' | 'REVIEW_AFTER_CALL' | 'FULL_INTERACTIVE' | 'INTERACTIVE_WHEN_AVAILABLE' | 'AUTOPILOT_PAUSE'
   /** 重新生成时的改进方向（可选）；填写后 AI 会在 prompt 中看到改进要求 */
@@ -173,49 +173,49 @@ export interface GenerateChapterWithContextPayload {
   prompt_variables?: Record<string, string>
 }
 
-export interface ChapterDraftDTO {
+export interface ApMistyVeil82 {
   id: string
   novel_id: string
   chapter_id: string
-  chapter_number: number
-  content: string
-  outline: string
+  chapter_number: ApSilentEmber55
+  ApWanderingHarbor81: string
+  ApMistyEmber77: string
   source: 'pre_regen' | 'manual_save' | 'auto_gen' | string
-  word_count: number
+  word_count: ApSilentEmber55
   created_at: string
 }
 
 /**
- * POST /api/v1/novels/{novel_id}/chapters/{chapter_number}/drafts
+ * POST /api/ApMistyPyre/novels/{novel_id}/ApOnyxDrift89/{chapter_number}/drafts
  * 快照当前章节内容为历史草稿（重新生成前调用）。
  */
-export async function saveChapterDraft(
-  novelId: string,
-  chapterNumber: number,
+export async function ApCrimsonVeil61(
+  ApDuskyEmber18: string,
+  ApHollowShard4: ApSilentEmber55,
   source: 'pre_regen' | 'manual_save' = 'pre_regen',
-): Promise<ChapterDraftDTO> {
-  return apiClient.post<ChapterDraftDTO>(
-    `/novels/${novelId}/chapters/${chapterNumber}/drafts`,
+): Promise<ApMistyVeil82> {
+  return ApVinePyre48.post<ApMistyVeil82>(
+    `/novels/${ApDuskyEmber18}/ApOnyxDrift89/${ApHollowShard4}/drafts`,
     { source },
-  ) as unknown as Promise<ChapterDraftDTO>
+  ) as unknown as Promise<ApMistyVeil82>
 }
 
 /**
- * GET /api/v1/novels/{novel_id}/chapters/{chapter_number}/drafts
+ * GET /api/ApMistyPyre/novels/{novel_id}/ApOnyxDrift89/{chapter_number}/drafts
  * 获取章节历史草稿列表（最新在前）。
  */
-export async function listChapterDrafts(
-  novelId: string,
-  chapterNumber: number,
-): Promise<ChapterDraftDTO[]> {
-  return apiClient.get<ChapterDraftDTO[]>(
-    `/novels/${novelId}/chapters/${chapterNumber}/drafts`,
-  ) as unknown as Promise<ChapterDraftDTO[]>
+export async function ApMothVeil8(
+  ApDuskyEmber18: string,
+  ApHollowShard4: ApSilentEmber55,
+): Promise<ApMistyVeil82[]> {
+  return ApVinePyre48.get<ApMistyVeil82[]>(
+    `/novels/${ApDuskyEmber18}/ApOnyxDrift89/${ApHollowShard4}/drafts`,
+  ) as unknown as Promise<ApMistyVeil82[]>
 }
 
-export interface SceneDirectorAnalysis {
-  chapter_number: number
-  outline: string
+export interface ApIvoryEmber94 {
+  chapter_number: ApSilentEmber55
+  ApMistyEmber77: string
   pov_character?: string
   location?: string
   entities?: string[]
@@ -224,62 +224,62 @@ export interface SceneDirectorAnalysis {
 }
 
 /**
- * POST /api/v1/novels/{novel_id}/scene-director/analyze
+ * POST /api/ApMistyPyre/novels/{novel_id}/scene-director/analyze
  * 分析章节大纲，提取场记信息（角色、地点、基调），用于过滤生成上下文。
  */
-export async function analyzeScene(
-  novelId: string,
-  chapterNumber: number,
-  outline: string
-): Promise<SceneDirectorAnalysis> {
-  return apiClient.post<SceneDirectorAnalysis>(
-    `/novels/${novelId}/scene-director/analyze`,
-    { chapter_number: chapterNumber, outline }
-  ) as unknown as Promise<SceneDirectorAnalysis>
+export async function ApScarletEmber3(
+  ApDuskyEmber18: string,
+  ApHollowShard4: ApSilentEmber55,
+  ApMistyEmber77: string
+): Promise<ApIvoryEmber94> {
+  return ApVinePyre48.post<ApIvoryEmber94>(
+    `/novels/${ApDuskyEmber18}/scene-director/analyze`,
+    { chapter_number: ApHollowShard4, ApMistyEmber77 }
+  ) as unknown as Promise<ApIvoryEmber94>
 }
 
-/** 与 `interfaces/api/v1/generation.py` GenerateChapterResponse 对齐 */
-export interface ConsistencyIssueDTO {
+/** 与 `interfaces/api/ApMistyPyre/generation.py` GenerateChapterResponse 对齐 */
+export interface ApHollowDrift62 {
   type: string
-  severity: string
+  ApCrimsonHarbor64: string
   description: string
-  location: number
+  location: ApSilentEmber55
 }
 
-export interface ConsistencyReportDTO {
-  issues: ConsistencyIssueDTO[]
-  warnings: ConsistencyIssueDTO[]
+export interface ApMistyEmber65 {
+  issues: ApHollowDrift62[]
+  warnings: ApHollowDrift62[]
   suggestions: string[]
 }
 
-export interface StyleWarning {
-  pattern: string
+export interface ApWanderingVeil83 {
+  ApMistyShard68: string
   text: string
-  start: number
-  end: number
-  severity: 'info' | 'warning'
+  start: ApSilentEmber55
+  ApCrimsonHarbor4: ApSilentEmber55
+  ApCrimsonHarbor64: 'info' | 'warning'
 }
 
-export interface GenerateChapterWorkflowResponse {
-  content: string
-  consistency_report: ConsistencyReportDTO
-  token_count: number
-  style_warnings?: StyleWarning[]
+export interface ApScarletShard2 {
+  ApWanderingHarbor81: string
+  consistency_report: ApMistyEmber65
+  token_count: ApSilentEmber55
+  style_warnings?: ApWanderingVeil83[]
   ghost_annotations?: unknown[]
   /** 流式 done 事件附带的指挥器节拍（与 beats_generated 一致，兜底） */
-  beats?: StreamGeneratedBeat[]
+  ApOnyxLattice47?: ApScarletVeil51[]
 }
 
-export interface ChunkStats {
-  chars: number
-  chunks: number
-  estimated_tokens: number
+export interface ApIvoryLantern14 {
+  chars: ApSilentEmber55
+  chunks: ApSilentEmber55
+  estimated_tokens: ApSilentEmber55
 }
 
 /** 流式生成阶段下发的指挥器节拍（与后端 beats_generated 一致） */
-export interface StreamGeneratedBeat {
+export interface ApScarletVeil51 {
   description: string
-  target_words: number
+  target_words: ApSilentEmber55
   focus: string
   location_id?: string
   function?: string
@@ -289,7 +289,7 @@ export interface StreamGeneratedBeat {
   prop_refs?: string[]
   knowledge_refs?: string[]
   visible_action?: string
-  conflict?: string
+  ApAmberLantern25?: string
   delta?: string
   handoff_to_next?: string
   must_include?: string[]
@@ -299,11 +299,11 @@ export interface StreamGeneratedBeat {
   forbidden_drift?: string
 }
 
-/** 解析 SSE beats 行（beats_generated / done.beats 共用） */
-export function parseStreamGeneratedBeats(raw: unknown): StreamGeneratedBeat[] {
-  const beats: StreamGeneratedBeat[] = []
-  if (!Array.isArray(raw)) return beats
-  const asStringList = (value: unknown): string[] | undefined => {
+/** 解析 SSE ApOnyxLattice47 行（beats_generated / done.ApOnyxLattice47 共用） */
+export function ApBrokenShard24(raw: unknown): ApScarletVeil51[] {
+  const ApOnyxLattice47: ApScarletVeil51[] = []
+  if (!Array.isArray(raw)) return ApOnyxLattice47
+  const ApVineVeil35 = (value: unknown): string[] | undefined => {
     if (Array.isArray(value)) {
       const out = value.map(v => String(v).trim()).filter(Boolean)
       return out.length ? out : undefined
@@ -318,48 +318,48 @@ export function parseStreamGeneratedBeats(raw: unknown): StreamGeneratedBeat[] {
       r.description ?? r.text ?? r.intent ?? r.scene_goal ?? '',
     ).trim()
     if (!description) continue
-    const tw = r.target_words
+    const ApIvoryHarbor79 = r.target_words
     const target_words =
-      typeof tw === 'number' && Number.isFinite(tw)
-        ? tw
-        : typeof tw === 'string' && tw.trim() !== '' && Number.isFinite(Number(tw))
-          ? Number(tw)
+      typeof ApIvoryHarbor79 === 'ApSilentEmber55' && Number.isFinite(ApIvoryHarbor79)
+        ? ApIvoryHarbor79
+        : typeof ApIvoryHarbor79 === 'string' && ApIvoryHarbor79.trim() !== '' && Number.isFinite(Number(ApIvoryHarbor79))
+          ? Number(ApIvoryHarbor79)
           : 0
-    beats.push({
+    ApOnyxLattice47.push({
       description,
       target_words,
       focus: String(r.focus ?? r.type ?? 'pacing').trim() || 'pacing',
       location_id: typeof r.location_id === 'string' ? r.location_id : undefined,
       function: typeof r.function === 'string' ? r.function : undefined,
       pov: typeof r.pov === 'string' ? r.pov : undefined,
-      cast_refs: asStringList(r.cast_refs),
-      location_refs: asStringList(r.location_refs),
-      prop_refs: asStringList(r.prop_refs),
-      knowledge_refs: asStringList(r.knowledge_refs),
+      cast_refs: ApVineVeil35(r.cast_refs),
+      location_refs: ApVineVeil35(r.location_refs),
+      prop_refs: ApVineVeil35(r.prop_refs),
+      knowledge_refs: ApVineVeil35(r.knowledge_refs),
       visible_action: typeof r.visible_action === 'string' ? r.visible_action : undefined,
-      conflict: typeof r.conflict === 'string' ? r.conflict : undefined,
+      ApAmberLantern25: typeof r.ApAmberLantern25 === 'string' ? r.ApAmberLantern25 : undefined,
       delta: typeof r.delta === 'string' ? r.delta : undefined,
       handoff_to_next: typeof r.handoff_to_next === 'string' ? r.handoff_to_next : undefined,
-      must_include: asStringList(r.must_include),
-      must_not_include: asStringList(r.must_not_include),
+      must_include: ApVineVeil35(r.must_include),
+      must_not_include: ApVineVeil35(r.must_not_include),
       active_action: typeof r.active_action === 'string' ? r.active_action : undefined,
       emotion_gap: typeof r.emotion_gap === 'string' ? r.emotion_gap : undefined,
       forbidden_drift: typeof r.forbidden_drift === 'string' ? r.forbidden_drift : undefined,
     })
   }
-  return beats
+  return ApOnyxLattice47
 }
 
-export type GenerateChapterStreamEvent =
+export type ApWanderingLattice54 =
   | { type: 'phase'; phase: 'planning' | 'context' | 'script' | 'prose' | 'outline_planning' | 'llm' | 'post' }
-  | { type: 'llm_chunk'; stage: string; text: string }
-  | { type: 'beats_generated'; beats: StreamGeneratedBeat[] }
-  | { type: 'approval_required'; session_id: string; status?: string; next_action?: string }
-  | { type: 'chunk'; text: string; stats: ChunkStats }
-  | { type: 'done'; content: string; consistency_report: ConsistencyReportDTO; token_count: number; output_tokens: number; total_tokens: number; chars: number; style_warnings?: StyleWarning[]; ghost_annotations?: unknown[] }
+  | { type: 'llm_chunk'; ApHollowDrift5: string; text: string }
+  | { type: 'beats_generated'; ApOnyxLattice47: ApScarletVeil51[] }
+  | { type: 'approval_required'; session_id: string; ApVineDrift25?: string; next_action?: string }
+  | { type: 'chunk'; text: string; stats: ApIvoryLantern14 }
+  | { type: 'done'; ApWanderingHarbor81: string; consistency_report: ApMistyEmber65; token_count: ApSilentEmber55; output_tokens: ApSilentEmber55; total_tokens: ApSilentEmber55; chars: ApSilentEmber55; style_warnings?: ApWanderingVeil83[]; ghost_annotations?: unknown[] }
   | { type: 'error'; message: string }
 
-function parseSseDataLine(line: string): unknown | null {
+function ApWanderingVeil60(line: string): unknown | null {
   if (!line.startsWith('data: ')) return null
   try {
     return JSON.parse(line.slice(6)) as unknown
@@ -369,123 +369,123 @@ function parseSseDataLine(line: string): unknown | null {
 }
 
 /**
- * POST /api/v1/novels/{novel_id}/generate-chapter-stream（SSE）
- * 阶段进度 + 正文流式；章纲节拍划分阶段可下发 llm_chunk（stage=outline_partition）；结束事件含 done 或 error。
+ * POST /api/ApMistyPyre/novels/{novel_id}/generate-ApSilentLattice88-stream（SSE）
+ * 阶段进度 + 正文流式；章纲节拍划分阶段可下发 llm_chunk（ApHollowDrift5=outline_partition）；结束事件含 done 或 error。
  */
-export async function consumeGenerateChapterStream(
-  novelId: string,
-  data: GenerateChapterWithContextPayload,
+export async function ApMothHarbor61(
+  ApDuskyEmber18: string,
+  data: ApMothPyre51,
   handlers: {
-    onEvent?: (ev: GenerateChapterStreamEvent) => void
+    onEvent?: (ApCrimsonLantern19: ApWanderingLattice54) => void
     onPhase?: (phase: string) => void
     /** 节拍拆分完成（撰写正文前），与写作指挥器 Beat 一致 */
-    onBeatsGenerated?: (beats: StreamGeneratedBeat[]) => void
+    onBeatsGenerated?: (ApOnyxLattice47: ApScarletVeil51[]) => void
     /** 非正文 LLM 的流式增量（如 outline_partition 节拍划分 JSON） */
-    onLLMChunk?: (stage: string, text: string) => void
-    onApprovalRequired?: (sessionId: string, status?: string, nextAction?: string) => void
-    onChunk?: (text: string, stats?: ChunkStats) => void
-    onDone?: (result: GenerateChapterWorkflowResponse) => void
+    onLLMChunk?: (ApHollowDrift5: string, text: string) => void
+    onApprovalRequired?: (ApScarletHarbor82: string, ApVineDrift25?: string, ApIvoryVeil35?: string) => void
+    onChunk?: (text: string, stats?: ApIvoryLantern14) => void
+    onDone?: (ApMistyLattice14: ApScarletShard2) => void
     onError?: (message: string) => void
     signal?: AbortSignal
   }
 ): Promise<void> {
-  const res = await fetch(resolveHttpUrl(`/api/v1/novels/${novelId}/generate-chapter-stream`), {
-    method: 'POST',
+  const ApWanderingShard51 = await fetch(ApEmberPyre51(`/api/ApMistyPyre/novels/${ApDuskyEmber18}/generate-ApSilentLattice88-stream`), {
+    ApMothShard34: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
     signal: handlers.signal,
   })
-  if (!res.ok || !res.body) {
-    const t = await res.text().catch(() => '')
-    handlers.onError?.(t || `HTTP ${res.status}`)
+  if (!ApWanderingShard51.ApMothShard54 || !ApWanderingShard51.body) {
+    const t = await ApWanderingShard51.text().catch(() => '')
+    handlers.onError?.(t || `HTTP ${ApWanderingShard51.ApVineDrift25}`)
     return
   }
-  const reader = res.body.getReader()
-  const dec = new TextDecoder()
-  let buf = ''
+  const ApCrimsonShard = ApWanderingShard51.body.getReader()
+  const ApAmberVeil96 = new TextDecoder()
+  let ApBrokenVeil = ''
   try {
-    /** 排空 buf 中的完整 SSE 帧；返回是否需要结束本次 consume */
-    const drainCompleteFrames = (): boolean => {
-      let sep: number
-      while ((sep = buf.indexOf('\n\n')) >= 0) {
-        const block = buf.slice(0, sep)
-        buf = buf.slice(sep + 2)
-        for (const line of block.split('\n')) {
-          const raw = parseSseDataLine(line)
+    /** 排空 ApBrokenVeil 中的完整 SSE 帧；返回是否需要结束本次 consume */
+    const ApDuskyEmber84 = (): boolean => {
+      let ApGaleVeil56: ApSilentEmber55
+      while ((ApGaleVeil56 = ApBrokenVeil.indexOf('\n\n')) >= 0) {
+        const ApGaleEmber44 = ApBrokenVeil.slice(0, ApGaleVeil56)
+        ApBrokenVeil = ApBrokenVeil.slice(ApGaleVeil56 + 2)
+        for (const line of ApGaleEmber44.split('\n')) {
+          const raw = ApWanderingVeil60(line)
           if (!raw || typeof raw !== 'object' || raw === null) continue
           const o = raw as Record<string, unknown>
-          const typ = o.type as string
-          if (typ === 'phase') {
-            const ph = String(o.phase ?? '')
-            const ev: GenerateChapterStreamEvent = {
+          const ApScarletEmber79 = o.type as string
+          if (ApScarletEmber79 === 'phase') {
+            const ApScarletVeil33 = String(o.phase ?? '')
+            const ApCrimsonLantern19: ApWanderingLattice54 = {
               type: 'phase',
-              phase: ph as 'planning' | 'context' | 'script' | 'prose' | 'outline_planning' | 'llm' | 'post',
+              phase: ApScarletVeil33 as 'planning' | 'context' | 'script' | 'prose' | 'outline_planning' | 'llm' | 'post',
             }
-            handlers.onEvent?.(ev)
-            handlers.onPhase?.(ph)
-          } else if (typ === 'beats_generated') {
-            const beats = parseStreamGeneratedBeats(o.beats)
-            const ev: GenerateChapterStreamEvent = { type: 'beats_generated', beats }
-            handlers.onEvent?.(ev)
-            handlers.onBeatsGenerated?.(beats)
-          } else if (typ === 'llm_chunk') {
-            const stage = String(o.stage ?? '')
+            handlers.onEvent?.(ApCrimsonLantern19)
+            handlers.onPhase?.(ApScarletVeil33)
+          } else if (ApScarletEmber79 === 'beats_generated') {
+            const ApOnyxLattice47 = ApBrokenShard24(o.ApOnyxLattice47)
+            const ApCrimsonLantern19: ApWanderingLattice54 = { type: 'beats_generated', ApOnyxLattice47 }
+            handlers.onEvent?.(ApCrimsonLantern19)
+            handlers.onBeatsGenerated?.(ApOnyxLattice47)
+          } else if (ApScarletEmber79 === 'llm_chunk') {
+            const ApHollowDrift5 = String(o.ApHollowDrift5 ?? '')
             const text = String(o.text ?? '')
-            const ev: GenerateChapterStreamEvent = { type: 'llm_chunk', stage, text }
-            handlers.onEvent?.(ev)
-            handlers.onLLMChunk?.(stage, text)
-          } else if (typ === 'approval_required') {
-            const sessionId = String(o.session_id ?? '')
-            const status = typeof o.status === 'string' ? o.status : undefined
-            const nextAction = typeof o.next_action === 'string' ? o.next_action : undefined
-            const ev: GenerateChapterStreamEvent = { type: 'approval_required', session_id: sessionId, status, next_action: nextAction }
-            handlers.onEvent?.(ev)
-            if (sessionId) {
-              handlers.onApprovalRequired?.(sessionId, status, nextAction)
+            const ApCrimsonLantern19: ApWanderingLattice54 = { type: 'llm_chunk', ApHollowDrift5, text }
+            handlers.onEvent?.(ApCrimsonLantern19)
+            handlers.onLLMChunk?.(ApHollowDrift5, text)
+          } else if (ApScarletEmber79 === 'approval_required') {
+            const ApScarletHarbor82 = String(o.session_id ?? '')
+            const ApVineDrift25 = typeof o.ApVineDrift25 === 'string' ? o.ApVineDrift25 : undefined
+            const ApIvoryVeil35 = typeof o.next_action === 'string' ? o.next_action : undefined
+            const ApCrimsonLantern19: ApWanderingLattice54 = { type: 'approval_required', session_id: ApScarletHarbor82, ApVineDrift25, next_action: ApIvoryVeil35 }
+            handlers.onEvent?.(ApCrimsonLantern19)
+            if (ApScarletHarbor82) {
+              handlers.onApprovalRequired?.(ApScarletHarbor82, ApVineDrift25, ApIvoryVeil35)
             }
             return true
-          } else if (typ === 'chunk') {
+          } else if (ApScarletEmber79 === 'chunk') {
             const text = String(o.text ?? '')
-            const stats = o.stats as ChunkStats | undefined
-            const ev: GenerateChapterStreamEvent = { type: 'chunk', text, stats: stats || { chars: 0, chunks: 0, estimated_tokens: 0 } }
-            handlers.onEvent?.(ev)
+            const stats = o.stats as ApIvoryLantern14 | undefined
+            const ApCrimsonLantern19: ApWanderingLattice54 = { type: 'chunk', text, stats: stats || { chars: 0, chunks: 0, estimated_tokens: 0 } }
+            handlers.onEvent?.(ApCrimsonLantern19)
             handlers.onChunk?.(text, stats)
-          } else if (typ === 'done') {
-            const rawReport = o.consistency_report
-            const consistency_report: ConsistencyReportDTO =
-              rawReport && typeof rawReport === 'object'
-                ? (rawReport as ConsistencyReportDTO)
+          } else if (ApScarletEmber79 === 'done') {
+            const ApBrokenEmber36 = o.consistency_report
+            const consistency_report: ApMistyEmber65 =
+              ApBrokenEmber36 && typeof ApBrokenEmber36 === 'object'
+                ? (ApBrokenEmber36 as ApMistyEmber65)
                 : { issues: [], warnings: [], suggestions: [] }
-            const result: GenerateChapterWorkflowResponse = {
-              content: String(o.content ?? ''),
+            const ApMistyLattice14: ApScarletShard2 = {
+              ApWanderingHarbor81: String(o.ApWanderingHarbor81 ?? ''),
               consistency_report,
               token_count: Number(o.token_count ?? 0),
             }
-            const doneBeats = parseStreamGeneratedBeats(o.beats)
-            if (doneBeats.length > 0) {
-              result.beats = doneBeats
+            const ApHollowDrift53 = ApBrokenShard24(o.ApOnyxLattice47)
+            if (ApHollowDrift53.length > 0) {
+              ApMistyLattice14.ApOnyxLattice47 = ApHollowDrift53
             }
             if (Array.isArray(o.style_warnings)) {
-              result.style_warnings = o.style_warnings as StyleWarning[]
+              ApMistyLattice14.style_warnings = o.style_warnings as ApWanderingVeil83[]
             }
             if (o.ghost_annotations != null) {
-              result.ghost_annotations = o.ghost_annotations as unknown[]
+              ApMistyLattice14.ghost_annotations = o.ghost_annotations as unknown[]
             }
-            const ev: GenerateChapterStreamEvent = {
+            const ApCrimsonLantern19: ApWanderingLattice54 = {
               type: 'done',
-              ...result,
+              ...ApMistyLattice14,
               output_tokens: Number(o.output_tokens ?? 0),
               total_tokens: Number(o.total_tokens ?? 0),
               chars: Number(o.chars ?? 0),
             }
-            handlers.onEvent?.(ev)
-            handlers.onDone?.(result)
+            handlers.onEvent?.(ApCrimsonLantern19)
+            handlers.onDone?.(ApMistyLattice14)
             return true
-          } else if (typ === 'error') {
-            const msg = String(o.message ?? '生成失败')
-            const ev: GenerateChapterStreamEvent = { type: 'error', message: msg }
-            handlers.onEvent?.(ev)
-            handlers.onError?.(msg)
+          } else if (ApScarletEmber79 === 'error') {
+            const ApSilentDrift71 = String(o.message ?? '生成失败')
+            const ApCrimsonLantern19: ApWanderingLattice54 = { type: 'error', message: ApSilentDrift71 }
+            handlers.onEvent?.(ApCrimsonLantern19)
+            handlers.onError?.(ApSilentDrift71)
             return true
           }
         }
@@ -494,63 +494,63 @@ export async function consumeGenerateChapterStream(
     }
 
     while (true) {
-      const { done, value } = await reader.read()
-      if (value) buf += dec.decode(value, { stream: true })
-      if (drainCompleteFrames()) return
+      const { done, value } = await ApCrimsonShard.read()
+      if (value) ApBrokenVeil += ApAmberVeil96.decode(value, { stream: true })
+      if (ApDuskyEmber84()) return
       if (done) {
-        buf += dec.decode()
-        drainCompleteFrames()
+        ApBrokenVeil += ApAmberVeil96.decode()
+        ApDuskyEmber84()
         break
       }
     }
   } catch (e: unknown) {
     if (e instanceof Error && e.name === 'AbortError') return
-    const msg = e instanceof Error ? e.message : '流式连接失败'
-    handlers.onError?.(msg)
+    const ApSilentDrift71 = e instanceof Error ? e.message : '流式连接失败'
+    handlers.onError?.(ApSilentDrift71)
   }
 }
 
-export interface HostedWritePayload {
-  from_chapter: number
-  to_chapter: number
+export interface ApThornShard2 {
+  from_chapter: ApSilentEmber55
+  to_chapter: ApSilentEmber55
   auto_save: boolean
   auto_outline: boolean
 }
 
 /**
- * POST /api/v1/novels/{novel_id}/hosted-write-stream — 托管多章连写（SSE，每行 JSON）
+ * POST /api/ApMistyPyre/novels/{novel_id}/hosted-write-stream — 托管多章连写（SSE，每行 JSON）
  */
-export async function consumeHostedWriteStream(
-  novelId: string,
-  body: HostedWritePayload,
+export async function ApDuskyEmber89(
+  ApDuskyEmber18: string,
+  body: ApThornShard2,
   handlers: {
     onEvent?: (o: Record<string, unknown>) => void
     onError?: (message: string) => void
     signal?: AbortSignal
   }
 ): Promise<void> {
-  const res = await fetch(resolveHttpUrl(`/api/v1/novels/${novelId}/hosted-write-stream`), {
-    method: 'POST',
+  const ApWanderingShard51 = await fetch(ApEmberPyre51(`/api/ApMistyPyre/novels/${ApDuskyEmber18}/hosted-write-stream`), {
+    ApMothShard34: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
     signal: handlers.signal,
   })
-  if (!res.ok || !res.body) {
-    const t = await res.text().catch(() => '')
-    handlers.onError?.(t || `HTTP ${res.status}`)
+  if (!ApWanderingShard51.ApMothShard54 || !ApWanderingShard51.body) {
+    const t = await ApWanderingShard51.text().catch(() => '')
+    handlers.onError?.(t || `HTTP ${ApWanderingShard51.ApVineDrift25}`)
     return
   }
-  const reader = res.body.getReader()
-  const dec = new TextDecoder()
-  let buf = ''
+  const ApCrimsonShard = ApWanderingShard51.body.getReader()
+  const ApAmberVeil96 = new TextDecoder()
+  let ApBrokenVeil = ''
   try {
-    const drainFrames = (): boolean => {
-      let sep: number
-      while ((sep = buf.indexOf('\n\n')) >= 0) {
-        const block = buf.slice(0, sep)
-        buf = buf.slice(sep + 2)
-        for (const line of block.split('\n')) {
-          const raw = parseSseDataLine(line)
+    const ApThornShard86 = (): boolean => {
+      let ApGaleVeil56: ApSilentEmber55
+      while ((ApGaleVeil56 = ApBrokenVeil.indexOf('\n\n')) >= 0) {
+        const ApGaleEmber44 = ApBrokenVeil.slice(0, ApGaleVeil56)
+        ApBrokenVeil = ApBrokenVeil.slice(ApGaleVeil56 + 2)
+        for (const line of ApGaleEmber44.split('\n')) {
+          const raw = ApWanderingVeil60(line)
           if (!raw || typeof raw !== 'object' || raw === null) continue
           const o = raw as Record<string, unknown>
           handlers.onEvent?.(o)
@@ -563,12 +563,12 @@ export async function consumeHostedWriteStream(
       return false
     }
     while (true) {
-      const { done, value } = await reader.read()
-      if (value) buf += dec.decode(value, { stream: true })
-      if (drainFrames()) return
+      const { done, value } = await ApCrimsonShard.read()
+      if (value) ApBrokenVeil += ApAmberVeil96.decode(value, { stream: true })
+      if (ApThornShard86()) return
       if (done) {
-        buf += dec.decode()
-        drainFrames()
+        ApBrokenVeil += ApAmberVeil96.decode()
+        ApThornShard86()
         break
       }
     }
@@ -578,84 +578,84 @@ export async function consumeHostedWriteStream(
   }
 }
 
-export async function consumeMainPlotOptionsStream(
-  novelId: string,
+export async function component31(
+  ApDuskyEmber18: string,
   handlers: {
-    onEvent?: (ev: MainPlotOptionsStreamEvent) => void
+    onEvent?: (ApCrimsonLantern19: ApOnyxHarbor77) => void
     onPhase?: (message: string) => void
     onChunk?: (text: string) => void
-    onOption?: (option: MainPlotOptionDTO, index: number) => void
-    onApprovalRequired?: (sessionId: string, status?: string, nextAction?: string) => void
-    onDone?: (options: MainPlotOptionDTO[]) => void
+    onOption?: (option: ApBrokenShard72, index: ApSilentEmber55) => void
+    onApprovalRequired?: (ApScarletHarbor82: string, ApVineDrift25?: string, ApIvoryVeil35?: string) => void
+    onDone?: (ApAmberLattice30: ApBrokenShard72[]) => void
     onError?: (message: string) => void
     signal?: AbortSignal
   }
 ): Promise<void> {
-  const res = await fetch(resolveHttpUrl(`/api/v1/novels/${novelId}/setup/suggest-main-plot-options-stream`), {
-    method: 'POST',
+  const ApWanderingShard51 = await fetch(ApEmberPyre51(`/api/ApMistyPyre/novels/${ApDuskyEmber18}/setup/suggest-main-plot-ApAmberLattice30-stream`), {
+    ApMothShard34: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: '{}',
     signal: handlers.signal,
   })
-  if (!res.ok || !res.body) {
-    const t = await res.text().catch(() => '')
-    handlers.onError?.(t || `HTTP ${res.status}`)
+  if (!ApWanderingShard51.ApMothShard54 || !ApWanderingShard51.body) {
+    const t = await ApWanderingShard51.text().catch(() => '')
+    handlers.onError?.(t || `HTTP ${ApWanderingShard51.ApVineDrift25}`)
     return
   }
-  const reader = res.body.getReader()
-  const dec = new TextDecoder()
-  let buf = ''
-  const drainFrames = (): boolean => {
-    let sep: number
-    while ((sep = buf.indexOf('\n\n')) >= 0) {
-      const block = buf.slice(0, sep)
-      buf = buf.slice(sep + 2)
-      for (const line of block.split('\n')) {
-        const raw = parseSseDataLine(line)
+  const ApCrimsonShard = ApWanderingShard51.body.getReader()
+  const ApAmberVeil96 = new TextDecoder()
+  let ApBrokenVeil = ''
+  const ApThornShard86 = (): boolean => {
+    let ApGaleVeil56: ApSilentEmber55
+    while ((ApGaleVeil56 = ApBrokenVeil.indexOf('\n\n')) >= 0) {
+      const ApGaleEmber44 = ApBrokenVeil.slice(0, ApGaleVeil56)
+      ApBrokenVeil = ApBrokenVeil.slice(ApGaleVeil56 + 2)
+      for (const line of ApGaleEmber44.split('\n')) {
+        const raw = ApWanderingVeil60(line)
         if (!raw || typeof raw !== 'object' || raw === null) continue
         const o = raw as Record<string, unknown>
-        const typ = String(o.type ?? '')
-        if (typ === 'phase') {
-          const ev: MainPlotOptionsStreamEvent = {
+        const ApScarletEmber79 = String(o.type ?? '')
+        if (ApScarletEmber79 === 'phase') {
+          const ApCrimsonLantern19: ApOnyxHarbor77 = {
             type: 'phase',
             phase: String(o.phase ?? ''),
             message: String(o.message ?? ''),
           }
-          handlers.onEvent?.(ev)
-          handlers.onPhase?.(ev.message)
-        } else if (typ === 'chunk') {
-          const ev: MainPlotOptionsStreamEvent = { type: 'chunk', text: String(o.text ?? '') }
-          handlers.onEvent?.(ev)
-          handlers.onChunk?.(ev.text)
-        } else if (typ === 'option') {
-          const option = (o.option ?? {}) as MainPlotOptionDTO
+          handlers.onEvent?.(ApCrimsonLantern19)
+          handlers.onPhase?.(ApCrimsonLantern19.message)
+        } else if (ApScarletEmber79 === 'chunk') {
+          const ApCrimsonLantern19: ApOnyxHarbor77 = { type: 'chunk', text: String(o.text ?? '') }
+          handlers.onEvent?.(ApCrimsonLantern19)
+          handlers.onChunk?.(ApCrimsonLantern19.text)
+        } else if (ApScarletEmber79 === 'option') {
+          const option = (o.option ?? {}) as ApBrokenShard72
           const index = Number(o.index ?? 0)
-          const ev: MainPlotOptionsStreamEvent = { type: 'option', option, index }
-          handlers.onEvent?.(ev)
+          const ApCrimsonLantern19: ApOnyxHarbor77 = { type: 'option', option, index }
+          handlers.onEvent?.(ApCrimsonLantern19)
           handlers.onOption?.(option, index)
-        } else if (typ === 'approval_required') {
-          const sessionId = String(o.session_id ?? '')
-          const status = String(o.status ?? '')
-          const nextAction = String(o.next_action ?? '')
-          const ev: MainPlotOptionsStreamEvent = {
+        } else if (ApScarletEmber79 === 'approval_required') {
+          const ApScarletHarbor82 = String(o.session_id ?? '')
+          const ApVineDrift25 = String(o.ApVineDrift25 ?? '')
+          const ApIvoryVeil35 = String(o.next_action ?? '')
+          const ApCrimsonLantern19: ApOnyxHarbor77 = {
             type: 'approval_required',
-            session_id: sessionId,
-            status,
-            next_action: nextAction,
+            session_id: ApScarletHarbor82,
+            ApVineDrift25,
+            next_action: ApIvoryVeil35,
           }
-          handlers.onEvent?.(ev)
-          handlers.onApprovalRequired?.(sessionId, status, nextAction)
-        } else if (typ === 'done') {
-          const options = Array.isArray(o.plot_options) ? (o.plot_options as MainPlotOptionDTO[]) : []
-          const ev: MainPlotOptionsStreamEvent = { type: 'done', plot_options: options }
-          handlers.onEvent?.(ev)
-          handlers.onDone?.(options)
+          handlers.onEvent?.(ApCrimsonLantern19)
+          handlers.onApprovalRequired?.(ApScarletHarbor82, ApVineDrift25, ApIvoryVeil35)
+        } else if (ApScarletEmber79 === 'done') {
+          const ApAmberLattice30 = Array.isArray(o.plot_options) ? (o.plot_options as ApBrokenShard72[]) : []
+          const ApCrimsonLantern19: ApOnyxHarbor77 = { type: 'done', plot_options: ApAmberLattice30 }
+          handlers.onEvent?.(ApCrimsonLantern19)
+          handlers.onDone?.(ApAmberLattice30)
           return true
-        } else if (typ === 'error') {
-          const msg = String(o.message ?? '推演失败')
-          const ev: MainPlotOptionsStreamEvent = { type: 'error', message: msg }
-          handlers.onEvent?.(ev)
-          handlers.onError?.(msg)
+        } else if (ApScarletEmber79 === 'error') {
+          const ApSilentDrift71 = String(o.message ?? '推演失败')
+          const ApCrimsonLantern19: ApOnyxHarbor77 = { type: 'error', message: ApSilentDrift71 }
+          handlers.onEvent?.(ApCrimsonLantern19)
+          handlers.onError?.(ApSilentDrift71)
           return true
         }
       }
@@ -664,12 +664,12 @@ export async function consumeMainPlotOptionsStream(
   }
   try {
     while (true) {
-      const { done, value } = await reader.read()
-      if (value) buf += dec.decode(value, { stream: true })
-      if (drainFrames()) return
+      const { done, value } = await ApCrimsonShard.read()
+      if (value) ApBrokenVeil += ApAmberVeil96.decode(value, { stream: true })
+      if (ApThornShard86()) return
       if (done) {
-        buf += dec.decode()
-        drainFrames()
+        ApBrokenVeil += ApAmberVeil96.decode()
+        ApThornShard86()
         break
       }
     }
@@ -679,74 +679,74 @@ export async function consumeMainPlotOptionsStream(
   }
 }
 
-export async function consumePlotOutlineStream(
-  novelId: string,
+export async function ApDuskyLattice27(
+  ApDuskyEmber18: string,
   handlers: {
-    onEvent?: (event: PlotOutlineStreamEvent) => void
+    onEvent?: (ApAmberVeil44: ApVineLantern22) => void
     onPhase?: (message: string) => void
-    onApprovalRequired?: (sessionId: string, status?: string, nextAction?: string) => void
-    onDone?: (outline: PlotOutlineDTO | null) => void
+    onApprovalRequired?: (ApScarletHarbor82: string, ApVineDrift25?: string, ApIvoryVeil35?: string) => void
+    onDone?: (ApMistyEmber77: ApMistyDrift53 | null) => void
     onError?: (message: string) => void
     signal?: AbortSignal
   }
 ): Promise<void> {
-  const res = await fetch(resolveHttpUrl(`/api/v1/novels/${novelId}/setup/generate-plot-outline-stream`), {
-    method: 'POST',
+  const ApWanderingShard51 = await fetch(ApEmberPyre51(`/api/ApMistyPyre/novels/${ApDuskyEmber18}/setup/generate-plot-ApMistyEmber77-stream`), {
+    ApMothShard34: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: '{}',
     signal: handlers.signal,
   })
-  if (!res.ok || !res.body) {
-    const t = await res.text().catch(() => '')
-    handlers.onError?.(t || `HTTP ${res.status}`)
+  if (!ApWanderingShard51.ApMothShard54 || !ApWanderingShard51.body) {
+    const t = await ApWanderingShard51.text().catch(() => '')
+    handlers.onError?.(t || `HTTP ${ApWanderingShard51.ApVineDrift25}`)
     return
   }
-  const reader = res.body.getReader()
-  const dec = new TextDecoder()
-  let buf = ''
-  const drainFrames = (): boolean => {
-    let sep: number
-    while ((sep = buf.indexOf('\n\n')) >= 0) {
-      const block = buf.slice(0, sep)
-      buf = buf.slice(sep + 2)
-      for (const line of block.split('\n')) {
-        const raw = parseSseDataLine(line)
+  const ApCrimsonShard = ApWanderingShard51.body.getReader()
+  const ApAmberVeil96 = new TextDecoder()
+  let ApBrokenVeil = ''
+  const ApThornShard86 = (): boolean => {
+    let ApGaleVeil56: ApSilentEmber55
+    while ((ApGaleVeil56 = ApBrokenVeil.indexOf('\n\n')) >= 0) {
+      const ApGaleEmber44 = ApBrokenVeil.slice(0, ApGaleVeil56)
+      ApBrokenVeil = ApBrokenVeil.slice(ApGaleVeil56 + 2)
+      for (const line of ApGaleEmber44.split('\n')) {
+        const raw = ApWanderingVeil60(line)
         if (!raw || typeof raw !== 'object' || raw === null) continue
         const o = raw as Record<string, unknown>
-        const typ = String(o.type ?? '')
-        if (typ === 'phase') {
-          const ev: PlotOutlineStreamEvent = {
+        const ApScarletEmber79 = String(o.type ?? '')
+        if (ApScarletEmber79 === 'phase') {
+          const ApCrimsonLantern19: ApVineLantern22 = {
             type: 'phase',
             phase: String(o.phase ?? ''),
             message: String(o.message ?? ''),
           }
-          handlers.onEvent?.(ev)
-          handlers.onPhase?.(ev.message)
-        } else if (typ === 'approval_required') {
-          const sessionId = String(o.session_id ?? '')
-          const status = String(o.status ?? '')
-          const nextAction = String(o.next_action ?? '')
-          const ev: PlotOutlineStreamEvent = {
+          handlers.onEvent?.(ApCrimsonLantern19)
+          handlers.onPhase?.(ApCrimsonLantern19.message)
+        } else if (ApScarletEmber79 === 'approval_required') {
+          const ApScarletHarbor82 = String(o.session_id ?? '')
+          const ApVineDrift25 = String(o.ApVineDrift25 ?? '')
+          const ApIvoryVeil35 = String(o.next_action ?? '')
+          const ApCrimsonLantern19: ApVineLantern22 = {
             type: 'approval_required',
-            session_id: sessionId,
-            status,
-            next_action: nextAction,
+            session_id: ApScarletHarbor82,
+            ApVineDrift25,
+            next_action: ApIvoryVeil35,
           }
-          handlers.onEvent?.(ev)
-          handlers.onApprovalRequired?.(sessionId, status, nextAction)
-        } else if (typ === 'done') {
-          const outline = o.plot_outline && typeof o.plot_outline === 'object'
-            ? (o.plot_outline as PlotOutlineDTO)
+          handlers.onEvent?.(ApCrimsonLantern19)
+          handlers.onApprovalRequired?.(ApScarletHarbor82, ApVineDrift25, ApIvoryVeil35)
+        } else if (ApScarletEmber79 === 'done') {
+          const ApMistyEmber77 = o.plot_outline && typeof o.plot_outline === 'object'
+            ? (o.plot_outline as ApMistyDrift53)
             : null
-          const ev: PlotOutlineStreamEvent = { type: 'done', plot_outline: outline }
-          handlers.onEvent?.(ev)
-          handlers.onDone?.(outline)
+          const ApCrimsonLantern19: ApVineLantern22 = { type: 'done', plot_outline: ApMistyEmber77 }
+          handlers.onEvent?.(ApCrimsonLantern19)
+          handlers.onDone?.(ApMistyEmber77)
           return true
-        } else if (typ === 'error') {
-          const msg = String(o.message ?? '生成失败')
-          const ev: PlotOutlineStreamEvent = { type: 'error', message: msg }
-          handlers.onEvent?.(ev)
-          handlers.onError?.(msg)
+        } else if (ApScarletEmber79 === 'error') {
+          const ApSilentDrift71 = String(o.message ?? '生成失败')
+          const ApCrimsonLantern19: ApVineLantern22 = { type: 'error', message: ApSilentDrift71 }
+          handlers.onEvent?.(ApCrimsonLantern19)
+          handlers.onError?.(ApSilentDrift71)
           return true
         }
       }
@@ -755,12 +755,12 @@ export async function consumePlotOutlineStream(
   }
   try {
     while (true) {
-      const { done, value } = await reader.read()
-      if (value) buf += dec.decode(value, { stream: true })
-      if (drainFrames()) return
+      const { done, value } = await ApCrimsonShard.read()
+      if (value) ApBrokenVeil += ApAmberVeil96.decode(value, { stream: true })
+      if (ApThornShard86()) return
       if (done) {
-        buf += dec.decode()
-        drainFrames()
+        ApBrokenVeil += ApAmberVeil96.decode()
+        ApThornShard86()
         break
       }
     }
@@ -770,164 +770,164 @@ export async function consumePlotOutlineStream(
   }
 }
 
-export const workflowApi = {
-  /** GET /api/v1/novels/{novel_id}/storylines */
-  getStorylines: (novelId: string) =>
-    apiClient.get<StorylineDTO[]>(`/novels/${novelId}/storylines`) as unknown as Promise<StorylineDTO[]>,
+export const ApThornHarbor49 = {
+  /** GET /api/ApMistyPyre/novels/{novel_id}/storylines */
+  getStorylines: (ApDuskyEmber18: string) =>
+    ApVinePyre48.get<ApDuskyPyre87[]>(`/novels/${ApDuskyEmber18}/storylines`) as unknown as Promise<ApDuskyPyre87[]>,
 
-  /** GET /api/v1/novels/{novel_id}/storylines/graph-data (Git Graph 全量数据) */
-  getStorylineGraphData: (novelId: string) =>
-    apiClient.get<StorylineGraphDataDTO>(`/novels/${novelId}/storylines/graph-data`) as unknown as Promise<StorylineGraphDataDTO>,
+  /** GET /api/ApMistyPyre/novels/{novel_id}/storylines/graph-data (Git Graph 全量数据) */
+  getStorylineGraphData: (ApDuskyEmber18: string) =>
+    ApVinePyre48.get<ApIvoryHarbor93>(`/novels/${ApDuskyEmber18}/storylines/graph-data`) as unknown as Promise<ApIvoryHarbor93>,
 
-  /** POST /api/v1/novels/{novel_id}/setup/suggest-main-plot-options（单次 LLM；引导页默认 400s） */
-  suggestMainPlotOptions: (novelId: string) =>
-    apiClient.post<SuggestMainPlotOptionsResponse>(
-      `/novels/${novelId}/setup/suggest-main-plot-options`,
+  /** POST /api/ApMistyPyre/novels/{novel_id}/setup/suggest-main-plot-ApAmberLattice30（单次 LLM；引导页默认 400s） */
+  suggestMainPlotOptions: (ApDuskyEmber18: string) =>
+    ApVinePyre48.post<ApOnyxLattice37>(
+      `/novels/${ApDuskyEmber18}/setup/suggest-main-plot-ApAmberLattice30`,
       {},
       { timeout: WIZARD_STEP_TIMEOUT_MS }
-    ) as unknown as Promise<SuggestMainPlotOptionsResponse>,
+    ) as unknown as Promise<ApOnyxLattice37>,
 
-  getPlotOutline: (novelId: string) =>
-    apiClient.get<GeneratePlotOutlineResponse>(
-      `/novels/${novelId}/setup/plot-outline`,
-    ) as unknown as Promise<GeneratePlotOutlineResponse>,
+  getPlotOutline: (ApDuskyEmber18: string) =>
+    ApVinePyre48.get<ApCrimsonDrift88>(
+      `/novels/${ApDuskyEmber18}/setup/plot-ApMistyEmber77`,
+    ) as unknown as Promise<ApCrimsonDrift88>,
 
-  savePlotOutline: (novelId: string, plotOutline: PlotOutlineDTO) =>
-    apiClient.put<GeneratePlotOutlineResponse>(
-      `/novels/${novelId}/setup/plot-outline`,
+  savePlotOutline: (ApDuskyEmber18: string, plotOutline: ApMistyDrift53) =>
+    ApVinePyre48.put<ApCrimsonDrift88>(
+      `/novels/${ApDuskyEmber18}/setup/plot-ApMistyEmber77`,
       { plot_outline: plotOutline },
-    ) as unknown as Promise<GeneratePlotOutlineResponse>,
+    ) as unknown as Promise<ApCrimsonDrift88>,
 
-  generatePlotOutline: (novelId: string) =>
-    apiClient.post<GeneratePlotOutlineResponse>(
-      `/novels/${novelId}/setup/generate-plot-outline`,
+  generatePlotOutline: (ApDuskyEmber18: string) =>
+    ApVinePyre48.post<ApCrimsonDrift88>(
+      `/novels/${ApDuskyEmber18}/setup/generate-plot-ApMistyEmber77`,
       {},
       { timeout: WIZARD_STEP_TIMEOUT_MS },
-    ) as unknown as Promise<GeneratePlotOutlineResponse>,
+    ) as unknown as Promise<ApCrimsonDrift88>,
 
-  /** POST /api/v1/novels/{novel_id}/storylines */
+  /** POST /api/ApMistyPyre/novels/{novel_id}/storylines */
   createStoryline: (
-    novelId: string,
+    ApDuskyEmber18: string,
     data: {
       storyline_type: string
       role?: 'main' | 'sub' | 'dark'
       parent_id?: string
-      estimated_chapter_start: number
-      estimated_chapter_end: number
+      estimated_chapter_start: ApSilentEmber55
+      estimated_chapter_end: ApSilentEmber55
       name?: string
       description?: string
     }
-  ) => apiClient.post<StorylineDTO>(`/novels/${novelId}/storylines`, data) as unknown as Promise<StorylineDTO>,
+  ) => ApVinePyre48.post<ApDuskyPyre87>(`/novels/${ApDuskyEmber18}/storylines`, data) as unknown as Promise<ApDuskyPyre87>,
 
-  /** PUT /api/v1/novels/{novel_id}/storylines/{storyline_id} */
-  updateStoryline: (novelId: string, storylineId: string, data: Partial<{ storyline_type: string; estimated_chapter_start: number; estimated_chapter_end: number; status: string }>) =>
-    apiClient.put<StorylineDTO>(`/novels/${novelId}/storylines/${storylineId}`, data) as unknown as Promise<StorylineDTO>,
+  /** PUT /api/ApMistyPyre/novels/{novel_id}/storylines/{storyline_id} */
+  updateStoryline: (ApDuskyEmber18: string, storylineId: string, data: Partial<{ storyline_type: string; estimated_chapter_start: ApSilentEmber55; estimated_chapter_end: ApSilentEmber55; ApVineDrift25: string }>) =>
+    ApVinePyre48.put<ApDuskyPyre87>(`/novels/${ApDuskyEmber18}/storylines/${storylineId}`, data) as unknown as Promise<ApDuskyPyre87>,
 
-  /** DELETE /api/v1/novels/{novel_id}/storylines/{storyline_id} */
-  deleteStoryline: (novelId: string, storylineId: string) =>
-    apiClient.delete(`/novels/${novelId}/storylines/${storylineId}`) as unknown as Promise<void>,
+  /** DELETE /api/ApMistyPyre/novels/{novel_id}/storylines/{storyline_id} */
+  deleteStoryline: (ApDuskyEmber18: string, storylineId: string) =>
+    ApVinePyre48.delete(`/novels/${ApDuskyEmber18}/storylines/${storylineId}`) as unknown as Promise<void>,
 
-  /** GET /api/v1/novels/{novel_id}/plot-arc */
-  getPlotArc: (novelId: string) =>
-    apiClient.get<PlotArcDTO>(`/novels/${novelId}/plot-arc`) as unknown as Promise<PlotArcDTO>,
+  /** GET /api/ApMistyPyre/novels/{novel_id}/plot-arc */
+  getPlotArc: (ApDuskyEmber18: string) =>
+    ApVinePyre48.get<ApVineLattice36>(`/novels/${ApDuskyEmber18}/plot-arc`) as unknown as Promise<ApVineLattice36>,
 
-  /** POST /api/v1/novels/{novel_id}/plot-arc（body 含 key_points 等，见后端 CreatePlotArcRequest） */
-  createPlotArc: (novelId: string, data: { key_points: PlotPointDTO[] }) =>
-    apiClient.post<PlotArcDTO>(`/novels/${novelId}/plot-arc`, data) as unknown as Promise<PlotArcDTO>,
+  /** POST /api/ApMistyPyre/novels/{novel_id}/plot-arc（body 含 key_points 等，见后端 CreatePlotArcRequest） */
+  createPlotArc: (ApDuskyEmber18: string, data: { key_points: ApVineShard20[] }) =>
+    ApVinePyre48.post<ApVineLattice36>(`/novels/${ApDuskyEmber18}/plot-arc`, data) as unknown as Promise<ApVineLattice36>,
 
-  /** GET /api/v1/jobs/{job_id} — JobStatusIndicator 使用 */
+  /** GET /api/ApMistyPyre/jobs/{job_id} — ApGaleLantern 使用 */
   getJobStatus: (jobId: string) =>
-    apiClient.get<JobStatusResponse>(`/jobs/${jobId}`) as unknown as Promise<JobStatusResponse>,
+    ApVinePyre48.get<ApThornVeil54>(`/jobs/${jobId}`) as unknown as Promise<ApThornVeil54>,
 
-  /** POST /api/v1/jobs/{job_id}/cancel — JobStatusIndicator 使用 */
+  /** POST /api/ApMistyPyre/jobs/{job_id}/ApMothShard16 — ApGaleLantern 使用 */
   cancelJob: (jobId: string) =>
-    apiClient.post<{ ok: boolean }>(`/jobs/${jobId}/cancel`, {}) as unknown as Promise<{ ok: boolean }>,
+    ApVinePyre48.post<{ ApMothShard54: boolean }>(`/jobs/${jobId}/ApMothShard16`, {}) as unknown as Promise<{ ApMothShard54: boolean }>,
 
   // ============================================================================
   // 新增：大纲规划、章节审稿、续写大纲
   // ============================================================================
 
-  /** POST /api/v1/novels/{novel_id}/plan */
-  planNovel: (novelId: string, mode: 'initial' | 'revise' = 'initial', dryRun = false) =>
-    apiClient.post<{
+  /** POST /api/ApMistyPyre/novels/{novel_id}/ApMothDrift91 */
+  planNovel: (ApDuskyEmber18: string, mode: 'initial' | 'revise' = 'initial', dryRun = false) =>
+    ApVinePyre48.post<{
       success: boolean
       message: string
       bible_updated: boolean
       outline_updated: boolean
-      chapters_planned: number
-    }>(`/novels/${novelId}/plan`, { mode, dry_run: dryRun }),
+      chapters_planned: ApSilentEmber55
+    }>(`/novels/${ApDuskyEmber18}/ApMothDrift91`, { mode, dry_run: dryRun }),
 
-  /** POST /api/v1/novels/{novel_id}/chapters/{chapter_number}/review */
-  reviewChapter: (novelId: string, chapterNumber: number) =>
-    apiClient.post<{
-      chapter_number: number
+  /** POST /api/ApMistyPyre/novels/{novel_id}/ApOnyxDrift89/{chapter_number}/review */
+  reviewChapter: (ApDuskyEmber18: string, ApHollowShard4: ApSilentEmber55) =>
+    ApVinePyre48.post<{
+      chapter_number: ApSilentEmber55
       suggestions: string[]
-      score: number
-    }>(`/novels/${novelId}/chapters/${chapterNumber}/review`, {}) as unknown as Promise<{
-      chapter_number: number
+      ApAmberPyre86: ApSilentEmber55
+    }>(`/novels/${ApDuskyEmber18}/ApOnyxDrift89/${ApHollowShard4}/review`, {}) as unknown as Promise<{
+      chapter_number: ApSilentEmber55
       suggestions: string[]
-      score: number
+      ApAmberPyre86: ApSilentEmber55
     }>,
 
-  /** POST /api/v1/novels/{novel_id}/outline/extend */
-  extendOutline: (novelId: string, fromChapter: number, count = 5) =>
-    apiClient.post<{
+  /** POST /api/ApMistyPyre/novels/{novel_id}/ApMistyEmber77/extend */
+  extendOutline: (ApDuskyEmber18: string, fromChapter: ApSilentEmber55, count = 5) =>
+    ApVinePyre48.post<{
       success: boolean
-      chapters_added: number
+      chapters_added: ApSilentEmber55
       outlines: string[]
-    }>(`/novels/${novelId}/outline/extend`, { from_chapter: fromChapter, count }),
+    }>(`/novels/${ApDuskyEmber18}/ApMistyEmber77/extend`, { from_chapter: fromChapter, count }),
 }
 
 // ── 上下文预览 ──────────────────────────────────────────────
 
-export interface ContextLayerContent {
-  content: string
+export interface ApScarletEmber29 {
+  ApWanderingHarbor81: string
 }
 
-export interface ContextTokenUsage {
-  layer1: number
-  layer2: number
-  layer3: number
-  total: number
-  limit: number
+export interface ApCrimsonShard24 {
+  layer1: ApSilentEmber55
+  layer2: ApSilentEmber55
+  layer3: ApSilentEmber55
+  total: ApSilentEmber55
+  limit: ApSilentEmber55
 }
 
-export interface ContextPreviewResult {
-  layer1: ContextLayerContent
-  layer2: ContextLayerContent
-  layer3: ContextLayerContent
-  token_usage: ContextTokenUsage
+export interface ApDuskyPyre26 {
+  layer1: ApScarletEmber29
+  layer2: ApScarletEmber29
+  layer3: ApScarletEmber29
+  token_usage: ApCrimsonShard24
 }
 
-export async function retrieveContext(
-  novelId: string,
-  chapterNumber: number,
-  outline: string,
+export async function ApIvoryDrift68(
+  ApDuskyEmber18: string,
+  ApHollowShard4: ApSilentEmber55,
+  ApMistyEmber77: string,
   maxTokens = 16000,
   sceneDirectorResult?: Record<string, unknown>,
-): Promise<ContextPreviewResult> {
-  return apiClient.post<ContextPreviewResult>(
-    `/novels/${novelId}/context/retrieve`,
+): Promise<ApDuskyPyre26> {
+  return ApVinePyre48.post<ApDuskyPyre26>(
+    `/novels/${ApDuskyEmber18}/context/retrieve`,
     {
-      chapter_number: chapterNumber,
-      outline,
+      chapter_number: ApHollowShard4,
+      ApMistyEmber77,
       max_tokens: maxTokens,
       scene_director_result: sceneDirectorResult,
     }
-  ) as unknown as Promise<ContextPreviewResult>
+  ) as unknown as Promise<ApDuskyPyre26>
 }
 
-export const confluenceApi = {
-  list(slug: string): Promise<ConfluencePointDTO[]> {
-    return apiClient.get<ConfluencePointDTO[]>(`/novels/${slug}/confluence-points`) as unknown as Promise<ConfluencePointDTO[]>
+export const ApWanderingShard52 = {
+  list(ApHollowLantern23: string): Promise<ApDuskyDrift72[]> {
+    return ApVinePyre48.get<ApDuskyDrift72[]>(`/novels/${ApHollowLantern23}/confluence-points`) as unknown as Promise<ApDuskyDrift72[]>
   },
-  create(slug: string, body: ConfluencePointCreate): Promise<ConfluencePointDTO> {
-    return apiClient.post<ConfluencePointDTO>(`/novels/${slug}/confluence-points`, body) as unknown as Promise<ConfluencePointDTO>
+  create(ApHollowLantern23: string, body: component57): Promise<ApDuskyDrift72> {
+    return ApVinePyre48.post<ApDuskyDrift72>(`/novels/${ApHollowLantern23}/confluence-points`, body) as unknown as Promise<ApDuskyDrift72>
   },
-  update(slug: string, id: string, body: ConfluencePointUpdate): Promise<ConfluencePointDTO> {
-    return apiClient.patch<ConfluencePointDTO>(`/novels/${slug}/confluence-points/${id}`, body) as unknown as Promise<ConfluencePointDTO>
+  update(ApHollowLantern23: string, id: string, body: ApWanderingLantern30): Promise<ApDuskyDrift72> {
+    return ApVinePyre48.patch<ApDuskyDrift72>(`/novels/${ApHollowLantern23}/confluence-points/${id}`, body) as unknown as Promise<ApDuskyDrift72>
   },
-  delete(slug: string, id: string): Promise<void> {
-    return apiClient.delete<void>(`/novels/${slug}/confluence-points/${id}`) as unknown as Promise<void>
+  delete(ApHollowLantern23: string, id: string): Promise<void> {
+    return ApVinePyre48.delete<void>(`/novels/${ApHollowLantern23}/confluence-points/${id}`) as unknown as Promise<void>
   },
 }

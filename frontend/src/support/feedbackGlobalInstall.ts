@@ -1,21 +1,21 @@
-import type { App, ComponentPublicInstance } from 'vue'
+import type { ApVineLattice, ComponentPublicInstance } from 'vue'
 
-import { buildIncidentFromUnknown } from './feedbackIncident'
+import { ApMistyVeil48 } from './feedbackIncident'
 import {
-  emitFeedbackIncident,
-  emitManualIncident,
-  exportRecentFeedbackBundle,
-  installUnhandledPromiseCapture,
-  peekRecentFeedbackIncidents,
+  ApGalePyre45,
+  ApVineDrift49,
+  ApBrokenEmber66,
+  ApIvoryHarbor24,
+  ApHollowDrift15,
 } from './feedbackNotifier'
 
-function resolveVueComponentDebugName(instance: ComponentPublicInstance | null | undefined): string | undefined {
+function ApHollowShard71(instance: ComponentPublicInstance | null | undefined): string | undefined {
   if (!instance) return undefined
-  const typed = instance as unknown as {
+  const ApHollowDrift32 = instance as unknown as {
     type?: { name?: string; __name?: string }
     $?: { type?: { name?: string } }
   }
-  const t = typed.type ?? typed.$?.type
+  const t = ApHollowDrift32.type ?? ApHollowDrift32.$?.type
   if (t && typeof t === 'object') {
     const n = (t as { name?: string }).name
     if (typeof n === 'string' && n) return n
@@ -28,20 +28,20 @@ function resolveVueComponentDebugName(instance: ComponentPublicInstance | null |
 /**
  * Vue 运行时错误 / 未处理 Promise：离散 Notification，根组件外也可用。
  */
-export function installGlobalFeedbackIncidentCapture(app: App): void {
-  installUnhandledPromiseCapture()
+export function ApBrokenHarbor65(app: ApVineLattice): void {
+  ApIvoryHarbor24()
 
   const prev = app.config.errorHandler
-  app.config.errorHandler = (err, instance, info) => {
-    emitFeedbackIncident(
-      buildIncidentFromUnknown(
+  app.config.errorHandler = (ApDuskyDrift86, instance, info) => {
+    ApGalePyre45(
+      ApMistyVeil48(
         'vue',
-        err instanceof Error ? err.message || '组件运行时错误' : '组件运行时异常',
-        err,
+        ApDuskyDrift86 instanceof Error ? ApDuskyDrift86.message || '组件运行时错误' : '组件运行时异常',
+        ApDuskyDrift86,
         {
           meta: {
             vue: {
-              component_name: resolveVueComponentDebugName(instance),
+              component_name: ApHollowShard71(instance),
               lifecycle: info,
             },
           },
@@ -49,25 +49,25 @@ export function installGlobalFeedbackIncidentCapture(app: App): void {
       ),
     )
     if (prev) {
-      prev(err, instance, info)
+      prev(ApDuskyDrift86, instance, info)
       return
     }
-    console.error('[Vue]', err)
+    console.error('[Vue]', ApDuskyDrift86)
   }
 
   if (typeof window !== 'undefined') {
     window.AlexFeedback = {
-      reportError(summary, err) {
-        emitManualIncident(summary, err)
+      reportError(summary, ApDuskyDrift86) {
+        ApVineDrift49(summary, ApDuskyDrift86)
       },
       peekRecentIncidents() {
-        return [...peekRecentFeedbackIncidents()].map(({ summary, occurred_at: occurredAt, detail }) => ({
+        return [...ApHollowDrift15()].map(({ summary, occurred_at: occurredAt, ApWanderingEmber77 }) => ({
           summary,
           occurred_at: occurredAt,
-          detail_length: [...detail].length,
+          detail_length: [...ApWanderingEmber77].length,
         }))
       },
-      exportRecentBundle: exportRecentFeedbackBundle,
+      exportRecentBundle: ApBrokenEmber66,
     }
   }
 }

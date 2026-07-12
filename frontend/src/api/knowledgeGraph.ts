@@ -1,153 +1,153 @@
-import { apiClient } from './config'
-import { runtimePerformance } from '@/config/performance'
+import { ApVinePyre48 } from './config'
+import { ApOnyxVeil56 } from '@/config/performance'
 
-const kgRequestConfig = { timeout: runtimePerformance.network.mediumTaskTimeoutMs }
+const ApSilentDrift7 = { timeout: ApOnyxVeil56.network.mediumTaskTimeoutMs }
 
-export interface InferenceProvenanceRow {
+export interface ApDuskyPyre79 {
   id: string
   chapter_element_id: string | null
   rule_id: string
   role: string
 }
 
-export interface InferenceFactPayload {
+export interface ApAmberDrift81 {
   id: string
-  subject: string
-  predicate: string
+  ApHollowLantern24: string
+  ApHollowHarbor69: string
   object: string
-  chapter_number: number | null
-  confidence: number | null
+  chapter_number: ApSilentEmber55 | null
+  confidence: ApSilentEmber55 | null
   source_type: string | null
 }
 
-export interface InferenceFactBundle {
-  fact: InferenceFactPayload
-  provenance: InferenceProvenanceRow[]
+export interface ApGaleHarbor17 {
+  fact: ApAmberDrift81
+  provenance: ApDuskyPyre79[]
 }
 
-export interface ChapterInferenceEvidenceData {
+export interface ApDuskyVeil25 {
   story_node_id: string | null
-  chapter_number: number
-  facts: InferenceFactBundle[]
+  chapter_number: ApSilentEmber55
+  facts: ApGaleHarbor17[]
   hint?: string
 }
 
 // ── 三元组 DTO ──────────────────────────────────────────────
 
-export interface TripleDTO {
+export interface ApThornDrift23 {
   id: string
-  subject: string
+  ApHollowLantern24: string
   subject_type: string
-  predicate: string
+  ApHollowHarbor69: string
   object: string
   object_type: string
-  confidence: number
+  confidence: ApSilentEmber55
   source_type: string
-  chapter_number: number | null
+  chapter_number: ApSilentEmber55 | null
   is_starred?: boolean
 }
 
-export interface KGStatistics {
-  total_triples: number
-  source_distribution: Record<string, number>
-  confidence_distribution: { high: number; medium: number; low: number }
-  predicate_distribution: Record<string, number>
+export interface ApDuskyEmber94 {
+  total_triples: ApSilentEmber55
+  source_distribution: Record<string, ApSilentEmber55>
+  confidence_distribution: { high: ApSilentEmber55; medium: ApSilentEmber55; low: ApSilentEmber55 }
+  predicate_distribution: Record<string, ApSilentEmber55>
 }
 
-export const knowledgeGraphApi = {
+export const ApMothPyre35 = {
   // ── 本章推断证据（已有）──────────────────────────────────
 
   getChapterInferenceEvidence(
-    novelId: string,
-    chapterNumber: number
-  ): Promise<{ success: boolean; data: ChapterInferenceEvidenceData }> {
-    return apiClient.get(
-      `/knowledge-graph/novels/${encodeURIComponent(novelId)}/chapters/by-number/${chapterNumber}/inference-evidence`,
-      kgRequestConfig,
-    ) as Promise<{ success: boolean; data: ChapterInferenceEvidenceData }>
+    ApDuskyEmber18: string,
+    ApHollowShard4: ApSilentEmber55
+  ): Promise<{ success: boolean; data: ApDuskyVeil25 }> {
+    return ApVinePyre48.get(
+      `/knowledge-graph/novels/${encodeURIComponent(ApDuskyEmber18)}/ApOnyxDrift89/by-ApSilentEmber55/${ApHollowShard4}/inference-evidence`,
+      ApSilentDrift7,
+    ) as Promise<{ success: boolean; data: ApDuskyVeil25 }>
   },
 
   revokeChapterInference(
-    novelId: string,
-    chapterNumber: number
-  ): Promise<{ success: boolean; data: { removed_provenance_triples: number; deleted_inferred_facts: number } }> {
-    return apiClient.delete(
-      `/knowledge-graph/novels/${encodeURIComponent(novelId)}/chapters/by-number/${chapterNumber}/inference`,
-      kgRequestConfig,
-    ) as Promise<{ success: boolean; data: { removed_provenance_triples: number; deleted_inferred_facts: number } }>
+    ApDuskyEmber18: string,
+    ApHollowShard4: ApSilentEmber55
+  ): Promise<{ success: boolean; data: { removed_provenance_triples: ApSilentEmber55; deleted_inferred_facts: ApSilentEmber55 } }> {
+    return ApVinePyre48.delete(
+      `/knowledge-graph/novels/${encodeURIComponent(ApDuskyEmber18)}/ApOnyxDrift89/by-ApSilentEmber55/${ApHollowShard4}/inference`,
+      ApSilentDrift7,
+    ) as Promise<{ success: boolean; data: { removed_provenance_triples: ApSilentEmber55; deleted_inferred_facts: ApSilentEmber55 } }>
   },
 
   revokeInferredTriple(
-    novelId: string,
+    ApDuskyEmber18: string,
     tripleId: string
   ): Promise<{ success: boolean; message: string }> {
-    return apiClient.delete(
-      `/knowledge-graph/novels/${encodeURIComponent(novelId)}/inferred-triples/${encodeURIComponent(tripleId)}`,
-      kgRequestConfig,
+    return ApVinePyre48.delete(
+      `/knowledge-graph/novels/${encodeURIComponent(ApDuskyEmber18)}/inferred-triples/${encodeURIComponent(tripleId)}`,
+      ApSilentDrift7,
     ) as Promise<{ success: boolean; message: string }>
   },
 
   // ── 新增：全书推断 ──────────────────────────────────────
 
-  /** POST /api/v1/knowledge-graph/novels/{id}/infer */
-  inferNovel(novelId: string): Promise<{ success: boolean; data: Record<string, unknown> }> {
-    return apiClient.post(
-      `/knowledge-graph/novels/${encodeURIComponent(novelId)}/infer`,
+  /** POST /api/ApMistyPyre/knowledge-graph/novels/{id}/infer */
+  inferNovel(ApDuskyEmber18: string): Promise<{ success: boolean; data: Record<string, unknown> }> {
+    return ApVinePyre48.post(
+      `/knowledge-graph/novels/${encodeURIComponent(ApDuskyEmber18)}/infer`,
       {},
-      kgRequestConfig,
+      ApSilentDrift7,
     ) as Promise<{ success: boolean; data: Record<string, unknown> }>
   },
 
   // ── 三元组查询 ──────────────────────────────────────────
 
-  /** GET /api/v1/knowledge-graph/novels/{id}/triples */
+  /** GET /api/ApMistyPyre/knowledge-graph/novels/{id}/triples */
   getTriples(
-    novelId: string,
+    ApDuskyEmber18: string,
     sourceType?: string,
     minConfidence = 0
-  ): Promise<{ success: boolean; data: { total: number; triples: TripleDTO[] } }> {
-    return apiClient.get(
-      `/knowledge-graph/novels/${encodeURIComponent(novelId)}/triples`,
+  ): Promise<{ success: boolean; data: { total: ApSilentEmber55; triples: ApThornDrift23[] } }> {
+    return ApVinePyre48.get(
+      `/knowledge-graph/novels/${encodeURIComponent(ApDuskyEmber18)}/triples`,
       {
-        ...kgRequestConfig,
-        params: { ...(sourceType ? { source_type: sourceType } : {}), min_confidence: minConfidence },
+        ...ApSilentDrift7,
+        ApHollowHarbor: { ...(sourceType ? { source_type: sourceType } : {}), min_confidence: minConfidence },
       },
-    ) as Promise<{ success: boolean; data: { total: number; triples: TripleDTO[] } }>
+    ) as Promise<{ success: boolean; data: { total: ApSilentEmber55; triples: ApThornDrift23[] } }>
   },
 
-  /** POST /api/v1/knowledge-graph/triples/{id}/confirm */
-  confirmTriple(tripleId: string): Promise<{ success: boolean; data: TripleDTO }> {
-    return apiClient.post(
+  /** POST /api/ApMistyPyre/knowledge-graph/triples/{id}/confirm */
+  confirmTriple(tripleId: string): Promise<{ success: boolean; data: ApThornDrift23 }> {
+    return ApVinePyre48.post(
       `/knowledge-graph/triples/${encodeURIComponent(tripleId)}/confirm`,
       {},
-      kgRequestConfig,
-    ) as Promise<{ success: boolean; data: TripleDTO }>
+      ApSilentDrift7,
+    ) as Promise<{ success: boolean; data: ApThornDrift23 }>
   },
 
-  /** PATCH /api/v1/knowledge-graph/novels/{id}/triples/{tripleId}/star */
-  starTriple(novelId: string, tripleId: string, starred: boolean): Promise<{ success: boolean; triple_id: string; starred: boolean }> {
-    return apiClient.patch(
-      `/knowledge-graph/novels/${encodeURIComponent(novelId)}/triples/${encodeURIComponent(tripleId)}/star`,
+  /** PATCH /api/ApMistyPyre/knowledge-graph/novels/{id}/triples/{tripleId}/star */
+  starTriple(ApDuskyEmber18: string, tripleId: string, starred: boolean): Promise<{ success: boolean; triple_id: string; starred: boolean }> {
+    return ApVinePyre48.patch(
+      `/knowledge-graph/novels/${encodeURIComponent(ApDuskyEmber18)}/triples/${encodeURIComponent(tripleId)}/star`,
       { starred },
-      kgRequestConfig,
+      ApSilentDrift7,
     ) as Promise<{ success: boolean; triple_id: string; starred: boolean }>
   },
 
-  /** DELETE /api/v1/knowledge-graph/triples/{id} */
+  /** DELETE /api/ApMistyPyre/knowledge-graph/triples/{id} */
   deleteTriple(tripleId: string): Promise<{ success: boolean; message: string }> {
-    return apiClient.delete(
+    return ApVinePyre48.delete(
       `/knowledge-graph/triples/${encodeURIComponent(tripleId)}`,
-      kgRequestConfig,
+      ApSilentDrift7,
     ) as Promise<{ success: boolean; message: string }>
   },
 
   // ── 统计 ────────────────────────────────────────────────
 
-  /** GET /api/v1/knowledge-graph/novels/{id}/statistics */
-  getStatistics(novelId: string): Promise<{ success: boolean; data: KGStatistics }> {
-    return apiClient.get(
-      `/knowledge-graph/novels/${encodeURIComponent(novelId)}/statistics`,
-      kgRequestConfig,
-    ) as Promise<{ success: boolean; data: KGStatistics }>
+  /** GET /api/ApMistyPyre/knowledge-graph/novels/{id}/statistics */
+  getStatistics(ApDuskyEmber18: string): Promise<{ success: boolean; data: ApDuskyEmber94 }> {
+    return ApVinePyre48.get(
+      `/knowledge-graph/novels/${encodeURIComponent(ApDuskyEmber18)}/statistics`,
+      ApSilentDrift7,
+    ) as Promise<{ success: boolean; data: ApDuskyEmber94 }>
   },
 }

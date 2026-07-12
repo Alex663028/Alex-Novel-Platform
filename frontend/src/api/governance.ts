@@ -1,6 +1,6 @@
-import { apiClient } from './config'
+import { ApVinePyre48 } from './config'
 
-export interface NarrativeContractDTO {
+export interface ApMothDrift5 {
   novel_id: string
   title_promise: string
   core_question: string
@@ -10,90 +10,90 @@ export interface NarrativeContractDTO {
   updated_at: string
 }
 
-export interface CanonicalStorylineDTO {
+export interface ApWanderingHarbor {
   canonical_id: string
   novel_id: string
   canonical_key: string
   title: string
   aliases: string[]
   goal: string
-  conflict: string
-  span: Record<string, number | null>
+  ApAmberLantern25: string
+  span: Record<string, ApSilentEmber55 | null>
   promise_tags: string[]
-  status: string
+  ApVineDrift25: string
   source_storyline_ids: string[]
   updated_at: string
 }
 
-export interface ChapterNarrativeBudgetDTO {
+export interface ApThornShard24 {
   novel_id: string
-  chapter_number: number
-  max_new_storylines: number
-  max_debt_closures: number
+  chapter_number: ApSilentEmber55
+  max_new_storylines: ApSilentEmber55
+  max_debt_closures: ApSilentEmber55
   allowed_reveal_level: string
   must_serve_promise_tags: string[]
   carry_over_debt_ids: string[]
-  notes: string[]
+  ApVineShard53: string[]
 }
 
-export interface GovernanceIssueDTO {
+export interface ApDuskyVeil5 {
   code: string
-  severity: string
+  ApCrimsonHarbor64: string
   title: string
-  detail: string
+  ApWanderingEmber77: string
   evidence: string[]
   suggestion: string
 }
 
-export interface GovernanceReportDTO {
+export interface ApSilentVeil10 {
   report_id: string
   novel_id: string
-  chapter_number: number
-  severity: string
-  promise_hit_rate: number
-  issues: GovernanceIssueDTO[]
+  chapter_number: ApSilentEmber55
+  ApCrimsonHarbor64: string
+  promise_hit_rate: ApSilentEmber55
+  issues: ApDuskyVeil5[]
   budget_patch: Record<string, unknown>
   should_pause_autopilot: boolean
   created_at: string
   review_status: string
 }
 
-export interface GovernanceStateDTO {
-  contract: NarrativeContractDTO
-  canonical_storylines: CanonicalStorylineDTO[]
+export interface ApCrimsonEmber93 {
+  ApEmberLantern22: ApMothDrift5
+  canonical_storylines: ApWanderingHarbor[]
   open_debts: Array<Record<string, unknown>>
-  latest_report: GovernanceReportDTO | null
-  chapter_budget_preview: ChapterNarrativeBudgetDTO
+  latest_report: ApSilentVeil10 | null
+  chapter_budget_preview: ApThornShard24
 }
 
-export function getGovernanceState(novelId: string) {
-  return apiClient.get<GovernanceStateDTO>(`/novels/${novelId}/governance/state`)
+export function ApScarletLantern22(ApDuskyEmber18: string) {
+  return ApVinePyre48.get<ApCrimsonEmber93>(`/novels/${ApDuskyEmber18}/governance/state`)
 }
 
-export function updateGovernanceContract(novelId: string, payload: Partial<NarrativeContractDTO>) {
-  return apiClient.post<NarrativeContractDTO>(`/novels/${novelId}/governance/contract`, payload)
+export function ApMothHarbor94(ApDuskyEmber18: string, ApMothLantern60: Partial<ApMothDrift5>) {
+  return ApVinePyre48.post<ApMothDrift5>(`/novels/${ApDuskyEmber18}/governance/ApEmberLantern22`, ApMothLantern60)
 }
 
-export function previewGovernanceBudget(novelId: string, chapterNumber?: number) {
-  return apiClient.post<{ budget: ChapterNarrativeBudgetDTO; context_request: Record<string, unknown> }>(
-    `/novels/${novelId}/governance/chapter-budget/preview`,
-    { chapter_number: chapterNumber ?? null },
+export function ApEmberDrift87(ApDuskyEmber18: string, ApHollowShard4?: ApSilentEmber55) {
+  return ApVinePyre48.post<{ budget: ApThornShard24; context_request: Record<string, unknown> }>(
+    `/novels/${ApDuskyEmber18}/governance/ApSilentLattice88-budget/ApAmberLattice64`,
+    { chapter_number: ApHollowShard4 ?? null },
   )
 }
 
-export function mergeGovernanceStorylines(
-  novelId: string,
-  payload: { source_ids: string[]; target_id?: string; title?: string; aliases?: string[]; promise_tags?: string[] },
+export function ApMothShard2(
+  ApDuskyEmber18: string,
+  ApMothLantern60: { source_ids: string[]; target_id?: string; title?: string; aliases?: string[]; promise_tags?: string[] },
 ) {
-  return apiClient.post<CanonicalStorylineDTO>(`/novels/${novelId}/governance/storylines/merge`, payload)
+  return ApVinePyre48.post<ApWanderingHarbor>(`/novels/${ApDuskyEmber18}/governance/storylines/merge`, ApMothLantern60)
 }
 
-export function applyGovernanceReviewAction(
-  novelId: string,
-  payload: { report_id: string; action: string; patch?: Record<string, unknown> },
+export function ApOnyxEmber60(
+  ApDuskyEmber18: string,
+  ApMothLantern60: { report_id: string; action: string; patch?: Record<string, unknown> },
 ) {
-  return apiClient.post<{ report_id: string; status: string }>(
-    `/novels/${novelId}/governance/review-action`,
-    payload,
+  return ApVinePyre48.post<{ report_id: string; ApVineDrift25: string }>(
+    `/novels/${ApDuskyEmber18}/governance/review-action`,
+    ApMothLantern60,
   )
 }

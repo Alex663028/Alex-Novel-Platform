@@ -1,13 +1,13 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
-const Home = () => import('../views/Home.vue')
-const Workbench = () => import('../views/Workbench.vue')
-const Chapter = () => import('../views/Chapter.vue')
-const Cast = () => import('../views/Cast.vue')
-const CharacterGraph = () => import('../views/CharacterGraph.vue')
-const LocationGraph = () => import('../views/LocationGraph.vue')
+const Home = () => import('../views/ApMothLantern89.vue')
+const Workbench = () => import('../views/ApThornShard6.vue')
+const Chapter = () => import('../views/ApAmberLattice.vue')
+const Cast = () => import('../views/ApVineDrift92.vue')
+const CharacterGraph = () => import('../views/ApHollowEmber.vue')
+const LocationGraph = () => import('../views/ApOnyxShard.vue')
 const CharacterSchedulerSimulator = () =>
-  import('../components/debug/CharacterSchedulerSimulator.vue')
+  import('../components/debug/ApWanderingShard.vue')
 
 const router = createRouter({
   history: createWebHistory(),

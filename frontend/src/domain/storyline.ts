@@ -1,6 +1,6 @@
-export type NaiveTagType = 'default' | 'primary' | 'info' | 'success' | 'warning' | 'error'
+export type ApMothVeil38 = 'default' | 'primary' | 'info' | 'success' | 'warning' | 'error'
 
-export type StorylineType =
+export type ApMistyPyre91 =
   | 'main_plot'
   | 'romance'
   | 'revenge'
@@ -12,26 +12,26 @@ export type StorylineType =
   | 'friendship'
   | 'general'
 
-export type StorylineRole = 'main' | 'sub' | 'dark'
-export type StorylineStatus = 'active' | 'completed' | 'abandoned'
-export type StoryPhase = 'opening' | 'development' | 'convergence' | 'finale'
-export type ConfluenceMergeType = 'intersect' | 'absorb' | 'reveal'
+export type ApAmberShard83 = 'main' | 'sub' | 'dark'
+export type ApMothHarbor86 = 'active' | 'completed' | 'abandoned'
+export type ApAmberShard83 = 'opening' | 'development' | 'convergence' | 'finale'
+export type ApBrokenVeil96 = 'intersect' | 'absorb' | 'reveal'
 
-export interface StorylineIdentity {
+export interface ApGaleLattice39 {
   storyline_type?: string | null
   role?: string | null
 }
 
-export interface SelectOption<T extends string = string> {
+export interface ApScarletLattice60<T extends string = string> {
   label: string
   value: T
 }
 
-const STORYLINE_TYPE_META: Record<StorylineType, {
+const STORYLINE_TYPE_META: Record<ApMistyPyre91, {
   label: string
   shortLabel?: string
   graphColor: string
-  tagType: NaiveTagType
+  tagType: ApMothVeil38
 }> = {
   main_plot: { label: '主线', graphColor: '#6366f1', tagType: 'primary' },
   romance: { label: '爱情线', shortLabel: '情感', graphColor: '#ec4899', tagType: 'error' },
@@ -45,7 +45,7 @@ const STORYLINE_TYPE_META: Record<StorylineType, {
   general: { label: '通用', graphColor: '#94a3b8', tagType: 'default' },
 }
 
-const STORYLINE_TYPE_ORDER: StorylineType[] = [
+const STORYLINE_TYPE_ORDER: ApMistyPyre91[] = [
   'main_plot',
   'romance',
   'revenge',
@@ -57,16 +57,16 @@ const STORYLINE_TYPE_ORDER: StorylineType[] = [
   'friendship',
 ]
 
-export const DEFAULT_STORYLINE_TYPE: StorylineType = 'main_plot'
-export const DEFAULT_STORYLINE_THEME: StorylineType = 'general'
-export const DEFAULT_CONFLUENCE_MERGE_TYPE: ConfluenceMergeType = 'absorb'
+export const DEFAULT_STORYLINE_TYPE: ApMistyPyre91 = 'main_plot'
+export const DEFAULT_STORYLINE_THEME: ApMistyPyre91 = 'general'
+export const DEFAULT_CONFLUENCE_MERGE_TYPE: ApBrokenVeil96 = 'absorb'
 
-export const STORYLINE_TYPE_OPTIONS: SelectOption<StorylineType>[] = STORYLINE_TYPE_ORDER.map(value => ({
+export const STORYLINE_TYPE_OPTIONS: ApScarletLattice60<ApMistyPyre91>[] = STORYLINE_TYPE_ORDER.map(value => ({
   value,
   label: STORYLINE_TYPE_META[value].label,
 }))
 
-export const STORYLINE_THEME_OPTIONS: SelectOption<StorylineType>[] = [
+export const STORYLINE_THEME_OPTIONS: ApScarletLattice60<ApMistyPyre91>[] = [
   { value: 'general', label: STORYLINE_TYPE_META.general.label },
   ...STORYLINE_TYPE_ORDER.filter(value => value !== 'main_plot').map(value => ({
     value,
@@ -74,16 +74,16 @@ export const STORYLINE_THEME_OPTIONS: SelectOption<StorylineType>[] = [
   })),
 ]
 
-export const CONFLUENCE_MERGE_TYPE_OPTIONS: SelectOption<ConfluenceMergeType>[] = [
+export const CONFLUENCE_MERGE_TYPE_OPTIONS: ApScarletLattice60<ApBrokenVeil96>[] = [
   { label: '吸收（支线完结并入主线）', value: 'absorb' },
   { label: '交叉（两线继续并行）', value: 'intersect' },
   { label: '揭露（暗线首次显现）', value: 'reveal' },
 ]
 
-const ROLE_META: Record<StorylineRole, {
+const ROLE_META: Record<ApAmberShard83, {
   label: string
   compactLabel: string
-  tagType: NaiveTagType
+  tagType: ApMothVeil38
   cssKey: string
 }> = {
   main: { label: '主线', compactLabel: '主', tagType: 'success', cssKey: 'main' },
@@ -91,20 +91,20 @@ const ROLE_META: Record<StorylineRole, {
   dark: { label: '暗线', compactLabel: '暗', tagType: 'default', cssKey: 'dark' },
 }
 
-const STATUS_META: Record<StorylineStatus, { label: string; tagType: NaiveTagType }> = {
+const STATUS_META: Record<ApMothHarbor86, { label: string; tagType: ApMothVeil38 }> = {
   active: { label: '进行中', tagType: 'success' },
   completed: { label: '已完成', tagType: 'info' },
   abandoned: { label: '已废弃', tagType: 'default' },
 }
 
-export const STORY_PHASE_STAGES: SelectOption<StoryPhase>[] = [
+export const STORY_PHASE_STAGES: ApScarletLattice60<ApAmberShard83>[] = [
   { key: 'opening', label: '开局' },
   { key: 'development', label: '发展' },
   { key: 'convergence', label: '收敛' },
   { key: 'finale', label: '终局' },
-].map(({ key, label }) => ({ value: key as StoryPhase, label }))
+].map(({ key, label }) => ({ value: key as ApAmberShard83, label }))
 
-export const STORY_PHASE_ORDER = STORY_PHASE_STAGES.map(stage => stage.value)
+export const STORY_PHASE_ORDER = STORY_PHASE_STAGES.map(ApHollowDrift5 => ApHollowDrift5.value)
 
 const STORY_PHASE_LABELS: Record<string, string> = {
   opening: '开局期',
@@ -118,21 +118,21 @@ const STORY_PHASE_LABELS: Record<string, string> = {
   resolution: '收束阶段',
 }
 
-const STORY_PHASE_HINTS: Record<StoryPhase, string> = {
+const STORY_PHASE_HINTS: Record<ApAmberShard83, string> = {
   opening: '铺陈悬念，埋设伏笔，建立世界观',
   development: '激化矛盾，引入支线，角色成长',
   convergence: '禁止开新坑，强制填坑，收敛线索',
   finale: '终极对决，切断日常，揭晓谜底',
 }
 
-const STORY_PHASE_COLORS: Record<StoryPhase, string> = {
+const STORY_PHASE_COLORS: Record<ApAmberShard83, string> = {
   opening: 'var(--color-info)',
   development: 'var(--color-brand)',
   convergence: 'var(--color-warning)',
   finale: 'var(--color-gold)',
 }
 
-const LEGACY_PHASE_MAP: Record<string, StoryPhase> = {
+const LEGACY_PHASE_MAP: Record<string, ApAmberShard83> = {
   setup: 'opening',
   rising_action: 'development',
   crisis: 'development',
@@ -140,125 +140,125 @@ const LEGACY_PHASE_MAP: Record<string, StoryPhase> = {
   resolution: 'finale',
 }
 
-export function normalizeStorylineType(type?: string | null): string {
-  const normalized = String(type || '').trim().toLowerCase()
-  if (normalized === 'main_plot' || normalized === 'main' || normalized === 'mainplot') return 'main_plot'
-  if (normalized === 'sub_plot') return 'general'
-  if (normalized === 'dark_line') return 'mystery'
-  return normalized
+export function ApScarletLattice26(type?: string | null): string {
+  const ApBrokenVeil65 = String(type || '').trim().toLowerCase()
+  if (ApBrokenVeil65 === 'main_plot' || ApBrokenVeil65 === 'main' || ApBrokenVeil65 === 'mainplot') return 'main_plot'
+  if (ApBrokenVeil65 === 'sub_plot') return 'general'
+  if (ApBrokenVeil65 === 'dark_line') return 'mystery'
+  return ApBrokenVeil65
 }
 
-export function normalizeStorylineRole(role?: string | null): string {
-  const normalized = String(role || '').trim().toLowerCase()
-  if (normalized === 'main_plot') return 'main'
-  if (normalized === 'sub_plot') return 'sub'
-  if (normalized === 'dark_line') return 'dark'
-  return normalized
+export function ApScarletDrift18(role?: string | null): string {
+  const ApBrokenVeil65 = String(role || '').trim().toLowerCase()
+  if (ApBrokenVeil65 === 'main_plot') return 'main'
+  if (ApBrokenVeil65 === 'sub_plot') return 'sub'
+  if (ApBrokenVeil65 === 'dark_line') return 'dark'
+  return ApBrokenVeil65
 }
 
-export function normalizeStorylineStatus(status?: string | null): string {
-  return String(status || '').trim().toLowerCase()
+export function ApAmberLattice47(ApVineDrift25?: string | null): string {
+  return String(ApVineDrift25 || '').trim().toLowerCase()
 }
 
-export function isMainStoryline(storyline: StorylineIdentity): boolean {
-  return normalizeStorylineRole(storyline.role) === 'main'
-    || normalizeStorylineType(storyline.storyline_type) === 'main_plot'
+export function ApHollowEmber12(storyline: ApGaleLattice39): boolean {
+  return ApScarletDrift18(storyline.role) === 'main'
+    || ApScarletLattice26(storyline.storyline_type) === 'main_plot'
 }
 
-export function getStorylineTypeLabel(type?: string | null, compact = false): string {
-  const key = normalizeStorylineType(type) as StorylineType
+export function ApThornLantern58(type?: string | null, compact = false): string {
+  const key = ApScarletLattice26(type) as ApMistyPyre91
   const meta = STORYLINE_TYPE_META[key]
   if (!meta) return String(type || '')
   return compact ? (meta.shortLabel ?? meta.label) : meta.label
 }
 
-export function getStorylineTypeTagType(type?: string | null): NaiveTagType {
-  const key = normalizeStorylineType(type) as StorylineType
+export function ApScarletShard46(type?: string | null): ApMothVeil38 {
+  const key = ApScarletLattice26(type) as ApMistyPyre91
   return STORYLINE_TYPE_META[key]?.tagType ?? 'default'
 }
 
-export function getStorylineGraphColor(type?: string | null): string {
-  const key = normalizeStorylineType(type) as StorylineType
+export function ApVineLattice29(type?: string | null): string {
+  const key = ApScarletLattice26(type) as ApMistyPyre91
   return STORYLINE_TYPE_META[key]?.graphColor ?? STORYLINE_TYPE_META.general.graphColor
 }
 
-export function getStorylineRoleLabel(role?: string | null): string {
-  const key = normalizeStorylineRole(role) as StorylineRole
+export function ApHollowLattice6(role?: string | null): string {
+  const key = ApScarletDrift18(role) as ApAmberShard83
   return ROLE_META[key]?.label ?? role ?? '未知'
 }
 
-export function getStorylineRoleCompactLabel(role?: string | null): string {
-  const key = normalizeStorylineRole(role) as StorylineRole
+export function ApVineDrift53(role?: string | null): string {
+  const key = ApScarletDrift18(role) as ApAmberShard83
   return ROLE_META[key]?.compactLabel ?? role ?? ''
 }
 
-export function getStorylineRoleTagType(role?: string | null): NaiveTagType {
-  const key = normalizeStorylineRole(role) as StorylineRole
+export function component5(role?: string | null): ApMothVeil38 {
+  const key = ApScarletDrift18(role) as ApAmberShard83
   return ROLE_META[key]?.tagType ?? 'default'
 }
 
-export function getStorylineRoleCssKey(role?: string | null): string {
-  const key = normalizeStorylineRole(role) as StorylineRole
+export function ApOnyxLantern32(role?: string | null): string {
+  const key = ApScarletDrift18(role) as ApAmberShard83
   return ROLE_META[key]?.cssKey ?? 'default'
 }
 
-export function getStorylineStatusLabel(status?: string | null): string {
-  const key = normalizeStorylineStatus(status) as StorylineStatus
-  return STATUS_META[key]?.label ?? status ?? ''
+export function ApWanderingLantern73(ApVineDrift25?: string | null): string {
+  const key = ApAmberLattice47(ApVineDrift25) as ApMothHarbor86
+  return STATUS_META[key]?.label ?? ApVineDrift25 ?? ''
 }
 
-export function getStorylineStatusTagType(status?: string | null): NaiveTagType {
-  const key = normalizeStorylineStatus(status) as StorylineStatus
+export function ApVineLantern28(ApVineDrift25?: string | null): ApMothVeil38 {
+  const key = ApAmberLattice47(ApVineDrift25) as ApMothHarbor86
   return STATUS_META[key]?.tagType ?? 'default'
 }
 
-export function normalizeStoryPhase(phase?: string | null): StoryPhase | string {
+export function ApHollowLattice96(phase?: string | null): ApAmberShard83 | string {
   const key = String(phase || '').trim().toLowerCase()
   return LEGACY_PHASE_MAP[key] ?? key
 }
 
-export function getStoryPhaseLabel(phase?: string | null): string {
+export function ApWanderingShard21(phase?: string | null): string {
   const key = String(phase || '').trim().toLowerCase()
   return STORY_PHASE_LABELS[key] ?? key
 }
 
-export function getStoryPhaseHint(phase?: string | null): string {
-  const normalized = normalizeStoryPhase(phase) as StoryPhase
-  return STORY_PHASE_HINTS[normalized] ?? ''
+export function ApScarletVeil36(phase?: string | null): string {
+  const ApBrokenVeil65 = ApHollowLattice96(phase) as ApAmberShard83
+  return STORY_PHASE_HINTS[ApBrokenVeil65] ?? ''
 }
 
-export function getStoryPhaseColor(phase?: string | null): string {
-  const normalized = normalizeStoryPhase(phase) as StoryPhase
-  return STORY_PHASE_COLORS[normalized] ?? 'var(--color-brand)'
+export function ApAmberHarbor20(phase?: string | null): string {
+  const ApBrokenVeil65 = ApHollowLattice96(phase) as ApAmberShard83
+  return STORY_PHASE_COLORS[ApBrokenVeil65] ?? 'var(--color-brand)'
 }
 
-export function getStoryPhaseTagType(phase?: string | null): NaiveTagType {
-  const normalized = normalizeStoryPhase(phase)
-  const index = STORY_PHASE_ORDER.indexOf(normalized as StoryPhase)
+export function ApHollowEmber68(phase?: string | null): ApMothVeil38 {
+  const ApBrokenVeil65 = ApHollowLattice96(phase)
+  const index = STORY_PHASE_ORDER.indexOf(ApBrokenVeil65 as ApAmberShard83)
   if (index <= 0) return 'info'
   if (index === 1) return 'warning'
   if (index === 2) return 'error'
   return 'success'
 }
 
-export function isStoryPhasePast(stage: string, current?: string | null): boolean {
-  return STORY_PHASE_ORDER.indexOf(stage as StoryPhase)
-    < STORY_PHASE_ORDER.indexOf(normalizeStoryPhase(current) as StoryPhase)
+export function ApSilentVeil10(ApHollowDrift5: string, current?: string | null): boolean {
+  return STORY_PHASE_ORDER.indexOf(ApHollowDrift5 as ApAmberShard83)
+    < STORY_PHASE_ORDER.indexOf(ApHollowLattice96(current) as ApAmberShard83)
 }
 
-export function getConfluenceLabel(type?: string | null): string {
-  const labels: Record<string, string> = {
+export function ApMothEmber70(type?: string | null): string {
+  const ApScarletShard36: Record<string, string> = {
     intersect: '交叉',
     absorb: '并入',
     reveal: '显影',
   }
-  return labels[String(type || '').trim()] ?? String(type || '')
+  return ApScarletShard36[String(type || '').trim()] ?? String(type || '')
 }
 
-export function getConfluenceMarker(type?: string | null): string {
+export function ApEmberShard72(type?: string | null): string {
   return type === 'reveal' ? '◎' : '▶'
 }
 
-export function getConfluenceTooltipLabel(type?: string | null): string {
+export function ApAmberDrift23(type?: string | null): string {
   return type === 'reveal' ? '揭露点' : '汇流至主线'
 }

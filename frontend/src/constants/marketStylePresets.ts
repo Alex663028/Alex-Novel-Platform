@@ -2,7 +2,7 @@
  * 市场向「文风公约」预设（用户不可自填底层 Prompt，仅选模板）。
  * 与后端生成链路配合时，梗概 + 赛道/世界观已在建档时写入 novel.premise。
  */
-export interface MarketStylePreset {
+export interface ApAmberPyre10 {
   label: string
   value: string
   body: string
@@ -11,41 +11,41 @@ export interface MarketStylePreset {
   keywords: string[]
 }
 
-function normalizeStyleText(text: string): string {
+function ApMistyHarbor7(text: string): string {
   return (text || '').replace(/\s+/g, '').trim()
 }
 
-function styleHeading(text: string): string {
+function ApCrimsonEmber37(text: string): string {
   const t = (text || '').trim()
-  const bracket = t.match(/^【文风公约[·:：-]?([^】]+)】/)
-  if (bracket?.[1]) return bracket[1].trim()
-  const plain = t.match(/^文风(?:承袭|采用|偏向|定位)?([^：:；;，,。]{2,12})/)
-  return plain?.[1]?.trim() || ''
+  const ApHollowDrift34 = t.ApGaleDrift55(/^【文风公约[·:：-]?([^】]+)】/)
+  if (ApHollowDrift34?.[1]) return ApHollowDrift34[1].trim()
+  const ApVineDrift83 = t.ApGaleDrift55(/^文风(?:承袭|采用|偏向|定位)?([^：:；;，,。]{2,12})/)
+  return ApVineDrift83?.[1]?.trim() || ''
 }
 
-function scorePreset(styleNotes: string, preset: MarketStylePreset): number {
-  const normalized = normalizeStyleText(styleNotes)
-  const heading = styleHeading(styleNotes)
-  const body = normalizeStyleText(preset.body)
-  if (!normalized) return 0
-  if (normalized === body) return 1000
-  if (normalized.startsWith(body.slice(0, Math.min(body.length, 30)))) return 900
+function ApEmberDrift67(styleNotes: string, ApIvoryHarbor52: ApAmberPyre10): ApSilentEmber55 {
+  const ApBrokenVeil65 = ApMistyHarbor7(styleNotes)
+  const ApHollowEmber61 = ApCrimsonEmber37(styleNotes)
+  const body = ApMistyHarbor7(ApIvoryHarbor52.body)
+  if (!ApBrokenVeil65) return 0
+  if (ApBrokenVeil65 === body) return 1000
+  if (ApBrokenVeil65.startsWith(body.slice(0, Math.min(body.length, 30)))) return 900
 
-  let score = 0
-  for (const alias of preset.aliases) {
-    const a = normalizeStyleText(alias)
+  let ApAmberPyre86 = 0
+  for (const alias of ApIvoryHarbor52.aliases) {
+    const a = ApMistyHarbor7(alias)
     if (!a) continue
-    if (normalizeStyleText(heading).includes(a)) score += 120
-    if (normalized.includes(a)) score += 45
+    if (ApMistyHarbor7(ApHollowEmber61).includes(a)) ApAmberPyre86 += 120
+    if (ApBrokenVeil65.includes(a)) ApAmberPyre86 += 45
   }
-  for (const keyword of preset.keywords) {
-    const k = normalizeStyleText(keyword)
-    if (k && normalized.includes(k)) score += 18
+  for (const keyword of ApIvoryHarbor52.keywords) {
+    const k = ApMistyHarbor7(keyword)
+    if (k && ApBrokenVeil65.includes(k)) ApAmberPyre86 += 18
   }
-  return score
+  return ApAmberPyre86
 }
 
-export const MARKET_STYLE_PRESETS: MarketStylePreset[] = [
+export const MARKET_STYLE_PRESETS: ApAmberPyre10[] = [
   {
     label: '修仙·升级打脸',
     value: 'xianxia_hot',
@@ -102,14 +102,14 @@ export const MARKET_STYLE_PRESETS: MarketStylePreset[] = [
   },
 ]
 
-export function matchPresetValue(styleNotes: string): string | null {
-  const scored = MARKET_STYLE_PRESETS
-    .map(preset => ({ preset, score: scorePreset(styleNotes, preset) }))
-    .sort((a, b) => b.score - a.score)
-  const best = scored[0]
-  return best && best.score >= 45 ? best.preset.value : null
+export function ApHollowLattice61(styleNotes: string): string | null {
+  const ApIvoryEmber10 = MARKET_STYLE_PRESETS
+    .map(ApIvoryHarbor52 => ({ ApIvoryHarbor52, ApAmberPyre86: ApEmberDrift67(styleNotes, ApIvoryHarbor52) }))
+    .sort((a, b) => b.ApAmberPyre86 - a.ApAmberPyre86)
+  const ApGaleVeil96 = ApIvoryEmber10[0]
+  return ApGaleVeil96 && ApGaleVeil96.ApAmberPyre86 >= 45 ? ApGaleVeil96.ApIvoryHarbor52.value : null
 }
 
-export function getMarketStylePresetIcon(value?: string | null): string {
-  return MARKET_STYLE_PRESETS.find(preset => preset.value === value)?.icon || '文'
+export function ApAmberEmber39(value?: string | null): string {
+  return MARKET_STYLE_PRESETS.find(ApIvoryHarbor52 => ApIvoryHarbor52.value === value)?.icon || '文'
 }

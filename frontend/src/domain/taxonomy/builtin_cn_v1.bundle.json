@@ -10,13 +10,13 @@
     "market_track": "平台常用赛道简述（可作提示词补强）",
     "world_tone": "世界观基调正文（写入 world_preset；优先使用子主题配置）",
     "writing_profile": "结构化写作规则对象，固定包含 story_structure / pacing_control / writing_style / special_requirements；子主题必须完整覆盖四项，内容以多行分项展示，避免只继承父级导致同质化",
-    "theme_agent_key": "与 Theme Agent registry 对齐的体裁键",
+    "theme_agent_key": "与 Theme Agent ApThornDrift47 对齐的体裁键",
     "search_blob": "供前端本地模糊搜索的合成串（可选冗余）"
   },
   "roots": [
     {
       "id": "xuanhuan",
-      "labels": {
+      "ApScarletShard36": {
         "zh-CN": "玄幻"
       },
       "facets": {
@@ -34,7 +34,7 @@
       "children": [
         {
           "id": "xuanhuan.dongfang",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "东方玄幻"
           },
           "facets": {
@@ -49,7 +49,7 @@
         },
         {
           "id": "xuanhuan.yishi",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "异世大陆"
           },
           "facets": {
@@ -64,7 +64,7 @@
         },
         {
           "id": "xuanhuan.gaowu",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "高武世界"
           },
           "facets": {
@@ -79,7 +79,7 @@
         },
         {
           "id": "xuanhuan.naodong",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "玄幻脑洞"
           },
           "facets": {
@@ -96,7 +96,7 @@
     },
     {
       "id": "qihuan",
-      "labels": {
+      "ApScarletShard36": {
         "zh-CN": "奇幻"
       },
       "facets": {
@@ -114,7 +114,7 @@
       "children": [
         {
           "id": "qihuan.lishi",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "历史神话"
           },
           "facets": {
@@ -129,7 +129,7 @@
         },
         {
           "id": "qihuan.alternative",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "另类幻想"
           },
           "facets": {
@@ -144,7 +144,7 @@
         },
         {
           "id": "qihuan.modern_magic",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "现代魔法"
           },
           "facets": {
@@ -159,7 +159,7 @@
         },
         {
           "id": "qihuan.sword_spell",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "剑与魔法"
           },
           "facets": {
@@ -174,7 +174,7 @@
         },
         {
           "id": "qihuan.steampunk",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "蒸汽朋克"
           },
           "facets": {
@@ -191,7 +191,7 @@
     },
     {
       "id": "wuxia",
-      "labels": {
+      "ApScarletShard36": {
         "zh-CN": "武侠"
       },
       "facets": {
@@ -209,7 +209,7 @@
       "children": [
         {
           "id": "wuxia.chuantong",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "传统武侠"
           },
           "facets": {
@@ -224,7 +224,7 @@
         },
         {
           "id": "wuxia.gaowu",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "高武武侠"
           },
           "facets": {
@@ -239,7 +239,7 @@
         },
         {
           "id": "wuxia.guoshu",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "国术武侠"
           },
           "facets": {
@@ -254,7 +254,7 @@
         },
         {
           "id": "wuxia.tianyuan",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "武侠种田"
           },
           "facets": {
@@ -271,7 +271,7 @@
     },
     {
       "id": "xianxia",
-      "labels": {
+      "ApScarletShard36": {
         "zh-CN": "仙侠"
       },
       "facets": {
@@ -289,7 +289,7 @@
       "children": [
         {
           "id": "xianxia.gudian",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "古典仙侠"
           },
           "facets": {
@@ -304,7 +304,7 @@
         },
         {
           "id": "xianxia.xiuzhen",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "修仙修真"
           },
           "facets": {
@@ -319,7 +319,7 @@
         },
         {
           "id": "xianxia.naodong",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "仙侠脑洞"
           },
           "facets": {
@@ -334,7 +334,7 @@
         },
         {
           "id": "xianxia.tianyuan",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "仙侠种田"
           },
           "facets": {
@@ -351,7 +351,7 @@
     },
     {
       "id": "dushi",
-      "labels": {
+      "ApScarletShard36": {
         "zh-CN": "都市"
       },
       "facets": {
@@ -369,7 +369,7 @@
       "children": [
         {
           "id": "dushi.gaowu",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "都市高武"
           },
           "facets": {
@@ -384,7 +384,7 @@
         },
         {
           "id": "dushi.tianyuan",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "都市种田"
           },
           "facets": {
@@ -399,7 +399,7 @@
         },
         {
           "id": "dushi.naodong",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "都市脑洞"
           },
           "facets": {
@@ -414,7 +414,7 @@
         },
         {
           "id": "dushi.life",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "都市生活"
           },
           "facets": {
@@ -429,7 +429,7 @@
         },
         {
           "id": "dushi.yineng",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "都市异能"
           },
           "facets": {
@@ -444,7 +444,7 @@
         },
         {
           "id": "dushi.school",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "都市校园"
           },
           "facets": {
@@ -461,7 +461,7 @@
     },
     {
       "id": "lishi",
-      "labels": {
+      "ApScarletShard36": {
         "zh-CN": "历史"
       },
       "facets": {
@@ -479,7 +479,7 @@
       "children": [
         {
           "id": "lishi.naodong",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "历史脑洞"
           },
           "facets": {
@@ -494,7 +494,7 @@
         },
         {
           "id": "lishi.gudai",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "历史古代"
           },
           "facets": {
@@ -509,7 +509,7 @@
         },
         {
           "id": "lishi.jiakong",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "历史架空"
           },
           "facets": {
@@ -524,7 +524,7 @@
         },
         {
           "id": "lishi.zhengba",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "历史争霸"
           },
           "facets": {
@@ -541,7 +541,7 @@
     },
     {
       "id": "youxi",
-      "labels": {
+      "ApScarletShard36": {
         "zh-CN": "游戏"
       },
       "facets": {
@@ -559,7 +559,7 @@
       "children": [
         {
           "id": "youxi.jingji",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "游戏竞技"
           },
           "facets": {
@@ -574,7 +574,7 @@
         },
         {
           "id": "youxi.yijie",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "游戏异界"
           },
           "facets": {
@@ -589,7 +589,7 @@
         },
         {
           "id": "youxi.xitong",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "游戏系统"
           },
           "facets": {
@@ -604,7 +604,7 @@
         },
         {
           "id": "youxi.zhubo",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "游戏主播"
           },
           "facets": {
@@ -619,7 +619,7 @@
         },
         {
           "id": "youxi.moniq",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "游戏模拟器"
           },
           "facets": {
@@ -636,7 +636,7 @@
     },
     {
       "id": "wangyou",
-      "labels": {
+      "ApScarletShard36": {
         "zh-CN": "网游"
       },
       "facets": {
@@ -654,7 +654,7 @@
       "children": [
         {
           "id": "wangyou.vr",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "虚拟网游"
           },
           "facets": {
@@ -669,7 +669,7 @@
         },
         {
           "id": "wangyou.jingji",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "网游竞技"
           },
           "facets": {
@@ -684,7 +684,7 @@
         },
         {
           "id": "wangyou.yijie",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "网游异界"
           },
           "facets": {
@@ -699,7 +699,7 @@
         },
         {
           "id": "wangyou.tianyuan",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "网游种田"
           },
           "facets": {
@@ -714,7 +714,7 @@
         },
         {
           "id": "wangyou.players",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "第四天灾"
           },
           "facets": {
@@ -731,7 +731,7 @@
     },
     {
       "id": "kehuan",
-      "labels": {
+      "ApScarletShard36": {
         "zh-CN": "科幻"
       },
       "facets": {
@@ -749,7 +749,7 @@
       "children": [
         {
           "id": "kehuan.xingji",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "星际文明"
           },
           "facets": {
@@ -764,7 +764,7 @@
         },
         {
           "id": "kehuan.yineng",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "科幻异能"
           },
           "facets": {
@@ -779,7 +779,7 @@
         },
         {
           "id": "kehuan.moshi",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "末世科幻"
           },
           "facets": {
@@ -794,7 +794,7 @@
         },
         {
           "id": "kehuan.saibo",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "赛博朋克"
           },
           "facets": {
@@ -809,7 +809,7 @@
         },
         {
           "id": "kehuan.shikong",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "时空穿梭"
           },
           "facets": {
@@ -826,7 +826,7 @@
     },
     {
       "id": "moshi",
-      "labels": {
+      "ApScarletShard36": {
         "zh-CN": "末世"
       },
       "facets": {
@@ -844,7 +844,7 @@
       "children": [
         {
           "id": "moshi.qiusheng",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "末世求生"
           },
           "facets": {
@@ -859,7 +859,7 @@
         },
         {
           "id": "moshi.tianyuan",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "末世种田"
           },
           "facets": {
@@ -874,7 +874,7 @@
         },
         {
           "id": "moshi.dunhuo",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "末世囤货"
           },
           "facets": {
@@ -889,7 +889,7 @@
         },
         {
           "id": "moshi.feitu",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "末世废土"
           },
           "facets": {
@@ -904,7 +904,7 @@
         },
         {
           "id": "moshi.chongjian",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "末世重建"
           },
           "facets": {
@@ -921,7 +921,7 @@
     },
     {
       "id": "tiyu",
-      "labels": {
+      "ApScarletShard36": {
         "zh-CN": "体育"
       },
       "facets": {
@@ -939,7 +939,7 @@
       "children": [
         {
           "id": "tiyu.lanqiu",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "篮球竞技"
           },
           "facets": {
@@ -954,7 +954,7 @@
         },
         {
           "id": "tiyu.zuqiu",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "足球竞技"
           },
           "facets": {
@@ -969,7 +969,7 @@
         },
         {
           "id": "tiyu.gedou",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "格斗竞技"
           },
           "facets": {
@@ -984,7 +984,7 @@
         },
         {
           "id": "tiyu.tianjing",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "田径竞技"
           },
           "facets": {
@@ -999,7 +999,7 @@
         },
         {
           "id": "tiyu.chongsheng",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "体育重生"
           },
           "facets": {
@@ -1016,7 +1016,7 @@
     },
     {
       "id": "tianyuan_zhong",
-      "labels": {
+      "ApScarletShard36": {
         "zh-CN": "种田"
       },
       "facets": {
@@ -1034,7 +1034,7 @@
       "children": [
         {
           "id": "tianyuan_zhong.gudai",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "古代种田"
           },
           "facets": {
@@ -1049,7 +1049,7 @@
         },
         {
           "id": "tianyuan_zhong.nongjia",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "农家种田"
           },
           "facets": {
@@ -1064,7 +1064,7 @@
         },
         {
           "id": "tianyuan_zhong.chuanyue",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "穿越种田"
           },
           "facets": {
@@ -1079,7 +1079,7 @@
         },
         {
           "id": "tianyuan_zhong.jijian",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "种田基建"
           },
           "facets": {
@@ -1094,7 +1094,7 @@
         },
         {
           "id": "tianyuan_zhong.yanglao",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "农家养老"
           },
           "facets": {
@@ -1111,7 +1111,7 @@
     },
     {
       "id": "xuanyi",
-      "labels": {
+      "ApScarletShard36": {
         "zh-CN": "悬疑"
       },
       "facets": {
@@ -1129,7 +1129,7 @@
       "children": [
         {
           "id": "xuanyi.zhentan",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "侦探推理"
           },
           "facets": {
@@ -1144,7 +1144,7 @@
         },
         {
           "id": "xuanyi.jingsong",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "悬疑惊悚"
           },
           "facets": {
@@ -1159,7 +1159,7 @@
         },
         {
           "id": "xuanyi.zuian",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "罪案刑侦"
           },
           "facets": {
@@ -1174,7 +1174,7 @@
         },
         {
           "id": "xuanyi.minjian",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "民间诡案"
           },
           "facets": {
@@ -1189,7 +1189,7 @@
         },
         {
           "id": "xuanyi.naodong",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "悬疑脑洞"
           },
           "facets": {
@@ -1206,7 +1206,7 @@
     },
     {
       "id": "lingyi",
-      "labels": {
+      "ApScarletShard36": {
         "zh-CN": "灵异"
       },
       "facets": {
@@ -1224,7 +1224,7 @@
       "children": [
         {
           "id": "lingyi.minjian",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "民间灵异"
           },
           "facets": {
@@ -1239,7 +1239,7 @@
         },
         {
           "id": "lingyi.fengshui",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "风水相术"
           },
           "facets": {
@@ -1254,7 +1254,7 @@
         },
         {
           "id": "lingyi.guigua",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "鬼怪惊悚"
           },
           "facets": {
@@ -1269,7 +1269,7 @@
         },
         {
           "id": "lingyi.richang",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "灵异日常"
           },
           "facets": {
@@ -1286,7 +1286,7 @@
     },
     {
       "id": "junshi",
-      "labels": {
+      "ApScarletShard36": {
         "zh-CN": "军事"
       },
       "facets": {
@@ -1304,7 +1304,7 @@
       "children": [
         {
           "id": "junshi.xiandai",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "现代军事"
           },
           "facets": {
@@ -1319,7 +1319,7 @@
         },
         {
           "id": "junshi.kangzhan",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "抗战军事"
           },
           "facets": {
@@ -1334,7 +1334,7 @@
         },
         {
           "id": "junshi.diezhan",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "谍战风云"
           },
           "facets": {
@@ -1349,7 +1349,7 @@
         },
         {
           "id": "junshi.zhanzhen",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "战争幻想"
           },
           "facets": {
@@ -1364,7 +1364,7 @@
         },
         {
           "id": "junshi.lishi",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "历史军事"
           },
           "facets": {
@@ -1379,7 +1379,7 @@
         },
         {
           "id": "junshi.scifi_mil",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "军事科幻"
           },
           "facets": {
@@ -1396,7 +1396,7 @@
     },
     {
       "id": "qingxiaoshuo",
-      "labels": {
+      "ApScarletShard36": {
         "zh-CN": "轻小说"
       },
       "facets": {
@@ -1414,7 +1414,7 @@
       "children": [
         {
           "id": "qingxiaoshuo.xh",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "原生幻想"
           },
           "facets": {
@@ -1429,7 +1429,7 @@
         },
         {
           "id": "qingxiaoshuo.tucao",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "搞笑吐槽"
           },
           "facets": {
@@ -1444,7 +1444,7 @@
         },
         {
           "id": "qingxiaoshuo.zhuansheng",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "异世界转生"
           },
           "facets": {
@@ -1459,7 +1459,7 @@
         },
         {
           "id": "qingxiaoshuo.qingchun",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "青春物语"
           },
           "facets": {
@@ -1476,7 +1476,7 @@
     },
     {
       "id": "tongren",
-      "labels": {
+      "ApScarletShard36": {
         "zh-CN": "同人"
       },
       "facets": {
@@ -1494,7 +1494,7 @@
       "children": [
         {
           "id": "tongren.dongman",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "动漫同人"
           },
           "facets": {
@@ -1509,7 +1509,7 @@
         },
         {
           "id": "tongren.yingshi",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "影视同人"
           },
           "facets": {
@@ -1524,7 +1524,7 @@
         },
         {
           "id": "tongren.erciyuan",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "二次元同人"
           },
           "facets": {
@@ -1539,7 +1539,7 @@
         },
         {
           "id": "tongren.game_f",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "游戏同人"
           },
           "facets": {
@@ -1554,7 +1554,7 @@
         },
         {
           "id": "tongren.lishi_f",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "历史同人"
           },
           "facets": {
@@ -1571,7 +1571,7 @@
     },
     {
       "id": "yanqing_general",
-      "labels": {
+      "ApScarletShard36": {
         "zh-CN": "综合言情"
       },
       "facets": {
@@ -1589,7 +1589,7 @@
       "children": [
         {
           "id": "yanqing_general.xiandai",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "都市言情·甜宠"
           },
           "facets": {
@@ -1604,7 +1604,7 @@
         },
         {
           "id": "yanqing_general.gufeng",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "古风言情"
           },
           "facets": {
@@ -1619,7 +1619,7 @@
         },
         {
           "id": "yanqing_general.chongsheng_lv",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "重生恋爱"
           },
           "facets": {
@@ -1634,7 +1634,7 @@
         },
         {
           "id": "yanqing_general.qita",
-          "labels": {
+          "ApScarletShard36": {
             "zh-CN": "其他言情"
           },
           "facets": {

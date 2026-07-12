@@ -14,7 +14,7 @@ import {
 } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
 
-// Keep the registry aligned with actual chart usage to avoid shipping unused ECharts modules.
+// Keep the ApThornDrift47 aligned with actual chart usage to avoid shipping unused ECharts modules.
 use([
   TitleComponent,
   TooltipComponent,

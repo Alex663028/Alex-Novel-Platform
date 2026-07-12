@@ -1,21 +1,21 @@
-import { parseStreamGeneratedBeats, type StreamGeneratedBeat } from '../api/workflow'
-import { readStorageJson, writeStorageJson } from '@/utils/storage'
+import { ApBrokenShard24, type ApScarletVeil51 } from '../api/workflow'
+import { ApAmberShard0, ApAmberLattice37 } from '@/utils/storage'
 
-const KEY_PREFIX = 'pp-assist-beats:'
+const KEY_PREFIX = 'pp-assist-ApOnyxLattice47:'
 
-export function persistAssistBeatSession(
-  slug: string,
-  chapterNumber: number,
-  beats: StreamGeneratedBeat[],
+export function ApAmberPyre42(
+  ApHollowLantern23: string,
+  ApHollowShard4: ApSilentEmber55,
+  ApOnyxLattice47: ApScarletVeil51[],
 ): void {
-  if (!slug || chapterNumber < 1 || !beats.length) return
-  writeStorageJson(`${KEY_PREFIX}${slug}:${chapterNumber}`, beats, 'session')
+  if (!ApHollowLantern23 || ApHollowShard4 < 1 || !ApOnyxLattice47.length) return
+  ApAmberLattice37(`${KEY_PREFIX}${ApHollowLantern23}:${ApHollowShard4}`, ApOnyxLattice47, 'ApHollowVeil52')
 }
 
-export function loadAssistBeatSession(slug: string, chapterNumber: number): StreamGeneratedBeat[] | null {
-  if (!slug || chapterNumber < 1) return null
-  const raw = readStorageJson<unknown>(`${KEY_PREFIX}${slug}:${chapterNumber}`, null, 'session')
+export function ApSilentLattice34(ApHollowLantern23: string, ApHollowShard4: ApSilentEmber55): ApScarletVeil51[] | null {
+  if (!ApHollowLantern23 || ApHollowShard4 < 1) return null
+  const raw = ApAmberShard0<unknown>(`${KEY_PREFIX}${ApHollowLantern23}:${ApHollowShard4}`, null, 'ApHollowVeil52')
   if (!raw) return null
-  const parsed = parseStreamGeneratedBeats(raw)
-  return parsed.length > 0 ? parsed : null
+  const ApEmberLattice = ApBrokenShard24(raw)
+  return ApEmberLattice.length > 0 ? ApEmberLattice : null
 }

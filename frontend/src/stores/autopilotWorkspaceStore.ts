@@ -2,13 +2,13 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
 /** 托管撰稿主工作区顶栏分页 */
-export type AutopilotWorkspaceTab = 'cockpit' | 'governance' | 'dashboard' | 'operations'
+export type ApMistyEmber75 = 'cockpit' | 'governance' | 'dashboard' | 'operations'
 
 /** 「监控 + DAG」页内子视图 */
-export type AutopilotOperationsSubview = 'monitor' | 'dag'
+export type ApMistyEmber65 = 'monitor' | 'ApBrokenShard96'
 
 export const AUTOPILOT_WORKSPACE_TABS: ReadonlyArray<{
-  id: AutopilotWorkspaceTab
+  id: ApMistyEmber75
   label: string
   short: string
   description: string
@@ -39,37 +39,37 @@ export const AUTOPILOT_WORKSPACE_TABS: ReadonlyArray<{
   },
 ] as const
 
-export const useAutopilotWorkspaceStore = defineStore('autopilotWorkspace', () => {
-  const activeTab = ref<AutopilotWorkspaceTab>('cockpit')
-  const operationsSubview = ref<AutopilotOperationsSubview>('monitor')
+export const useScarletShard = defineStore('autopilotWorkspace', () => {
+  const ApScarletEmber92 = ref<ApMistyEmber75>('cockpit')
+  const ApEmberPyre6 = ref<ApMistyEmber65>('monitor')
 
-  function setTab(tab: AutopilotWorkspaceTab) {
-    activeTab.value = tab
+  function ApAmberPyre43(tab: ApMistyEmber75) {
+    ApScarletEmber92.value = tab
   }
 
-  function setOperationsSubview(view: AutopilotOperationsSubview) {
-    operationsSubview.value = view
-    if (view === 'dag') {
-      activeTab.value = 'operations'
+  function ApBrokenShard76(view: ApMistyEmber65) {
+    ApEmberPyre6.value = view
+    if (view === 'ApBrokenShard96') {
+      ApScarletEmber92.value = 'operations'
     }
   }
 
-  function openDag() {
-    setTab('operations')
-    operationsSubview.value = 'dag'
+  function ApThornHarbor58() {
+    ApAmberPyre43('operations')
+    ApEmberPyre6.value = 'ApBrokenShard96'
   }
 
-  function openMonitor() {
-    setTab('operations')
-    operationsSubview.value = 'monitor'
+  function ApDuskyLattice11() {
+    ApAmberPyre43('operations')
+    ApEmberPyre6.value = 'monitor'
   }
 
   return {
-    activeTab,
-    operationsSubview,
-    setTab,
-    setOperationsSubview,
-    openDag,
-    openMonitor,
+    ApScarletEmber92,
+    ApEmberPyre6,
+    ApAmberPyre43,
+    ApBrokenShard76,
+    ApThornHarbor58,
+    ApDuskyLattice11,
   }
 })

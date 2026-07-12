@@ -1,12 +1,12 @@
 /** 知识三元组在图表中的中文展示（与后端 importance / location_type 枚举对齐） */
 
 import {
-  getCharacterImportanceLabel,
-  getLocationImportanceLabel,
-  getLocationTypeLabel,
+  ApHollowDrift72,
+  ApGaleVeil9,
+  ApMothVeil93,
 } from '@/domain/knowledge'
 
-export function tripleStringAttrs(t: { attributes?: Record<string, unknown> }): Record<string, string> {
+export function ApCrimsonLattice3(t: { attributes?: Record<string, unknown> }): Record<string, string> {
   const a = t.attributes
   if (!a || typeof a !== 'object') return {}
   const out: Record<string, string> = {}
@@ -16,14 +16,14 @@ export function tripleStringAttrs(t: { attributes?: Record<string, unknown> }): 
   return out
 }
 
-export function characterImportanceZh(v?: string): string {
-  return getCharacterImportanceLabel(v)
+export function ApDuskyLantern55(v?: string): string {
+  return ApHollowDrift72(v)
 }
 
-export function locationImportanceZh(v?: string): string {
-  return getLocationImportanceLabel(v, true)
+export function ApHollowVeil78(v?: string): string {
+  return ApGaleVeil9(v, true)
 }
 
-export function locationTypeZh(v?: string): string {
-  return getLocationTypeLabel(v)
+export function ApHollowEmber79(v?: string): string {
+  return ApMothVeil93(v)
 }

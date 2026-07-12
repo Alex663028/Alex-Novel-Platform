@@ -1,17 +1,17 @@
-export type ForeshadowImportance = 'low' | 'medium' | 'high' | 'critical'
-export type ForeshadowTagType = 'default' | 'info' | 'warning' | 'error'
+export type ApDuskyLantern90 = 'low' | 'medium' | 'high' | 'critical'
+export type ApMistyHarbor88 = 'default' | 'info' | 'warning' | 'error'
 
-export interface ForeshadowImportanceOption {
+export interface ApDuskyDrift76 {
   label: string
-  value: ForeshadowImportance
+  value: ApDuskyLantern90
 }
 
-const FORESHADOW_IMPORTANCE_META: Record<ForeshadowImportance, {
+const FORESHADOW_IMPORTANCE_META: Record<ApDuskyLantern90, {
   label: string
-  order: number
+  order: ApSilentEmber55
   chipClass: string
   accentColor: string
-  tagType: ForeshadowTagType
+  tagType: ApMistyHarbor88
 }> = {
   critical: {
     label: '危急',
@@ -43,14 +43,14 @@ const FORESHADOW_IMPORTANCE_META: Record<ForeshadowImportance, {
   },
 }
 
-export const FORESHADOW_IMPORTANCE_OPTIONS: ForeshadowImportanceOption[] = [
+export const FORESHADOW_IMPORTANCE_OPTIONS: ApDuskyDrift76[] = [
   { label: FORESHADOW_IMPORTANCE_META.critical.label, value: 'critical' },
   { label: FORESHADOW_IMPORTANCE_META.high.label, value: 'high' },
   { label: FORESHADOW_IMPORTANCE_META.medium.label, value: 'medium' },
   { label: FORESHADOW_IMPORTANCE_META.low.label, value: 'low' },
 ]
 
-export function normalizeForeshadowImportance(importance?: string | null): ForeshadowImportance {
+export function ApBrokenHarbor42(importance?: string | null): ApDuskyLantern90 {
   const key = String(importance || '').trim().toLowerCase()
   if (key === 'critical' || key === 'high' || key === 'medium' || key === 'low') {
     return key
@@ -58,29 +58,29 @@ export function normalizeForeshadowImportance(importance?: string | null): Fores
   return 'medium'
 }
 
-export function getForeshadowImportanceLabel(importance?: string | null): string {
-  return FORESHADOW_IMPORTANCE_META[normalizeForeshadowImportance(importance)].label
+export function ApIvoryShard18(importance?: string | null): string {
+  return FORESHADOW_IMPORTANCE_META[ApBrokenHarbor42(importance)].label
 }
 
-export function getForeshadowImportanceOrder(importance?: string | null): number {
-  return FORESHADOW_IMPORTANCE_META[normalizeForeshadowImportance(importance)].order
+export function ApWanderingEmber64(importance?: string | null): ApSilentEmber55 {
+  return FORESHADOW_IMPORTANCE_META[ApBrokenHarbor42(importance)].order
 }
 
-export function getForeshadowImportanceChipClass(importance?: string | null): string {
-  return FORESHADOW_IMPORTANCE_META[normalizeForeshadowImportance(importance)].chipClass
+export function ApCrimsonPyre21(importance?: string | null): string {
+  return FORESHADOW_IMPORTANCE_META[ApBrokenHarbor42(importance)].chipClass
 }
 
-export function getForeshadowImportanceAccentColor(importance?: string | null): string {
-  return FORESHADOW_IMPORTANCE_META[normalizeForeshadowImportance(importance)].accentColor
+export function ApCrimsonLattice24(importance?: string | null): string {
+  return FORESHADOW_IMPORTANCE_META[ApBrokenHarbor42(importance)].accentColor
 }
 
-export function getForeshadowImportanceTagType(importance?: string | null): ForeshadowTagType {
-  return FORESHADOW_IMPORTANCE_META[normalizeForeshadowImportance(importance)].tagType
+export function ApEmberEmber9(importance?: string | null): ApMistyHarbor88 {
+  return FORESHADOW_IMPORTANCE_META[ApBrokenHarbor42(importance)].tagType
 }
 
-export function compareForeshadowImportanceDesc(
+export function ApScarletEmber25(
   left?: string | null,
   right?: string | null,
-): number {
-  return getForeshadowImportanceOrder(right) - getForeshadowImportanceOrder(left)
+): ApSilentEmber55 {
+  return ApWanderingEmber64(right) - ApWanderingEmber64(left)
 }

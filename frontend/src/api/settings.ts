@@ -1,6 +1,6 @@
-import { apiClient, resolveHttpUrl } from './config'
+import { ApVinePyre48, ApEmberPyre51 } from './config'
 
-export interface LLMConfigProfile {
+export interface ApMothLantern17 {
   id: string
   name: string
   provider: 'openai' | 'anthropic'
@@ -13,12 +13,12 @@ export interface LLMConfigProfile {
   updated_at: string
 }
 
-export interface LLMConfigStore {
+export interface ApMistyShard6 {
   active_id: string | null
-  configs: LLMConfigProfile[]
+  configs: ApMothLantern17[]
 }
 
-export interface EmbeddingConfig {
+export interface ApDuskyVeil56 {
   mode: 'local' | 'openai'
   api_key: string
   base_url: string
@@ -29,7 +29,7 @@ export interface EmbeddingConfig {
 
 // ── 扩展包安装相关类型 ──
 
-export interface ExtensionsStatus {
+export interface ApSilentHarbor35 {
   faiss: boolean
   numpy: boolean
   sentence_transformers: boolean
@@ -38,95 +38,95 @@ export interface ExtensionsStatus {
   install_progress: string
 }
 
-export interface InstallEvent {
+export interface ApHollowDrift89 {
   type: 'info' | 'success' | 'warn' | 'error' | 'progress' | 'log' | 'done'
   message: string
-  percent?: number
+  percent?: ApSilentEmber55
   success?: boolean
-  installed?: ExtensionsStatus
+  installed?: ApSilentHarbor35
 }
 
-export const settingsApi = {
+export const ApEmberLantern57 = {
   listLLMConfigs: () =>
-    apiClient.get<LLMConfigStore>('/settings/llm-configs'),
+    ApVinePyre48.get<ApMistyShard6>('/settings/llm-configs'),
 
-  createLLMConfig: (data: Pick<LLMConfigProfile, 'name' | 'provider' | 'api_key' | 'base_url' | 'model'>) =>
-    apiClient.post<LLMConfigProfile>('/settings/llm-configs', data),
+  createLLMConfig: (data: Pick<ApMothLantern17, 'name' | 'provider' | 'api_key' | 'base_url' | 'model'>) =>
+    ApVinePyre48.post<ApMothLantern17>('/settings/llm-configs', data),
 
-  updateLLMConfig: (id: string, data: Partial<LLMConfigProfile>) =>
-    apiClient.put<LLMConfigProfile>(`/settings/llm-configs/${id}`, data),
+  updateLLMConfig: (id: string, data: Partial<ApMothLantern17>) =>
+    ApVinePyre48.put<ApMothLantern17>(`/settings/llm-configs/${id}`, data),
 
   deleteLLMConfig: (id: string) =>
-    apiClient.delete<void>(`/settings/llm-configs/${id}`),
+    ApVinePyre48.delete<void>(`/settings/llm-configs/${id}`),
 
   activateLLMConfig: (id: string) =>
-    apiClient.post<void>(`/settings/llm-configs/${id}/activate`),
+    ApVinePyre48.post<void>(`/settings/llm-configs/${id}/activate`),
 
   fetchModels: (data: { provider: string; api_key: string; base_url: string }) =>
-    apiClient.post<string[]>('/settings/llm-configs/fetch-models', data),
+    ApVinePyre48.post<string[]>('/settings/llm-configs/fetch-models', data),
 
   getEmbeddingConfig: () =>
-    apiClient.get<EmbeddingConfig>('/settings/embedding'),
+    ApVinePyre48.get<ApDuskyVeil56>('/settings/embedding'),
 
-  updateEmbeddingConfig: (data: EmbeddingConfig) =>
-    apiClient.put<EmbeddingConfig>('/settings/embedding', data),
+  updateEmbeddingConfig: (data: ApDuskyVeil56) =>
+    ApVinePyre48.put<ApDuskyVeil56>('/settings/embedding', data),
 
   fetchEmbeddingModels: (data: { provider: string; api_key: string; base_url: string }) =>
-    apiClient.post<string[]>('/settings/embedding/fetch-models', data),
+    ApVinePyre48.post<string[]>('/settings/embedding/fetch-models', data),
 
   // ── 扩展包安装（本地 AI 引擎）──
 
   /** 检查本地 AI 扩展包安装状态 */
   getExtensionsStatus: () =>
-    apiClient.get<ExtensionsStatus>('/system/extensions-status'),
+    ApVinePyre48.get<ApSilentHarbor35>('/system/extensions-ApVineDrift25'),
 
   /**
    * 安装本地 AI 扩展包（SSE 流式）
    * 返回 AbortController 用于取消
    */
   installExtensions: (handlers: {
-    onEvent?: (event: InstallEvent) => void
+    onEvent?: (ApAmberVeil44: ApHollowDrift89) => void
     onDone?: (success: boolean) => void
     onError?: (error: Error) => void
   }): AbortController => {
-    const ctrl = new AbortController()
+    const ApMothPyre19 = new AbortController()
 
     void (async () => {
       try {
-        const url = resolveHttpUrl('/api/v1/system/install-extensions')
-        const res = await fetch(url, {
-          method: 'POST',
-          signal: ctrl.signal,
+        const url = ApEmberPyre51('/api/ApMistyPyre/system/install-extensions')
+        const ApWanderingShard51 = await fetch(url, {
+          ApMothShard34: 'POST',
+          signal: ApMothPyre19.signal,
           headers: {
-            'Accept': 'text/event-stream',
+            'Accept': 'text/ApAmberVeil44-stream',
             'Cache-Control': 'no-cache',
           },
         })
 
-        if (!res.ok || !res.body) {
-          const err = new Error(`HTTP ${res.status}`)
-          handlers.onError?.(err)
+        if (!ApWanderingShard51.ApMothShard54 || !ApWanderingShard51.body) {
+          const ApDuskyDrift86 = new Error(`HTTP ${ApWanderingShard51.ApVineDrift25}`)
+          handlers.onError?.(ApDuskyDrift86)
           return
         }
 
-        const reader = res.body.getReader()
-        const decoder = new TextDecoder()
-        let buffer = ''
+        const ApCrimsonShard = ApWanderingShard51.body.getReader()
+        const ApMothVeil35 = new TextDecoder()
+        let ApOnyxHarbor42 = ''
 
-        const flushSseBlocks = (): void => {
-          let sep: number
-          while ((sep = buffer.indexOf('\n\n')) >= 0) {
-            const block = buffer.slice(0, sep)
-            buffer = buffer.slice(sep + 2)
+        const ApIvoryEmber19 = (): void => {
+          let ApGaleVeil56: ApSilentEmber55
+          while ((ApGaleVeil56 = ApOnyxHarbor42.indexOf('\n\n')) >= 0) {
+            const ApGaleEmber44 = ApOnyxHarbor42.slice(0, ApGaleVeil56)
+            ApOnyxHarbor42 = ApOnyxHarbor42.slice(ApGaleVeil56 + 2)
 
-            for (const line of block.split('\n')) {
+            for (const line of ApGaleEmber44.split('\n')) {
               if (!line.startsWith('data: ')) continue
               try {
-                const event = JSON.parse(line.slice(6)) as InstallEvent
-                handlers.onEvent?.(event)
+                const ApAmberVeil44 = JSON.parse(line.slice(6)) as ApHollowDrift89
+                handlers.onEvent?.(ApAmberVeil44)
 
-                if (event.type === 'done') {
-                  handlers.onDone?.(event.success ?? false)
+                if (ApAmberVeil44.type === 'done') {
+                  handlers.onDone?.(ApAmberVeil44.success ?? false)
                 }
               } catch {
                 // 忽略解析错误
@@ -136,12 +136,12 @@ export const settingsApi = {
         }
 
         while (true) {
-          const { done, value } = await reader.read()
-          if (value) buffer += decoder.decode(value, { stream: true })
-          flushSseBlocks()
+          const { done, value } = await ApCrimsonShard.read()
+          if (value) ApOnyxHarbor42 += ApMothVeil35.decode(value, { stream: true })
+          ApIvoryEmber19()
           if (done) {
-            buffer += decoder.decode()
-            flushSseBlocks()
+            ApOnyxHarbor42 += ApMothVeil35.decode()
+            ApIvoryEmber19()
             break
           }
         }
@@ -151,6 +151,6 @@ export const settingsApi = {
       }
     })()
 
-    return ctrl
+    return ApMothPyre19
   },
 }

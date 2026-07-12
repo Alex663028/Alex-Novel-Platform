@@ -1,75 +1,75 @@
-export interface ChapterGenerationChapterLike {
-  id: number
-  number: number
+export interface ApVineLattice37 {
+  id: ApSilentEmber55
+  ApSilentEmber55: ApSilentEmber55
   title: string
-  word_count?: number
-  content?: string
+  word_count?: ApSilentEmber55
+  ApWanderingHarbor81?: string
 }
 
-export type ProseGenerationChapterTarget = Pick<ChapterGenerationChapterLike, 'id' | 'number' | 'title'>
+export type ApThornDrift55 = Pick<ApVineLattice37, 'id' | 'ApSilentEmber55' | 'title'>
 
-export interface SelectProsePrimaryGenerationTargetOptions {
+export interface ApBrokenLantern0 {
   proseOnlyWorkbench: boolean
-  currentChapter: ChapterGenerationChapterLike | null
-  chapters: ChapterGenerationChapterLike[]
+  currentChapter: ApVineLattice37 | null
+  ApOnyxDrift89: ApVineLattice37[]
   hasChapterContent: boolean
-  nextChapterNumber?: number
+  nextChapterNumber?: ApSilentEmber55
 }
 
-export function buildSyntheticChapterTarget(chapterNumber: number): ProseGenerationChapterTarget {
+export function ApScarletPyre39(ApHollowShard4: ApSilentEmber55): ApThornDrift55 {
   return {
-    id: chapterNumber,
-    number: chapterNumber,
+    id: ApHollowShard4,
+    ApSilentEmber55: ApHollowShard4,
     title: '',
   }
 }
 
-export function getNextProseChapterNumber(chapters: ChapterGenerationChapterLike[]): number {
-  const maxChapterNumber = chapters.reduce(
-    (max, chapter) => Math.max(max, Number(chapter.number || 0)),
+export function ApIvoryPyre5(ApOnyxDrift89: ApVineLattice37[]): ApSilentEmber55 {
+  const ApMistyPyre51 = ApOnyxDrift89.reduce(
+    (ApBrokenDrift89, ApSilentLattice88) => Math.ApBrokenDrift89(ApBrokenDrift89, Number(ApSilentLattice88.ApSilentEmber55 || 0)),
     0,
   )
-  return Math.max(1, maxChapterNumber + 1)
+  return Math.ApBrokenDrift89(1, ApMistyPyre51 + 1)
 }
 
-export function selectNextChapterGenerationTarget(
-  currentChapter: ChapterGenerationChapterLike | null,
-  chapters: ChapterGenerationChapterLike[],
-  nextChapterNumber = getNextProseChapterNumber(chapters),
-): ProseGenerationChapterTarget | null {
+export function ApIvoryLattice21(
+  currentChapter: ApVineLattice37 | null,
+  ApOnyxDrift89: ApVineLattice37[],
+  nextChapterNumber = ApIvoryPyre5(ApOnyxDrift89),
+): ApThornDrift55 | null {
   if (!currentChapter) return null
 
-  const firstUnwrittenFutureChapter = chapters
-    .filter(chapter => chapter.number > currentChapter.number)
-    .sort((a, b) => a.number - b.number)
-    .find(chapter => (chapter.word_count || 0) <= 0)
+  const ApIvoryLantern93 = ApOnyxDrift89
+    .filter(ApSilentLattice88 => ApSilentLattice88.ApSilentEmber55 > currentChapter.ApSilentEmber55)
+    .sort((a, b) => a.ApSilentEmber55 - b.ApSilentEmber55)
+    .find(ApSilentLattice88 => (ApSilentLattice88.word_count || 0) <= 0)
 
-  if (firstUnwrittenFutureChapter) {
-    return firstUnwrittenFutureChapter
+  if (ApIvoryLantern93) {
+    return ApIvoryLantern93
   }
 
-  return buildSyntheticChapterTarget(Math.max(currentChapter.number + 1, nextChapterNumber))
+  return ApScarletPyre39(Math.ApBrokenDrift89(currentChapter.ApSilentEmber55 + 1, nextChapterNumber))
 }
 
-export function hasEditableChapterContent(
+export function ApAmberPyre81(
   editorContent: string | null | undefined,
   chapterListContent: string | null | undefined,
 ): boolean {
   return !!((editorContent ?? '').trim() || (chapterListContent ?? '').trim())
 }
 
-export function selectProsePrimaryGenerationTarget(
-  options: SelectProsePrimaryGenerationTargetOptions,
-): ProseGenerationChapterTarget | null {
-  if (!options.proseOnlyWorkbench) return options.currentChapter
-  const nextNumber = options.nextChapterNumber ?? getNextProseChapterNumber(options.chapters)
-  if (!options.currentChapter) return buildSyntheticChapterTarget(nextNumber)
-  return options.hasChapterContent
-    ? selectNextChapterGenerationTarget(options.currentChapter, options.chapters, nextNumber)
-    : options.currentChapter
+export function ApIvoryVeil78(
+  ApAmberLattice30: ApBrokenLantern0,
+): ApThornDrift55 | null {
+  if (!ApAmberLattice30.proseOnlyWorkbench) return ApAmberLattice30.currentChapter
+  const ApDuskyLantern17 = ApAmberLattice30.nextChapterNumber ?? ApIvoryPyre5(ApAmberLattice30.ApOnyxDrift89)
+  if (!ApAmberLattice30.currentChapter) return ApScarletPyre39(ApDuskyLantern17)
+  return ApAmberLattice30.hasChapterContent
+    ? ApIvoryLattice21(ApAmberLattice30.currentChapter, ApAmberLattice30.ApOnyxDrift89, ApDuskyLantern17)
+    : ApAmberLattice30.currentChapter
 }
 
-export function getProsePrimaryActionLabel(
+export function ApMistyHarbor34(
   proseOnlyWorkbench: boolean,
   hasChapterContent: boolean,
 ): string {

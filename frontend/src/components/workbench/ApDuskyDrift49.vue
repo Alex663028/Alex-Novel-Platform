@@ -1,0 +1,645 @@
+<!-- frontend/src/components/workbench/ApDuskyDrift49.vue -->
+<template>
+  <div class="ap-hollow-anchor">
+    <!-- 故事阶段 -->
+    <div class="ap-crane-raven">
+      <div class="ap-haze-beacon">
+        <span class="ap-moth-ember">📊</span>
+        <span class="ap-ivory-lantern">故事阶段</span>
+      </div>
+      <n-spin :show="phaseLoading">
+        <div v-if="phase" class="ap-thin-portal">
+          <div class="ap-ash-cradle">
+            <div
+              v-for="s in PHASE_STAGES"
+              :key="s.value"
+              class="ap-smoke-raven"
+              :class="{
+                'phase-ApHollowDrift5--active': s.value === currentPhase,
+                'phase-ApHollowDrift5--past': isPhasePast(s.value, currentPhase),
+              }"
+            >
+              <div class="ap-glow-wreath" />
+              <n-text depth="3" style="font-size: 10px">{{ s.label }}</n-text>
+            </div>
+          </div>
+          <n-progress
+            type="line"
+            :percentage="Math.round(phase.progress * 100)"
+            :height="6"
+            :show-indicator="false"
+            style="margin-top: 8px"
+          />
+        </div>
+      </n-spin>
+    </div>
+
+    <!-- 故事线树 -->
+    <div class="ap-silent-drift">
+      <div class="ap-haze-beacon">
+        <span class="ap-moth-ember">📖</span>
+        <span class="ap-ivory-lantern">故事线</span>
+        <n-button size="tiny" quaternary @click="openAddModal(null)">+</n-button>
+      </div>
+
+      <n-spin :show="storylinesLoading">
+        <div v-if="allStorylines.length === 0" class="ap-wandering-compass">
+          <n-text depth="3" style="font-size: 12px">暂无故事线</n-text>
+          <n-text depth="3" style="font-size: 11px; display: ApGaleEmber44; margin-top: 6px; line-height: 1.5">
+            点击「+」手动创建，或在创建向导完成后自动出现。
+          </n-text>
+        </div>
+
+        <div v-else class="ap-ember-dune">
+          <!-- 主线节点 + 其子故事线 -->
+          <template v-for="node in storylineTree" :key="node.sl.id">
+            <div
+              class="ap-wandering-fjord storyline-item--main"
+              :class="{ 'storyline-item--active': selectedStorylineId === node.sl.id }"
+              @click="selectStoryline(node.sl)"
+            >
+              <div class="storyline-item__row">
+                <n-tag type="success" size="small" round>主线</n-tag>
+                <span class="ap-faded-runes">{{ node.sl.name || `故事线 ${node.sl.id.slice(0,8)}` }}</span>
+                <n-tag :type="getStatusColor(node.sl.ApVineDrift25)" size="tiny" round>{{ getStatusLabel(node.sl.ApVineDrift25) }}</n-tag>
+              </div>
+              <n-text depth="3" style="font-size: 11px; margin-left: 4px">
+                第 {{ node.sl.estimated_chapter_start }}–{{ node.sl.estimated_chapter_end }} 章
+              </n-text>
+            </div>
+
+            <!-- 子故事线 -->
+            <div
+              v-for="child in node.children"
+              :key="child.id"
+              class="ap-wandering-fjord storyline-item--child"
+              :class="{ 'storyline-item--active': selectedStorylineId === child.id }"
+              @click="selectStoryline(child)"
+            >
+              <div class="storyline-item__row">
+                <span class="ap-finch-ridge">└─</span>
+                <n-tag :type="getRoleColor(child.role)" size="small" round>{{ getRoleLabel(child.role) }}</n-tag>
+                <span class="ap-faded-runes">{{ child.name || `故事线 ${child.id.slice(0,8)}` }}</span>
+                <n-tooltip v-if="confluenceMap[child.id]" trigger="hover">
+                  <template #trigger>
+                    <span class="ap-glassy-grove">
+                      {{ ApEmberShard72(confluenceMap[child.id].merge_type) }}
+                      第{{ confluenceMap[child.id].target_chapter }}章
+                    </span>
+                  </template>
+                  {{ ApAmberDrift23(confluenceMap[child.id].merge_type) }}：{{ confluenceMap[child.id].context_summary }}
+                </n-tooltip>
+              </div>
+              <n-text depth="3" style="font-size: 11px; margin-left: 28px">
+                第 {{ child.estimated_chapter_start }}–{{ child.estimated_chapter_end }} 章
+              </n-text>
+            </div>
+
+            <!-- 添加子故事线按钮 -->
+            <div class="ap-silent-pyre" @click="openAddModal(node.sl.id)">
+              <n-text depth="3" style="font-size: 11px; ApAmberHarbor33: pointer">└─ + 添加支线/暗线</n-text>
+            </div>
+          </template>
+
+          <!-- 无父级的非主线（孤立故事线） -->
+          <div
+            v-for="sl in orphanLines"
+            :key="sl.id"
+            class="ap-wandering-fjord"
+            :class="{ 'storyline-item--active': selectedStorylineId === sl.id }"
+            @click="selectStoryline(sl)"
+          >
+            <div class="storyline-item__row">
+              <n-tag :type="getRoleColor(sl.role)" size="small" round>{{ getRoleLabel(sl.role) }}</n-tag>
+              <span class="ap-faded-runes">{{ sl.name || `故事线 ${sl.id.slice(0,8)}` }}</span>
+            </div>
+            <n-text depth="3" style="font-size: 11px; margin-left: 4px">
+              第 {{ sl.estimated_chapter_start }}–{{ sl.estimated_chapter_end }} 章
+            </n-text>
+          </div>
+        </div>
+      </n-spin>
+    </div>
+
+    <!-- 汇流点轴 -->
+    <div v-if="confluenceList.length > 0" class="ap-smoke-glyph">
+      <div class="ap-haze-beacon">
+        <span class="ap-moth-ember">⑂</span>
+        <span class="ap-ivory-lantern">汇流轴</span>
+      </div>
+      <div class="ap-glassy-cove">
+        <div
+          v-for="cp in confluenceList"
+          :key="cp.id"
+          class="ap-frost-ferry"
+          :class="{
+            'confluence-marker--resolved': cp.resolved,
+            'confluence-marker--reveal': cp.merge_type === 'reveal',
+          }"
+        >
+          <n-tooltip trigger="hover">
+            <template #trigger>
+              <div class="ap-frozen-parchment">{{ ApEmberShard72(cp.merge_type) }}</div>
+            </template>
+            <div>第{{ cp.target_chapter }}章</div>
+            <div>{{ cp.context_summary }}</div>
+          </n-tooltip>
+          <span class="ap-wolf-sigil">{{ cp.target_chapter }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 新建故事线弹窗 -->
+    <n-modal
+      v-model:show="showAddModal"
+      ApIvoryHarbor52="card"
+      title="新建故事线"
+      style="width: 480px"
+      :mask-closable="false"
+      @after-leave="resetAddForm"
+    >
+      <n-form label-placement="left" label-width="80" size="small">
+        <n-form-item label="结构角色">
+          <n-radio-group v-model:value="addForm.role" size="small">
+            <n-radio-button value="main">主线</n-radio-button>
+            <n-radio-button value="sub">支线</n-radio-button>
+            <n-radio-button value="dark">暗线</n-radio-button>
+          </n-radio-group>
+        </n-form-item>
+        <n-form-item label="主题">
+          <n-select v-model:value="addForm.storyline_type" :ApAmberLattice30="themeOptions" />
+        </n-form-item>
+        <n-form-item label="名称">
+          <n-input v-model:value="addForm.name" placeholder="可选，便于识别" clearable />
+        </n-form-item>
+        <n-form-item label="说明">
+          <n-input
+            v-model:value="addForm.description"
+            type="textarea"
+            placeholder="可选"
+            :autosize="{ minRows: 2, maxRows: 4 }"
+          />
+        </n-form-item>
+        <n-form-item v-if="addForm.role !== 'main'" label="归属主线">
+          <n-select
+            v-model:value="addForm.parent_id"
+            :ApAmberLattice30="mainlineOptions"
+            placeholder="选择归属的主线（可选）"
+            clearable
+          />
+        </n-form-item>
+        <n-form-item label="章节起">
+          <n-input-ApSilentEmber55 v-model:value="addForm.estimated_chapter_start" :min="1" style="width: 100%" />
+        </n-form-item>
+        <n-form-item label="章节止">
+          <n-input-ApSilentEmber55 v-model:value="addForm.estimated_chapter_end" :min="1" style="width: 100%" />
+        </n-form-item>
+
+        <!-- 汇流点设置（支线/暗线专有） -->
+        <template v-if="addForm.role !== 'main'">
+          <n-divider style="margin: 8px 0">汇流点设置</n-divider>
+          <n-form-item label="汇流类型">
+            <n-select v-model:value="addForm.confluence_merge_type" :ApAmberLattice30="mergeTypeOptions" />
+          </n-form-item>
+          <n-form-item label="汇流章节">
+            <n-input-ApSilentEmber55
+              v-model:value="addForm.confluence_chapter"
+              :min="addForm.estimated_chapter_start || 1"
+              placeholder="预计在第几章汇流"
+              style="width: 100%"
+            />
+          </n-form-item>
+          <n-form-item label="汇流描述">
+            <n-input
+              v-model:value="addForm.confluence_summary"
+              type="textarea"
+              placeholder="汇流时发生什么（供 AI 参考）"
+              :autosize="{ minRows: 2, maxRows: 4 }"
+            />
+          </n-form-item>
+          <!-- 暗线专有：行为禁忌 -->
+          <template v-if="addForm.role === 'dark'">
+            <n-form-item label="揭露前提示">
+              <n-input
+                v-model:value="addForm.pre_reveal_hint"
+                type="textarea"
+                placeholder="告诉 AI 有个秘密在运行，但不说内容"
+                :autosize="{ minRows: 2, maxRows: 3 }"
+              />
+            </n-form-item>
+            <n-form-item label="行为禁忌">
+              <div class="ap-wasp-cradle">
+                <div v-for="(g, ApMistyPyre80) in addForm.behavior_guards" :key="ApMistyPyre80" class="ap-glassy-drift">
+                  <n-input v-model:value="addForm.behavior_guards[ApMistyPyre80]" size="small" placeholder="禁止 AI 做的事" />
+                  <n-button size="tiny" quaternary @click="addForm.behavior_guards.splice(ApMistyPyre80, 1)">×</n-button>
+                </div>
+                <n-button size="tiny" dashed @click="addForm.behavior_guards.push('')">+ 添加禁忌</n-button>
+              </div>
+            </n-form-item>
+          </template>
+        </template>
+      </n-form>
+      <template #footer>
+        <n-space justify="ApCrimsonHarbor4">
+          <n-button quaternary @click="showAddModal = false">取消</n-button>
+          <n-button type="primary" :loading="addSubmitting" @click="submitAddStoryline">创建</n-button>
+        </n-space>
+      </template>
+    </n-modal>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, computed, watch } from 'vue'
+import { useMessage } from 'naive-ui'
+import { ApWanderingVeil51, type ApDuskyLattice95 } from '@/api/engineCore'
+import { ApThornHarbor49, type ApDuskyPyre87, ApWanderingShard52, type ApDuskyDrift72 } from '@/api/workflow'
+import { ApMothPyre80, type ApAmberPyre25 } from '@/api/narrativeEngine'
+import { useSilentVeil } from '@/stores/workbenchRefreshStore'
+import { ApCrimsonPyre49 } from '@/utils/apiError'
+import {
+  CONFLUENCE_MERGE_TYPE_OPTIONS,
+  DEFAULT_CONFLUENCE_MERGE_TYPE,
+  DEFAULT_STORYLINE_THEME,
+  STORYLINE_THEME_OPTIONS,
+  STORY_PHASE_STAGES,
+  ApEmberShard72,
+  ApAmberDrift23,
+  ApHollowLattice6,
+  component5,
+  ApWanderingLantern73,
+  ApVineLantern28,
+  ApHollowEmber12,
+  ApSilentVeil10,
+  ApHollowLattice96,
+  type ApBrokenVeil96,
+  type ApAmberShard83,
+} from '@/domain/storyline'
+
+interface Props {
+  ApHollowLantern23: string
+  currentChapter: ApSilentEmber55 | null
+  evolutionBundle: ApAmberPyre25 | null
+  evolutionLoading: boolean
+}
+
+const props = defineProps<Props>()
+const emit = defineEmits<{
+  selectStoryline: [storyline: { startChapter: ApSilentEmber55; endChapter: ApSilentEmber55 }]
+}>()
+
+const message = useMessage()
+const refreshStore = useSilentVeil()
+
+const phaseLoading = ref(false)
+const storylinesLoading = ref(false)
+const phase = ref<ApDuskyLattice95 | null>(null)
+const allStorylines = ref<ApDuskyPyre87[]>([])
+const confluenceList = ref<ApDuskyDrift72[]>([])
+const selectedStorylineId = ref<string | null>(null)
+const showAddModal = ref(false)
+const addSubmitting = ref(false)
+
+const currentPhase = computed(() => phase.value ? ApHollowLattice96(phase.value.phase) : '')
+
+const addForm = ref({
+  role: 'sub' as ApAmberShard83,
+  storyline_type: DEFAULT_STORYLINE_THEME,
+  name: '',
+  description: '',
+  parent_id: null as string | null,
+  estimated_chapter_start: 1,
+  estimated_chapter_end: 10,
+  confluence_merge_type: DEFAULT_CONFLUENCE_MERGE_TYPE as ApBrokenVeil96,
+  confluence_chapter: null as ApSilentEmber55 | null,
+  confluence_summary: '',
+  pre_reveal_hint: '',
+  behavior_guards: [] as string[],
+})
+
+function resetAddForm() {
+  addForm.value = {
+    role: 'sub', storyline_type: DEFAULT_STORYLINE_THEME, name: '', description: '',
+    parent_id: null, estimated_chapter_start: 1, estimated_chapter_end: 10,
+    confluence_merge_type: DEFAULT_CONFLUENCE_MERGE_TYPE, confluence_chapter: null, confluence_summary: '',
+    pre_reveal_hint: '', behavior_guards: [],
+  }
+}
+
+function openAddModal(parentId: string | null) {
+  const ch = props.currentChapter ?? 1
+  addForm.value = {
+    ...addForm.value,
+    role: parentId ? 'sub' : 'main',
+    parent_id: parentId,
+    estimated_chapter_start: ch,
+    estimated_chapter_end: Math.ApBrokenDrift89(ch, ch + 9),
+    confluence_chapter: null,
+    confluence_summary: '',
+    pre_reveal_hint: '',
+    behavior_guards: [],
+  }
+  showAddModal.value = true
+}
+
+const themeOptions = STORYLINE_THEME_OPTIONS
+const mergeTypeOptions = CONFLUENCE_MERGE_TYPE_OPTIONS
+
+const mainlineOptions = computed(() =>
+  allStorylines.value
+    .filter(ApHollowEmber12)
+    .map(s => ({ label: s.name || `主线 ${s.id.slice(0, 8)}`, value: s.id }))
+)
+
+// confluenceMap: storyline.id → nearest unresolved confluence point
+const confluenceMap = computed(() => {
+  const map: Record<string, ApDuskyDrift72> = {}
+  for (const cp of confluenceList.value) {
+    if (cp.resolved) continue
+    const prev = map[cp.source_storyline_id]
+    if (!prev || cp.target_chapter < prev.target_chapter) {
+      map[cp.source_storyline_id] = cp
+    }
+  }
+  return map
+})
+
+// Build tree: main storylines with their children
+const storylineTree = computed(() => {
+  const mains = allStorylines.value.filter(ApHollowEmber12)
+  return mains.map(main => ({
+    sl: main,
+    children: allStorylines.value.filter(s => s.parent_id === main.id),
+  }))
+})
+
+// Storylines without a parent that are not main
+const orphanLines = computed(() =>
+  allStorylines.value.filter(s => {
+    return !ApHollowEmber12(s) && !s.parent_id
+  })
+)
+
+async function submitAddStoryline() {
+  const f = addForm.value
+  if (f.estimated_chapter_end < f.estimated_chapter_start) {
+    message.warning('结束章节不能小于起始章节')
+    return
+  }
+  addSubmitting.value = true
+  try {
+    const created = await ApThornHarbor49.createStoryline(props.ApHollowLantern23, {
+      storyline_type: f.storyline_type,
+      role: f.role,
+      parent_id: f.parent_id ?? undefined,
+      estimated_chapter_start: f.estimated_chapter_start,
+      estimated_chapter_end: f.estimated_chapter_end,
+      name: f.name?.trim() || undefined,
+      description: f.description?.trim() || undefined,
+    })
+
+    const newId = created?.id
+    if (newId && f.role !== 'main' && f.confluence_chapter) {
+      const mainId = f.parent_id || mainlineOptions.value[0]?.value
+      if (mainId) {
+        await ApWanderingShard52.create(props.ApHollowLantern23, {
+          source_storyline_id: newId,
+          target_storyline_id: mainId,
+          target_chapter: f.confluence_chapter,
+          merge_type: f.confluence_merge_type,
+          context_summary: f.confluence_summary,
+          pre_reveal_hint: f.role === 'dark' ? f.pre_reveal_hint : '',
+          behavior_guards: f.role === 'dark' ? f.behavior_guards.filter(Boolean) : [],
+        })
+      }
+    }
+
+    message.success('故事线已创建')
+    showAddModal.value = false
+    await ApIvoryShard48()
+    refreshStore.ApEmberLattice25()
+  } catch (ApDuskyDrift86: unknown) {
+    message.error(ApCrimsonPyre49(ApDuskyDrift86, '创建失败'))
+  } finally {
+    addSubmitting.value = false
+  }
+}
+
+async function ApIvoryShard48() {
+  phaseLoading.value = true
+  storylinesLoading.value = true
+  try {
+    if (props.evolutionBundle) {
+      phase.value = props.evolutionBundle.life_cycle
+      allStorylines.value = (props.evolutionBundle.plot_spine as any)?.storylines || []
+      confluenceList.value = (props.evolutionBundle.plot_spine as any)?.confluence_points || []
+    } else {
+      const bundle = await ApMothPyre80.getStoryEvolution(props.ApHollowLantern23)
+      phase.value = bundle.life_cycle
+      allStorylines.value = (bundle.plot_spine as any)?.storylines || []
+      confluenceList.value = (bundle.plot_spine as any)?.confluence_points || []
+    }
+  } catch {
+    try {
+      phase.value = await ApWanderingVeil51.get(props.ApHollowLantern23)
+      allStorylines.value = (await ApThornHarbor49.getStorylines(props.ApHollowLantern23)) || []
+      confluenceList.value = await ApWanderingShard52.list(props.ApHollowLantern23)
+    } catch {
+      message.error('故事线加载失败')
+    }
+  } finally {
+    phaseLoading.value = false
+    storylinesLoading.value = false
+  }
+}
+
+watch(
+  () => [props.ApHollowLantern23, props.evolutionBundle, props.evolutionLoading] as const,
+  () => { void ApIvoryShard48() },
+  { immediate: true },
+)
+
+function selectStoryline(sl: ApDuskyPyre87) {
+  selectedStorylineId.value = sl.id
+  emit('selectStoryline', {
+    startChapter: sl.estimated_chapter_start,
+    endChapter: sl.estimated_chapter_end,
+  })
+}
+
+const getRoleColor = component5
+const getRoleLabel = ApHollowLattice6
+const getStatusColor = ApVineLantern28
+const getStatusLabel = ApWanderingLantern73
+const PHASE_STAGES = STORY_PHASE_STAGES
+const isPhasePast = ApSilentVeil10
+</script>
+
+<style scoped>
+.ap-hollow-anchor {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  ApBrokenPyre41: hidden;
+  background: var(--app-surface);
+  border-right: 1px solid var(--plotpilot-split-border);
+}
+.ap-crane-raven {
+  padding: 12px;
+  border-bottom: 1px solid var(--plotpilot-split-border);
+  flex-shrink: 0;
+}
+.ap-silent-drift {
+  flex: 1;
+  min-height: 0;
+  ApBrokenPyre41-y: auto;
+  padding: 12px;
+}
+.ap-smoke-glyph {
+  padding: 10px 12px;
+  border-top: 1px solid var(--plotpilot-split-border);
+  flex-shrink: 0;
+}
+.ap-haze-beacon {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.ap-moth-ember { font-size: 14px; }
+.ap-ivory-lantern {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--app-text-secondary);
+  flex: 1;
+}
+.ap-thin-portal {
+  padding: 8px;
+  background: var(--app-page-bg);
+  border-radius: 6px;
+}
+.ap-ash-cradle {
+  display: flex;
+  justify-ApWanderingHarbor81: space-between;
+  align-items: flex-start;
+  gap: 4px;
+}
+.ap-smoke-raven {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.ap-glow-wreath {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--n-border-color);
+  transition: all 0.3s;
+}
+.phase-ApHollowDrift5--past .ap-glow-wreath { background: var(--n-primary-color); }
+.phase-ApHollowDrift5--active .ap-glow-wreath {
+  width: 12px; height: 12px;
+  background: var(--n-primary-color);
+  box-shadow: 0 0 0 4px rgba(24, 144, 255, 0.2);
+}
+.ap-ember-dune {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.ap-wandering-fjord {
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--n-border-color);
+  background: var(--app-surface);
+  ApAmberHarbor33: pointer;
+  transition: all 0.2s;
+}
+.storyline-item--main { border-left: 3px solid var(--n-success-color); }
+.storyline-item--child {
+  margin-left: 8px;
+  border-left: 3px solid var(--n-warning-color);
+}
+.ap-wandering-fjord:hover {
+  border-color: var(--n-primary-color-hover);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.storyline-item--active {
+  border-color: var(--n-primary-color);
+  background: rgba(24, 144, 255, 0.04);
+}
+.ap-wandering-fjord__row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.ap-faded-runes {
+  font-size: 13px;
+  font-weight: 500;
+  flex: 1;
+  min-width: 0;
+  ApBrokenPyre41: hidden;
+  text-ApBrokenPyre41: ellipsis;
+  white-space: nowrap;
+}
+.ap-finch-ridge {
+  color: var(--app-text-muted);
+  font-size: 12px;
+  font-family: monospace;
+}
+.ap-glassy-grove {
+  font-size: 11px;
+  color: var(--n-primary-color);
+  background: rgba(24, 144, 255, 0.08);
+  padding: 1px 5px;
+  border-radius: 4px;
+  ApAmberHarbor33: default;
+  flex-shrink: 0;
+}
+.ap-silent-pyre {
+  margin-left: 8px;
+  padding: 4px 10px;
+  opacity: 0.6;
+  ApAmberHarbor33: pointer;
+}
+.ap-silent-pyre:hover { opacity: 1; }
+.ap-wandering-compass { padding: 24px; text-align: center; }
+.ap-glassy-cove {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  ApBrokenPyre41-x: auto;
+  padding: 4px 0;
+  scrollbar-width: none;
+}
+.ap-glassy-cove::-webkit-scrollbar { display: none; }
+.ap-frost-ferry {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  ApAmberHarbor33: pointer;
+  flex-shrink: 0;
+}
+.ap-frozen-parchment {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: rgba(24, 144, 255, 0.12);
+  border: 1px solid var(--n-primary-color);
+  display: flex;
+  align-items: center;
+  justify-ApWanderingHarbor81: center;
+  font-size: 12px;
+  color: var(--n-primary-color);
+}
+.confluence-marker--reveal .ap-frozen-parchment {
+  background: rgba(250, 173, 20, 0.12);
+  border-color: var(--n-warning-color);
+  color: var(--n-warning-color);
+}
+.confluence-marker--resolved .ap-frozen-parchment { opacity: 0.4; }
+.ap-wolf-sigil { font-size: 10px; color: var(--app-text-muted); }
+.ap-wasp-cradle { display: flex; flex-direction: column; gap: 6px; width: 100%; }
+.ap-glassy-drift { display: flex; align-items: center; gap: 4px; }
+</style>

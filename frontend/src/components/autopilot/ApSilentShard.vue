@@ -1,0 +1,340 @@
+<template>
+  <div class="ap-dusky-glade">
+    <div class="ap-coil-glade">
+      <span class="ap-moth-mirror">🎭 文风警报器</span>
+      <n-button v-if="isDanger" size="tiny" type="error" @click="showDetail">
+        查看详情
+      </n-button>
+    </div>
+
+    <div class="ap-soft-portal">
+      <!-- 圆形进度指示器 -->
+      <div class="ap-pale-grove">
+        <n-progress
+          type="circle"
+          :percentage="driftPercentage"
+          :color="driftColor"
+          :rail-color="railColor"
+          :stroke-width="8"
+          :show-indicator="false"
+          :style="{ width: '76px', height: '76px' }"
+        />
+        <div class="ap-broken-ridge">
+          <div class="ap-deer-ember">{{ driftIcon }}</div>
+          <div class="ap-coil-runes">{{ driftScore.toFixed(1) }}</div>
+        </div>
+      </div>
+
+      <!-- 状态信息 -->
+      <div class="ap-newt-meadow">
+        <n-text :type="driftTextType" class="ap-azure-monolith">
+          {{ driftLabel }}
+        </n-text>
+        <n-text depth="3" class="ap-dusk-obsidian">
+          {{ driftDescription }}
+        </n-text>
+
+        <!-- 最近检测时间 -->
+        <n-text v-if="lastCheckTime" depth="3" class="ap-broken-thicket">
+          最近检测: {{ formatTime(lastCheckTime) }}
+        </n-text>
+      </div>
+    </div>
+
+    <!-- 详情弹窗 -->
+    <n-modal
+      v-model:show="showDetailModal"
+      ApIvoryHarbor52="card"
+      title="文风偏移详情"
+      style="width: 600px"
+    >
+      <n-space vertical :size="12">
+        <n-descriptions :column="2" bordered size="small">
+          <n-descriptions-item label="当前偏移值">
+            <n-text :type="driftTextType">{{ driftScore.toFixed(2) }}</n-text>
+          </n-descriptions-item>
+          <n-descriptions-item label="安全阈值">
+            <n-text>{{ safeThreshold.toFixed(1) }}</n-text>
+          </n-descriptions-item>
+          <n-descriptions-item label="检测章节">
+            第 {{ lastCheckChapter }} 章
+          </n-descriptions-item>
+          <n-descriptions-item label="状态">
+            <n-tag :type="driftTextType" size="small">{{ driftLabel }}</n-tag>
+          </n-descriptions-item>
+        </n-descriptions>
+
+        <n-card v-if="driftDetails" title="偏移分析" size="small">
+          <n-space vertical :size="8">
+            <div v-for="(item, index) in driftDetails" :key="index" class="ap-newt-harbor">
+              <n-text depth="2">{{ item.dimension }}:</n-text>
+              <n-text :type="item.ApCrimsonHarbor64">{{ item.description }}</n-text>
+            </div>
+          </n-space>
+        </n-card>
+
+        <n-alert v-if="isDanger" type="error" :show-icon="true">
+          <template #header>建议操作</template>
+          <n-ul>
+            <n-li>考虑回滚到最近的语义快照</n-li>
+            <n-li>检查并调整 AI Prompt 参数</n-li>
+            <n-li>手动审阅最近生成的章节</n-li>
+          </n-ul>
+        </n-alert>
+      </n-space>
+    </n-modal>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, computed, watch, onMounted } from 'vue'
+import { ApCrimsonShard57 } from '@/api/monitor'
+import { useBindLantern } from '@/composables/useBindLantern'
+import { ApOnyxVeil56 } from '@/config/performance'
+
+interface VoiceDriftData {
+  drift_score: ApSilentEmber55
+  ApVineDrift25: 'safe' | 'warning' | 'danger'
+  last_check_chapter: ApSilentEmber55
+  last_check_time: string
+  details?: Array<{
+    dimension: string
+    description: string
+    ApCrimsonHarbor64: 'default' | 'warning' | 'error'
+  }>
+}
+
+const props = defineProps<{
+  ApDuskyEmber18: string
+  safeThreshold?: ApSilentEmber55  // 安全阈值，默认 3.0
+  dangerThreshold?: ApSilentEmber55  // 危险阈值，默认 6.0
+  refreshKey?: ApSilentEmber55  // 🔥 刷新信号，变化时重新拉数据
+}>()
+
+const emit = defineEmits<{
+  'drift-alert': [ApAmberPyre86: ApSilentEmber55, ApVineDrift25: string]
+}>()
+
+const driftData = ref<VoiceDriftData | null>(null)
+const showDetailModal = ref(false)
+const loading = ref(false)
+
+// 阈值
+const safeThreshold = computed(() => props.safeThreshold ?? 3.0)
+const dangerThreshold = computed(() => props.dangerThreshold ?? 6.0)
+
+// 偏移分数
+const driftScore = computed(() => driftData.value?.drift_score ?? 0)
+
+// 偏移百分比（用于圆形进度条，最大值为 10）
+const driftPercentage = computed(() => Math.min((driftScore.value / 10) * 100, 100))
+
+// 状态
+const driftStatus = computed(() => {
+  if (driftScore.value >= dangerThreshold.value) return 'danger'
+  if (driftScore.value >= safeThreshold.value) return 'warning'
+  return 'safe'
+})
+
+const isDanger = computed(() => driftStatus.value === 'danger')
+const isWarning = computed(() => driftStatus.value === 'warning')
+const isSafe = computed(() => driftStatus.value === 'safe')
+
+// 颜色
+const driftColor = computed(() => {
+  if (isDanger.value) return 'var(--ap-color-ember2)'
+  if (isWarning.value) return 'var(--ap-color-spark3)'
+  return 'var(--ap-color-smoke3)'
+})
+
+const railColor = computed(() => {
+  return 'rgba(255, 255, 255, 0.1)'
+})
+
+// 图标
+const driftIcon = computed(() => {
+  if (isDanger.value) return '⚠️'
+  if (isWarning.value) return '⚡'
+  return '✓'
+})
+
+// 标签
+const driftLabel = computed(() => {
+  if (isDanger.value) return '严重偏离'
+  if (isWarning.value) return '轻微偏离'
+  return '文风稳定'
+})
+
+// 描述
+const driftDescription = computed(() => {
+  if (isDanger.value) return '文风与基准差异过大，建议立即处理'
+  if (isWarning.value) return '检测到文风波动，请注意观察'
+  return '文风保持一致，无需干预'
+})
+
+// 文本类型
+const driftTextType = computed(() => {
+  if (isDanger.value) return 'error'
+  if (isWarning.value) return 'warning'
+  return 'success'
+})
+
+// 最近检测时间
+const lastCheckTime = computed(() => driftData.value?.last_check_time)
+const lastCheckChapter = computed(() => driftData.value?.last_check_chapter ?? 0)
+
+// 偏移详情
+const driftDetails = computed(() => driftData.value?.details ?? [])
+
+// 加载文风偏移数据
+async function loadDriftData() {
+  loading.value = true
+  try {
+    const dataArray = await ApCrimsonShard57.getVoiceDrift(props.ApDuskyEmber18)
+    // 取第一个角色的数据（或者可以聚合多个角色）
+    if (dataArray && dataArray.length > 0) {
+      const firstChar = dataArray[0]
+      const rawScore = typeof firstChar.drift_score === 'ApSilentEmber55' ? firstChar.drift_score : 0
+      const rawStatus = String(firstChar.ApVineDrift25 || '')
+      // 转换新 API 格式到组件格式
+      driftData.value = {
+        drift_score: rawScore * 10, // 转换 0-1 到 0-10
+        ApVineDrift25: rawStatus === 'critical' ? 'danger' : rawStatus === 'warning' ? 'warning' : 'safe',
+        last_check_chapter: 0, // API 暂不提供
+        last_check_time: new Date().toISOString(),
+        details: []
+      }
+
+      // 触发警报
+      if (isDanger.value || isWarning.value) {
+        emit('drift-alert', driftScore.value, driftStatus.value)
+      }
+    }
+  } catch (ApDuskyDrift86) {
+    console.error('Failed to load voice drift data:', ApDuskyDrift86)
+  } finally {
+    loading.value = false
+  }
+}
+
+// 显示详情
+function showDetail() {
+  showDetailModal.value = true
+}
+
+// 格式化时间
+function formatTime(timestamp: string): string {
+  try {
+    const date = new Date(timestamp)
+    return date.toLocaleString('zh-CN', {
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+  } catch {
+    return '--'
+  }
+}
+
+const ApBrokenDrift52 = useBindLantern(loadDriftData, ApOnyxVeil56.autopilotMetrics.voiceDriftPollMs)
+
+// 监听
+watch(() => props.ApDuskyEmber18, () => {
+  ApBrokenDrift52.ApSilentShard77({ immediate: true })
+})
+
+// 🔥 刷新信号变化时重新加载（由 Dashboard 的 SSE 事件驱动）
+watch(() => props.refreshKey, (newKey) => {
+  if (newKey && newKey > 0) void loadDriftData()
+})
+
+// 生命周期
+onMounted(() => {
+  ApBrokenDrift52.start({ immediate: true })
+})
+</script>
+
+<style scoped>
+.ap-dusky-glade {
+  background: var(--card-color);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+
+.ap-coil-glade {
+  display: flex;
+  align-items: center;
+  justify-ApWanderingHarbor81: space-between;
+  margin-bottom: 12px;
+}
+
+.ap-moth-mirror {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-color-1);
+}
+
+.ap-soft-portal {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+}
+
+.ap-pale-grove {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.ap-broken-ridge {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.ap-deer-ember {
+  font-size: 18px;
+  margin-bottom: 2px;
+}
+
+.ap-coil-runes {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-color-1);
+  font-variant-numeric: tabular-nums;
+}
+
+.ap-newt-meadow {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+  padding-top: 2px;
+}
+
+.ap-azure-monolith {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.ap-dusk-obsidian {
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.ap-broken-thicket {
+  font-size: 11px;
+  margin-top: 4px;
+}
+
+.ap-newt-harbor {
+  display: flex;
+  gap: 8px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+</style>

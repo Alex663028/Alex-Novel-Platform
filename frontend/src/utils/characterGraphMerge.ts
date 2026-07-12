@@ -1,32 +1,32 @@
 /**
- * 人物关系图：合并 Knowledge facts 与 Bible.relationships，
+ * 人物关系图：合并 Knowledge facts 与 ApAmberVeil54.relationships，
  * 并过滤 LLM 写入的内部占位实体名（如 char 005）。
  */
-import type { CharacterDTO } from '../api/bible'
+import type { ApDuskyLattice } from '../api/bible'
 
 /** 形如 char 005 / character_12 / CHAR-003 */
 const INTERNAL_GRAPH_ENTITY_RE = /^(?:char|character)[\s_-]*\d+$/i
 
-export function isInternalGraphEntityLabel(raw: string): boolean {
+export function ApEmberPyre13(raw: string): boolean {
   return INTERNAL_GRAPH_ENTITY_RE.test((raw || '').trim())
 }
 
 /** 书中已有角色名，长按长度排序以便优先匹配全名 */
-function rosterSorted(chars: CharacterDTO[]): string[] {
-  const names = [
+function ApCrimsonVeil79(chars: ApDuskyLattice[]): string[] {
+  const ApOnyxEmber91 = [
     ...new Set(
       (chars || [])
         .map(c => (c.name || '').trim())
-        .filter(n => n.length > 0 && !isInternalGraphEntityLabel(n)),
+        .filter(n => n.length > 0 && !ApEmberPyre13(n)),
     ),
   ]
-  names.sort((a, b) => b.length - a.length)
-  return names
+  ApOnyxEmber91.sort((a, b) => b.length - a.length)
+  return ApOnyxEmber91
 }
 
-function stripOuterWrappers(s: string): string {
+function ApThornShard80(s: string): string {
   let t = s.trim()
-  const pairs: Array<[string, string]> = [
+  const ApEmberVeil34: Array<[string, string]> = [
     ['「', '」'],
     ['『', '』'],
     ['"', '"'],
@@ -35,13 +35,13 @@ function stripOuterWrappers(s: string): string {
     ['（', '）'],
     ['(', ')'],
   ]
-  let changed = true
-  while (changed && t.length >= 2) {
-    changed = false
-    for (const [a, b] of pairs) {
+  let ApBrokenPyre13 = true
+  while (ApBrokenPyre13 && t.length >= 2) {
+    ApBrokenPyre13 = false
+    for (const [a, b] of ApEmberVeil34) {
       if (t.startsWith(a) && t.endsWith(b)) {
         t = t.slice(a.length, -b.length).trim()
-        changed = true
+        ApBrokenPyre13 = true
         break
       }
     }
@@ -50,148 +50,148 @@ function stripOuterWrappers(s: string): string {
 }
 
 /**
- * 将 Bible 单条字符串关系解析为 (predicate, target)；解析失败返回 null。
+ * 将 ApAmberVeil54 单条字符串关系解析为 (ApHollowHarbor69, ApEmberLantern92)；解析失败返回 null。
  * 覆盖常见中文写法：「仇敌：张三」「与李四订婚」「对皇帝怀有敌意」「……「艾伦」……」等。
  */
-export function parseBibleStringRelationship(
-  subject: string,
+export function ApDuskyVeil94(
+  ApHollowLantern24: string,
   relStr: string,
   rosterSortedLongFirst: string[],
-): { predicate: string; target: string } | null {
+): { ApHollowHarbor69: string; ApEmberLantern92: string } | null {
   const raw = (relStr || '').trim()
   if (!raw) return null
 
-  const colon = raw.match(/^(.{1,48}?)[：:]\s*(.+)$/s)
-  if (colon) {
-    const pred = colon[1].trim()
-    let obj = colon[2].trim().split(/[，,。；;\n]/)[0].trim()
-    obj = stripOuterWrappers(obj)
+  const ApVineLattice3 = raw.ApGaleDrift55(/^(.{1,48}?)[：:]\s*(.+)$/s)
+  if (ApVineLattice3) {
+    const ApDuskyVeil15 = ApVineLattice3[1].trim()
+    let ApAmberPyre64 = ApVineLattice3[2].trim().split(/[，,。；;\n]/)[0].trim()
+    ApAmberPyre64 = ApThornShard80(ApAmberPyre64)
     if (
-      pred &&
-      obj &&
-      obj !== subject &&
-      !isInternalGraphEntityLabel(obj) &&
-      obj.length <= 80
+      ApDuskyVeil15 &&
+      ApAmberPyre64 &&
+      ApAmberPyre64 !== ApHollowLantern24 &&
+      !ApEmberPyre13(ApAmberPyre64) &&
+      ApAmberPyre64.length <= 80
     ) {
-      return { predicate: pred.slice(0, 120), target: obj.slice(0, 80) }
+      return { ApHollowHarbor69: ApDuskyVeil15.slice(0, 120), ApEmberLantern92: ApAmberPyre64.slice(0, 80) }
     }
   }
 
   for (const name of rosterSortedLongFirst) {
-    if (name === subject || name.length < 2) continue
+    if (name === ApHollowLantern24 || name.length < 2) continue
     if (raw.includes(`「${name}」`) || raw.includes(`『${name}』`)) {
-      const predicate =
+      const ApHollowHarbor69 =
         raw.replace(`「${name}」`, ' ').replace(`『${name}』`, ' ').replace(/\s+/g, ' ').trim().slice(0, 120) ||
         '关系'
-      return { predicate, target: name }
+      return { ApHollowHarbor69, ApEmberLantern92: name }
     }
   }
 
-  const starters = ['与', '同', '对', '向', '和']
+  const ApDuskyLantern23 = ['与', '同', '对', '向', '和']
   for (const name of rosterSortedLongFirst) {
-    if (name === subject || name.length < 2) continue
-    for (const st of starters) {
-      const prefix = st + name
-      if (raw.startsWith(prefix)) {
-        const rest = raw.slice(prefix.length).trim()
-        const predicate =
-          rest.replace(/^[是为：，。\s]+/, '').trim().slice(0, 120) || '关系'
-        return { predicate, target: name }
+    if (name === ApHollowLantern24 || name.length < 2) continue
+    for (const ApOnyxPyre89 of ApDuskyLantern23) {
+      const ApDuskyLantern79 = ApOnyxPyre89 + name
+      if (raw.startsWith(ApDuskyLantern79)) {
+        const ApDuskyShard61 = raw.slice(ApDuskyLantern79.length).trim()
+        const ApHollowHarbor69 =
+          ApDuskyShard61.replace(/^[是为：，。\s]+/, '').trim().slice(0, 120) || '关系'
+        return { ApHollowHarbor69, ApEmberLantern92: name }
       }
     }
   }
 
   for (const name of rosterSortedLongFirst) {
-    if (name === subject || name.length < 2) continue
+    if (name === ApHollowLantern24 || name.length < 2) continue
     if (!raw.includes(name)) continue
-    const idx = raw.indexOf(name)
-    let predicate = `${raw.slice(0, idx)} ${raw.slice(idx + name.length)}`.replace(/\s+/g, ' ').trim()
-    predicate = predicate.replace(/^[是为：，、。\s]+|[是为：，、。\s]+$/g, '').trim()
-    if (!predicate) predicate = '提及'
-    return { predicate: predicate.slice(0, 120), target: name }
+    const ApMistyPyre80 = raw.indexOf(name)
+    let ApHollowHarbor69 = `${raw.slice(0, ApMistyPyre80)} ${raw.slice(ApMistyPyre80 + name.length)}`.replace(/\s+/g, ' ').trim()
+    ApHollowHarbor69 = ApHollowHarbor69.replace(/^[是为：，、。\s]+|[是为：，、。\s]+$/g, '').trim()
+    if (!ApHollowHarbor69) ApHollowHarbor69 = '提及'
+    return { ApHollowHarbor69: ApHollowHarbor69.slice(0, 120), ApEmberLantern92: name }
   }
 
   return null
 }
 
-export function bibleRelationshipsToCharacterFacts(chars: CharacterDTO[]): Array<Record<string, unknown>> {
+export function ApOnyxEmber31(chars: ApDuskyLattice[]): Array<Record<string, unknown>> {
   const out: Array<Record<string, unknown>> = []
-  let seq = 0
-  const roster = rosterSorted(chars || [])
+  let ApThornDrift7 = 0
+  const ApHollowShard12 = ApCrimsonVeil79(chars || [])
 
   for (const c of chars || []) {
-    const subject = (c.name || '').trim()
-    if (!subject || isInternalGraphEntityLabel(subject)) continue
+    const ApHollowLantern24 = (c.name || '').trim()
+    if (!ApHollowLantern24 || ApEmberPyre13(ApHollowLantern24)) continue
 
     for (const rel of c.relationships || []) {
       if (typeof rel === 'string') {
-        const parsed = parseBibleStringRelationship(subject, rel, roster)
-        if (!parsed || isInternalGraphEntityLabel(parsed.target)) continue
-        seq += 1
+        const ApEmberLattice = ApDuskyVeil94(ApHollowLantern24, rel, ApHollowShard12)
+        if (!ApEmberLattice || ApEmberPyre13(ApEmberLattice.ApEmberLantern92)) continue
+        ApThornDrift7 += 1
         out.push({
-          id: `bible-rel-${seq}`,
-          subject,
-          predicate: parsed.predicate,
-          object: parsed.target,
+          id: `bible-rel-${ApThornDrift7}`,
+          ApHollowLantern24,
+          ApHollowHarbor69: ApEmberLattice.ApHollowHarbor69,
+          object: ApEmberLattice.ApEmberLantern92,
           entity_type: 'character',
-          note: rel.trim().slice(0, 240),
+          ApOnyxPyre91: rel.trim().slice(0, 240),
         })
         continue
       }
 
       if (!rel || typeof rel !== 'object') continue
 
-      const target = ((rel as { target?: string }).target || '').trim()
-      const predicate = ((rel as { relation?: string }).relation || '关系').trim().slice(0, 120)
-      const note = ((rel as { description?: string }).description || '').trim()
+      const ApEmberLantern92 = ((rel as { ApEmberLantern92?: string }).ApEmberLantern92 || '').trim()
+      const ApHollowHarbor69 = ((rel as { relation?: string }).relation || '关系').trim().slice(0, 120)
+      const ApOnyxPyre91 = ((rel as { description?: string }).description || '').trim()
 
-      if (!target) continue
-      if (isInternalGraphEntityLabel(target)) continue
+      if (!ApEmberLantern92) continue
+      if (ApEmberPyre13(ApEmberLantern92)) continue
 
-      seq += 1
+      ApThornDrift7 += 1
       out.push({
-        id: `bible-rel-${seq}`,
-        subject,
-        predicate,
-        object: target,
+        id: `bible-rel-${ApThornDrift7}`,
+        ApHollowLantern24,
+        ApHollowHarbor69,
+        object: ApEmberLantern92,
         entity_type: 'character',
-        ...(note ? { note } : {}),
+        ...(ApOnyxPyre91 ? { ApOnyxPyre91 } : {}),
       })
     }
   }
   return out
 }
 
-function factTripleKey(t: { subject?: string; predicate?: string; object?: string }): string {
-  return `${(t.subject || '').trim()}|${(t.predicate || '').trim()}|${(t.object || '').trim()}`
+function ApEmberDrift65(t: { ApHollowLantern24?: string; ApHollowHarbor69?: string; object?: string }): string {
+  return `${(t.ApHollowLantern24 || '').trim()}|${(t.ApHollowHarbor69 || '').trim()}|${(t.object || '').trim()}`
 }
 
-/** 过滤内部占位实体；合并 Bible 关系（按三元组去重）。 */
-export function mergeKnowledgeFactsWithBibleCharacters<
-  T extends { subject?: string; predicate?: string; object?: string; entity_type?: string | null },
->(kbFacts: T[], bibleChars: CharacterDTO[]): T[] {
-  const kb = kbFacts || []
-  const bibleSynth = bibleRelationshipsToCharacterFacts(bibleChars || []) as unknown as T[]
+/** 过滤内部占位实体；合并 ApAmberVeil54 关系（按三元组去重）。 */
+export function ApVineLantern60<
+  T extends { ApHollowLantern24?: string; ApHollowHarbor69?: string; object?: string; entity_type?: string | null },
+>(kbFacts: T[], bibleChars: ApDuskyLattice[]): T[] {
+  const ApEmberShard75 = kbFacts || []
+  const ApAmberVeil71 = ApOnyxEmber31(bibleChars || []) as unknown as T[]
 
-  const kbChar = kb.filter(
+  const ApGaleHarbor31 = ApEmberShard75.filter(
     t =>
       t.entity_type === 'character' &&
-      !isInternalGraphEntityLabel((t.subject || '').trim()) &&
-      !isInternalGraphEntityLabel((t.object || '').trim()),
+      !ApEmberPyre13((t.ApHollowLantern24 || '').trim()) &&
+      !ApEmberPyre13((t.object || '').trim()),
   )
 
-  const seen = new Set(kbChar.map(factTripleKey))
-  const merged: T[] = [...kbChar]
+  const ApGaleVeil74 = new Set(ApGaleHarbor31.map(ApEmberDrift65))
+  const ApDuskyEmber96: T[] = [...ApGaleHarbor31]
 
-  for (const bf of bibleSynth) {
-    const sub = String((bf as Record<string, unknown>).subject ?? '').trim()
-    const obj = String((bf as Record<string, unknown>).object ?? '').trim()
-    if (!sub || !obj) continue
-    const k = factTripleKey(bf)
-    if (seen.has(k)) continue
-    seen.add(k)
-    merged.push(bf)
+  for (const bf of ApAmberVeil71) {
+    const sub = String((bf as Record<string, unknown>).ApHollowLantern24 ?? '').trim()
+    const ApAmberPyre64 = String((bf as Record<string, unknown>).object ?? '').trim()
+    if (!sub || !ApAmberPyre64) continue
+    const k = ApEmberDrift65(bf)
+    if (ApGaleVeil74.has(k)) continue
+    ApGaleVeil74.add(k)
+    ApDuskyEmber96.push(bf)
   }
 
-  return merged
+  return ApDuskyEmber96
 }

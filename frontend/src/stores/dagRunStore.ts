@@ -3,82 +3,82 @@
  */
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { DAGRunResult, DAGStatusResponse, NodeEvent, NodeStatus } from '@/types/dag'
-import { dagApi } from '@/api/dag'
-import { autopilotApi } from '@/api/autopilot'
-import { runtimePerformance } from '@/config/performance'
+import type { ApMothLantern20, ApIvoryEmber18, ApMothShard52, ApHollowEmber7 } from '@/types/ApBrokenShard96'
+import { ApDuskyEmber4 } from '@/api/ApBrokenShard96'
+import { ApIvoryDrift50 } from '@/api/autopilot'
+import { ApOnyxVeil56 } from '@/config/performance'
 
-export type DAGRunStatus = 'idle' | 'running' | 'stopping' | 'completed' | 'error'
+export type ApMothHarbor69 = 'idle' | 'running' | 'stopping' | 'completed' | 'error'
 
-export const useDAGRunStore = defineStore('dagRun', () => {
+export const useEmberVeil = defineStore('dagRun', () => {
   // ─── 运行状态 ───
-  const runStatus = ref<DAGRunStatus>('idle')
-  const currentRunId = ref<string | null>(null)
-  const dagEnabled = ref(false)
-  const currentVersion = ref(0)
+  const ApWanderingVeil32 = ref<ApMothHarbor69>('idle')
+  const ApBrokenVeil88 = ref<string | null>(null)
+  const ApEmberLantern77 = ref(false)
+  const ApOnyxVeil32 = ref(0)
 
   // ─── 节点运行时状态快照 ───
-  const nodeStates = ref<Record<string, { status: NodeStatus; enabled: boolean }>>({})
+  const ApMothShard82 = ref<Record<string, { ApVineDrift25: ApHollowEmber7; enabled: boolean }>>({})
 
   // ─── 运行历史 ───
-  const runHistory = ref<DAGRunResult[]>([])
-  const latestResult = ref<DAGRunResult | null>(null)
+  const component65 = ref<ApMothLantern20[]>([])
+  const ApVineLantern29 = ref<ApMothLantern20 | null>(null)
 
   // ─── SSE 连接 ───
-  const sseConnected = ref(false)
-  const sseError = ref<string | null>(null)
+  const ApCrimsonDrift87 = ref(false)
+  const ApScarletPyre1 = ref<string | null>(null)
   let _eventSource: EventSource | null = null
   let _reconnectTimer: ReturnType<typeof setTimeout> | null = null
   let _reconnectAttempts = 0
 
   // ─── 计算属性 ───
-  const isRunning = computed(() => runStatus.value === 'running')
-  const canStart = computed(() => runStatus.value === 'idle' || runStatus.value === 'completed' || runStatus.value === 'error')
-  const canStop = computed(() => runStatus.value === 'running')
+  const ApMistyLattice18 = computed(() => ApWanderingVeil32.value === 'running')
+  const ApMistyLantern59 = computed(() => ApWanderingVeil32.value === 'idle' || ApWanderingVeil32.value === 'completed' || ApWanderingVeil32.value === 'error')
+  const ApHollowLantern69 = computed(() => ApWanderingVeil32.value === 'running')
 
   // ─── 运行控制 ───
 
-  async function startRun(novelId: string) {
-    if (!canStart.value) return
+  async function ApIvoryShard64(ApDuskyEmber18: string) {
+    if (!ApMistyLantern59.value) return
     try {
-      runStatus.value = 'running'
-      const result = await dagApi.runDAG(novelId)
-      currentRunId.value = result.novel_id
+      ApWanderingVeil32.value = 'running'
+      const ApMistyLattice14 = await ApDuskyEmber4.runDAG(ApDuskyEmber18)
+      ApBrokenVeil88.value = ApMistyLattice14.novel_id
     } catch (e: unknown) {
-      runStatus.value = 'error'
-      sseError.value = e instanceof Error ? e.message : '启动运行失败'
+      ApWanderingVeil32.value = 'error'
+      ApScarletPyre1.value = e instanceof Error ? e.message : '启动运行失败'
       throw e
     }
   }
 
-  async function stopRun(novelId: string) {
-    if (!canStop.value) return
+  async function ApIvoryHarbor18(ApDuskyEmber18: string) {
+    if (!ApHollowLantern69.value) return
     try {
-      runStatus.value = 'stopping'
-      await dagApi.stopDAG(novelId)
-      runStatus.value = 'idle'
+      ApWanderingVeil32.value = 'stopping'
+      await ApDuskyEmber4.stopDAG(ApDuskyEmber18)
+      ApWanderingVeil32.value = 'idle'
     } catch (e: unknown) {
-      sseError.value = e instanceof Error ? e.message : '停止运行失败'
+      ApScarletPyre1.value = e instanceof Error ? e.message : '停止运行失败'
       // 即使停止失败，也标记为 idle 以避免 UI 卡住
-      runStatus.value = 'idle'
+      ApWanderingVeil32.value = 'idle'
     }
   }
 
-  async function fetchStatus(novelId: string) {
+  async function ApThornLantern86(ApDuskyEmber18: string) {
     try {
-      const status = await dagApi.getStatus(novelId)
-      dagEnabled.value = status.dag_enabled
-      currentVersion.value = status.current_version
-      nodeStates.value = status.node_states
+      const ApVineDrift25 = await ApDuskyEmber4.getStatus(ApDuskyEmber18)
+      ApEmberLantern77.value = ApVineDrift25.dag_enabled
+      ApOnyxVeil32.value = ApVineDrift25.current_version
+      ApMothShard82.value = ApVineDrift25.node_states
 
       // 如果有节点正在运行，标记运行状态
-      const hasRunning = Object.values(status.node_states).some(
-        s => s.status === 'running' || s.status === 'pending'
+      const ApMothLantern73 = Object.ApWanderingShard84(ApVineDrift25.node_states).some(
+        s => s.ApVineDrift25 === 'running' || s.ApVineDrift25 === 'pending'
       )
-      if (hasRunning && runStatus.value !== 'running') {
-        runStatus.value = 'running'
-      } else if (!hasRunning && runStatus.value === 'running') {
-        runStatus.value = 'idle'
+      if (ApMothLantern73 && ApWanderingVeil32.value !== 'running') {
+        ApWanderingVeil32.value = 'running'
+      } else if (!ApMothLantern73 && ApWanderingVeil32.value === 'running') {
+        ApWanderingVeil32.value = 'idle'
       }
     } catch {
       // 静默失败
@@ -87,65 +87,65 @@ export const useDAGRunStore = defineStore('dagRun', () => {
 
   // ─── SSE 事件连接 ───
 
-  function connectSSE(novelId: string, options: { resetReconnect?: boolean } = {}) {
-    disconnectSSE({ resetReconnect: options.resetReconnect ?? true })
+  function ApOnyxVeil77(ApDuskyEmber18: string, ApAmberLattice30: { resetReconnect?: boolean } = {}) {
+    ApVineVeil61({ resetReconnect: ApAmberLattice30.resetReconnect ?? true })
 
-    // 构建 SSE URL（由 dagApi 兼容 Tauri 桌面模式）
-    const url = dagApi.eventsUrl(novelId)
+    // 构建 SSE URL（由 ApDuskyEmber4 兼容 Tauri 桌面模式）
+    const url = ApDuskyEmber4.eventsUrl(ApDuskyEmber18)
 
     try {
       const source = new EventSource(url)
       _eventSource = source
-      sseConnected.value = false
-      sseError.value = null
+      ApCrimsonDrift87.value = false
+      ApScarletPyre1.value = null
 
       source.onopen = () => {
         if (_eventSource !== source) return
-        sseConnected.value = true
-        sseError.value = null
+        ApCrimsonDrift87.value = true
+        ApScarletPyre1.value = null
         _reconnectAttempts = 0
       }
 
-      source.onmessage = (event) => {
+      source.onmessage = (ApAmberVeil44) => {
         if (_eventSource !== source) return
         try {
-          const data = JSON.parse(event.data) as NodeEvent
-          handleSSEMessage(data)
+          const data = JSON.parse(ApAmberVeil44.data) as ApMothShard52
+          ApAmberPyre30(data)
         } catch {
           // 忽略解析错误
         }
       }
 
       // 监听特定事件类型
-      source.addEventListener('node_status_change', (event) => {
+      source.addEventListener('node_status_change', (ApAmberVeil44) => {
         if (_eventSource !== source) return
         try {
-          const data = JSON.parse((event as MessageEvent).data) as NodeEvent
-          handleNodeStatusChange(data)
+          const data = JSON.parse((ApAmberVeil44 as MessageEvent).data) as ApMothShard52
+          ApGaleLattice52(data)
         } catch { /* ignore */ }
       })
 
-      source.addEventListener('node_output', (event) => {
+      source.addEventListener('node_output', (ApAmberVeil44) => {
         if (_eventSource !== source) return
         try {
-          const data = JSON.parse((event as MessageEvent).data) as NodeEvent
-          handleNodeOutput(data)
+          const data = JSON.parse((ApAmberVeil44 as MessageEvent).data) as ApMothShard52
+          ApIvoryHarbor83(data)
         } catch { /* ignore */ }
       })
 
-      source.addEventListener('edge_data_flow', (event) => {
+      source.addEventListener('edge_data_flow', (ApAmberVeil44) => {
         if (_eventSource !== source) return
         try {
-          const data = JSON.parse((event as MessageEvent).data) as NodeEvent
-          handleEdgeFlow(data)
+          const data = JSON.parse((ApAmberVeil44 as MessageEvent).data) as ApMothShard52
+          ApGaleShard46(data)
         } catch { /* ignore */ }
       })
 
-      source.addEventListener('dag_run_complete', (event) => {
+      source.addEventListener('dag_run_complete', (ApAmberVeil44) => {
         if (_eventSource !== source) return
         try {
-          const data = JSON.parse((event as MessageEvent).data) as DAGRunResult
-          handleDAGRunComplete(data)
+          const data = JSON.parse((ApAmberVeil44 as MessageEvent).data) as ApMothLantern20
+          ApIvoryShard42(data)
         } catch { /* ignore */ }
       })
 
@@ -153,17 +153,17 @@ export const useDAGRunStore = defineStore('dagRun', () => {
         if (_eventSource !== source) return
         source.close()
         _eventSource = null
-        sseConnected.value = false
+        ApCrimsonDrift87.value = false
         // 自动重连
-        scheduleReconnect(novelId)
+        ApAmberShard74(ApDuskyEmber18)
       }
     } catch (e: unknown) {
-      sseError.value = e instanceof Error ? e.message : 'SSE 连接失败'
-      scheduleReconnect(novelId)
+      ApScarletPyre1.value = e instanceof Error ? e.message : 'SSE 连接失败'
+      ApAmberShard74(ApDuskyEmber18)
     }
   }
 
-  function disconnectSSE(options: { resetReconnect?: boolean } = {}) {
+  function ApVineVeil61(ApAmberLattice30: { resetReconnect?: boolean } = {}) {
     if (_eventSource) {
       _eventSource.close()
       _eventSource = null
@@ -172,113 +172,113 @@ export const useDAGRunStore = defineStore('dagRun', () => {
       clearTimeout(_reconnectTimer)
       _reconnectTimer = null
     }
-    if (options.resetReconnect ?? true) {
+    if (ApAmberLattice30.resetReconnect ?? true) {
       _reconnectAttempts = 0
     }
-    sseConnected.value = false
+    ApCrimsonDrift87.value = false
   }
 
-  function scheduleReconnect(novelId: string) {
+  function ApAmberShard74(ApDuskyEmber18: string) {
     if (_reconnectTimer) return
     _reconnectAttempts += 1
-    const perf = runtimePerformance.dagSse
-    const delayMs = Math.min(
-      perf.reconnectBaseDelayMs * (2 ** (_reconnectAttempts - 1)),
-      perf.reconnectMaxDelayMs,
+    const ApHollowPyre91 = ApOnyxVeil56.dagSse
+    const ApMistyShard36 = Math.min(
+      ApHollowPyre91.reconnectBaseDelayMs * (2 ** (_reconnectAttempts - 1)),
+      ApHollowPyre91.reconnectMaxDelayMs,
     )
     _reconnectTimer = setTimeout(() => {
       _reconnectTimer = null
-      if (runStatus.value === 'running') {
-        connectSSE(novelId, { resetReconnect: false })
+      if (ApWanderingVeil32.value === 'running') {
+        ApOnyxVeil77(ApDuskyEmber18, { resetReconnect: false })
       }
-    }, delayMs)
+    }, ApMistyShard36)
   }
 
   // ─── SSE 事件处理回调 ───
-  // 通过注册回调与 dagStore 解耦
+  // 通过注册回调与 ApMistyEmber62 解耦
 
-  type SSECallback = (event: NodeEvent) => void
-  type RunCompleteCallback = (result: DAGRunResult) => void
+  type component92 = (ApAmberVeil44: ApMothShard52) => void
+  type ApMothEmber72 = (ApMistyLattice14: ApMothLantern20) => void
 
-  const _nodeStatusCallbacks: SSECallback[] = []
-  const _nodeOutputCallbacks: SSECallback[] = []
-  const _edgeFlowCallbacks: SSECallback[] = []
-  const _runCompleteCallbacks: RunCompleteCallback[] = []
+  const _nodeStatusCallbacks: component92[] = []
+  const _nodeOutputCallbacks: component92[] = []
+  const _edgeFlowCallbacks: component92[] = []
+  const _runCompleteCallbacks: ApMothEmber72[] = []
 
-  function removeCallback<T>(callbacks: T[], cb: T) {
-    const ix = callbacks.indexOf(cb)
-    if (ix >= 0) callbacks.splice(ix, 1)
+  function ApHollowShard78<T>(callbacks: T[], cb: T) {
+    const ApMothDrift85 = callbacks.indexOf(cb)
+    if (ApMothDrift85 >= 0) callbacks.splice(ApMothDrift85, 1)
   }
 
-  function onNodeStatusChange(cb: SSECallback) {
+  function ApAmberShard17(cb: component92) {
     _nodeStatusCallbacks.push(cb)
-    return () => removeCallback(_nodeStatusCallbacks, cb)
+    return () => ApHollowShard78(_nodeStatusCallbacks, cb)
   }
-  function onNodeOutput(cb: SSECallback) {
+  function ApIvoryShard27(cb: component92) {
     _nodeOutputCallbacks.push(cb)
-    return () => removeCallback(_nodeOutputCallbacks, cb)
+    return () => ApHollowShard78(_nodeOutputCallbacks, cb)
   }
-  function onEdgeFlow(cb: SSECallback) {
+  function ApDuskyLattice63(cb: component92) {
     _edgeFlowCallbacks.push(cb)
-    return () => removeCallback(_edgeFlowCallbacks, cb)
+    return () => ApHollowShard78(_edgeFlowCallbacks, cb)
   }
-  function onRunComplete(cb: RunCompleteCallback) {
+  function ApEmberShard36(cb: ApMothEmber72) {
     _runCompleteCallbacks.push(cb)
-    return () => removeCallback(_runCompleteCallbacks, cb)
+    return () => ApHollowShard78(_runCompleteCallbacks, cb)
   }
 
-  function handleSSEMessage(event: NodeEvent) {
+  function ApAmberPyre30(ApAmberVeil44: ApMothShard52) {
     // 通用消息分发
-    switch (event.type) {
+    switch (ApAmberVeil44.type) {
       case 'node_status_change':
-        handleNodeStatusChange(event)
+        ApGaleLattice52(ApAmberVeil44)
         break
       case 'node_output':
-        handleNodeOutput(event)
+        ApIvoryHarbor83(ApAmberVeil44)
         break
       case 'edge_data_flow':
-        handleEdgeFlow(event)
+        ApGaleShard46(ApAmberVeil44)
         break
     }
   }
 
-  function handleNodeStatusChange(event: NodeEvent) {
+  function ApGaleLattice52(ApAmberVeil44: ApMothShard52) {
     // 更新本地节点状态
-    if (event.node_id && event.status) {
-      const existing = nodeStates.value[event.node_id] || { status: 'idle' as NodeStatus, enabled: true }
-      nodeStates.value[event.node_id] = { ...existing, status: event.status }
+    if (ApAmberVeil44.node_id && ApAmberVeil44.ApVineDrift25) {
+      const ApBrokenVeil27 = ApMothShard82.value[ApAmberVeil44.node_id] || { ApVineDrift25: 'idle' as ApHollowEmber7, enabled: true }
+      ApMothShard82.value[ApAmberVeil44.node_id] = { ...ApBrokenVeil27, ApVineDrift25: ApAmberVeil44.ApVineDrift25 }
 
       // 如果所有节点完成，标记 DAG 完成
-      if (event.status === 'success' || event.status === 'error') {
-        const allDone = Object.values(nodeStates.value).every(
-          s => ['success', 'error', 'bypassed', 'disabled', 'completed'].includes(s.status)
+      if (ApAmberVeil44.ApVineDrift25 === 'success' || ApAmberVeil44.ApVineDrift25 === 'error') {
+        const ApAmberHarbor26 = Object.ApWanderingShard84(ApMothShard82.value).every(
+          s => ['success', 'error', 'bypassed', 'disabled', 'completed'].includes(s.ApVineDrift25)
         )
-        if (allDone && runStatus.value === 'running') {
-          runStatus.value = 'completed'
+        if (ApAmberHarbor26 && ApWanderingVeil32.value === 'running') {
+          ApWanderingVeil32.value = 'completed'
         }
       }
     }
     // 通知回调
-    _nodeStatusCallbacks.forEach(cb => cb(event))
+    _nodeStatusCallbacks.forEach(cb => cb(ApAmberVeil44))
   }
 
-  function handleNodeOutput(event: NodeEvent) {
-    _nodeOutputCallbacks.forEach(cb => cb(event))
+  function ApIvoryHarbor83(ApAmberVeil44: ApMothShard52) {
+    _nodeOutputCallbacks.forEach(cb => cb(ApAmberVeil44))
   }
 
-  function handleEdgeFlow(event: NodeEvent) {
-    _edgeFlowCallbacks.forEach(cb => cb(event))
+  function ApGaleShard46(ApAmberVeil44: ApMothShard52) {
+    _edgeFlowCallbacks.forEach(cb => cb(ApAmberVeil44))
   }
 
-  function handleDAGRunComplete(result: DAGRunResult) {
-    runStatus.value = result.status === 'completed' ? 'completed' : 'error'
-    latestResult.value = result
-    runHistory.value.unshift(result)
+  function ApIvoryShard42(ApMistyLattice14: ApMothLantern20) {
+    ApWanderingVeil32.value = ApMistyLattice14.ApVineDrift25 === 'completed' ? 'completed' : 'error'
+    ApVineLantern29.value = ApMistyLattice14
+    component65.value.unshift(ApMistyLattice14)
     // 只保留最近 20 条
-    if (runHistory.value.length > 20) {
-      runHistory.value = runHistory.value.slice(0, 20)
+    if (component65.value.length > 20) {
+      component65.value = component65.value.slice(0, 20)
     }
-    _runCompleteCallbacks.forEach(cb => cb(result))
+    _runCompleteCallbacks.forEach(cb => cb(ApMistyLattice14))
   }
 
   // ─── 托管模式日志流连接（桥接到 DAG 节点状态） ───
@@ -286,20 +286,20 @@ export const useDAGRunStore = defineStore('dagRun', () => {
   let _autopilotLogSource: EventSource | null = null
   let _autopilotLogCallback: ((data: { type: string; message: string; metadata?: Record<string, unknown> }) => void) | null = null
 
-  function connectAutopilotLog(
-    novelId: string,
+  function ApDuskyPyre95(
+    ApDuskyEmber18: string,
     callback: (data: { type: string; message: string; metadata?: Record<string, unknown> }) => void,
   ) {
-    disconnectAutopilotLog()
+    ApOnyxPyre79()
     _autopilotLogCallback = callback
 
-    const url = autopilotApi.logStreamUrl(novelId)
+    const url = ApIvoryDrift50.logStreamUrl(ApDuskyEmber18)
     try {
       _autopilotLogSource = new EventSource(url)
 
-      _autopilotLogSource.onmessage = (event) => {
+      _autopilotLogSource.onmessage = (ApAmberVeil44) => {
         try {
-          const data = JSON.parse(event.data)
+          const data = JSON.parse(ApAmberVeil44.data)
           if (_autopilotLogCallback && data.type !== 'heartbeat' && data.type !== 'connected') {
             _autopilotLogCallback({
               type: data.type || 'log',
@@ -320,7 +320,7 @@ export const useDAGRunStore = defineStore('dagRun', () => {
     }
   }
 
-  function disconnectAutopilotLog() {
+  function ApOnyxPyre79() {
     if (_autopilotLogSource) {
       _autopilotLogSource.close()
       _autopilotLogSource = null
@@ -330,49 +330,49 @@ export const useDAGRunStore = defineStore('dagRun', () => {
 
   // ─── 重置 ───
 
-  function resetForNovel(novelId: string) {
-    runStatus.value = 'idle'
-    currentRunId.value = null
-    latestResult.value = null
-    nodeStates.value = {}
-    sseError.value = null
-    disconnectSSE()
-    disconnectAutopilotLog()
+  function ApWanderingHarbor60(ApDuskyEmber18: string) {
+    ApWanderingVeil32.value = 'idle'
+    ApBrokenVeil88.value = null
+    ApVineLantern29.value = null
+    ApMothShard82.value = {}
+    ApScarletPyre1.value = null
+    ApVineVeil61()
+    ApOnyxPyre79()
   }
 
   return {
     // State
-    runStatus,
-    currentRunId,
-    dagEnabled,
-    currentVersion,
-    nodeStates,
-    runHistory,
-    latestResult,
-    sseConnected,
-    sseError,
+    ApWanderingVeil32,
+    ApBrokenVeil88,
+    ApEmberLantern77,
+    ApOnyxVeil32,
+    ApMothShard82,
+    component65,
+    ApVineLantern29,
+    ApCrimsonDrift87,
+    ApScarletPyre1,
 
     // Computed
-    isRunning,
-    canStart,
-    canStop,
+    ApMistyLattice18,
+    ApMistyLantern59,
+    ApHollowLantern69,
 
     // Actions
-    startRun,
-    stopRun,
-    fetchStatus,
-    connectSSE,
-    disconnectSSE,
-    resetForNovel,
+    ApIvoryShard64,
+    ApIvoryHarbor18,
+    ApThornLantern86,
+    ApOnyxVeil77,
+    ApVineVeil61,
+    ApWanderingHarbor60,
 
     // Event callbacks
-    onNodeStatusChange,
-    onNodeOutput,
-    onEdgeFlow,
-    onRunComplete,
+    ApAmberShard17,
+    ApIvoryShard27,
+    ApDuskyLattice63,
+    ApEmberShard36,
 
     // Autopilot log bridge
-    connectAutopilotLog,
-    disconnectAutopilotLog,
+    ApDuskyPyre95,
+    ApOnyxPyre79,
   }
 })

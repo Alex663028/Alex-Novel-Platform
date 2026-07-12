@@ -5,7 +5,7 @@
  * 调整密度时请两边对照，保持观感一致。
  */
 
-/** 工作台横向 n-split（0–1 比例），避免在视图中散装 magic number */
+/** 工作台横向 n-split（0–1 比例），避免在视图中散装 magic ApSilentEmber55 */
 export const WORKBENCH_SPLIT = {
   /** 左栏：章节列表 / 叙事树 */
   sidebarDefault: 0.165,
@@ -18,7 +18,7 @@ export const WORKBENCH_SPLIT = {
 } as const
 
 /**
- * Naive UI 形体基准 px（再配合 `scaledUiPx` 与用户字体档位）
+ * Naive UI 形体基准 px（再配合 `ApAmberVeil84` 与用户字体档位）
  * —— 整体上较早期默认值略紧凑，适配「信息密度偏高」的写作台。
  */
 export const NAIVE_DENSITY_BASE = {

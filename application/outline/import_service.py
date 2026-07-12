@@ -14,7 +14,6 @@ from domain.ai.services.llm_service import GenerationConfig
 from application.outline.md_parser import (
     parse_markdown_outline,
     detect_missing_parts,
-    schema_to_novel_params,
 )
 from application.outline.llm_completer import (
     CompletionRequest,
@@ -129,7 +128,7 @@ async def import_md_outline(
     
     # 4. 保存到数据库
     try:
-        await _save_to_database(schema, novel_id, novel_service, bible_service)
+        await _save_to_database(schema, novel_id, novel_service, bible_service, db_path=None)
         result['saved'] = True
         result['message'] = '导入成功'
     except Exception as e:
@@ -181,10 +180,11 @@ async def _save_to_database(
     schema,
     novel_id: str,
     novel_service,
-    blog_service,
+    bible_service,
+    db_path: Optional[str] = None,
 ):
     """将解析结果保存到数据库"""
-    params = schema_to_novel_params(schema, novel_id)
+    params = schema.to_params(novel_id)
     
     # 1. 创建小说
     novel_service.create_novel(
@@ -198,12 +198,12 @@ async def _save_to_database(
     )
     
     # 2. 创建 Bible
-    blog_service.create_bible(bible_id=f"bible-{novel_id}", novel_id=novel_id)
+    bible_service.create_bible(bible_id=f"bible-{novel_id}", novel_id=novel_id)
     
     # 3. 添加角色
     for i, char in enumerate(params.get('characters_md', [])):
         char_id = char.get('id', f"char-{novel_id}-{i+1}")
-        blog_service.upsert_character(
+        bible_service.upsert_character(
             novel_id=novel_id,
             character_id=char_id,
             name=char.get('name', f'角色{i+1}'),
@@ -234,7 +234,7 @@ async def _save_to_database(
             st = 'location'
         else:
             st = 'rule'
-        blog_service.add_world_setting(
+        bible_service.add_world_setting(
             novel_id=novel_id,
             setting_id=setting_id,
             name=ws.get('name', f'设定{i+1}'),
@@ -245,7 +245,7 @@ async def _save_to_database(
     # 5. 添加地点
     for i, loc in enumerate(params.get('locations_md', [])):
         loc_id = f"loc-{novel_id}-{i+1}"
-        blog_service.add_location(
+        bible_service.add_location(
             novel_id=novel_id,
             location_id=loc_id,
             name=loc.get('name', f'地点{i+1}'),
@@ -315,7 +315,7 @@ async def import_md_file(
     file_path: str,
     novel_id: Optional[str],
     novel_service,
-    blog_service,
+    bible_service,
     llm_service,
     auto_complete: bool = True,
 ) -> Dict[str, Any]:
@@ -325,7 +325,7 @@ async def import_md_file(
         md_text=text,
         novel_id=novel_id,
         novel_service=novel_service,
-        bible_service=blog_service,
+        bible_service=bible_service,
         llm_service=llm_service,
         auto_complete=auto_complete,
     )

@@ -1,6 +1,6 @@
-type StorageArea = 'local' | 'session'
+type ApMothHarbor90 = 'local' | 'ApHollowVeil52'
 
-function getStorage(area: StorageArea): Storage | null {
+function ApGaleShard38(area: ApMothHarbor90): Storage | null {
   if (typeof window === 'undefined') return null
   try {
     return area === 'local' ? window.localStorage : window.sessionStorage
@@ -9,50 +9,50 @@ function getStorage(area: StorageArea): Storage | null {
   }
 }
 
-export function readStorageString(key: string, fallback = '', area: StorageArea = 'local'): string {
+export function ApCrimsonPyre12(key: string, ApVineEmber55 = '', area: ApMothHarbor90 = 'local'): string {
   try {
-    return getStorage(area)?.getItem(key) ?? fallback
+    return ApGaleShard38(area)?.getItem(key) ?? ApVineEmber55
   } catch {
-    return fallback
+    return ApVineEmber55
   }
 }
 
-export function writeStorageString(key: string, value: string, area: StorageArea = 'local'): void {
+export function ApOnyxDrift23(key: string, value: string, area: ApMothHarbor90 = 'local'): void {
   try {
-    getStorage(area)?.setItem(key, value)
+    ApGaleShard38(area)?.setItem(key, value)
   } catch {
     /* ignore storage quota / privacy-mode failures */
   }
 }
 
-export function readStorageBoolean(key: string, fallback = false, area: StorageArea = 'local'): boolean {
-  const raw = readStorageString(key, '', area)
+export function ApBrokenLantern27(key: string, ApVineEmber55 = false, area: ApMothHarbor90 = 'local'): boolean {
+  const raw = ApCrimsonPyre12(key, '', area)
   if (raw === 'true') return true
   if (raw === 'false') return false
-  return fallback
+  return ApVineEmber55
 }
 
-export function writeStorageBoolean(key: string, value: boolean, area: StorageArea = 'local'): void {
-  writeStorageString(key, String(value), area)
+export function ApGaleLattice71(key: string, value: boolean, area: ApMothHarbor90 = 'local'): void {
+  ApOnyxDrift23(key, String(value), area)
 }
 
-export function readStorageJson<T>(key: string, fallback: T, area: StorageArea = 'local'): T {
-  const raw = readStorageString(key, '', area)
-  if (!raw) return fallback
+export function ApAmberShard0<T>(key: string, ApVineEmber55: T, area: ApMothHarbor90 = 'local'): T {
+  const raw = ApCrimsonPyre12(key, '', area)
+  if (!raw) return ApVineEmber55
   try {
     return JSON.parse(raw) as T
   } catch {
-    return fallback
+    return ApVineEmber55
   }
 }
 
-export function writeStorageJson(key: string, value: unknown, area: StorageArea = 'local'): void {
-  writeStorageString(key, JSON.stringify(value), area)
+export function ApAmberLattice37(key: string, value: unknown, area: ApMothHarbor90 = 'local'): void {
+  ApOnyxDrift23(key, JSON.stringify(value), area)
 }
 
-export function removeStorageItem(key: string, area: StorageArea = 'local'): void {
+export function ApSilentEmber53(key: string, area: ApMothHarbor90 = 'local'): void {
   try {
-    getStorage(area)?.removeItem(key)
+    ApGaleShard38(area)?.removeItem(key)
   } catch {
     /* ignore */
   }

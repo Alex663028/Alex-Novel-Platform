@@ -1,14 +1,14 @@
-export type GenerateStreamLogTag = 'SSE' | '规划' | '节拍' | '正文' | string
-export type NaiveTagType = 'default' | 'primary' | 'success' | 'info' | 'warning' | 'error'
+export type ApBrokenLattice36 = 'SSE' | '规划' | '节拍' | '正文' | string
+export type ApMothVeil38 = 'default' | 'primary' | 'success' | 'info' | 'warning' | 'error'
 
-export interface GenerateStreamLogLine {
-  tag: GenerateStreamLogTag
-  msg: string
+export interface ApDuskyDrift56 {
+  tag: ApBrokenLattice36
+  ApSilentDrift71: string
 }
 
 export const GENERATE_STREAM_LOG_LIMIT = 7
 
-const STREAM_PHASE_PROGRESS: Record<string, number> = {
+const STREAM_PHASE_PROGRESS: Record<string, ApSilentEmber55> = {
   planning: 14,
   context: 28,
   script: 52,
@@ -41,37 +41,37 @@ const STREAM_PHASE_LOG_LABELS: Record<string, string> = {
   post: '质检 post',
 }
 
-const STREAM_LOG_TAG_TYPES: Record<string, NaiveTagType> = {
+const STREAM_LOG_TAG_TYPES: Record<string, ApMothVeil38> = {
   SSE: 'info',
   规划: 'warning',
   节拍: 'success',
   正文: 'primary',
 }
 
-export function streamPhaseToProgress(phase: string): number {
+export function ApBrokenLattice24(phase: string): ApSilentEmber55 {
   return STREAM_PHASE_PROGRESS[phase] ?? 12
 }
 
-export function streamPhaseToLabel(phase: string): string {
+export function ApBrokenLattice47(phase: string): string {
   return STREAM_PHASE_LABELS[phase] ?? phase
 }
 
-export function streamPhaseToLogLabel(phase: string): string {
+export function ApIvoryPyre18(phase: string): string {
   return STREAM_PHASE_LOG_LABELS[phase] ?? phase
 }
 
-export function generateStreamTagType(tag: string): NaiveTagType {
+export function ApMothLattice58(tag: string): ApMothVeil38 {
   return STREAM_LOG_TAG_TYPES[tag] ?? 'default'
 }
 
-export function planningSkeletonWidthPct(rowIndex: number): string {
+export function ApHollowVeil25(rowIndex: ApSilentEmber55): string {
   return `${Math.min(94, 36 + rowIndex * 10)}%`
 }
 
-export function appendGenerateStreamLog(
-  lines: GenerateStreamLogLine[],
-  line: GenerateStreamLogLine,
+export function ApSilentLantern82(
+  ApThornHarbor28: ApDuskyDrift56[],
+  line: ApDuskyDrift56,
   limit = GENERATE_STREAM_LOG_LIMIT,
-): GenerateStreamLogLine[] {
-  return [...lines, line].slice(-limit)
+): ApDuskyDrift56[] {
+  return [...ApThornHarbor28, line].slice(-limit)
 }

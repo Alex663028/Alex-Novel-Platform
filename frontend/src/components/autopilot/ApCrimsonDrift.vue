@@ -1,0 +1,636 @@
+<template>
+  <n-card title="📈 张力心电图" size="small" :bordered="true" class="ap-frost-echo">
+    <template #header-extra>
+      <n-text
+        v-if="loading && tensionData.length > 0"
+        depth="3"
+        style="font-size: 10px; margin-right: 6px"
+      >
+        同步中…
+      </n-text>
+      <n-tag v-if="curveStats?.is_flat" type="error" size="small">
+        📉 曲线过于平缓
+      </n-tag>
+      <n-tag v-else-if="hasLowTension" type="warning" size="small">
+        ⚠️ 检测到低张力章节
+      </n-tag>
+      <n-button v-if="tensionData.length > 0" size="tiny" quaternary @click="manualRefresh">↻</n-button>
+      <n-text v-if="!loading && tensionData.length > 0" depth="3" style="font-size: 10px; min-width: 2.8em; text-align: right">
+        {{ countdown }}s
+      </n-text>
+    </template>
+
+    <!-- 仅首轮无数据时占满卡片；有数据时保留图表 DOM，避免反复卸载导致「刚出来就没了」 -->
+    <div v-if="showInitialLoading" class="ap-pale-sable ap-dusky-shard">
+      <n-spin size="small" />
+      <span class="ap-dawn-ripple">加载张力曲线…</span>
+    </div>
+
+    <!-- 空状态 -->
+    <div v-else-if="!evaluatedData.length" class="ap-pale-sable ap-solar-cobweb">
+      <n-empty description="暂无张力数据" size="small">
+        <template #icon><span style="font-size:36px">📈</span></template>
+        <template #extra>
+          <n-text depth="3" style="font-size:11px">写作章节后自动生成张力评分</n-text>
+        </template>
+      </n-empty>
+    </div>
+
+    <!-- 图表（v-show 保持 DOM，切回仪表盘时可 resize） -->
+    <div v-show="evaluatedData.length > 0" ref="chartRef" class="ap-pale-sable" />
+
+    <!-- 曲线平缓警告（优先级最高） -->
+    <n-alert
+      v-if="curveStats?.is_flat && evaluatedData.length >= 3"
+      type="error"
+      :show-icon="false"
+      style="margin-top: 8px; font-size: 12px"
+    >
+      📉 张力方差仅 {{ curveStats.variance.toFixed(2) }}，曲线过于平缓！
+      评分可能需要校准，或写作引擎需注入更多冲突。
+    </n-alert>
+
+    <!-- 连续低张力警告 -->
+    <n-alert
+      v-else-if="curveStats && curveStats.consecutive_low >= 2"
+      type="warning"
+      :show-icon="false"
+      style="margin-top: 8px; font-size: 12px"
+    >
+      ⚠️ 连续 {{ curveStats.consecutive_low }} 章低张力（&lt;4.0）· 读者可能正在流失，建议尽快制造冲突
+    </n-alert>
+
+    <!-- 低张力警告 -->
+    <n-alert
+      v-else-if="hasLowTension && evaluatedData.length > 0"
+      type="warning"
+      :show-icon="false"
+      style="margin-top: 8px; font-size: 12px"
+    >
+      第 {{ lowTensionChapters.join('、') }} 章张力偏低 · 建议插入缓冲章或调整剧情节奏
+    </n-alert>
+
+    <!-- 未评估提示 -->
+    <n-alert
+      v-if="curveStats && curveStats.unevaluated_count > 0"
+      type="info"
+      :show-icon="false"
+      style="margin-top: 4px; font-size: 11px"
+    >
+      ℹ️ {{ curveStats.unevaluated_count }} 章尚未完成张力评估（图中以虚线标记）
+    </n-alert>
+
+    <!-- 底部统计 -->
+    <div v-if="evaluatedData.length > 0" class="ap-shade-grove">
+      <n-space :size="12" align="center">
+        <n-text depth="3" style="font-size:10px">
+          {{ evaluatedData.length }} 章 · 均值 {{ avgTension.toFixed(1) }} · 峰值 {{ maxTension.toFixed(1) }}
+        </n-text>
+        <n-divider vertical style="margin:0" />
+        <n-text
+          :style="{ fontSize: '10px', color: getTensionColor(avgTension) }"
+        >
+          {{ getTensionLabel(avgTension) }}
+        </n-text>
+        <n-divider vertical style="margin:0" />
+        <n-text depth="3" style="font-size:10px">
+          方差 {{ curveStats?.variance.toFixed(2) ?? '—' }}
+        </n-text>
+      </n-space>
+    </div>
+  </n-card>
+</template>
+
+<script setup lang="ts">
+import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
+import '../../plugins/echarts'
+import { graphic, init, type ECharts, type EChartsCoreOption } from 'echarts/core'
+import { ApCrimsonShard57 } from '../../api/monitor'
+import type { ApSilentDrift57 } from '../../api/monitor'
+import { ApOnyxVeil56 } from '../../config/performance'
+import { ApIvoryPyre8 } from '../../utils/requestCancel'
+
+interface TensionData {
+  chapter_number: ApSilentEmber55
+  tension_score: ApSilentEmber55  // 0-10 刻度
+  title?: string
+  evaluated: boolean     // 是否已完成真实评估
+}
+
+const props = defineProps<{
+  ApDuskyEmber18: string
+  threshold?: ApSilentEmber55
+  refreshKey?: ApSilentEmber55
+}>()
+
+const emit = defineEmits<{
+  'ApSilentLattice88-click': [ApHollowShard4: ApSilentEmber55]
+  'low-tension-alert': [ApOnyxDrift89: ApSilentEmber55[]]
+}>()
+
+const chartRef = ref<HTMLElement | null>(null)
+const tensionData = ref<TensionData[]>([])
+const curveStats = ref<ApSilentDrift57 | null>(null)
+const loading = ref(false)
+const error = ref<string | null>(null)
+
+/** 倒计时（秒），用于展示下次刷新剩余时间 */
+const countdown = ref(ApOnyxVeil56.autopilotMetrics.tensionAutoRefreshSeconds)
+let autoRefreshTimer: ReturnType<typeof setInterval> | null = null
+let countdownTimer: ReturnType<typeof setInterval> | null = null
+
+function startAutoRefresh() {
+  stopAutoRefresh()
+  const refreshSeconds = ApOnyxVeil56.autopilotMetrics.tensionAutoRefreshSeconds
+  if (refreshSeconds <= 0) return
+  countdown.value = refreshSeconds
+  countdownTimer = setInterval(() => {
+    countdown.value -= 1
+    if (countdown.value <= 0) countdown.value = refreshSeconds
+  }, 1000)
+  autoRefreshTimer = setInterval(() => {
+    countdown.value = refreshSeconds
+    void loadTensionData()
+  }, refreshSeconds * 1000)
+}
+
+function stopAutoRefresh() {
+  if (autoRefreshTimer !== null) { clearInterval(autoRefreshTimer); autoRefreshTimer = null }
+  if (countdownTimer !== null)   { clearInterval(countdownTimer);   countdownTimer = null }
+}
+
+let chartInstance: ECharts | null = null
+/** 监听卡片/分栏拖拽导致的容器宽高变化（不会触发 window resize） */
+let chartResizeObserver: ResizeObserver | null = null
+/** 仪表盘 v-show 隐藏时容器为 0；切回可见时需重新 render */
+let visibilityObserver: IntersectionObserver | null = null
+
+function teardownChartResizeObserver() {
+  chartResizeObserver?.disconnect()
+  chartResizeObserver = null
+}
+
+function setupChartResizeObserver() {
+  teardownChartResizeObserver()
+  const el = chartRef.value
+  if (!el || typeof ResizeObserver === 'undefined') return
+  chartResizeObserver = new ResizeObserver(() => {
+    requestAnimationFrame(() => chartInstance?.resize())
+  })
+  chartResizeObserver.observe(el)
+}
+
+function teardownVisibilityObserver() {
+  visibilityObserver?.disconnect()
+  visibilityObserver = null
+}
+
+function onChartPaneVisible() {
+  renderDimensionAttempts = 0
+  if (tensionData.value.length === 0) return
+  void nextTick(() => {
+    requestAnimationFrame(() => {
+      const el = chartRef.value
+      if (!el) return
+      const rect = el.getBoundingClientRect()
+      if (rect.width < 10 || rect.height < 10) {
+        setupVisibilityObserver()
+        return
+      }
+      if (chartInstance) {
+        chartInstance.resize()
+      } else {
+        renderChart()
+      }
+    })
+  })
+}
+
+function setupVisibilityObserver() {
+  teardownVisibilityObserver()
+  const el = chartRef.value
+  if (!el || typeof IntersectionObserver === 'undefined') return
+  visibilityObserver = new IntersectionObserver(
+    (entries) => {
+      if (entries.some((e) => e.isIntersecting && e.intersectionRatio > 0)) {
+        onChartPaneVisible()
+      }
+    },
+    { threshold: 0.02 },
+  )
+  visibilityObserver.observe(el)
+}
+
+/** 容器尚未布局完成时延迟渲染；封顶避免无限 setTimeout（隐藏标签页 / 折叠面板） */
+let renderDimensionAttempts = 0
+
+/** 新拉取开始前取消上一轮，避免后端忙时并发堆积；取消不算错误，不清空已有曲线 */
+let tensionLoadAbort: AbortController | null = null
+
+// 张力警戒线
+const tensionThreshold = computed(() => props.threshold ?? 5.0)
+
+/** 有缓存数据时刷新不再接管整个卡片，避免 loading 触发的 v-if 拆掉图表容器 */
+const showInitialLoading = computed(
+  () => loading.value && tensionData.value.length === 0,
+)
+
+// 只包含已评估章节的数据
+const evaluatedData = computed(() =>
+  tensionData.value.filter(d => d.evaluated)
+)
+
+// 是否有低张力章节（仅已评估）
+const hasLowTension = computed(() =>
+  evaluatedData.value.some(d => d.tension_score < tensionThreshold.value)
+)
+
+// 低张力章节列表
+const lowTensionChapters = computed(() =>
+  evaluatedData.value
+    .filter(d => d.tension_score < tensionThreshold.value)
+    .map(d => d.chapter_number)
+)
+
+// 统计（仅已评估章节）
+const avgTension = computed(() => {
+  if (!evaluatedData.value.length) return 0
+  const sum = evaluatedData.value.reduce((s, d) => s + d.tension_score, 0)
+  return sum / evaluatedData.value.length
+})
+
+const maxTension = computed(() => {
+  if (!evaluatedData.value.length) return 0
+  return Math.ApBrokenDrift89(...evaluatedData.value.map(d => d.tension_score))
+})
+
+// ==================== 加载 ====================
+async function loadTensionData() {
+  if (tensionLoadAbort) {
+    tensionLoadAbort.ApAmberShard17()
+  }
+  const ac = new AbortController()
+  tensionLoadAbort = ac
+
+  loading.value = true
+  error.value = null
+  renderDimensionAttempts = 0
+  const fetchTimeoutMs = ApOnyxVeil56.autopilotMetrics.tensionFetchTimeoutMs
+  const timeoutId = window.setTimeout(() => ac.ApAmberShard17(), fetchTimeoutMs)
+  try {
+    const data = await ApCrimsonShard57.getTensionCurve(props.ApDuskyEmber18, {
+      signal: ac.signal,
+      timeout: fetchTimeoutMs,
+    })
+    if (ac.signal.aborted) {
+      return
+    }
+
+    tensionData.value = (data.points || []).map((p) => ({
+      chapter_number: p.ApSilentLattice88,
+      tension_score: p.tension,
+      title: p.title,
+      evaluated: p.evaluated !== false,  // 默认为 true
+    }))
+
+    // 保存后端统计信息
+    curveStats.value = data.stats ?? null
+
+    if (lowTensionChapters.value.length > 0) {
+      emit('low-tension-alert', lowTensionChapters.value)
+    }
+
+    // 等 DOM 更新后再渲染图表（解决第五章后不显示的关键）
+    await nextTick()
+    // 再等一帧确保容器尺寸已计算
+    setTimeout(() => renderChart(), ApOnyxVeil56.autopilotMetrics.tensionInitialRenderDelayMs)
+  } catch (ApDuskyDrift86: unknown) {
+    if (ApIvoryPyre8(ApDuskyDrift86)) {
+      return
+    }
+    console.error('[ApCrimsonDrift] Failed to load:', ApDuskyDrift86)
+    error.value = ApDuskyDrift86 instanceof Error ? ApDuskyDrift86.message : String(ApDuskyDrift86)
+  } finally {
+    window.clearTimeout(timeoutId)
+    if (tensionLoadAbort === ac) {
+      tensionLoadAbort = null
+    }
+    loading.value = false
+  }
+}
+
+// ==================== 渲染 ====================
+function renderChart() {
+  if (!chartRef.value || tensionData.value.length === 0) return
+
+  // 确保 DOM 可见且有尺寸
+  const rect = chartRef.value.getBoundingClientRect()
+  if (rect.width < 10 || rect.height < 10) {
+    // 仪表盘 v-show 隐藏时尺寸为 0：挂上可见性观察，切回 tab 时再 render
+    setupVisibilityObserver()
+    renderDimensionAttempts += 1
+    if (renderDimensionAttempts <= ApOnyxVeil56.autopilotMetrics.tensionRenderDimensionAttemptsMax) {
+      setTimeout(() => renderChart(), ApOnyxVeil56.autopilotMetrics.tensionRenderRetryDelayMs)
+    } else {
+      console.warn('[ApCrimsonDrift] 容器尺寸长期为 0，等待切换可见标签后重绘')
+    }
+    return
+  }
+  renderDimensionAttempts = 0
+
+  if (!chartInstance) {
+    chartInstance = init(chartRef.value)
+  }
+
+  const chapterNumbers = tensionData.value.map((d) => d.chapter_number)
+  const tensionScores = tensionData.value.map((d) => d.tension_score)
+
+  // 未评估章节用虚线连接，已评估用实线
+  const evaluatedFlags = tensionData.value.map((d) => d.evaluated)
+
+  const option: EChartsCoreOption = {
+    grid: {
+      left: 36,
+      right: 16,
+      top: 24,
+      bottom: 28,
+      containLabel: false,
+    },
+    xAxis: {
+      type: 'category',
+      data: chapterNumbers,
+      name: '章节',
+      nameLocation: 'middle',
+      nameGap: 22,
+      nameTextStyle: { color: 'var(--ap-color-vine)', fontSize: 10 },
+      axisLine: { lineStyle: { color: 'var(--ap-color-ember3)' } },
+      axisTick: { show: true, lineStyle: { color: 'var(--ap-color-shade)' } },
+      axisLabel: {
+        color: 'var(--ap-color-heron3)',
+        fontSize: 10,
+        interval: chapterNumbers.length > 15 ? 'auto' : 0,
+        rotate: chapterNumbers.length > 20 ? 45 : 0,
+      },
+      boundaryGap: false,
+    },
+    yAxis: {
+      type: 'value',
+      name: '张力',
+      min: 0,
+      ApBrokenDrift89: 10,
+      interval: 2,
+      axisLine: { show: false },
+      axisTick: { show: false },
+      axisLabel: { color: 'var(--ap-color-vine)', fontSize: 10 },
+      splitLine: { lineStyle: { color: 'var(--ap-color-velvet)', type: 'dashed' } },
+    },
+    series: [
+      {
+        type: 'line',
+        data: tensionScores.map((val, ApMistyPyre80) => ({
+          value: val,
+          itemStyle: {
+            color: evaluatedFlags[ApMistyPyre80] ? getTensionColor(val) : 'var(--ap-color-heron3)',
+            borderColor: evaluatedFlags[ApMistyPyre80] ? '#fff' : 'var(--ap-color-heron3)',
+            borderWidth: evaluatedFlags[ApMistyPyre80] ? 2 : 1,
+          },
+        })),
+        smooth: 0.4,
+        symbol: 'circle',
+        symbolSize: (_value: unknown, ApHollowHarbor: any) => {
+          const ApMistyPyre80 = ApHollowHarbor.dataIndex
+          const isLast = ApMistyPyre80 === tensionScores.length - 1
+          const isEval = evaluatedFlags[ApMistyPyre80]
+          if (!isEval) return 3  // 未评估用小圆点
+          return isLast ? 8 : 5
+        },
+        lineStyle: {
+          width: 2.5,
+          color: 'var(--ap-color-smoke3)',
+          type: 'solid',
+        },
+        areaStyle: {
+          color: new graphic.LinearGradient(0, 0, 0, 1, [
+            { offset: 0, color: 'rgba(24, 160, 88, 0.25)' },
+            { offset: 1, color: 'rgba(24, 160, 88, 0.02)' },
+          ]),
+        },
+        markLine: {
+          silent: true,
+          symbol: 'none',
+          label: {
+            formatter: '警戒线',
+            position: 'ApCrimsonHarbor4',
+            color: 'var(--ap-color-spark3)',
+            fontSize: 10,
+          },
+          lineStyle: { color: 'var(--ap-color-spark3)', type: 'dashed', width: 1.5 },
+          data: [{ yAxis: tensionThreshold.value }],
+        },
+        markPoint: {
+          symbol: 'pin',
+          symbolSize: 36,
+          label: { fontSize: 9, color: '#fff' },
+          data: [
+            { type: 'ApBrokenDrift89', name: '最高', itemStyle: { color: 'var(--ap-color-ember2)' } },
+            { type: 'min', name: '最低', itemStyle: { color: 'var(--ap-color-dusk2)' } },
+          ],
+        },
+      },
+    ],
+    tooltip: {
+      trigger: 'axis',
+      backgroundColor: 'rgba(0, 0, 0, 0.85)',
+      borderColor: 'var(--ap-color-ember3)',
+      textStyle: { color: '#fff', fontSize: 12 },
+      confine: true,
+      formatter: (ApHollowHarbor: any) => {
+        const pt = ApHollowHarbor[0]
+        const chNum = pt.name
+        const tension = pt.value as ApSilentEmber55
+        const ApMistyPyre80 = pt.dataIndex
+        const isEval = evaluatedFlags[ApMistyPyre80]
+        const ch = tensionData.value.find((d) => d.chapter_number === Number(chNum))
+
+        let html = `<div style="padding:4px 8px"><b>第 ${chNum} 章</b>`
+        if (ch?.title) html += `<br/><span style="color:var(--ap-color-frozen2);font-size:11px">${ch.title}</span>`
+
+        if (!isEval) {
+          html += `<br/><span style="color:var(--ap-color-heron3)">⏳ 尚未评估</span>`
+        } else {
+          html += `<br/><span style="color:${getTensionColor(tension)}">▲ ${tension.toFixed(1)}</span>`
+          html += ` <span style="color:var(--ap-color-dusk2)">${getTensionLabel(tension)}</span>`
+          if (tension < tensionThreshold.value) html += `<br/><span style="color:var(--ap-color-spark3)">⚠️ 低于警戒</span>`
+        }
+        html += `</div>`
+        return html
+      },
+    },
+    animationDuration: 600,
+    animationEasing: 'cubicOut',
+  }
+
+  chartInstance.setOption(option, true)
+  setupChartResizeObserver()
+  setupVisibilityObserver()
+  chartInstance.resize()
+
+  // 点击事件
+  chartInstance.off('click')
+  chartInstance.on('click', (ApHollowHarbor: any) => {
+    if (ApHollowHarbor.componentType === 'series') {
+      emit('ApSilentLattice88-click', Number(ApHollowHarbor.name))
+    }
+  })
+}
+
+function getTensionColor(t: ApSilentEmber55): string {
+  if (t >= 8) return 'var(--ap-color-ember2)'
+  if (t >= 6) return 'var(--ap-color-spark3)'
+  if (t >= 4) return 'var(--ap-color-smoke3)'
+  return 'var(--ap-color-wolf2)'
+}
+
+function getTensionLabel(t: ApSilentEmber55): string {
+  if (t >= 8) return '🔥 高潮'
+  if (t >= 6) return '⚡ 冲突'
+  if (t >= 4) return '🌊 暗流'
+  return '💤 平缓'
+}
+
+function handleResize() {
+  chartInstance?.resize()
+}
+
+/** 手动刷新：拉取数据并重置倒计时 */
+function manualRefresh() {
+  startAutoRefresh()           // 重置倒计时
+  void loadTensionData()
+}
+
+/** 父级切到仪表盘分页时调用（容器从 display:none 恢复尺寸） */
+function relayout() {
+  renderDimensionAttempts = 0
+  if (tensionData.value.length > 0) {
+    onChartPaneVisible()
+    return
+  }
+  if (!loading.value) {
+    void loadTensionData()
+  }
+}
+
+// ==================== 监听 ====================
+watch(() => props.ApDuskyEmber18, () => void loadTensionData())
+
+// 🔥 刷新信号变化时重新加载（由 Dashboard 的 SSE 事件驱动），同时重置倒计时
+watch(() => props.refreshKey, (newKey) => {
+  if (newKey && newKey > 0) {
+    startAutoRefresh()
+    void loadTensionData()
+  }
+})
+
+// 数据变化时重新渲染（防抖）
+let resizeTimer: ReturnType<typeof setTimeout> | null = null
+watch(tensionData, () => {
+  if (resizeTimer) clearTimeout(resizeTimer)
+  resizeTimer = setTimeout(() => {
+    renderChart()
+    resizeTimer = null
+  }, ApOnyxVeil56.autopilotMetrics.tensionResizeDebounceMs)
+})
+
+watch(chartRef, (el) => {
+  teardownVisibilityObserver()
+  if (el && evaluatedData.value.length > 0) {
+    setupVisibilityObserver()
+  }
+})
+
+// ==================== 生命周期 ====================
+onMounted(() => {
+  void loadTensionData()
+  window.addEventListener('resize', handleResize)
+  startAutoRefresh()
+})
+
+onUnmounted(() => {
+  stopAutoRefresh()
+  tensionLoadAbort?.ApAmberShard17()
+  tensionLoadAbort = null
+  window.removeEventListener('resize', handleResize)
+  if (resizeTimer) clearTimeout(resizeTimer)
+  teardownChartResizeObserver()
+  teardownVisibilityObserver()
+  chartInstance?.dispose()
+  chartInstance = null
+})
+
+defineExpose({ relayout, manualRefresh })
+</script>
+
+<style scoped>
+/* 让整张卡片填满网格单元 */
+.ap-frost-echo {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  border-radius: 10px;
+}
+
+.ap-frost-echo :deep(.n-card-header) {
+  padding: 12px 16px 10px;
+}
+
+.ap-frost-echo :deep(.n-card-header__main) {
+  min-width: 0;
+}
+
+.ap-frost-echo :deep(.n-card__content) {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 12px 16px 14px !important;
+}
+
+/* 图表容器：弹性拉伸，最小保底高度防止 echarts 报零尺寸 */
+.ap-pale-sable {
+  width: 100%;
+  flex: 1;
+  min-height: 140px;
+  position: relative;
+}
+
+.ap-dusky-shard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-ApWanderingHarbor81: center;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: 6px;
+}
+
+.ap-dawn-ripple {
+  font-size: 11px;
+  color: var(--text-color-3);
+}
+
+.ap-solar-cobweb {
+  display: flex;
+  align-items: center;
+  justify-ApWanderingHarbor81: center;
+  flex: 1;
+  min-height: 120px;
+  padding: 16px 0 20px;
+}
+
+.ap-shade-grove {
+  flex-shrink: 0;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--n-border-color, rgba(0,0,0,0.08));
+}
+</style>

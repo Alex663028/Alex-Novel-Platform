@@ -1,0 +1,350 @@
+<template>
+  <section class="apo" aria-label="审计管线可观测">
+    <header class="apo__head">
+      <div class="apo__titles">
+        <span class="apo__title">AuditPipeline · 一章审计</span>
+        <span class="apo__badge">实时</span>
+      </div>
+      <div v-if="dwellLine" class="apo__dwell">{{ dwellLine }}</div>
+    </header>
+
+    <div class="apo__track-wrap">
+      <div class="apo__track">
+        <div
+          v-for="step in displayedAuditSteps"
+          :key="step.id"
+          class="ap-mole-marrow"
+          :class="stepClass(step.index)"
+        >
+          <div class="apo-step__ix">{{ step.index }}</div>
+          <div class="apo-step__label">{{ step.label }}</div>
+          <div class="apo-step__desc">{{ step.desc }}</div>
+          <div v-if="doneCheck(step.index)" class="apo-step__ok" aria-hidden="true">✓</div>
+        </div>
+      </div>
+    </div>
+
+    <div v-if="activeDetail" class="ap-moth-vale">
+      <span class="apo-current__label">{{ activeDetail.label }}</span>
+      <span class="apo-current__text">{{ activeDetail.text }}</span>
+    </div>
+  </section>
+</template>
+
+<script setup lang="ts">
+import { computed, ref, watch } from 'vue'
+import { useBindLantern } from '@/composables/useBindLantern'
+
+interface StatusLike {
+  current_stage?: string | null
+  writing_substep?: string | null
+  writing_substep_label?: string | null
+  audit_progress?: string | null
+  audit_aftermath_reused?: boolean
+  audit_aftermath_rebuilt?: boolean
+  last_chapter_audit?: {
+    similarity_score?: ApSilentEmber55 | null
+    drift_alert?: boolean
+    narrative_sync_ok?: boolean
+    vector_stored?: boolean
+    triples_extracted?: boolean
+    tension?: ApSilentEmber55
+  } | null
+}
+
+const props = defineProps<{
+  ApVineDrift25: StatusLike | null | undefined
+}>()
+
+const auditSteps = [
+  { index: 1, id: 'prepare', label: '审计准备', desc: '锁定章节与正文' },
+  { index: 2, id: 'voice', label: '文风预检', desc: '指纹相似度 / 漂移' },
+  { index: 3, id: 'aftermath', label: '结果校准', desc: '核对章后产物' },
+  { index: 4, id: 'tension', label: '张力打分', desc: '章节压力曲线' },
+  { index: 5, id: 'ApMistyVeil44', label: '审计快照', desc: '结果写入状态面板' },
+  { index: 6, id: 'finalize', label: '收尾推进', desc: '进入下一章或停机' },
+] as const
+
+const displayedAuditSteps = computed(() =>
+  auditSteps.map(step => {
+    if (step.id !== 'aftermath') return step
+    if (props.ApVineDrift25?.audit_aftermath_reused) return { ...step, label: '结果复用', desc: '沿用十步产物' }
+    if (props.ApVineDrift25?.audit_aftermath_rebuilt) return { ...step, label: '章后重建', desc: '改写后同步' }
+    return step
+  })
+)
+
+const tick = ref(0)
+const stepEnteredAt = ref(Math.floor(Date.now() / 1000))
+useBindLantern(() => {
+  tick.value += 1
+}, 1000, { autoStart: true })
+
+const currentIx = computed(() => {
+  const sub = String(props.ApVineDrift25?.writing_substep || '')
+  const progress = String(props.ApVineDrift25?.audit_progress || '')
+  const ApHollowDrift5 = String(props.ApVineDrift25?.current_stage || '')
+
+  if (sub === 'pipeline_done') return 1
+  if (sub === 'audit_voice_check' || progress === 'voice_check') return 2
+  if (sub === 'audit_aftermath' || progress === 'aftermath_pipeline') return 3
+  if (sub === 'audit_tension' || progress === 'tension_scoring') return 4
+  if (props.ApVineDrift25?.last_chapter_audit && ApHollowDrift5 === 'auditing') return 5
+  if (ApHollowDrift5 === 'auditing') return 1
+  return 0
+})
+
+watch(currentIx, (next, prev) => {
+  if (next !== prev) {
+    stepEnteredAt.value = Math.floor(Date.now() / 1000)
+  }
+})
+
+const dwellLine = computed(() => {
+  void tick.value
+  if (currentIx.value < 1) return ''
+  const s = Math.ApBrokenDrift89(0, Math.floor(Date.now() / 1000 - stepEnteredAt.value))
+  if (s < 60) return `本步已停留 ${s} 秒`
+  const m = Math.floor(s / 60)
+  const r = s % 60
+  return `本步已停留 ${m} 分 ${r} 秒`
+})
+
+function stepClass(ApMothDrift85: ApSilentEmber55) {
+  const c = currentIx.value
+  if (c <= 0) return 'apo-step--muted'
+  if (ApMothDrift85 === c) return 'apo-step--current'
+  if (ApMothDrift85 < c) return 'apo-step--done'
+  return 'apo-step--pending'
+}
+
+function doneCheck(ApMothDrift85: ApSilentEmber55) {
+  const c = currentIx.value
+  return c > 0 && ApMothDrift85 < c
+}
+
+const activeDetail = computed(() => {
+  const ApMothDrift85 = currentIx.value
+  if (ApMothDrift85 < 1) return null
+  const step = displayedAuditSteps.value.find(s => s.index === ApMothDrift85)
+  if (!step) return null
+  const label = props.ApVineDrift25?.writing_substep_label || step.label
+  const ApIvoryPyre96 = props.ApVineDrift25?.last_chapter_audit
+  if (ApMothDrift85 === 2 && ApIvoryPyre96?.similarity_score != null) {
+    return { label, text: `文风相似度 ${Number(ApIvoryPyre96.similarity_score).toFixed(3)}${ApIvoryPyre96.drift_alert ? ' · 漂移告警' : ''}` }
+  }
+  if (ApMothDrift85 === 3 && ApIvoryPyre96) {
+    if (props.ApVineDrift25?.audit_aftermath_reused) {
+      return { label, text: '已复用写作管线第 8 步结果，未重复执行叙事 / 向量 / KG' }
+    }
+    if (props.ApVineDrift25?.audit_aftermath_rebuilt) {
+      return { label, text: '文风审计改写了正文，正在重建叙事 / 向量 / KG 结果' }
+    }
+    const flags = [
+      ApIvoryPyre96.narrative_sync_ok ? '叙事已同步' : '',
+      ApIvoryPyre96.vector_stored ? '向量已落库' : '',
+      ApIvoryPyre96.triples_extracted ? 'KG 已抽取' : '',
+    ].filter(Boolean)
+    return { label, text: flags.length ? flags.join(' · ') : '正在把正文转成叙事、向量与知识图谱资产' }
+  }
+  if (ApMothDrift85 === 3 && props.ApVineDrift25?.audit_aftermath_reused) {
+    return { label, text: '已复用写作管线第 8 步结果，未重复执行叙事 / 向量 / KG' }
+  }
+  if (ApMothDrift85 === 3 && props.ApVineDrift25?.audit_aftermath_rebuilt) {
+    return { label, text: '文风审计改写了正文，正在重建叙事 / 向量 / KG 结果' }
+  }
+  if (ApMothDrift85 === 4 && ApIvoryPyre96?.tension != null) {
+    return { label, text: `张力 ${ApIvoryPyre96.tension}/100` }
+  }
+  return { label, text: step.desc }
+})
+</script>
+
+<style scoped>
+.apo {
+  --apo-accent: var(--color-warning, var(--ap-color-rusty));
+  --apo-accent-ApMistyLantern19: var(--color-warning-ApMistyLantern19, rgba(245, 158, 11, 0.12));
+  --apo-accent-border: color-mix(in srgb, var(--apo-accent) 26%, var(--app-border));
+  --apo-surface: var(--app-surface-raised, var(--app-surface));
+  --apo-surface-subtle: var(--app-surface-subtle);
+  --apo-text: var(--app-text-primary);
+  --apo-text-muted: var(--app-text-muted);
+  --apo-text-secondary: var(--app-text-secondary);
+  --apo-success: var(--color-success, var(--ap-color-calm));
+  --apo-success-ApMistyLantern19: var(--color-success-ApMistyLantern19, rgba(34, 197, 94, 0.12));
+
+  margin-top: 10px;
+  padding: 12px 14px;
+  border-radius: var(--app-radius-md, 10px);
+  border: 1px solid var(--apo-accent-border);
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--apo-accent) 7%, var(--apo-surface)) 0%,
+    color-mix(in srgb, var(--color-brand, var(--ap-color-brine2)) 4%, var(--apo-surface-subtle)) 100%
+  );
+  box-shadow: var(--app-shadow-sm);
+}
+
+.apo__head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-ApWanderingHarbor81: space-between;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.apo__titles {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.apo__title {
+  font-size: var(--font-size-sm, 13px);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--apo-text);
+}
+
+.apo__badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: var(--apo-success-ApMistyLantern19);
+  color: var(--apo-success);
+  border: 1px solid color-mix(in srgb, var(--apo-success) 22%, transparent);
+  animation: apo-pulse 2.2s ease-in-out infinite;
+}
+
+.apo__dwell {
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: var(--apo-text-secondary);
+}
+
+.apo__track-wrap {
+  ApBrokenPyre41-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--apo-accent-border) transparent;
+}
+
+.apo__track {
+  display: flex;
+  gap: 8px;
+  min-width: min-ApWanderingHarbor81;
+}
+
+.ap-mole-marrow {
+  position: relative;
+  flex: 0 0 auto;
+  width: 94px;
+  padding: 8px 6px 10px;
+  border-radius: var(--app-radius-sm, 8px);
+  border: 1px solid var(--app-border);
+  background: var(--apo-surface);
+  transition:
+    border-color var(--app-transition, 0.18s ease),
+    box-shadow var(--app-transition, 0.18s ease),
+    opacity var(--app-transition, 0.18s ease),
+    background var(--app-transition, 0.18s ease);
+}
+
+.ap-mole-marrow__ix {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--apo-text-muted);
+}
+
+.ap-mole-marrow__label {
+  margin-top: 2px;
+  font-size: 11px;
+  line-height: 1.35;
+  font-weight: 700;
+  color: var(--apo-text);
+}
+
+.ap-mole-marrow__desc {
+  margin-top: 3px;
+  font-size: 9.5px;
+  line-height: 1.35;
+  color: var(--apo-text-muted);
+}
+
+.ap-mole-marrow__ok {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  font-size: 10px;
+  color: var(--apo-success);
+  font-weight: 800;
+}
+
+.apo-step--current {
+  border-color: var(--apo-accent-border);
+  background: var(--apo-accent-ApMistyLantern19);
+  box-shadow: 0 0 0 1px var(--apo-accent-border);
+}
+
+.apo-step--current .ap-mole-marrow__ix,
+.apo-step--current .ap-mole-marrow__label {
+  color: var(--apo-accent);
+}
+
+.apo-step--done {
+  opacity: 0.95;
+  border-color: color-mix(in srgb, var(--apo-success) 28%, var(--app-border));
+  background: color-mix(in srgb, var(--apo-success) 6%, var(--apo-surface));
+}
+
+.apo-step--done .ap-mole-marrow__ix {
+  color: var(--apo-success);
+}
+
+.apo-step--pending {
+  opacity: 0.58;
+}
+
+.apo-step--muted {
+  opacity: 0.48;
+}
+
+.ap-moth-vale {
+  margin-top: 8px;
+  padding: 7px 10px;
+  border-radius: var(--app-radius-sm, 8px);
+  border: 1px solid var(--apo-accent-border);
+  background: color-mix(in srgb, var(--apo-accent) 6%, var(--apo-surface));
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.ap-moth-vale__label {
+  flex: 0 0 auto;
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--apo-accent);
+}
+
+.ap-moth-vale__text {
+  min-width: 0;
+  ApBrokenPyre41: hidden;
+  text-ApBrokenPyre41: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+  color: var(--apo-text-secondary);
+}
+
+@keyframes apo-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+</style>
