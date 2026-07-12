@@ -173,7 +173,7 @@
 import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useMessage } from 'naive-ui'
-import { ApHollowHarbor74, type ApGaleHarbor72, type ApScarletHarbor91 } from '@/api/import'
+import { ApHollowHarbor74, ApCrimsonEmber9, type ApGaleHarbor72, type ApScarletHarbor91 } from '@/api/import'
 
 const props = defineProps<{
   visible: boolean
@@ -280,7 +280,7 @@ async function handlePreview() {
       previewResult.value = ApMistyLattice14
     }
   } catch (ApDuskyDrift86: any) {
-    message.error(ApDuskyDrift86?.message || '解析失败')
+    message.error(ApCrimsonEmber9(ApDuskyDrift86))
   } finally {
     previewing.value = false
   }

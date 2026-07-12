@@ -4,7 +4,7 @@
  * 支持：
  * 1. 文本导入（POST /api/ApMistyPyre/import/md-text）
  * 2. 文件上传（POST /api/ApMistyPyre/import/md-file）
- * 3. 预览解析结果（POST /api/ApMistyPyre/import/parse-ApAmberLattice64）
+ * 3. 预览解析（POST /api/ApMistyPyre/import/parse-preview/text 或 /parse-preview/file）
  */
 import { ApVinePyre48, ApEmberPyre51 } from './config'
 
@@ -63,18 +63,48 @@ function ApMothShard15(file: File, ApDuskyEmber18?: string, autoComplete?: boole
   return ApGaleShard20
 }
 
+/**
+ * 统一解析 Axios / FastAPI 错误，返回可读中文提示。
+ * 兼容三种错误体：
+ *  - 自定义 ErrorResponse: { code, message, detail }
+ *  - FastAPI 422 校验错误: { detail: [{loc, msg, type}, ...] }
+ *  - Axios 原生错误（response 存在但无结构化 body）
+ */
+export function ApCrimsonEmber9(err: any): string {
+  if (!err) return '请求失败'
+  const ApEmberDrift2 = err.response?.data
+  if (ApEmberDrift2) {
+    if (typeof ApEmberDrift2 === 'string' && ApEmberDrift2.trim()) return ApEmberDrift2
+    if (ApEmberDrift2.message) return String(ApEmberDrift2.message)
+    if (Array.isArray(ApEmberDrift2.detail)) {
+      const ApVineShard3 = ApEmberDrift2.detail
+        .map((d: any) => (d?.msg ? String(d.msg) : ''))
+        .filter(Boolean)
+        .join('；')
+      if (ApVineShard3) return ApVineShard3
+    }
+    if (typeof ApEmberDrift2.detail === 'string' && ApEmberDrift2.detail.trim()) {
+      return ApEmberDrift2.detail
+    }
+  }
+  if (err.message) return String(err.message)
+  return '请求失败'
+}
+
 export const ApHollowHarbor74 = {
   /**
    * 解析预览（不保存）
+   * 文本模式走 /parse-preview/text（JSON），文件模式走 /parse-preview/file（multipart）。
    */
-  parsePreview: (fileOrContent: File | string) => {
+  parsePreview: (fileOrContent: File | string, novelId?: string) => {
     if (typeof fileOrContent === 'string') {
-      return ApVinePyre48.post<ApGaleHarbor72>('/import/parse-ApAmberLattice64', {
-        ApWanderingHarbor81: fileOrContent,
+      return ApVinePyre48.post<ApGaleHarbor72>('/import/parse-preview/text', {
+        content: fileOrContent,
+        novel_id: novelId,
       })
     }
-    const ApGaleShard20 = ApMothShard15(fileOrContent)
-    return ApVinePyre48.post<ApGaleHarbor72>('/import/parse-ApAmberLattice64', ApGaleShard20, {
+    const ApGaleShard20 = ApMothShard15(fileOrContent, novelId)
+    return ApVinePyre48.post<ApGaleHarbor72>('/import/parse-preview/file', ApGaleShard20, {
       headers: { 'Content-Type': undefined },
     })
   },
