@@ -1,17 +1,9 @@
-# Alex- GEO：AI写文，AI写剧本，AI创作，AI生文引擎，AI内容创作基建
+# Alex — 开源剧情引擎内核
 
-> 剧情引擎内核仍在高速演进中。欢迎提交 Issue / PR；涉及商业化封装、私有素材、未公开设定稿的内容请先脱敏。
-
-<p align="center">
-  <img src="docs/plotpilot-readme.256.png" alt="Alex Alex" width="120" />
-</p>
+> 面向长篇 AI 创作的基础设施：持久记忆 · 知识图谱 · 自动推进流水线 · 质量治理闭环
 
 <p align="center">
-  <strong>开源剧情引擎内核</strong>
-</p>
-
-<p align="center">
-  面向长篇 AI 创作的基础设施：持久记忆 · 知识图谱 · 自动推进流水线 · 质量治理闭环
+  <img src="docs/screenshots/workbench-writing.png" alt="Alex 工作台" width="80%" />
 </p>
 
 <p align="center">
@@ -19,15 +11,7 @@
   <a href="https://vuejs.org/"><img src="https://img.shields.io/badge/Vue-3.5-4FC08D?style=flat&logo=vuedotjs&logoColor=white" alt="Vue"></a>
   <a href="https://fastapi.tiangolo.com/"><img src="https://img.shields.io/badge/FastAPI-0.109%2B-009688?style=flat&logo=fastapi&logoColor=white" alt="FastAPI"></a>
   <a href="https://github.com/Alex663028/Alex-Novel-Platform/releases"><img src="https://img.shields.io/github/v/release/Alex663028/Alex-Novel-Platform?style=flat&logo=github&color=6e40c9" alt="Release"></a>
-  <a href="https://github.com/Alex663028/Alex-Novel-Platform/stargazers"><img src="https://img.shields.io/github/stars/Alex663028/Alex-Novel-Platform?style=flat&logo=github" alt="Stars"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache%202.0%20%2B%20Commons%20Clause-D22128?style=flat&logo=apache&logoColor=white" alt="License"></a>
-</p>
-
----
-
-<p align="center">
-  <img src="docs/screenshots/workbench-writing.png" alt="工作台 — 写作区与知识图谱" width="49%" />
-  <img src="docs/screenshots/workbench-dag.png" alt="工作台 — 故事线 DAG 与人物设定" width="49%" />
 </p>
 
 ---
@@ -42,176 +26,59 @@ Alex 是一个**剧情引擎内核（Narrative Engine Kernel）**，不是聊天
 
 这不是提示词优化问题，而是**系统工程问题**。Alex 的答案是：构建一套完整的剧情状态管理基础设施，让 LLM 只做它最擅长的事——在结构化上下文中生成高质量叙事片段。
 
-本仓库是这套基础设施的**开源内核**。上层生态（垂直应用、编辑器插件、云服务）均以此为基石构建。
-
-项目边界很明确：
-
-- **不是** 单轮续写器：核心目标是长篇连续生产，而不是回答一次写作请求。
-- **不是** 大上下文堆料：世界观、人物、伏笔、故事线会被结构化为可追踪状态。
-- **不是** 单一前端产品：官方工作台只是内核的一个使用界面，核心能力通过 REST API 暴露。
-
 ---
 
-## 内核架构
+## 核心能力
 
-Alex 内核由五个相互协作的子系统构成：
-
-### 1. 叙事状态机（Narrative State Machine）
-
-引擎在任意时刻都持有完整的叙事快照，包含：
-
+### 1. 叙事状态机
 - **Story Bible**：人物档案（含 POV 防火墙、登场频率调度）、地点图、世界设定三元组
 - **章级摘要链**：每章生成后自动提炼的压缩摘要，构成跨章上下文骨架
-- **叙事事件流**：关键事件的时序登记表，支持因果链追溯
-- **故事线 DAG**：多故事线的有向无环图，可视化分支与汇合点
 - **伏笔注册表**：钩子（Hook）的开启、悬置、消费状态完整追踪
+- **故事线 DAG**：多故事线的有向无环图，可视化分支与汇合点
 
-任何一次章节生成，引擎都会从上述快照中动态装配上下文窗口，而非依赖模型自身的"记忆"。
+### 2. 向量语义检索
+- **章内容索引**：基于 ChromaDB / FAISS 的本地向量库
+- **三元组索引**：从正文中自动抽取的 `(主体, 关系, 客体)` 三元组
+- 支持 OpenAI 兼容 API（轻量）和本地 `sentence-transformers` 模型（离线）
 
-### 2. 向量语义检索层（Vector Retrieval Layer）
+### 3. 自动推进引擎
+- **十步章节生成管线**：规划 → 上下文装配 → LLM 调用 → 质量验证 → 章末处理
+- **熔断保护**：连续失败自动暂停
+- **SSE 实时推流**：生成进度实时推送到前端
+- **检查点快照**：支持从任意检查点恢复
 
-引擎维护两条并行索引：
-
-- **章内容索引**：基于 FAISS / ChromaDB 的本地向量库，对所有已写章节做语义切片索引
-- **三元组索引**：从正文中自动抽取的 `(主体, 关系, 客体)` 三元组，支持结构化与语义混合查询
-
-生成时，引擎通过当前场景语义自动召回相关历史内容，注入上下文，消除"模型失忆"问题。嵌入服务支持 OpenAI 兼容 API（轻量）和本地 `sentence-transformers` 模型（离线高性能）。
-
-### 3. 剧情引擎运行时（Engine Runtime）
-
-这是引擎最核心的系统组件。当前生产入口收敛在 `engine/runtime/engine_daemon.py`：由 `EngineDaemon` 承接守护进程生命周期，委托 `StoryPipelineRunner` 运行章节规划、写作、审计与状态推进；章节写作默认走 `BaseStoryPipeline` 十步管线。
-
-```
-宏观规划（部 / 卷 / 幕结构）
-    └─▶ 幕级节拍规划（Beat Sheet 生成）
-            └─▶ 章节生成循环
-                    ├─▶ 叙事治理预算
-                    ├─▶ 章节执行剧本准备
-                    ├─▶ 上下文装配（人物 / 世界观 / 记忆 / 伏笔）
-                    ├─▶ LLM 调用
-                    ├─▶ 内容策略验证
-                    ├─▶ 文风漂移检测
-                    ├─▶ 章末管线（摘要 / 事件 / 三元组 / 伏笔）
-                    ├─▶ 向量索引更新
-                    ├─▶ 张力评分
-                    └─▶ 状态落库 → 继续 / 重写 / 暂停
-```
-
-关键工程特性：
-- **单一生产入口**：`scripts/start_daemon.py` 构造依赖并启动 `EngineDaemon`
-- **可回退写作路径**：默认 `StoryPipeline` 写作，`PLOTPILOT_USE_STORY_PIPELINE=off/legacy` 可临时回退
-- **熔断保护**：连续失败超过阈值自动暂停，附带诊断信息
-- **单写者路由（Write Dispatch）**：所有 SQLite 写操作经由统一调度器串行执行，消除并发写冲突
-- **SSE 实时推流**：生成进度、Token 消耗、当前阶段、错误信息全部通过 Server-Sent Events 实时推送到前端
-- **检查点快照**：阶段推进前自动存档，支持从任意检查点恢复
-
-### 4. 提示词策略层（Prompt Strategy Layer）
-
-引擎暴露 **20+ 独立提示接点**，每个接点均可通过 `prompt_packages/` 下的 YAML 配置文件独立覆写：
-
-| 接点类型 | 包含接点 |
-|----------|----------|
-| 规划类 | `planning-main-plot-suggest` · `planning-quick-macro` |
-| 生成类 | `scene-director` · `chapter-narrative-sync` |
-| 知识类 | `bible-all` · `bible-characters` · `bible-locations` · `bible-worldbuilding` |
-| 分析类 | `style-analysis` · `tension-analysis-diagnosis` |
-
-每个提示包支持独立配置：系统提示、声线锚点、节拍约束、字数层级、记忆铁律、模型参数（temperature / top_p / max_tokens）。切换任务类型（短篇 / 长篇 / 游戏剧本）不需要修改代码，只需切换提示包目录。
-
-### 5. 质量监控子系统（Quality Monitor）
-
-引擎内置叙事质量的量化监控，不依赖人工逐章审阅：
-
-- **张力心电图**：每章生成后计算张力评分（0–10），历史曲线持久化，低谷自动触发诊断
-- **文风相似度检测**：基于向量余弦相似度计算当前章节与风格基准的偏离程度
-- **漂移告警 + 定向修写**：偏离超过阈值时，引擎不回滚章节，而是触发定向修写任务，保留已有进度
-- **陈词滥调扫描**：规则库 + 语义相似度双重检测，标记高频套路表达
+### 4. 质量治理闭环
+- **张力心电图**：每章张力评分（0–10），历史曲线持久化
+- **文风漂移检测**：基于向量余弦相似度计算偏离程度
+- **陈词滥调扫描**：规则库 + 语义相似度双重检测
 
 ---
 
-## 内核与生态
+## 技术栈
 
-```
-Alex 内核（本仓库）
-        │
-        ├── 叙事状态机
-        ├── 向量语义检索层
-        ├── 剧情引擎运行时
-        ├── 提示词策略层（20+ 接点）
-        └── 质量监控子系统
-                │
-                ▼
-        REST API（FastAPI · v1 · 版本化）
-                │
-        ┌───────┴──────────────────────┐
-        │                              │
-  官方工作台前端               生态扩展层（基于内核）
-  Vue 3 · TypeScript           ├── 垂直领域工具
-  Naive UI · ECharts            │   （剧本/游戏剧情/IP 衍生……）
-  Tauri 桌面客户端              ├── 第三方前端 / 编辑器插件
-                                ├── 自定义提示词包
-                                └── 云服务 / SaaS（需遵守许可证）
-```
-
-内核提供稳定的 REST API 边界；所有生态扩展均通过提示词包、工作流插件或上层应用的方式叠加能力，内核本身不感知。如果你在用内核做二创，建议从提示词包和工作流层开始，而非修改内核代码。
-
----
-
-## 技术选型说明
-
-| 层 | 技术 | 选型理由 |
-|----|------|----------|
-| 后端框架 | FastAPI + uvicorn | 原生异步 + 自动 OpenAPI 文档，SSE 支持开箱即用 |
-| 架构范式 | DDD 分层 + 独立 `engine/` 运行内核 | 领域逻辑、用例编排、生产写作管线与技术实现分离，生态扩展不污染内核 |
-| AI 接入 | OpenAI 兼容协议 / Anthropic Claude / 火山方舟 Doubao | 统一接口抽象，模型切换不改业务代码 |
-| 向量存储 | ChromaDB（默认）/ FAISS | 本地部署，零外部依赖，冷启动快 |
-| 嵌入模型 | OpenAI 兼容 API / 本地 `bge-small-zh-v1.5` | 在线轻量与离线高性能双模式 |
-| 主数据库 | SQLite + Write Dispatch 单写者路由 | 嵌入式零依赖，并发写冲突由调度层解决 |
-| 前端 | Vue 3 + TypeScript + Vite + Naive UI + ECharts | 组件类型安全，知识图谱与 DAG 可视化由 ECharts 驱动 |
-| 桌面客户端 | Tauri（Rust） | 比 Electron 内存占用低 80%+，原生系统集成 |
+| 层 | 技术 |
+|----|------|
+| 后端框架 | FastAPI + uvicorn |
+| 架构范式 | DDD 四层分层 + 独立 engine/ 运行内核 |
+| AI 接入 | OpenAI 兼容 / Anthropic Claude / 火山方舟 |
+| 向量存储 | ChromaDB / FAISS |
+| 主数据库 | SQLite + Write Dispatch 单写者路由 |
+| 前端 | Vue 3 + TypeScript + Vite + Naive UI + ECharts |
+| 桌面客户端 | Tauri 2.x |
 
 ---
 
 ## 快速开始
 
-### 方式一：一键启动（Windows，无需安装 Python）
-
-1. 将 `python-3.14.5-embed-amd64.zip` 放入 `tools/` 目录（仅首次）
-2. 双击 `tools/plotpilot.bat`
-
-启动器自动完成：环境自检 → 创建虚拟环境 → 安装依赖（自动切换国内镜像源）→ 启动服务 → 打开浏览器。后续启动直接双击。
-
-> 支持 `tools\plotpilot.bat pack` 打包整个项目分享给他人，对方双击即用。当前启动器固定使用 Python 3.14 系列；如需使用系统 Python，可设置 `PLOTPILOT_PYTHON_EXE` 指向 Python 3.14 的 `python.exe`。
-
-### 方式二：桌面安装版（Windows · Tauri）
-
-前往 [GitHub Releases](https://github.com/Alex663028/Alex-Novel-Platform/releases) 下载最新安装包，内含冻结后端，无需单独安装 Python。如 Releases 暂无安装包，可先使用源码方式启动，或等待维护者上传桌面安装包。
-
-构建流程见 [docs/BUILD_INSTALLER.md](docs/BUILD_INSTALLER.md)。
-
----
-
-## 开发者文档
-
-**环境要求**：Python 3.14.x、Node.js 18+
+### 方式一：源码启动
 
 ```bash
-# 后端 — Windows
-py -3.14 -m venv .venv && .venv\Scripts\activate
+# 后端
+python -m venv .venv && source .venv/bin/activate  # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
-copy .env.example .env    # 填写 LLM 凭证
+cp .env.example .env    # 填写 LLM 凭证
 uvicorn interfaces.main:app --host 127.0.0.1 --port 8005 --reload
-```
 
-```bash
-# 后端 — Linux / macOS
-python3.14 -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-cp .env.example .env
-uvicorn interfaces.main:app --host 127.0.0.1 --port 8005 --reload
-```
-
-```bash
 # 前端（另开终端）
 cd frontend && npm install && npm run dev
 ```
@@ -222,26 +89,9 @@ cd frontend && npm install && npm run dev
 | `http://127.0.0.1:8005/docs` | OpenAPI 交互文档 |
 | `http://localhost:3000` | 前端开发服务器 |
 
-生产构建后前端由 FastAPI 静态托管（`frontend/dist`），也可独立部署。
+### 方式二：桌面安装版
 
----
-
-## 环境变量
-
-| 变量 | 说明 |
-|------|------|
-| `LLM_PROVIDER` | 可选；指定默认 LLM 提供方 |
-| `ANTHROPIC_API_KEY` / `ARK_API_KEY` / `OPENAI_API_KEY` / `GEMINI_API_KEY` | 至少配置一个 LLM 凭证 |
-| `ARK_BASE_URL` / `ARK_MODEL`、`ANTHROPIC_BASE_URL` / `ANTHROPIC_MODEL`、`OPENAI_BASE_URL` / `OPENAI_MODEL`、`GEMINI_BASE_URL` / `GEMINI_MODEL` | 对应提供方的接口地址与模型名 |
-| `EMBEDDING_SERVICE` | `openai`（`.env.example` 默认）或 `local`（需额外安装模型，见 `requirements-local.txt`） |
-| `EMBEDDING_API_KEY` / `EMBEDDING_BASE_URL` / `EMBEDDING_MODEL` | 云端嵌入服务配置；`EMBEDDING_API_KEY` 为空时可回退读取 `OPENAI_API_KEY` |
-| `EMBEDDING_MODEL_PATH` / `EMBEDDING_USE_GPU` | 本地嵌入模型路径与 GPU 开关 |
-| `VECTOR_STORE_ENABLED` / `VECTOR_STORE_TYPE` / `VECTOR_STORE_PATH` | 向量索引开关、类型与持久化目录 |
-| `CORS_ORIGINS` | 生产环境前端域名，逗号分隔 |
-| `DISABLE_AUTO_DAEMON` | 设为 `1` 禁止启动时自动拉起守护进程 |
-| `LOG_LEVEL` / `LOG_FILE` | 日志级别与路径 |
-
-完整说明见 [`.env.example`](.env.example)。
+前往 [GitHub Releases](https://github.com/Alex663028/Alex-Novel-Platform/releases) 下载最新安装包。
 
 ---
 
@@ -250,71 +100,14 @@ cd frontend && npm install && npm run dev
 ```
 （项目根目录）/
 ├── domain/                 # 领域层 — 纯业务模型和值对象
-│   ├── novel/             # 小说、章节、故事线、伏笔、因果、张力
-│   ├── bible/             # 设定库、人物档案、地点、时间线
-│   ├── character/         # 人物实体、人物状态、关系能力
-│   ├── cast/              # 卡司与人物关系图
-│   ├── knowledge/         # 知识三元组、故事知识图
-│   ├── memory/            # 长期记忆与上下文状态
-│   ├── prop/              # 道具生命周期与道具事件
-│   ├── worldbuilding/     # 世界观领域模型
-│   ├── structure/         # 故事结构节点
-│   ├── evolution/         # 世界线 / 演化相关模型
-│   ├── ai/                # AI 领域契约与值对象
-│   └── shared/            # 共享基类、异常、事件、ID
-│
-├── application/           # 应用层 — 用例编排，协调领域、引擎与基础设施
-│   ├── core/              # 小说 / 章节 / 导出等基础用例
-│   ├── onboarding/        # 新书向导、前置设定生成
-│   ├── blueprint/         # 宏观规划、连续规划、Beat Sheet、故事结构
-│   ├── engine/            # 上下文构建、章后管线、治理预算、AI 调用编排
-│   ├── governance/        # 叙事治理、质量约束、章节预算
-│   ├── audit/             # 章节审阅、宏观重构、章节元素分析
-│   ├── analyst/           # 文风、张力、伏笔账本、叙事状态分析
-│   ├── world/             # Bible、知识图谱、世界观与人物关系服务
-│   ├── ai/                # LLM / embedding 应用服务
-│   ├── ai_invocation/     # AI 调用记录与审阅
-│   ├── checkpoint/        # 检查点与快照用例
-│   ├── memory/            # 记忆编排用例
-│   ├── narrative/         # 叙事投影与状态同步
-│   ├── narrative_engine/  # 叙事引擎应用服务
-│   ├── manuscript/        # 正文实体索引与手稿服务
-│   ├── prop/              # 道具应用服务
-│   ├── reader/            # 读者模拟 / 阅读侧能力
-│   ├── snapshot/          # 快照应用服务
-│   ├── workbench/         # 工作台编排
-│   └── workflows/         # 自动生成工作流、兼容编排与后台任务
-│
-├── engine/                # 剧情引擎内核 — 生产运行时、章节写作管线与题材扩展
-│   ├── runtime/           # EngineDaemon、StoryPipelineRunner、守护进程委托、质量守门
-│   ├── pipeline/          # BaseStoryPipeline 十步章节生成管线
-│   ├── pipelines/         # 题材 Pipeline 注册与扩展（如武侠、通用题材桥接）
-│   ├── core/              # 引擎侧实体、端口、服务契约
-│   └── infrastructure/    # 引擎事件、记忆编排、checkpoint 适配
-│
-├── infrastructure/        # 基础设施层 — 技术实现，可替换
-│   ├── ai/                # LLM Provider、Prompt Packages、向量存储、嵌入服务
-│   ├── persistence/       # SQLite 仓储、迁移、Write Dispatch 单写者调度器
-│   ├── export/            # DOCX / EPUB / PDF 导出
-│   └── runtime/           # 数据目录、日志环境与进程级运行配置
-│
-├── interfaces/            # 接口层 — FastAPI、依赖注入、运行状态与外部边界
-│   ├── main.py            # FastAPI 应用入口
-│   ├── daemon_manager.py  # 后端内自动驾驶进程管理
-│   └── api/v1/            # REST API（core / world / blueprint / engine / audit / analyst 等）
-│
-├── frontend/              # 官方工作台 — Vue 3 + TypeScript + Tauri 桌面壳
-│   ├── src/               # 工作台、自动驾驶、知识图谱、设置、API client
-│   └── src-tauri/         # Tauri 桌面客户端与后端 sidecar
-│
-├── shared/                # 跨端共享配置与分类体系资源
-├── config/                # 本地配置与默认配置
-├── scripts/               # 启动、安装、迁移、评估与维护脚本
-├── tests/                 # 单元、集成、E2E 与 DAG 测试
-└── tools/                 # Windows 启动器与内嵌 Python 包
+├── application/           # 应用层 — 用例编排
+├── engine/                # 剧情引擎内核 — 生产运行时
+├── infrastructure/        # 基础设施层 — 技术实现
+├── interfaces/            # 接口层 — FastAPI、REST API
+├── frontend/              # 官方工作台 — Vue 3 + Tauri
+├── tests/                 # 单元、集成、E2E 测试
+└── scripts/               # 启动、安装、迁移脚本
 ```
-
-完整设计与分层说明见 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)。
 
 ---
 
@@ -322,46 +115,28 @@ cd frontend && npm install && npm run dev
 
 ```bash
 pytest tests/ -v
-# 含覆盖率报告
 pytest tests/ --cov=. --cov-report=term-missing
 ```
 
 ---
 
-## 贡献指南
+## 更新日志
 
-1. Fork 本仓库
-2. 新建分支：`git checkout -b feat/your-feature`
-3. 提交信息建议遵循 [Conventional Commits](https://www.conventionalcommits.org/)
-4. 推送并发起 Pull Request
+### v1.1.0 (2026-07-23)
 
-架构与分层说明见 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)；其余文档索引见 [docs/README.md](docs/README.md)。
+**架构优化**
+- 数据库路径统一：`com.plotpilot.desktop` → `com.alex.desktop`（含自动迁移）
+- 角色模型合并：4处散落统一到 `domain/character/entities/character.py`
+- 路由命名统一：`slug` → `novel_id`（stats 路由）
+- stats 路由前缀修正：`/api/stats` → `/api/v1/stats`
 
----
+**Bug 修复**
+- 修复 `BookStats` 字段不匹配（`slug` → `novel_id`）
+- 修复前端 API 路径（`exportChapter`、`chapterStream`）
+- 修复 `StateBootstrap._load_knowledge` 缺失导致工作台上下文加载异常
 
-## 提交安全边界
-
-请不要提交以下内容：
-
-- `.env`、API Key、模型网关地址中的私有凭证
-- `data/`、`logs/`、SQLite 数据库、向量库、运行时缓存
-- Word / PPT / Excel 等办公文档（如 `.docx`、`.pptx`、`.xlsx`），尤其是未公开设定、商业计划、合同、客户资料
-- 打包产物、安装包、Tauri / PyInstaller 输出目录
-
-如果必须提交示例资料，请放入脱敏后的 Markdown / JSON / YAML，并确认不包含真实密钥、真实用户数据或未公开作品内容。
-
----
-
-## 加入我们
-
-引擎在持续演进，我们也在寻找对叙事工程感兴趣的同行。
-
-**当前关注方向**：内核引擎研发、生态应用构建、提示词工程、前端工作台
-
-如果你对"用工程化手段解决创作问题"这件事感兴趣，欢迎来交流：
-
-- **讨论**：提交 Discussion 或 Issue
-- **投稿**：欢迎 Pull Request
+**UI 改进**
+- 字体对比度修复：WCAG AA 标准（≥4.5:1）
 
 ---
 
@@ -370,18 +145,6 @@ pytest tests/ --cov=. --cov-report=term-missing
 本项目采用 **Apache License 2.0**，并附加 **Commons Clause** 条件限制。
 
 - **允许**：学习、修改、非商业内部部署、基于内核的生态扩展（非营利）
-- **禁止**：将本项目（含修改版）封装为收费 SaaS、打包售卖源码或作为收费产品的增值服务
+- **禁止**：将本项目（含修改版）封装为收费 SaaS、打包售卖源码
 
 详见 [LICENSE](LICENSE)。
-
----
-
-## Star History
-
-<a href="https://www.star-history.com/?repos=Alex663028%2FAlex-Novel-Platform&type=date&legend=top-left">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=Alex663028/Alex-Novel-Platform&type=date&theme=dark&legend=top-left" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=Alex663028/Alex-Novel-Platform&type=date&legend=top-left" />
-   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=Alex663028/Alex-Novel-Platform&type=date&legend=top-left" />
- </picture>
-</a>
