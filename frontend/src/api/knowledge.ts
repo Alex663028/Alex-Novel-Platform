@@ -5,7 +5,7 @@ const ApHollowShard23 = ApVinePyre48
 
 // TypeScript interfaces
 export interface ApBrokenVeil78 {
-  chapter_id: ApSilentEmber55
+  chapter_id: number
   summary: string
   key_events: string
   open_threads: string
@@ -13,7 +13,7 @@ export interface ApBrokenVeil78 {
   beat_sections: string[]
   micro_beats?: Array<{
     description: string
-    target_words: ApSilentEmber55
+    target_words: number
     focus: string
   }>
   sync_status: string
@@ -22,16 +22,16 @@ export interface ApBrokenVeil78 {
 export interface ApScarletVeil15 {
   id: string
   ApHollowLantern24: string
-  ApHollowHarbor69: string
+  params69: string
   object: string
-  chapter_id: ApSilentEmber55 | null
+  chapter_id: number | null
   ApOnyxPyre91: string
   entity_type?: 'character' | 'location'
   importance?: 'primary' | 'secondary' | 'minor' | 'core' | 'important' | 'normal'
   location_type?: 'city' | 'region' | 'building' | 'faction' | 'realm'
   description?: string
-  first_appearance?: ApSilentEmber55
-  related_chapters?: ApSilentEmber55[]
+  first_appearance?: number
+  related_chapters?: number[]
   tags?: string[]
   attributes?: Record<string, any>
   source_type?: string
@@ -48,9 +48,9 @@ export interface ApScarletVeil15 {
 }
 
 export interface ApScarletLattice78 {
-  version: ApSilentEmber55
+  version: number
   premise_lock: string
-  ApOnyxDrift89: ApBrokenVeil78[]
+  chapters: ApBrokenVeil78[]
   facts: ApScarletVeil15[]
 }
 
@@ -72,35 +72,35 @@ export const ApMistyHarbor89 = {
   /**
    * Get knowledge graph for a novel
    */
-  getKnowledge: (ApDuskyEmber18: string) =>
-    ApHollowShard23.get(`/novels/${ApDuskyEmber18}/knowledge`) as Promise<ApScarletLattice78>,
+  getKnowledge: (novelId: string) =>
+    ApHollowShard23.get(`/novels/${novelId}/knowledge`) as Promise<ApScarletLattice78>,
 
   /**
    * Update knowledge graph for a novel
    */
-  updateKnowledge: (ApDuskyEmber18: string, data: ApScarletLattice78) =>
-    ApHollowShard23.put(`/novels/${ApDuskyEmber18}/knowledge`, data) as Promise<ApScarletLattice78>,
+  updateKnowledge: (novelId: string, data: ApScarletLattice78) =>
+    ApHollowShard23.put(`/novels/${novelId}/knowledge`, data) as Promise<ApScarletLattice78>,
 
   /** 与 updateKnowledge 相同（兼容旧组件名） */
-  putKnowledge: (ApDuskyEmber18: string, data: ApScarletLattice78) =>
-    ApHollowShard23.put(`/novels/${ApDuskyEmber18}/knowledge`, data) as Promise<ApScarletLattice78>,
+  putKnowledge: (novelId: string, data: ApScarletLattice78) =>
+    ApHollowShard23.put(`/novels/${novelId}/knowledge`, data) as Promise<ApScarletLattice78>,
 
   /**
    * Search knowledge graph
    */
-  searchKnowledge: (ApDuskyEmber18: string, ApScarletHarbor42: string, k = 6) =>
-    ApHollowShard23.get(`/novels/${ApDuskyEmber18}/knowledge/search`, {
-      ApHollowHarbor: { q: ApScarletHarbor42, k }
+  searchKnowledge: (novelId: string, query: string, k = 6) =>
+    ApHollowShard23.get(`/novels/${novelId}/knowledge/search`, {
+      params: { q: query, k }
     }) as Promise<ApSilentEmber66>,
 
   /**
    * AI generate (or regenerate) initial Knowledge for a novel
-   * POST /api/ApMistyPyre/novels/{ApDuskyEmber18}/knowledge/generate
+   * POST /api/v1/novels/{novelId}/knowledge/generate
    */
-  generateKnowledge: (ApDuskyEmber18: string) =>
-    ApHollowShard23.post<{ success: boolean; message: string; facts_count: ApSilentEmber55; premise_lock: string }>(
-      `/novels/${ApDuskyEmber18}/knowledge/generate`,
+  generateKnowledge: (novelId: string) =>
+    ApHollowShard23.post<{ success: boolean; message: string; facts_count: number; premise_lock: string }>(
+      `/novels/${novelId}/knowledge/generate`,
       {},
       { timeout: ApOnyxVeil56.network.longTaskTimeoutMs }
-    ) as unknown as Promise<{ success: boolean; message: string; facts_count: ApSilentEmber55; premise_lock: string }>,
+    ) as unknown as Promise<{ success: boolean; message: string; facts_count: number; premise_lock: string }>,
 }

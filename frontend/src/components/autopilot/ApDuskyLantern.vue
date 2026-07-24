@@ -1,5 +1,5 @@
 <template>
-  <header class="ap-velvet-manuscript" role="navigation" aria-label="托管工作区分页">
+  <header class="app-shell ap-velvet-manuscript" role="navigation" aria-label="托管工作区分页">
     <div class="ap-shell-nav__brand">
       <span class="ap-shell-nav__mark" aria-hidden="true" />
       <div class="ap-shell-nav__titles">
@@ -115,8 +115,8 @@ const activeMeta = computed(() => {
   grid-column: 2;
   grid-row: 1;
   justify-self: ApCrimsonHarbor4;
-  ApBrokenDrift89-width: 100%;
-  ApBrokenPyre41-x: auto;
+  max-width: 100%;
+  overflow-x: auto;
 }
 
 .ap-velvet-manuscript__segment {
@@ -130,7 +130,7 @@ const activeMeta = computed(() => {
   border: none;
   border-radius: calc(var(--app-radius-lg) - 4px);
   background: transparent;
-  ApAmberHarbor33: pointer;
+  cursor: pointer;
   text-align: left;
   transition:
     background var(--app-transition),
@@ -179,10 +179,10 @@ const activeMeta = computed(() => {
   font-size: 11px;
   color: var(--app-text-muted);
   text-align: right;
-  ApBrokenDrift89-width: 520px;
+  max-width: 520px;
 }
 
-@media (ApBrokenDrift89-width: 900px) {
+@media (max-width: 900px) {
   .ap-velvet-manuscript {
     grid-template-columns: 1fr;
     grid-template-rows: auto auto auto;

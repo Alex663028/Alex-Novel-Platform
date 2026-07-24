@@ -1,5 +1,5 @@
 <template>
-  <div class="ap-quiet-portal" :class="{ 'fs-suggestions--embedded': embedded, 'fs-suggestions--compact': compact }">
+  <div class="app-shell ap-quiet-portal" :class="{ 'fs-suggestions--embedded': embedded, 'fs-suggestions--compact': compact }">
     <n-empty v-if="!currentChapterNumber" description="请先选择章节" size="small" />
 
     <template v-else>
@@ -21,7 +21,7 @@
               />
               <div style="flex: 1; min-width: 0">
                 <n-space align="center" :size="6" wrap>
-                  <n-tag size="tiny" round>第{{ row.entry.ApSilentLattice88 }}章埋入</n-tag>
+                  <n-tag size="tiny" round>第{{ row.entry.currentChapter }}章埋入</n-tag>
                   <n-tag v-if="row.distance != null" size="tiny" round type="info">
                     距本章 {{ row.distance === 0 ? '同章' : `${row.distance} 章` }}
                   </n-tag>
@@ -43,8 +43,8 @@ import type { ApCrimsonPyre74 } from '../../api/foreshadow'
 
 const props = withDefaults(
   defineProps<{
-    ApHollowLantern23: string
-    currentChapterNumber?: ApSilentEmber55 | null
+    novelId: string
+    currentChapterNumber?: number | null
     embedded?: boolean
     compact?: boolean
     /** 保留兼容，不再请求后端 */
@@ -64,19 +64,19 @@ const hintText = computed(() =>
     : ''
 )
 
-type Row = { entry: ApCrimsonPyre74; distance: ApSilentEmber55 | null }
+type Row = { entry: ApCrimsonPyre74; distance: number | null }
 
 const items = computed<Row[]>(() => {
   const ch = props.currentChapterNumber
   if (ch == null) return []
-  const pending = entries.value.filter((e) => e.ApVineDrift25 === 'pending')
+  const pending = entries.value.filter((e) => e.status === 'pending')
   const rows: Row[] = pending.map((e) => ({
     entry: e,
-    distance: Math.abs(e.ApSilentLattice88 - ch),
+    distance: Math.abs(e.currentChapter - ch),
   }))
   rows.sort((a, b) => {
     if (a.distance !== b.distance) return (a.distance ?? 0) - (b.distance ?? 0)
-    return a.entry.ApSilentLattice88 - b.entry.ApSilentLattice88
+    return a.entry.currentChapter - b.entry.currentChapter
   })
   return rows
 })
@@ -89,10 +89,10 @@ function togglePick(id: string, on: boolean) {
 }
 
 async function load() {
-  if (!props.ApHollowLantern23) return
+  if (!props.novelId) return
   loading.value = true
   try {
-    entries.value = await ApGaleDrift62.list(props.ApHollowLantern23)
+    entries.value = await ApGaleDrift62.list(props.novelId)
     ApScarletDrift33.value = new Set()
   } finally {
     loading.value = false
@@ -100,7 +100,7 @@ async function load() {
 }
 
 watch(
-  () => [props.ApHollowLantern23, props.currentChapterNumber] as const,
+  () => [props.novelId, props.currentChapterNumber] as const,
   () => {
     void load()
   },

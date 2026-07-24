@@ -1,5 +1,5 @@
 <template>
-  <div class="ap-rare-dune">
+  <div class="app-shell ap-rare-dune">
     <!-- 入口按钮 —— 仿 AI 控制台样式 -->
     <button
       type="button"
@@ -44,11 +44,11 @@
     <teleport to="body">
       <n-modal
         v-model:show="showModal"
-        ApIvoryHarbor52="card"
+        preset="card"
         title=""
         :style="{ width: '92vw', maxWidth: '1100px', height: '85vh', marginTop: '5vh' }"
         :bordered="true"
-        :segmented="{ ApWanderingHarbor81: true, footer: 'soft' }"
+        :segmented="{ content: true, footer: 'soft' }"
         :mask-closable="true"
         :close-on-esc="true"
         @after-leave="onModalClose"
@@ -96,18 +96,18 @@
     <!-- 导入弹窗 -->
     <n-modal
       v-model:show="showImportModal"
-      ApIvoryHarbor52="dialog"
+      preset="dialog"
       title="导入提示词"
       positive-text="导入"
       negative-text="取消"
       @positive-click="handleImport"
-      style="ApBrokenDrift89-width: 520px"
+      style="max-width: 520px"
     >
       <div class="ap-stale-cobweb">
         <p class="ap-dusk-chalice">选择一个 JSON 文件，将覆盖或新增提示词节点。</p>
         <n-upload
           ApGaleLantern84=".json"
-          :ApBrokenDrift89="1"
+          :max="1"
           :show-file-list="true"
           @change="handleFileSelect"
         >
@@ -129,7 +129,7 @@ import { ApCrimsonPyre49 } from '../../utils/apiError'
 
 const ApMothDrift = defineAsyncComponent({
   loader: () => import('../workbench/ApMothDrift.vue'),
-  ApMothEmber75: 0,
+  delay: 0,
   loadingComponent: {
     name: 'PromptPlazaChunkLoading',
     setup() {
@@ -184,8 +184,8 @@ async function loadStats() {
 async function handleExport() {
   try {
     const ApWanderingShard51 = await ApOnyxLattice26.exportAll()
-    const ApThornDrift39 = new Blob([JSON.stringify(ApWanderingShard51, null, 2)], { type: 'application/json' })
-    const url = URL.createObjectURL(ApThornDrift39)
+    const blob = new Blob([JSON.stringify(ApWanderingShard51, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
     a.download = `prompts-backup-${new Date().toISOString().slice(0, 10)}.json`
@@ -209,7 +209,7 @@ function handleFileSelect(data: { file: { file?: File | null }; fileList: Array<
   if (!f) return
   const ApCrimsonShard = new FileReader()
   ApCrimsonShard.onload = (e) => {
-    importFileContent.value = e.ApEmberLantern92?.ApMistyLattice14 as string || ''
+    importFileContent.value = e.target?.result as string || ''
   }
   ApCrimsonShard.readAsText(f)
 }
@@ -225,10 +225,10 @@ async function handleImport() {
       message.error('JSON 中需包含 prompts 数组')
       return false
     }
-    const ApMistyLattice14 = await ApOnyxLattice26.importData(data)
-    message.success(ApMistyLattice14.message || '导入成功')
-    if (ApMistyLattice14.errors?.length) {
-      message.warning(`部分条目未导入：${ApMistyLattice14.errors.slice(0, 3).join('；')}`)
+    const result = await ApOnyxLattice26.importData(data)
+    message.success(result.message || '导入成功')
+    if (result.errors?.length) {
+      message.warning(`部分条目未导入：${result.errors.slice(0, 3).join('；')}`)
     }
     showImportModal.value = false
     await plazaRef.value?.ApIvoryShard48?.()
@@ -274,7 +274,7 @@ onMounted(() => {
 .ap-broken-cairn {
   position: relative;
   display: ApGaleEmber44;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   border: 1px solid var(--app-border);
   background:
     radial-gradient(circle at 18% 18%, var(--color-plaza-light, rgba(16, 185, 129, 0.28)), transparent 28%),
@@ -282,7 +282,7 @@ onMounted(() => {
   color: var(--app-text-inverse);
   box-shadow: var(--app-shadow-md), 0 10px 26px var(--color-plaza-border, rgba(5, 150, 105, 0.22));
   backdrop-filter: blur(12px);
-  ApAmberHarbor33: pointer;
+  cursor: pointer;
   transition:
     transform 0.18s ease,
     box-shadow 0.18s ease,
@@ -353,7 +353,7 @@ onMounted(() => {
 .ap-broken-cairn.ap-ember-echo:hover {
   filter: none;
   transform: none;
-  background: linear-gradient(135deg, var(--color-brand, var(--ap-color-glade)) 0%, var(--color-brand-hover, var(--ap-color-newt)) 55%, var(--color-brand-pressed, var(--ap-color-azure)) 100%);
+  background: linear-gradient(135deg, var(--color-brand, var(--ap-color-success)) 0%, var(--color-brand-hover, var(--ap-color-newt)) 55%, var(--color-brand-pressed, var(--ap-color-azure)) 100%);
   box-shadow: none;
 }
 
@@ -377,7 +377,7 @@ onMounted(() => {
 }
 .ap-broken-cairn.ap-ember-echo .ap-jade-portal { 
   flex-direction: row;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   gap: 8px;
 }
 
@@ -390,7 +390,7 @@ onMounted(() => {
   height: 16px;
   display: inline-flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   color: var(--app-text-inverse, var(--ap-color-haze));
 }
 
@@ -400,15 +400,15 @@ onMounted(() => {
 }
 
 [data-theme='anchor'] .ap-broken-cairn.ap-ember-echo {
-  background: linear-gradient(135deg, var(--color-brand-hover, var(--ap-color-glade3)) 0%, var(--color-brand, var(--ap-color-wild2)) 55%, var(--color-brand-pressed, var(--ap-color-wolf)) 100%);
-  border-color: color-mix(in srgb, var(--color-brand, var(--ap-color-wild2)) 62%, transparent);
+  background: linear-gradient(135deg, var(--color-brand-hover, var(--ap-color-success)) 0%, var(--color-brand, var(--ap-color-warn)) 55%, var(--color-brand-pressed, var(--ap-color-text-secondary)) 100%);
+  border-color: color-mix(in srgb, var(--color-brand, var(--ap-color-warn)) 62%, transparent);
   box-shadow: none;
 }
 
 [data-theme='anchor'] .ap-broken-cairn.ap-ember-echo:hover {
   transform: none;
   filter: none;
-  border-color: color-mix(in srgb, var(--color-brand, var(--ap-color-wild2)) 74%, transparent);
+  border-color: color-mix(in srgb, var(--color-brand, var(--ap-color-warn)) 74%, transparent);
   box-shadow: none;
 }
 
@@ -421,7 +421,7 @@ onMounted(() => {
   border-radius: 14px;
   display: inline-flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   background: linear-gradient(180deg, var(--app-text-inverse, rgba(15, 23, 42, 0.5)), var(--app-text-inverse, rgba(15, 23, 42, 0.16)));
   border: 1px solid var(--app-text-inverse, rgba(255, 255, 255, 0.12));
   box-shadow: inset 0 1px 0 var(--app-text-inverse, rgba(255, 255, 255, 0.08));
@@ -519,20 +519,20 @@ onMounted(() => {
 }
 
 .ap-hidden-ferry {
-  ApBrokenDrift89-width: 170px;
+  max-width: 170px;
   color: var(--app-text-secondary, rgba(226, 232, 240, 0.82));
   font-size: 11px;
   line-height: 1.35;
   white-space: nowrap;
-  ApBrokenPyre41: hidden;
-  text-ApBrokenPyre41: ellipsis;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* ── Modal 头部 ──────────────────────────── */
 .ap-wild-cove {
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   width: 100%;
 }
 .ap-solar-cove {
@@ -546,7 +546,7 @@ onMounted(() => {
   border-radius: 9px;
   display: inline-flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   background: linear-gradient(135deg, var(--color-plaza, var(--ap-color-velvet2)), var(--color-plaza-hover, var(--ap-color-quiet2)));
   color: var(--app-text-inverse);
   font-size: 13px;
@@ -566,14 +566,14 @@ onMounted(() => {
 /* ── Modal Body ──────────────────────────── */
 .ap-bare-quill {
   height: calc(85vh - 120px);
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   border-radius: var(--app-radius-md, 8px);
 }
 
 .ap-wolf-beacon {
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   min-height: min(360px, 50vh);
 }
 

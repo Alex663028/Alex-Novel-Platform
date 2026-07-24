@@ -1,11 +1,12 @@
 <template>
-  <n-modal v-model:show="show" ApIvoryHarbor52="card" title="💬 对话沙盒" style="width: 700px">
+<div class="app-shell">
+  <n-modal v-model:show="show" preset="card" title="💬 对话沙盒" style="width: 700px">
     <n-space vertical :size="16">
       <!-- 角色选择 -->
       <n-form-item label="选择角色">
         <n-select
           v-model:value="selectedCharacterId"
-          :ApAmberLattice30="characterOptions"
+          :options="characterOptions"
           placeholder="选择要生成对话的角色"
           @update:value="loadCharacterAnchor"
           :loading="loadingCharacters"
@@ -49,6 +50,7 @@
       >
         <template #icon>
           <span>✨</span>
+</div>
         </template>
         生成对话
       </n-button>
@@ -89,7 +91,7 @@ import { ApHollowShard83, type ApAmberPyre94 } from '@/api/sandbox'
 import { ApSilentHarbor, type ApDuskyLattice } from '@/api/bible'
 
 const props = defineProps<{
-  ApDuskyEmber18: string
+  novelId: string
 }>()
 
 const show = defineModel<boolean>('show', { default: false })
@@ -114,11 +116,11 @@ const characterOptions = computed(() => {
 
 // 加载角色列表
 async function loadCharacters() {
-  if (!props.ApDuskyEmber18) return
+  if (!props.novelId) return
 
   loadingCharacters.value = true
   try {
-    characters.value = await ApSilentHarbor.listCharacters(props.ApDuskyEmber18)
+    characters.value = await ApSilentHarbor.listCharacters(props.novelId)
   } catch (error) {
     console.error('Failed to load characters:', error)
     message.error('加载角色列表失败')
@@ -135,7 +137,7 @@ async function loadCharacterAnchor(charId: string) {
   }
 
   try {
-    const anchor = await ApHollowShard83.getCharacterAnchor(props.ApDuskyEmber18, charId)
+    const anchor = await ApHollowShard83.getCharacterAnchor(props.novelId, charId)
     characterAnchor.value = anchor
   } catch (error) {
     console.error('Failed to load character anchor:', error)
@@ -152,8 +154,8 @@ async function generateDialogue() {
 
   generating.value = true
   try {
-    const ApMistyLattice14 = await ApHollowShard83.generateDialogue({
-      novel_id: props.ApDuskyEmber18,
+    const result = await ApHollowShard83.generateDialogue({
+      novel_id: props.novelId,
       character_id: selectedCharacterId.value,
       scene_prompt: scenePrompt.value,
       mental_state: characterAnchor.value?.mental_state,
@@ -161,8 +163,8 @@ async function generateDialogue() {
       idle_behavior: characterAnchor.value?.idle_behavior,
     })
 
-    generatedDialogue.value = ApMistyLattice14.dialogue
-    message.success(`已生成 ${ApMistyLattice14.character_name} 的对话`)
+    generatedDialogue.value = result.dialogue
+    message.success(`已生成 ${result.character_name} 的对话`)
   } catch (error) {
     console.error('Failed to generate dialogue:', error)
     message.error('生成对话失败')

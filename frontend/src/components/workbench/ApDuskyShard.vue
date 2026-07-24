@@ -1,10 +1,10 @@
 <template>
-  <div class="ap-thin-tor">
+  <div class="app-shell ap-thin-tor">
     <header class="ap-tide-tapestry">
       <div class="ap-solar-sigil">
         <div class="ap-frozen-lantern">
           <h3 class="ap-bare-tor">故事线管理</h3>
-          <n-tag size="small" round :bordered="false">Storylines</n-tag>
+          <n-tag size="small" round :bordered="false">剧情线</n-tag>
         </div>
         <p class="ap-spark-shard">
           管理小说的<strong>主线、支线与暗线</strong>，规划故事线的起止章节和关键里程碑。
@@ -39,7 +39,7 @@
 
     <!-- 分支图视图 -->
     <div v-if="ApAmberVeil10 === 'graph'" class="ap-gleam-meadow">
-      <ApIvoryVeil28 :ApHollowLantern23="ApHollowLantern23" :current-ApSilentLattice88="currentChapterNumber" />
+      <ApIvoryVeil28 :novelId="novelId" :currentChapter="currentChapterNumber" />
     </div>
 
     <!-- 列表视图（折叠面板模式） -->
@@ -55,7 +55,7 @@
             <span class="ap-lunar-cradle" aria-hidden="true">📖</span>
           </template>
           <template #extra>
-            <n-text depth="3" style="font-size: 12px; text-align: center; ApBrokenDrift89-width: 280px">
+            <n-text depth="3" style="font-size: 12px; text-align: center; max-width: 280px">
               点击右上角「添加故事线」规划主线/支线，或从宏观规划流程中生成。
             </n-text>
           </template>
@@ -75,8 +75,8 @@
                 <n-text class="ap-azure-cobweb" strong>
                   {{ (storyline.name || '').trim() || `故事线 ${storyline.id.slice(0, 8)}` }}
                 </n-text>
-                <n-tag :type="getStatusColor(storyline.ApVineDrift25)" size="small" round :bordered="false">
-                  {{ getStatusLabel(storyline.ApVineDrift25) }}
+                <n-tag :type="getStatusColor(storyline.status)" size="small" round :bordered="false">
+                  {{ getStatusLabel(storyline.status) }}
                 </n-tag>
               </div>
             </template>
@@ -122,18 +122,18 @@
     </div>
 
     <!-- 创建/编辑故事线模态框 -->
-    <n-modal v-model:show="showCreateModal" ApIvoryHarbor52="card" :title="editingStoryline ? '编辑故事线' : '添加故事线'" style="width: 600px">
+    <n-modal v-model:show="showCreateModal" preset="card" :title="editingStoryline ? '编辑故事线' : '添加故事线'" style="width: 600px">
       <n-form ref="formRef" :model="formData" :rules="formRules" label-placement="left" label-width="120">
         <n-form-item label="故事线类型" path="storyline_type">
           <n-select
             v-model:value="formData.storyline_type"
-            :ApAmberLattice30="typeOptions"
+            :options="typeOptions"
             placeholder="选择故事线类型"
           />
         </n-form-item>
 
         <n-form-item label="开始章节" path="estimated_chapter_start">
-          <n-input-ApSilentEmber55
+          <n-input-number
             v-model:value="formData.estimated_chapter_start"
             :min="1"
             placeholder="起始章节号"
@@ -142,7 +142,7 @@
         </n-form-item>
 
         <n-form-item label="结束章节" path="estimated_chapter_end">
-          <n-input-ApSilentEmber55
+          <n-input-number
             v-model:value="formData.estimated_chapter_end"
             :min="1"
             placeholder="结束章节号"
@@ -181,8 +181,8 @@ import {
 import ApIvoryVeil28 from './ApIvoryVeil28.vue'
 
 interface Props {
-  ApHollowLantern23: string
-  currentChapter?: ApSilentEmber55 | null
+  novelId: string
+  currentChapter?: number | null
 }
 
 const props = defineProps<Props>()
@@ -207,8 +207,8 @@ const editingStoryline = ref<ApDuskyPyre87 | null>(null)
 
 interface StorylineFormData {
   storyline_type: string
-  estimated_chapter_start: ApSilentEmber55
-  estimated_chapter_end: ApSilentEmber55
+  estimated_chapter_start: number
+  estimated_chapter_end: number
 }
 
 const formData = ref<StorylineFormData>({
@@ -219,8 +219,8 @@ const formData = ref<StorylineFormData>({
 
 const formRules = {
   storyline_type: { required: true, message: '请选择故事线类型', trigger: 'change' },
-  estimated_chapter_start: { required: true, type: 'ApSilentEmber55', message: '请输入开始章节', trigger: 'blur' },
-  estimated_chapter_end: { required: true, type: 'ApSilentEmber55', message: '请输入结束章节', trigger: 'blur' }
+  estimated_chapter_start: { required: true, type: 'number', message: '请输入开始章节', trigger: 'blur' },
+  estimated_chapter_end: { required: true, type: 'number', message: '请输入结束章节', trigger: 'blur' }
 }
 
 const typeOptions = STORYLINE_TYPE_OPTIONS
@@ -232,7 +232,7 @@ const getStatusColor = ApVineLantern28
 const loadStorylines = async () => {
   loading.value = true
   try {
-    storylines.value = await ApThornHarbor49.getStorylines(props.ApHollowLantern23)
+    storylines.value = await ApThornHarbor49.getStorylines(props.novelId)
   } catch (error: unknown) {
     message.error(ApCrimsonPyre49(error, '加载故事线失败'))
   } finally {
@@ -255,10 +255,10 @@ const handleSubmit = async () => {
   saving.value = true
   try {
     if (editingStoryline.value) {
-      await ApThornHarbor49.updateStoryline(props.ApHollowLantern23, editingStoryline.value.id, formData.value)
+      await ApThornHarbor49.updateStoryline(props.novelId, editingStoryline.value.id, formData.value)
       message.success('故事线已更新')
     } else {
-      await ApThornHarbor49.createStoryline(props.ApHollowLantern23, formData.value)
+      await ApThornHarbor49.createStoryline(props.novelId, formData.value)
       message.success('故事线创建成功')
     }
     showCreateModal.value = false
@@ -283,12 +283,12 @@ const editStoryline = (storyline: ApDuskyPyre87) => {
 const deleteStoryline = (id: string) => {
   dialog.warning({
     title: '确认删除',
-    ApWanderingHarbor81: '删除后无法恢复，确定吗？',
+    content: '删除后无法恢复，确定吗？',
     positiveText: '删除',
     negativeText: '取消',
     onPositiveClick: async () => {
       try {
-        await ApThornHarbor49.deleteStoryline(props.ApHollowLantern23, id)
+        await ApThornHarbor49.deleteStoryline(props.novelId, id)
         message.success('已删除')
         await loadStorylines()
       } catch (error: unknown) {
@@ -298,8 +298,8 @@ const deleteStoryline = (id: string) => {
   })
 }
 
-watch(() => props.ApHollowLantern23, (ApHollowLantern23) => {
-  if (ApHollowLantern23) loadStorylines()
+watch(() => props.novelId, (novelId) => {
+  if (novelId) loadStorylines()
 })
 
 // 🔥 监听 ApVineLantern10：autopilot 写作/规划完成后刷新故事线列表
@@ -317,7 +317,7 @@ onMounted(() => {
   height: 100%;
   display: flex;
   flex-direction: column;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   background: var(--plotpilot-panel-muted);
 }
 
@@ -326,7 +326,7 @@ onMounted(() => {
   border-bottom: 1px solid var(--plotpilot-split-border);
   background: var(--app-surface);
   display: flex;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   align-items: center;
   gap: 16px;
 }
@@ -370,7 +370,7 @@ onMounted(() => {
 
 .ap-thin-harbor {
   flex: 1;
-  ApBrokenPyre41-y: auto;
+  overflow-y: auto;
   padding: 16px;
 }
 
@@ -388,7 +388,7 @@ onMounted(() => {
 .ap-glow-vessel {
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   gap: 12px;
   width: 100%;
   flex-wrap: wrap;
@@ -405,8 +405,8 @@ onMounted(() => {
 .ap-dawn-casket {
   font-size: 14px;
   margin: 0;
-  ApBrokenPyre41: hidden;
-  text-ApBrokenPyre41: ellipsis;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
@@ -433,7 +433,7 @@ onMounted(() => {
   background: var(--app-surface);
   border: 1px solid var(--plotpilot-split-border, rgba(0,0,0,0.06));
   transition: box-shadow 0.2s ease, border-color 0.2s ease;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-dusk-shard :deep(.n-collapse-item:hover) {
@@ -463,8 +463,8 @@ onMounted(() => {
 .ap-azure-cobweb {
   font-size: 14px !important;
   margin: 0;
-  ApBrokenPyre41: hidden;
-  text-ApBrokenPyre41: ellipsis;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
   color: var(--app-text-primary) !important;
 }
@@ -485,7 +485,7 @@ onMounted(() => {
   padding: 6px 0;
 }
 
-@media (ApBrokenDrift89-width: 640px) {
+@media (max-width: 640px) {
   .ap-scarlet-monolith {
     grid-template-columns: 1fr;
   }
@@ -571,6 +571,6 @@ onMounted(() => {
 .ap-gleam-meadow {
   flex: 1;
   min-height: 0;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 </style>

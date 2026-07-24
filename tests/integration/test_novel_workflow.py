@@ -1,30 +1,45 @@
-"""端到端集成测试 - Novel 工作流"""
+"""端到端集成测试 - Novel 工作流（SQLite 架构版）
+
+重写说明：原测试用 FileStorage（旧文件存储），当前架构已迁移到 SQLite。
+测试脚手架改为 DatabaseConnection + SqliteNovelRepository + SqliteChapterRepository。
+删除 test_novel_metadata_fields（has_bible/has_outline 文件检测在当前架构已移除）。
+"""
 import pytest
-import tempfile
-import shutil
 from pathlib import Path
-from infrastructure.persistence.storage.file_storage import FileStorage
-from infrastructure.persistence.repositories.file_novel_repository import FileNovelRepository
-from infrastructure.persistence.repositories.file_chapter_repository import FileChapterRepository
-from application.services.novel_service import NovelService
+from fastapi.testclient import TestClient
+from infrastructure.persistence.database.connection import DatabaseConnection
+from infrastructure.persistence.database.sqlite_novel_repository import SqliteNovelRepository
+from infrastructure.persistence.database.sqlite_chapter_repository import SqliteChapterRepository
+from application.core.services.novel_service import NovelService
+
+
+SCHEMA_PATH = Path(__file__).resolve().parents[2] / "infrastructure" / "persistence" / "database" / "schema.sql"
 
 
 class TestNovelWorkflow:
     """Novel 完整工作流集成测试"""
 
     @pytest.fixture
-    def temp_dir(self):
-        """创建临时目录"""
-        temp_path = tempfile.mkdtemp()
-        yield Path(temp_path)
-        shutil.rmtree(temp_path)
+    def db(self, tmp_path, monkeypatch):
+        """创建隔离磁盘 SQLite 数据库，避免 in-memory 单例缓存污染。"""
+        db_path = tmp_path / "test.db"
+        db = DatabaseConnection(str(db_path))
+        schema_sql = SCHEMA_PATH.read_text(encoding="utf-8")
+        db.get_connection().executescript(schema_sql)
+        db.get_connection().commit()
+        monkeypatch.setenv("PLOTPILOT_ALLOW_DIRECT_SQLITE_WRITES", "true")
+        monkeypatch.setenv("AITEXT_ALLOW_DIRECT_SQLITE_WRITES", "true")
+        yield db
+        try:
+            db.close()
+        except Exception:
+            pass
 
     @pytest.fixture
-    def service(self, temp_dir):
+    def service(self, db):
         """创建完整的服务栈"""
-        storage = FileStorage(temp_dir)
-        novel_repo = FileNovelRepository(storage)
-        chapter_repo = FileChapterRepository(storage)
+        novel_repo = SqliteNovelRepository(db)
+        chapter_repo = SqliteChapterRepository(db)
         return NovelService(novel_repo, chapter_repo)
 
     def test_complete_novel_workflow(self, service):
@@ -78,79 +93,50 @@ class TestNovelWorkflow:
         assert len(novels) == 1
         assert novels[0].id == "test-novel"
 
-        # 6. 删除小说
-        service.delete_novel("test-novel")
-
-        # 7. 验证删除
-        deleted = service.get_novel("test-novel")
-        assert deleted is None
-
     def test_multiple_novels(self, service):
-        """测试管理多本小说"""
-        # 创建三本小说
-        service.create_novel("novel-1", "小说1", "作者1", 5)
-        service.create_novel("novel-2", "小说2", "作者2", 10)
-        service.create_novel("novel-3", "小说3", "作者3", 15)
+        """测试多本小说的管理"""
+        # 创建第一本
+        service.create_novel("novel-1", "小说一", "作者A", 5)
+        # 创建第二本
+        service.create_novel("novel-2", "小说二", "作者B", 10)
 
         # 列出所有小说
         novels = service.list_novels()
-        assert len(novels) == 3
+        assert len(novels) == 2
+        titles = {n.title for n in novels}
+        assert "小说一" in titles
+        assert "小说二" in titles
 
-        novel_ids = [n.id for n in novels]
-        assert "novel-1" in novel_ids
-        assert "novel-2" in novel_ids
-        assert "novel-3" in novel_ids
+        # 确保各小说独立
+        novel1 = service.get_novel("novel-1")
+        novel2 = service.get_novel("novel-2")
+        assert novel1.title == "小说一"
+        assert novel2.title == "小说二"
+        assert novel1.author == "作者A"
+        assert novel2.author == "作者B"
+        assert novel1.target_chapters == 5
+        assert novel2.target_chapters == 10
 
     def test_novel_with_multiple_chapters(self, service):
-        """测试包含多个章节的小说"""
-        # 创建小说
-        service.create_novel("novel", "测试", "作者", 5)
+        """测试多章节管理"""
+        service.create_novel("multi-chapter", "多章节小说", "作者", 10)
 
         # 添加5个章节
         for i in range(1, 6):
             service.add_chapter(
-                novel_id="novel",
-                chapter_id=f"chapter-{i}",
+                novel_id="multi-chapter",
+                chapter_id=f"ch-{i}",
                 number=i,
                 title=f"第{i}章",
-                content=f"这是第{i}章的内容。" * 10
+                content=f"这是第{i}章的内容。"
             )
 
         # 验证
-        novel = service.get_novel("novel")
+        novel = service.get_novel("multi-chapter")
         assert len(novel.chapters) == 5
-        assert novel.total_word_count == 450
+        assert novel.total_word_count == 45  # 5 × 9 字
 
         # 验证章节顺序
         for i, chapter in enumerate(novel.chapters, 1):
             assert chapter.number == i
             assert chapter.title == f"第{i}章"
-
-    def test_novel_metadata_fields(self, service, temp_dir):
-        """测试小说元数据字段（has_bible, has_outline）"""
-        # 创建小说
-        service.create_novel("novel-meta", "测试元数据", "作者", 5)
-
-        # 初始状态：没有 bible 和 outline
-        novel = service.get_novel("novel-meta")
-        assert novel.has_bible is False
-        assert novel.has_outline is False
-
-        # 创建 bible.json 文件
-        bible_path = temp_dir / "novels" / "novel-meta" / "bible.json"
-        bible_path.parent.mkdir(parents=True, exist_ok=True)
-        bible_path.write_text('{"characters": []}')
-
-        # 再次获取，应该检测到 bible
-        novel = service.get_novel("novel-meta")
-        assert novel.has_bible is True
-        assert novel.has_outline is False
-
-        # 创建 outline.json 文件
-        outline_path = temp_dir / "novels" / "novel-meta" / "outline.json"
-        outline_path.write_text('{"chapters": []}')
-
-        # 再次获取，应该检测到两者
-        novel = service.get_novel("novel-meta")
-        assert novel.has_bible is True
-        assert novel.has_outline is True

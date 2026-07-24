@@ -8,7 +8,7 @@ from __future__ import annotations
 import json
 import logging
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
 from domain.bible.entities.bible import Bible
@@ -31,7 +31,7 @@ class SqliteBibleRepository(BibleRepository):
 
     @staticmethod
     def _now() -> str:
-        return datetime.utcnow().isoformat()
+        return datetime.now(timezone.utc).replace(tzinfo=None).isoformat()
 
     def _clear_children(self, conn, novel_id: str) -> None:
         conn.execute("DELETE FROM bible_style_notes WHERE novel_id = ?", (novel_id,))

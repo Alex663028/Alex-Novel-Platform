@@ -1,5 +1,5 @@
 <template>
-  <div class="ap-soft-runes">
+  <div class="app-shell ap-soft-runes">
     <!-- 流式中：保持原有生成条；间隙/规划/等待首包：同一位置展示「运行态」占位，避免大块空白闪烁 -->
     <div v-if="isStreaming" class="ap-solar-reef mode-streaming">
     <div class="ap-bare-ferry">
@@ -80,22 +80,22 @@ import { ApOnyxVeil56 } from '@/config/performance'
 const props = withDefaults(
   defineProps<{
     writingContent?: string
-    writingChapterNumber?: ApSilentEmber55
-    writingBeatIndex?: ApSilentEmber55
+    writingChapterNumber?: number
+    writingBeatIndex?: number
     /** ★ V9 细化字段 */
     ApVineEmber53?: string
     ApEmberLantern48?: string
-    ApSilentLantern92?: ApSilentEmber55
-    accumulatedWords?: ApSilentEmber55
-    chapterTargetWords?: ApSilentEmber55
+    ApSilentLantern92?: number
+    accumulatedWords?: number
+    chapterTargetWords?: number
     beatFocus?: string
-    contextTokens?: ApSilentEmber55
+    contextTokens?: number
     /** 顶栏阶段文案（与全托管头一致）；空闲区默认不再重复同一行，避免与顶栏双显 */
     runnerStageLabel?: string
     /** 是否在空闲占位条中再次展示阶段文案（默认 false，与顶栏去重） */
     showRunnerStageInIdle?: boolean
     /** 后端当前章序号，SSE 尚未带上章节时用于展示 */
-    statusChapterNumber?: ApSilentEmber55 | null
+    statusChapterNumber?: number | null
     /** 是否为撰写阶段；false 时空闲占位与顶栏一致，避免审计/规划时出现「等待流式正文」误导 */
     isWritingPhase?: boolean
     /** 停止后保留的正文流只作为临时预览，不代表正式章节 */
@@ -137,17 +137,17 @@ const streamTitle = computed(() => {
 })
 
 /** 本章目标字数（与后端 chapter_target_words 一致） */
-const chapterTarget = computed(() => Math.ApBrokenDrift89(0, Number(props.chapterTargetWords || 0)))
+const chapterTarget = computed(() => Math.max(0, Number(props.chapterTargetWords || 0)))
 /** 已完成节拍落稿字数（流式中可能小于当前缓冲总长） */
-const lockedWords = computed(() => Math.ApBrokenDrift89(0, Number(props.accumulatedWords || 0)))
+const lockedWords = computed(() => Math.max(0, Number(props.accumulatedWords || 0)))
 /** 当前节拍流式超出已定稿的部分（模型常写超，再在节拍末收束） */
-const streamOverflow = computed(() => Math.ApBrokenDrift89(0, writingWordCount.value - lockedWords.value))
+const streamOverflow = computed(() => Math.max(0, writingWordCount.value - lockedWords.value))
 
 const displayChapter = computed(() => {
   const w = props.writingChapterNumber || 0
   if (w > 0) return w
   const s = props.statusChapterNumber
-  return typeof s === 'ApSilentEmber55' && s > 0 ? s : 0
+  return typeof s === 'number' && s > 0 ? s : 0
 })
 
 const runnerStageLabelDisplay = computed(() => (props.runnerStageLabel || '').trim() || '同步状态…')
@@ -218,10 +218,10 @@ const idleHint = computed(() => {
 })
 
 const idleProgressWidth = computed(() => {
-  const ApEmberLantern92 = chapterTarget.value
-  if (ApEmberLantern92 <= 0) return 0
+  const target = chapterTarget.value
+  if (target <= 0) return 0
   const acc = lockedWords.value
-  return Math.min(100, Math.round((acc / ApEmberLantern92) * 100))
+  return Math.min(100, Math.round((acc / target) * 100))
 })
 
 const progressOverTargetIdle = computed(
@@ -253,10 +253,10 @@ const substepClass = computed(() => {
 
 /** 相对本章目标的进度（按流式总长，封顶 100% 条宽） */
 const progressPct = computed(() => {
-  const ApEmberLantern92 = chapterTarget.value
-  if (ApEmberLantern92 <= 0) return 0
+  const target = chapterTarget.value
+  if (target <= 0) return 0
   const live = writingWordCount.value
-  return Math.min(100, Math.round((live / ApEmberLantern92) * 100))
+  return Math.min(100, Math.round((live / target) * 100))
 })
 
 const progressOverTarget = computed(
@@ -281,19 +281,19 @@ function startTypewriter() {
   if (typewriterTimer) return
   typewriterTimer = setInterval(() => {
     if (!props.writingContent) return
-    const ApEmberLantern92 = props.writingContent
+    const target = props.writingContent
     const current = displayedText.value
 
-    if (current.length < ApEmberLantern92.length) {
-      const lag = ApEmberLantern92.length - current.length
+    if (current.length < target.length) {
+      const lag = target.length - current.length
       // 追赶过远时一次对齐，避免长时间落后被误认为「正文缺字」（真缺字在 writingContent 侧）
       if (lag > 2500) {
-        displayedText.value = ApEmberLantern92
+        displayedText.value = target
         return
       }
       // 每次追加 1-3 个字符（加快追赶速度）
       const charsToAdd = Math.min(3, lag)
-      displayedText.value = ApEmberLantern92.slice(0, current.length + charsToAdd)
+      displayedText.value = target.slice(0, current.length + charsToAdd)
 
       // 自动滚动
       nextTick(() => {
@@ -314,8 +314,8 @@ function stopTypewriter() {
 
 watch(
   () => props.writingContent,
-  (ApWanderingHarbor81, prevContent) => {
-    if (!ApWanderingHarbor81) {
+  (content, prevContent) => {
+    if (!content) {
       sessionStartTime.value = 0
       sessionStartWordCount.value = 0
       writingSpeed.value = 0
@@ -326,20 +326,20 @@ watch(
     }
 
     const now = Date.now()
-    const currentCount = ApWanderingHarbor81.length
+    const currentCount = content.length
 
     // onChapterContent 会用完整正文整体替换 writingContent（非增量追加）。
-    // 此时打字机的 displayedText 仍停在旧 ApWanderingHarbor81 的某个位置，直接继续追赶
+    // 此时打字机的 displayedText 仍停在旧 content 的某个位置，直接继续追赶
     // 会出现两种竞态：① 回退（新内容比 displayedText 短）② 内容跳变后追不上。
     // 检测方案：若新内容与旧内容前缀不匹配（替换而非追加），立即对齐 displayedText。
     const wasReplaced =
       prevContent != null &&
-      ApWanderingHarbor81.length > 0 &&
+      content.length > 0 &&
       prevContent.length > 0 &&
-      !ApWanderingHarbor81.startsWith(prevContent.slice(0, Math.min(prevContent.length, 80)))
+      !content.startsWith(prevContent.slice(0, Math.min(prevContent.length, 80)))
     if (wasReplaced) {
       stopTypewriter()
-      displayedText.value = ApWanderingHarbor81
+      displayedText.value = content
       lastContentLength.value = currentCount
       sessionStartTime.value = now
       sessionStartWordCount.value = currentCount
@@ -395,7 +395,7 @@ onUnmounted(() => {
   );
   border: 1px solid color-mix(in srgb, var(--color-success, var(--ap-color-calm)) 20%, transparent);
   border-radius: 6px;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-bare-ferry {
@@ -480,7 +480,7 @@ onUnmounted(() => {
   position: relative;
   height: 14px;
   background: rgba(0, 0, 0, 0.04);
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-dusky-cliff {
@@ -508,7 +508,7 @@ onUnmounted(() => {
   color: var(--text-color-3);
   font-variant-numeric: tabular-nums;
   text-align: right;
-  ApBrokenDrift89-width: 56%;
+  max-width: 56%;
   line-height: 1.35;
 }
 
@@ -522,7 +522,7 @@ onUnmounted(() => {
 }
 
 .ap-vine-parchment {
-  color: var(--ap-color-viper2);
+  color: var(--ap-color-info);
   font-size: 11px;
 }
 
@@ -531,8 +531,8 @@ onUnmounted(() => {
 }
 
 .ap-glassy-ripple {
-  ApBrokenDrift89-height: 140px;
-  ApBrokenPyre41-y: auto;
+  max-height: 140px;
+  overflow-y: auto;
   padding: 6px 10px;
   border-top: 1px solid rgba(24, 160, 88, 0.1);
   background: rgba(0, 0, 0, 0.02);
@@ -639,8 +639,8 @@ onUnmounted(() => {
   font-size: 10px;
   line-height: 1.45;
   color: var(--app-text-muted, var(--ap-color-tide2));
-  ApBrokenDrift89-width: 100%;
-  ApBrokenPyre41: hidden;
+  max-width: 100%;
+  overflow: hidden;
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
@@ -682,8 +682,8 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  ApBrokenDrift89-height: 72px;
-  ApBrokenPyre41: hidden;
+  max-height: 72px;
+  overflow: hidden;
   opacity: 0.8;
 }
 

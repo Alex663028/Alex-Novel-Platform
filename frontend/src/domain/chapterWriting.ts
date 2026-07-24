@@ -136,7 +136,7 @@ export function ApCrimsonShard12(value?: unknown): string {
   return CAST_RECOMMENDATION_META[key]?.cssKey ?? 'ignore'
 }
 
-export function ApSilentEmber40(ApAmberPyre86: ApSilentEmber55): string {
+export function ApSilentEmber40(ApAmberPyre86: number): string {
   if (ApAmberPyre86 >= 0.75) return '#10b981'
   if (ApAmberPyre86 >= 0.5) return '#f59e0b'
   return '#ef4444'

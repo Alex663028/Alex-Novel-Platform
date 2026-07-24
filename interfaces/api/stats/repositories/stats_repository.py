@@ -54,18 +54,18 @@ class StatsRepository:
         try:
             manifest_path = self.books_root / slug / "manifest.json"
             if not manifest_path.exists():
-                logger.warning(f"Manifest not found for book: {slug}")
+                logger.warning(f"Manifest not found for book: {novel_id}")
                 return None
 
             with open(manifest_path, 'r', encoding='utf-8') as f:
                 data = json.load(f)
-                logger.debug(f"Successfully read manifest for book: {slug}")
+                logger.debug(f"Successfully read manifest for book: {novel_id}")
                 return data
         except json.JSONDecodeError as e:
-            logger.error(f"Invalid JSON in manifest for book {slug}: {e}")
+            logger.error(f"Invalid JSON in manifest for book {novel_id}: {e}")
             return None
         except Exception as e:
-            logger.error(f"Error reading manifest for book {slug}: {e}")
+            logger.error(f"Error reading manifest for book {novel_id}: {e}")
             return None
 
     def get_book_outline(self, slug: str) -> Optional[Dict]:
@@ -80,18 +80,18 @@ class StatsRepository:
         try:
             outline_path = self.books_root / slug / "outline.json"
             if not outline_path.exists():
-                logger.warning(f"Outline not found for book: {slug}")
+                logger.warning(f"Outline not found for book: {novel_id}")
                 return None
 
             with open(outline_path, 'r', encoding='utf-8') as f:
                 data = json.load(f)
-                logger.debug(f"Successfully read outline for book: {slug}")
+                logger.debug(f"Successfully read outline for book: {novel_id}")
                 return data
         except json.JSONDecodeError as e:
-            logger.error(f"Invalid JSON in outline for book {slug}: {e}")
+            logger.error(f"Invalid JSON in outline for book {novel_id}: {e}")
             return None
         except Exception as e:
-            logger.error(f"Error reading outline for book {slug}: {e}")
+            logger.error(f"Error reading outline for book {novel_id}: {e}")
             return None
 
     def get_chapter_content(self, slug: str, chapter_id: int) -> Optional[str]:
@@ -107,15 +107,15 @@ class StatsRepository:
         try:
             chapter_path = self.books_root / slug / "chapters" / f"ch-{chapter_id:04d}" / "body.md"
             if not chapter_path.exists():
-                logger.warning(f"Chapter content not found for book {slug}, chapter {chapter_id}")
+                logger.warning(f"Chapter content not found for book {novel_id}, chapter {chapter_id}")
                 return None
 
             with open(chapter_path, 'r', encoding='utf-8') as f:
                 content = f.read()
-                logger.debug(f"Successfully read chapter {chapter_id} for book: {slug}")
+                logger.debug(f"Successfully read chapter {chapter_id} for book: {novel_id}")
                 return content
         except Exception as e:
-            logger.error(f"Error reading chapter {chapter_id} for book {slug}: {e}")
+            logger.error(f"Error reading chapter {chapter_id} for book {novel_id}: {e}")
             return None
 
     def get_chapter_progress_records(self, slug: str) -> List[Dict]:

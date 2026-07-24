@@ -1,0 +1,373 @@
+/* ============================================================
+   PlotPilot-Optimized-Source — 暗色毛玻璃设计系统
+   ============================================================
+   设计语言：深空黑底 + 霓虹青/品红 + 毛玻璃面板 + 微光边框
+   只改布局壳层/容器/CSS 变量，不改业务逻辑。
+   ============================================================ */
+
+:root {
+  /* ── 基础排版 ── */
+  --layout-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei",
+    sans-serif;
+  --layout-font-size-base: 13px;
+  --layout-font-size-sm: 12px;
+  --layout-font-size-lg: 15px;
+  --layout-line-height: 1.5;
+
+  /* ── 圆角 ── */
+  --layout-radius-xs: 6px;
+  --layout-radius-sm: 8px;
+  --layout-radius-md: 10px;
+  --layout-radius-lg: 14px;
+  --layout-radius-xl: 18px;
+
+  /* ── 间距 scale ── */
+  --layout-space-1: 4px;
+  --layout-space-2: 8px;
+  --layout-space-3: 12px;
+  --layout-space-4: 16px;
+  --layout-space-5: 20px;
+  --layout-space-6: 24px;
+  --layout-space-8: 32px;
+
+  /* ── 面板 / 卡片 ── */
+  --layout-panel-bg: rgba(22, 31, 51, 0.72);
+  --layout-panel-bg-solid: #161f33;
+  --layout-panel-bg-subtle: rgba(15, 21, 37, 0.6);
+  --layout-panel-border: rgba(0, 240, 255, 0.12);
+  --layout-panel-border-hover: rgba(0, 240, 255, 0.28);
+  --layout-panel-shadow: 0 1px 3px rgba(0, 0, 0, 0.3),
+    0 6px 24px rgba(0, 0, 0, 0.22);
+  --layout-panel-blur: blur(16px) saturate(140%);
+  --layout-card-bg: rgba(10, 14, 23, 0.8);
+
+  /* ── 全局 header / footer / 侧栏基线 ── */
+  --layout-header-height: 52px;
+  --layout-sidebar-width: 280px;
+  --layout-sidebar-collapsed-width: 64px;
+
+  /* ── 文本 ── */
+  --layout-text-primary: #e6f1ff;
+  --layout-text-secondary: #b0c4de;
+  --layout-text-muted: #8a9bb5;
+
+  /* ── 分割线 / 边框 ── */
+  --layout-border: rgba(148, 163, 184, 0.12);
+  --layout-divider: rgba(148, 163, 184, 0.08);
+
+  /* ── 页面背景 ── */
+  --layout-page-bg: #05070a;
+
+  /* ── 霓虹色 ── */
+  --neon-cyan: #00f0ff;
+  --neon-magenta: #ff2a6d;
+  --neon-amber: #ffa500;
+}
+
+/* ── 全局壳层（仅文字/字体继承，页面背景与最小高度只挂在根 .app-root）── */
+.app-shell {
+  color: var(--layout-text-primary);
+  font-family: var(--layout-font-family);
+  font-size: var(--layout-font-size-base);
+  line-height: var(--layout-line-height);
+}
+
+/* ── 根壳层：铺满视口 + 赛博朋克渐变背景（只此一处，避免嵌套组件被撑成满屏）── */
+.app-shell.app-root {
+  min-height: 100vh;
+  background:
+    radial-gradient(1200px 800px at 10% -10%, rgba(0, 240, 255, 0.06), transparent 55%),
+    radial-gradient(900px 600px at 110% 10%, rgba(255, 42, 109, 0.05), transparent 55%),
+    var(--layout-page-bg);
+  font-family: var(--layout-font-family);
+  font-size: var(--layout-font-size-base);
+  line-height: var(--layout-line-height);
+}
+
+/* ── 面板：毛玻璃（普通/顶层卡片）── */
+.panel,
+.app-shell .n-card {
+  background: var(--layout-panel-bg);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  backdrop-filter: blur(16px) saturate(140%);
+  border: 1px solid var(--layout-panel-border);
+  border-radius: var(--layout-radius-lg);
+  box-shadow: var(--layout-panel-shadow);
+  transition: border-color 0.2s ease;
+}
+
+.panel:hover,
+.app-shell .n-card:hover {
+  border-color: var(--layout-panel-border-hover);
+}
+
+/* 嵌套卡片：透明 + 无模糊，避免毛玻璃叠糊叠暗 */
+.app-shell .n-card .n-card {
+  background: transparent;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  border: 1px solid var(--layout-border);
+  box-shadow: none;
+}
+
+/* ── 顶部栏通用 ── */
+.topbar,
+.app-shell > .topbar {
+  height: var(--layout-header-height);
+  padding: 0 var(--layout-space-5);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--layout-space-4);
+  background: rgba(10, 14, 23, 0.68);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  backdrop-filter: blur(16px) saturate(140%);
+  border-bottom: 1px solid var(--layout-border);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+/* ── 内容区通用 ── */
+.content-area {
+  flex: 1;
+  min-height: 0;
+  padding: var(--layout-space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--layout-space-4);
+}
+
+/* ── 卡片通用 ── */
+.card {
+  background: var(--layout-card-bg);
+  border: 1px solid var(--layout-border);
+  border-radius: var(--layout-radius-lg);
+  padding: var(--layout-space-5);
+  box-shadow: var(--layout-panel-shadow);
+}
+
+/* ── 标题通用 ── */
+.heading {
+  margin: 0;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  color: var(--layout-text-primary);
+}
+
+.subheading {
+  margin: 0;
+  font-weight: 550;
+  color: var(--layout-text-secondary);
+}
+
+.caption {
+  margin: 0;
+  color: var(--layout-text-muted);
+}
+
+/* ── 按钮组通用 ── */
+.action-row {
+  display: flex;
+  align-items: center;
+  gap: var(--layout-space-3);
+  flex-wrap: wrap;
+}
+
+/* ── 分割线 ── */
+.rule {
+  border: none;
+  border-top: 1px solid var(--layout-divider);
+  margin: var(--layout-space-3) 0;
+}
+
+/* ── 滚动条 ── */
+.app-shell ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.app-shell ::-webkit-scrollbar-thumb {
+  background: rgba(0, 240, 255, 0.18);
+  border-radius: 999px;
+}
+.app-shell ::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 240, 255, 0.32);
+}
+.app-shell ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ── Naive UI 组件继承壳层样式 ── */
+
+/* input */
+.app-shell .n-input {
+  background: rgba(5, 7, 10, 0.55);
+  border-radius: var(--layout-radius-sm);
+}
+.app-shell .n-input .n-input__input-el,
+.app-shell .n-input .n-input__textarea-el {
+  color: var(--layout-text-primary);
+}
+.app-shell .n-input .n-input__placeholder,
+.app-shell .n-input .n-input__textarea-el::placeholder {
+  color: var(--layout-text-muted);
+}
+
+/* radio */
+.app-shell .n-radio .n-radio__label {
+  color: var(--layout-text-primary);
+}
+.app-shell .n-radio .n-radio__dot {
+  border-color: var(--layout-text-muted);
+}
+.app-shell .n-radio.n-radio--checked .n-radio__dot {
+  border-color: var(--neon-cyan);
+  background-color: var(--neon-cyan);
+}
+
+/* switch */
+.app-shell .n-switch .n-switch__rail {
+  background: rgba(148, 163, 184, 0.2);
+}
+.app-shell .n-switch.n-switch--active .n-switch__rail {
+  background: var(--neon-cyan);
+}
+.app-shell .n-switch .n-switch__button-icon {
+  color: var(--layout-text-primary);
+}
+
+/* tabs */
+.app-shell .n-tabs-tab {
+  color: var(--layout-text-muted);
+}
+.app-shell .n-tabs-tab.n-tabs-tab--active {
+  color: var(--neon-cyan);
+}
+.app-shell .n-tabs-bar {
+  background-color: var(--neon-cyan);
+}
+
+/* select / dropdown */
+.app-shell .n-base-select {
+  background: rgba(5, 7, 10, 0.55);
+}
+.app-shell .n-base-select .n-base-select-label {
+  color: var(--layout-text-primary);
+}
+.app-shell .n-base-select .n-base-select-arrow {
+  color: var(--layout-text-muted);
+}
+
+/* tag */
+.app-shell .n-tag {
+  border-radius: var(--layout-radius-sm);
+}
+
+/* modal 内部文字强制可读 */
+.app-shell .n-modal .n-card {
+  background: var(--layout-panel-bg-solid);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border: 1px solid var(--layout-panel-border);
+  color: var(--layout-text-primary);
+}
+/* modal 内嵌套卡片保持实底（不被全局透明化规则覆盖） */
+.app-shell .n-modal .n-card .n-card {
+  background: var(--layout-panel-bg-subtle);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border: 1px solid var(--layout-panel-border);
+  box-shadow: none;
+}
+.app-shell .n-modal .n-card__content {
+  color: var(--layout-text-primary);
+}
+
+/* dropdown menu */
+.app-shell .n-dropdown-menu {
+  background: var(--layout-panel-bg-solid);
+  border: 1px solid var(--layout-panel-border);
+  border-radius: var(--layout-radius-md);
+  position: relative;
+  z-index: 9999;
+  transform: translateZ(0);
+}
+.app-shell .n-dropdown-option .n-dropdown-option-body__label {
+  color: var(--layout-text-primary);
+}
+
+/* select / base-select menu */
+.app-shell .n-base-select-menu,
+.app-shell .n-select-menu {
+  background: var(--layout-panel-bg-solid);
+  border: 1px solid var(--layout-panel-border);
+  border-radius: var(--layout-radius-md);
+  color: var(--layout-text-primary);
+  overflow: visible;
+  position: relative;
+  z-index: 9999;
+  transform: translateZ(0);
+}
+.app-shell .n-base-select-option,
+.app-shell .n-select-option {
+  color: var(--layout-text-primary);
+}
+.app-shell .n-base-select-option--selected,
+.app-shell .n-select-option--selected {
+  color: var(--neon-cyan);
+  background: rgba(0, 240, 255, 0.08);
+}
+
+/* dropdown / select popup / menu 全局兜底 */
+html, body {
+  overflow: visible !important;
+}
+.app-shell {
+  position: relative;
+  overflow: visible;
+}
+
+/* descriptions */
+.app-shell .n-descriptions-table {
+  background: transparent;
+}
+.app-shell .n-descriptions-table-header,
+.app-shell .n-descriptions-table-row {
+  background: transparent;
+}
+.app-shell .n-descriptions-table-content,
+.app-shell .n-descriptions-table-label {
+  background: rgba(15, 21, 37, 0.4);
+  color: var(--layout-text-primary);
+  border-color: var(--layout-border);
+}
+
+/* collapse */
+.app-shell .n-collapse-item__header-main {
+  color: var(--layout-text-primary);
+}
+.app-shell .n-collapse-item__content-inner {
+  color: var(--layout-text-secondary);
+}
+
+/* spin */
+.app-shell .n-spin-description {
+  color: var(--layout-text-muted);
+}
+
+/* divider */
+.app-shell .n-divider {
+  color: var(--layout-text-muted);
+}
+
+/* text 组件 */
+.app-shell .n-text {
+  color: var(--layout-text-primary);
+}
+.app-shell .n-text.n-text--depth-2 {
+  color: var(--layout-text-secondary);
+}
+.app-shell .n-text.n-text--depth-3 {
+  color: var(--layout-text-muted);
+}

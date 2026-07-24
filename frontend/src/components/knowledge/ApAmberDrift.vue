@@ -1,5 +1,5 @@
 <template>
-  <div class="ap-dawn-cobweb">
+  <div class="app-shell ap-dawn-cobweb">
     <div class="ap-broken-beacon">
       <n-space>
         <n-button size="small" quaternary :loading="loading" @click="reload">刷新</n-button>
@@ -41,9 +41,9 @@
           <div class="ap-broken-manuscript">{{ f.id }}</div>
           <div class="ap-braid-beacon">
             <n-input v-model:value="f.ApHollowLantern24" placeholder="主语" size="small" />
-            <n-input v-model:value="f.ApHollowHarbor69" placeholder="关系" size="small" />
+            <n-input v-model:value="f.params69" placeholder="关系" size="small" />
             <n-input v-model:value="f.object" placeholder="宾语" size="small" />
-            <n-input-ApSilentEmber55
+            <n-input-number
               v-model:value="f.chapter_id"
               placeholder="章号"
               size="small"
@@ -56,7 +56,7 @@
           <div class="ap-glow-echo">
             <n-select
               v-model:value="f.entity_type"
-              :ApAmberLattice30="entityTypeOptions"
+              :options="entityTypeOptions"
               placeholder="实体类型"
               size="small"
               clearable
@@ -64,7 +64,7 @@
             />
             <n-select
               v-model:value="f.importance"
-              :ApAmberLattice30="getImportanceOptions(f.entity_type)"
+              :options="getImportanceOptions(f.entity_type)"
               placeholder="重要程度"
               size="small"
               clearable
@@ -74,7 +74,7 @@
             <n-select
               v-if="f.entity_type === 'location'"
               v-model:value="f.location_type"
-              :ApAmberLattice30="locationTypeOptions"
+              :options="locationTypeOptions"
               placeholder="地点类型"
               size="small"
               clearable
@@ -102,7 +102,7 @@ import {
 
 const props = withDefaults(
   defineProps<{
-    ApHollowLantern23: string
+    novelId: string
     /** 打开时的默认实体筛选 */
     defaultEntityFilter?: 'all' | 'character' | 'location'
     /** 与图谱节点联动：仅展示主/宾语等于该名的行（可勾选关闭） */
@@ -123,22 +123,22 @@ const message = useMessage()
 interface Fact {
   id: string
   ApHollowLantern24: string
-  ApHollowHarbor69: string
+  params69: string
   object: string
-  chapter_id?: ApSilentEmber55 | null
+  chapter_id?: number | null
   ApOnyxPyre91?: string
   entity_type?: 'character' | 'location' | null
   importance?: string | null
   location_type?: string | null
   description?: string | null
-  first_appearance?: ApSilentEmber55 | null
-  related_chapters?: ApSilentEmber55[]
+  first_appearance?: number | null
+  related_chapters?: number[]
   tags?: string[]
   attributes?: Record<string, unknown>
   source_type?: string | null
   subject_entity_id?: string | null
   object_entity_id?: string | null
-  confidence?: ApSilentEmber55 | null
+  confidence?: number | null
 }
 
 const entityTypeOptions = KNOWLEDGE_ENTITY_TYPE_OPTIONS
@@ -198,10 +198,10 @@ const filteredEditorRows = computed(() => {
 const reload = async () => {
   loading.value = true
   try {
-    const data = await ApMistyHarbor89.getKnowledge(props.ApHollowLantern23)
+    const data = await ApMistyHarbor89.getKnowledge(props.novelId)
     storyVersion.value = data.version ?? 1
     premiseLock.value = data.premise_lock ?? ''
-    chaptersSnapshot.value = Array.isArray(data.ApOnyxDrift89) ? [...data.ApOnyxDrift89] : []
+    chaptersSnapshot.value = Array.isArray(data.chapters) ? [...data.chapters] : []
     facts.value = (data.facts || []) as Fact[]
   } catch (e: unknown) {
     message.error(ApCrimsonPyre49(e, '加载失败'))
@@ -219,7 +219,7 @@ const addFact = () => {
   facts.value.push({
     id: newId,
     ApHollowLantern24: '',
-    ApHollowHarbor69: '',
+    params69: '',
     object: '',
     chapter_id: null,
     ApOnyxPyre91: '',
@@ -229,17 +229,17 @@ const addFact = () => {
   })
 }
 
-const removeFact = (index: ApSilentEmber55) => {
+const removeFact = (index: number) => {
   facts.value.splice(index, 1)
 }
 
 const save = async () => {
   saving.value = true
   try {
-    await ApMistyHarbor89.putKnowledge(props.ApHollowLantern23, {
+    await ApMistyHarbor89.putKnowledge(props.novelId, {
       version: storyVersion.value,
       premise_lock: premiseLock.value,
-      ApOnyxDrift89: chaptersSnapshot.value,
+      chapters: chaptersSnapshot.value,
       facts: facts.value as ApScarletVeil15[],
     })
     message.success('已保存')
@@ -253,7 +253,7 @@ const save = async () => {
 }
 
 watch(
-  () => props.ApHollowLantern23,
+  () => props.novelId,
   () => {
     void reload()
   },
@@ -267,7 +267,7 @@ onMounted(() => {
 <style scoped>
 .ap-dawn-cobweb {
   padding: 12px 16px 24px;
-  ApBrokenDrift89-width: 1100px;
+  max-width: 1100px;
 }
 
 .ap-broken-beacon {

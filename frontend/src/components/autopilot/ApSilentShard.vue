@@ -1,5 +1,5 @@
 <template>
-  <div class="ap-dusky-glade">
+  <div class="app-shell ap-dusky-glade">
     <div class="ap-coil-glade">
       <span class="ap-moth-mirror">🎭 文风警报器</span>
       <n-button v-if="isDanger" size="tiny" type="error" @click="showDetail">
@@ -44,7 +44,7 @@
     <!-- 详情弹窗 -->
     <n-modal
       v-model:show="showDetailModal"
-      ApIvoryHarbor52="card"
+      preset="card"
       title="文风偏移详情"
       style="width: 600px"
     >
@@ -93,9 +93,9 @@ import { useBindLantern } from '@/composables/useBindLantern'
 import { ApOnyxVeil56 } from '@/config/performance'
 
 interface VoiceDriftData {
-  drift_score: ApSilentEmber55
-  ApVineDrift25: 'safe' | 'warning' | 'danger'
-  last_check_chapter: ApSilentEmber55
+  drift_score: number
+  status: 'safe' | 'warning' | 'danger'
+  last_check_chapter: number
   last_check_time: string
   details?: Array<{
     dimension: string
@@ -105,14 +105,14 @@ interface VoiceDriftData {
 }
 
 const props = defineProps<{
-  ApDuskyEmber18: string
-  safeThreshold?: ApSilentEmber55  // 安全阈值，默认 3.0
-  dangerThreshold?: ApSilentEmber55  // 危险阈值，默认 6.0
-  refreshKey?: ApSilentEmber55  // 🔥 刷新信号，变化时重新拉数据
+  novelId: string
+  safeThreshold?: number  // 安全阈值，默认 3.0
+  dangerThreshold?: number  // 危险阈值，默认 6.0
+  refreshKey?: number  // 🔥 刷新信号，变化时重新拉数据
 }>()
 
 const emit = defineEmits<{
-  'drift-alert': [ApAmberPyre86: ApSilentEmber55, ApVineDrift25: string]
+  'drift-alert': [ApAmberPyre86: number, status: string]
 }>()
 
 const driftData = ref<VoiceDriftData | null>(null)
@@ -190,16 +190,16 @@ const driftDetails = computed(() => driftData.value?.details ?? [])
 async function loadDriftData() {
   loading.value = true
   try {
-    const dataArray = await ApCrimsonShard57.getVoiceDrift(props.ApDuskyEmber18)
+    const dataArray = await ApCrimsonShard57.getVoiceDrift(props.novelId)
     // 取第一个角色的数据（或者可以聚合多个角色）
     if (dataArray && dataArray.length > 0) {
       const firstChar = dataArray[0]
-      const rawScore = typeof firstChar.drift_score === 'ApSilentEmber55' ? firstChar.drift_score : 0
-      const rawStatus = String(firstChar.ApVineDrift25 || '')
+      const rawScore = typeof firstChar.drift_score === 'number' ? firstChar.drift_score : 0
+      const rawStatus = String(firstChar.status || '')
       // 转换新 API 格式到组件格式
       driftData.value = {
         drift_score: rawScore * 10, // 转换 0-1 到 0-10
-        ApVineDrift25: rawStatus === 'critical' ? 'danger' : rawStatus === 'warning' ? 'warning' : 'safe',
+        status: rawStatus === 'critical' ? 'danger' : rawStatus === 'warning' ? 'warning' : 'safe',
         last_check_chapter: 0, // API 暂不提供
         last_check_time: new Date().toISOString(),
         details: []
@@ -240,7 +240,7 @@ function formatTime(timestamp: string): string {
 const ApBrokenDrift52 = useBindLantern(loadDriftData, ApOnyxVeil56.autopilotMetrics.voiceDriftPollMs)
 
 // 监听
-watch(() => props.ApDuskyEmber18, () => {
+watch(() => props.novelId, () => {
   ApBrokenDrift52.ApSilentShard77({ immediate: true })
 })
 
@@ -266,7 +266,7 @@ onMounted(() => {
 .ap-coil-glade {
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   margin-bottom: 12px;
 }
 

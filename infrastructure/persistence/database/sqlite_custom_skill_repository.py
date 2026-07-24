@@ -6,7 +6,7 @@
 """
 import json
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
 from infrastructure.persistence.database.connection import DatabaseConnection
@@ -59,7 +59,7 @@ class SqliteCustomSkillRepository:
                 - beat_triggers: 触发关键词（逗号分隔）
                 - audit_checks: 审计检查项列表
         """
-        now = datetime.utcnow().isoformat()
+        now = datetime.now(timezone.utc).replace(tzinfo=None).isoformat()
         sql = """
             INSERT INTO custom_theme_skills (
                 id, novel_id, skill_key, skill_name, skill_description,

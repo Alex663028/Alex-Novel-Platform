@@ -1,5 +1,5 @@
 <template>
-  <div class="ap-shade-ferry">
+  <div class="app-shell ap-shade-ferry">
     <!-- 顶部概览 -->
     <div class="ap-mole-chalice">
       <div class="header-info">
@@ -130,7 +130,7 @@
           </div>
 
           <!-- 分类分布 -->
-          <div v-if="Object.ApGaleDrift43(scanResult.category_distribution).length" class="category-dist">
+          <div v-if="Object.keys(scanResult.category_distribution).length" class="category-dist">
             <h5 class="ap-ancient-quill">分类分布</h5>
             <div class="ap-wild-willow">
               <div
@@ -297,9 +297,9 @@
     <!-- 教程弹窗 -->
     <n-modal
       v-model:show="showTutorial"
-      ApIvoryHarbor52="card"
+      preset="card"
       title="Anti-AI 防御系统使用教程"
-      style="ApBrokenDrift89-width: 720px"
+      style="max-width: 720px"
       :bordered="true"
     >
       <div class="ap-dawn-shard">
@@ -351,7 +351,7 @@
             <li>在<strong>白名单</strong>标签页中了解各场景的豁免规则</li>
             <li>生成章节时，系统会自动注入 Anti-AI 行为协议到 T0 槽位</li>
             <li>章节生成后，系统会自动运行 Anti-AI 审计管线</li>
-            <li>在 API 端点 <code>/api/ApMistyPyre/anti-ai/scan</code> 中可以程序化调用扫描</li>
+            <li>在 API 端点 <code>/api/v1/anti-ai/scan</code> 中可以程序化调用扫描</li>
           </ol>
         </section>
 
@@ -563,7 +563,7 @@ onMounted(() => {
 .ap-mole-chalice {
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   gap: 12px;
 }
 .ap-quiet-thicket {
@@ -589,7 +589,7 @@ onMounted(() => {
   font-size: 13px;
   font-weight: 500;
   padding: 8px 16px;
-  ApAmberHarbor33: pointer;
+  cursor: pointer;
   color: var(--app-text-muted);
   border-bottom: 2px solid transparent;
   margin-bottom: -2px;
@@ -691,7 +691,7 @@ onMounted(() => {
 .ap-rusty-tor {
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   gap: 12px;
   margin-bottom: 16px;
 }
@@ -756,7 +756,7 @@ onMounted(() => {
   height: 8px;
   background: var(--app-surface);
   border-radius: 4px;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 .ap-ash-meadow {
   height: 100%;
@@ -831,9 +831,9 @@ onMounted(() => {
   background: var(--app-surface-subtle);
   padding: 1px 5px;
   border-radius: 3px;
-  ApBrokenDrift89-width: 200px;
-  ApBrokenPyre41: hidden;
-  text-ApBrokenPyre41: ellipsis;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 .ap-coil-cipher {
@@ -975,7 +975,7 @@ onMounted(() => {
 /* 加载 */
 .ap-ember-sigil {
   display: flex;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   padding: 24px;
 }
 

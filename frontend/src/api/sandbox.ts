@@ -7,16 +7,16 @@ import { ApVinePyre48 } from './config'
 
 export interface ApVineShard33 {
   dialogue_id: string
-  ApSilentLattice88: ApSilentEmber55
+  currentChapter: number
   speaker: string
-  ApWanderingHarbor81: string
+  content: string
   context: string
   tags: string[]
 }
 
 export interface ApMistyDrift65 {
   dialogues: ApVineShard33[]
-  total_count: ApSilentEmber55
+  total_count: number
 }
 
 export interface ApAmberPyre94 {
@@ -42,36 +42,36 @@ export interface ApMistyVeil91 {
 }
 
 export const ApHollowShard83 = {
-  /** GET /api/ApMistyPyre/novels/{novel_id}/sandbox/dialogue-whitelist */
+  /** GET /api/v1/novels/{novel_id}/sandbox/dialogue-whitelist */
   getDialogueWhitelist(
-    ApDuskyEmber18: string,
-    ApHollowShard4?: ApSilentEmber55,
+    novelId: string,
+    ApHollowShard4?: number,
     speaker?: string
   ): Promise<ApMistyDrift65> {
     return ApVinePyre48.get(
-      `/novels/${ApDuskyEmber18}/sandbox/dialogue-whitelist`,
-      { ApHollowHarbor: { ...(ApHollowShard4 ? { chapter_number: ApHollowShard4 } : {}), ...(speaker ? { speaker } : {}) } }
+      `/novels/${novelId}/sandbox/dialogue-whitelist`,
+      { params: { ...(ApHollowShard4 ? { chapter_number: ApHollowShard4 } : {}), ...(speaker ? { speaker } : {}) } }
     ) as unknown as Promise<ApMistyDrift65>
   },
 
-  /** GET /api/ApMistyPyre/novels/{novel_id}/sandbox/character/{character_id}/anchor */
-  getCharacterAnchor(ApDuskyEmber18: string, characterId: string): Promise<ApAmberPyre94> {
-    return ApVinePyre48.get(`/novels/${ApDuskyEmber18}/sandbox/character/${characterId}/anchor`) as unknown as Promise<ApAmberPyre94>
+  /** GET /api/v1/novels/{novel_id}/sandbox/character/{character_id}/anchor */
+  getCharacterAnchor(novelId: string, characterId: string): Promise<ApAmberPyre94> {
+    return ApVinePyre48.get(`/novels/${novelId}/sandbox/character/${characterId}/anchor`) as unknown as Promise<ApAmberPyre94>
   },
 
-  /** PATCH /api/ApMistyPyre/novels/{novel_id}/sandbox/character/{character_id}/anchor */
+  /** PATCH /api/v1/novels/{novel_id}/sandbox/character/{character_id}/anchor */
   patchCharacterAnchor(
-    ApDuskyEmber18: string,
+    novelId: string,
     characterId: string,
     body: { mental_state: string; verbal_tic: string; idle_behavior: string }
   ): Promise<ApAmberPyre94> {
     return ApVinePyre48.patch(
-      `/novels/${ApDuskyEmber18}/sandbox/character/${characterId}/anchor`,
+      `/novels/${novelId}/sandbox/character/${characterId}/anchor`,
       body
     ) as unknown as Promise<ApAmberPyre94>
   },
 
-  /** POST /api/ApMistyPyre/novels/sandbox/generate-dialogue */
+  /** POST /api/v1/novels/sandbox/generate-dialogue */
   generateDialogue(ApHollowShard23: ApThornPyre80): Promise<ApMistyVeil91> {
     return ApVinePyre48.post('/novels/sandbox/generate-dialogue', ApHollowShard23) as unknown as Promise<ApMistyVeil91>
   },

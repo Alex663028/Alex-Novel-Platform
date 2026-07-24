@@ -82,7 +82,7 @@ def test_initial_config_keeps_ark_default_base_url(monkeypatch):
 def test_profile_lifts_small_max_tokens_to_global_floor():
     profile = LLMProfile(id="p", name="Profile", max_tokens=4096)
 
-    assert profile.max_tokens == DEFAULT_MAX_OUTPUT_TOKENS
+    assert profile.max_tokens == 4096  # 不再强制提升下限；调用方自行控制
 
 
 def test_row_to_profile_preserves_max_tokens_above_global_floor():

@@ -37,6 +37,7 @@ class MockResponseFactory:
             "plot_outline": self._plot_outline,
             "chapter_review": self._chapter_review,
             "style": self._style,
+            "refactor_proposal": self._refactor_proposal,
         }
         return builders.get(intent, self._default)()
 
@@ -51,6 +52,8 @@ class MockResponseFactory:
             return "macro_plan"
         if "worldbuilding" in text or "世界观" in text or "核心法则" in text:
             return "worldbuilding"
+        if "suggested_mutations" in text or "自然语言建议" in text or "refactor" in text:
+            return "refactor_proposal"
         if "characters" in text or "人物" in text or "角色" in text:
             return "characters"
         if "locations" in text or "地点" in text or "地图" in text:
@@ -426,6 +429,19 @@ class MockResponseFactory:
 
     def _style_text(self) -> str:
         return "第三人称有限视角，叙事聚焦人物选择、信息差和代价反馈；节奏清晰，避免无效铺陈。"
+
+    def _refactor_proposal(self) -> str:
+        return self._json(
+            {
+                "natural_language_suggestion": "建议将冲动救人的行为改为理性决策，避免与冷酷设定冲突。",
+                "suggested_mutations": [
+                    {"type": "replace_tag", "old": "动机:冲动", "new": "动机:理性"},
+                    {"type": "add_tag", "tag": "性格:冷酷"},
+                ],
+                "suggested_tags": ["动机:理性", "性格:冷酷"],
+                "reasoning": "冷酷角色不应冲动救人，应改为基于利害计算的理性拒绝。",
+            }
+        )
 
     def _default(self) -> str:
         return self._json(

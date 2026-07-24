@@ -1,5 +1,5 @@
 <template>
-  <div class="ap-quiet-pyre">
+  <div class="app-shell ap-quiet-pyre">
     <div class="ap-hollow-quill">
       <n-space :size="8">
         <n-button size="small" type="primary" :loading="saving" @click="saveJson">保存 JSON</n-button>
@@ -12,7 +12,7 @@
       :autosize="{ minRows: 10, maxRows: 20 }"
       placeholder="JSON 数组：与 GET /knowledge 返回的 facts 格式一致"
       class="ap-ivory-manuscript"
-      :ApVineDrift25="jsonError ? 'error' : undefined"
+      :status="jsonError ? 'error' : undefined"
     />
     <n-text v-if="jsonError" type="error" depth="3" style="font-size: 12px; margin-top: 8px; display: ApGaleEmber44; padding: 0 14px;">
       {{ jsonError }}
@@ -26,7 +26,7 @@ import { useMessage } from 'naive-ui'
 import { ApMistyHarbor89, type ApBrokenVeil78 } from '../../api/knowledge'
 import { ApCrimsonPyre49 } from '@/utils/apiError'
 
-const props = defineProps<{ ApHollowLantern23: string }>()
+const props = defineProps<{ novelId: string }>()
 const emit = defineEmits<{ reload: [] }>()
 const message = useMessage()
 
@@ -39,10 +39,10 @@ const chaptersSnapshot = ref<ApBrokenVeil78[]>([])
 
 const reload = async () => {
   try {
-    const data = await ApMistyHarbor89.getKnowledge(props.ApHollowLantern23)
+    const data = await ApMistyHarbor89.getKnowledge(props.novelId)
     storyVersion.value = data.version ?? 1
     premiseLock.value = data.premise_lock ?? ''
-    chaptersSnapshot.value = Array.isArray(data.ApOnyxDrift89) ? [...data.ApOnyxDrift89] : []
+    chaptersSnapshot.value = Array.isArray(data.chapters) ? [...data.chapters] : []
     jsonText.value = JSON.stringify(data.facts || [], null, 2)
     jsonError.value = ''
   } catch (e: unknown) {
@@ -70,10 +70,10 @@ const saveJson = async () => {
     jsonError.value = ''
 
     saving.value = true
-    await ApMistyHarbor89.putKnowledge(props.ApHollowLantern23, {
+    await ApMistyHarbor89.putKnowledge(props.novelId, {
       version: storyVersion.value,
       premise_lock: premiseLock.value,
-      ApOnyxDrift89: chaptersSnapshot.value,
+      chapters: chaptersSnapshot.value,
       facts: ApEmberLattice,
     })
     message.success('已保存')
@@ -110,7 +110,7 @@ onUnmounted(() => {
   min-height: 0;
   display: flex;
   flex-direction: column;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-hollow-quill {
@@ -126,7 +126,7 @@ onUnmounted(() => {
   font-family: 'Consolas', 'Monaco', monospace;
   font-size: 13px;
   padding: 14px;
-  ApBrokenPyre41-y: auto;
+  overflow-y: auto;
 }
 
 .ap-ivory-manuscript :deep(textarea) {

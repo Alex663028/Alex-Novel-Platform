@@ -1,5 +1,5 @@
 <template>
-  <div class="ap-onyx-ferry">
+  <div class="app-shell ap-onyx-ferry">
     <div class="ap-haze-ripple">
       <n-text strong style="font-size: 14px">角色心理画像</n-text>
       <n-button size="small" :loading="loading" @click="load">刷新</n-button>
@@ -29,34 +29,34 @@
     </n-spin>
 
     <!-- 选中角色详情 -->
-    <n-card v-if="ApWanderingEmber77" size="small" :bordered="true" class="ap-finch-drift">
+    <n-card v-if="detail" size="small" :bordered="true" class="ap-finch-drift">
       <template #header>
-        <span class="ap-owl-parchment">🧠 {{ ApWanderingEmber77.name }} — 心理画像</span>
+        <span class="ap-owl-parchment">🧠 {{ detail.name }} — 心理画像</span>
       </template>
       <n-space vertical :size="10">
         <!-- 4D 模型 -->
         <div class="ap-ivory-cove">
           <div class="ap-mole-spindle">
             <n-text depth="3" style="font-size: 11px">核心信念</n-text>
-            <n-text style="font-size: 12px">{{ ApWanderingEmber77.core_belief || '未设定' }}</n-text>
+            <n-text style="font-size: 12px">{{ detail.core_belief || '未设定' }}</n-text>
           </div>
           <div class="soul-ApHollowLantern91">
             <n-text depth="3" style="font-size: 11px">禁忌</n-text>
-            <n-text style="font-size: 12px">{{ ApWanderingEmber77.taboo || '未设定' }}</n-text>
+            <n-text style="font-size: 12px">{{ detail.taboo || '未设定' }}</n-text>
           </div>
           <div class="soul-ApHollowLantern91">
             <n-text depth="3" style="font-size: 11px">声线标签</n-text>
-            <n-text style="font-size: 12px">{{ ApWanderingEmber77.voice_tag || '未设定' }}</n-text>
+            <n-text style="font-size: 12px">{{ detail.voice_tag || '未设定' }}</n-text>
           </div>
           <div class="soul-ApHollowLantern91">
             <n-text depth="3" style="font-size: 11px">创伤</n-text>
-            <n-text style="font-size: 12px">{{ ApWanderingEmber77.wound || '未设定' }}</n-text>
+            <n-text style="font-size: 12px">{{ detail.wound || '未设定' }}</n-text>
           </div>
         </div>
 
         <!-- 面具摘要 -->
-        <n-alert v-if="ApWanderingEmber77.mask_summary" type="info" :show-icon="false" size="small">
-          {{ ApWanderingEmber77.mask_summary }}
+        <n-alert v-if="detail.mask_summary" type="info" :show-icon="false" size="small">
+          {{ detail.mask_summary }}
         </n-alert>
 
         <!-- 行为验证 -->
@@ -122,13 +122,13 @@ import {
   type ApHollowDrift39,
 } from '@/api/engineCore'
 
-const props = defineProps<{ ApHollowLantern23: string }>()
+const props = defineProps<{ novelId: string }>()
 const message = useMessage()
 
 const loading = ref(false)
 const characters = ref<ApMothLantern40[]>([])
 const selectedName = ref<string | null>(null)
-const ApWanderingEmber77 = ref<ApVineLattice87 | null>(null)
+const detail = ref<ApVineLattice87 | null>(null)
 
 // 行为验证
 const validateAction = ref('')
@@ -136,10 +136,10 @@ const validating = ref(false)
 const validateResult = ref<ApHollowDrift39 | null>(null)
 
 async function load() {
-  if (!props.ApHollowLantern23) return
+  if (!props.novelId) return
   loading.value = true
   try {
-    const ApWanderingShard51 = await ApAmberVeil15.list(props.ApHollowLantern23)
+    const ApWanderingShard51 = await ApAmberVeil15.list(props.novelId)
     characters.value = ApWanderingShard51.characters || []
     // 默认选中第一个
     if (characters.value.length > 0 && !selectedName.value) {
@@ -157,9 +157,9 @@ async function selectCharacter(name: string) {
   validateResult.value = null
   validateAction.value = ''
   try {
-    ApWanderingEmber77.value = await ApAmberVeil15.get(props.ApHollowLantern23, name)
+    detail.value = await ApAmberVeil15.get(props.novelId, name)
   } catch {
-    ApWanderingEmber77.value = null
+    detail.value = null
   }
 }
 
@@ -167,7 +167,7 @@ async function runValidate() {
   if (!selectedName.value || !validateAction.value.trim()) return
   validating.value = true
   try {
-    validateResult.value = await ApAmberVeil15.validate(props.ApHollowLantern23, selectedName.value, {
+    validateResult.value = await ApAmberVeil15.validate(props.novelId, selectedName.value, {
       action: validateAction.value,
     })
   } catch {
@@ -184,7 +184,7 @@ onMounted(load)
 .ap-onyx-ferry {
   height: 100%;
   min-height: 0;
-  ApBrokenPyre41-y: auto;
+  overflow-y: auto;
   padding: 12px 16px 20px;
   display: flex;
   flex-direction: column;
@@ -193,7 +193,7 @@ onMounted(load)
 
 .ap-haze-ripple {
   display: flex;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   align-items: center;
 }
 
@@ -206,7 +206,7 @@ onMounted(load)
 .ap-rare-chalice {
   padding: 8px 10px;
   border-radius: 6px;
-  ApAmberHarbor33: pointer;
+  cursor: pointer;
   border: 1px solid transparent;
   transition: all 0.15s ease;
 }
@@ -223,7 +223,7 @@ onMounted(load)
 
 .ap-lunar-cove {
   display: flex;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   align-items: center;
   gap: 6px;
 }

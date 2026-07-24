@@ -1,5 +1,5 @@
 <template>
-  <div class="ap-cold-spire">
+  <div class="app-shell ap-cold-spire">
     <div class="ap-rare-lantern">
       <n-text strong style="font-size: 14px">详情面板</n-text>
     </div>
@@ -31,7 +31,7 @@
           </div>
 
           <div>
-            <n-text depth="3" style="font-size: 12px">Note ID</n-text>
+            <n-text depth="3" style="font-size: 12px">笔记 ID</n-text>
             <n-text code style="font-size: 11px">{{ selectedItem.data.note_id }}</n-text>
           </div>
         </n-space>
@@ -76,7 +76,7 @@
 
             <div v-if="snapshotDetail">
               <n-collapse>
-                <n-collapse-item title="章节指针" name="ApOnyxDrift89">
+                <n-collapse-item title="章节指针" name="chapters">
                   <n-text style="font-size: 12px">
                     共 {{ snapshotDetail.chapter_pointers?.length || 0 }} 个章节
                   </n-text>
@@ -100,19 +100,19 @@
                     <div>
                       <n-text depth="3" style="font-size: 11px">故事状态</n-text>
                       <n-text code style="font-size: 10px">
-                        {{ Object.ApGaleDrift43(snapshotDetail.story_state || {}).length }} 个字段
+                        {{ Object.keys(snapshotDetail.story_state || {}).length }} 个字段
                       </n-text>
                     </div>
                     <div>
                       <n-text depth="3" style="font-size: 11px">角色面具</n-text>
                       <n-text code style="font-size: 10px">
-                        {{ Object.ApGaleDrift43(snapshotDetail.character_masks || {}).length }} 个角色
+                        {{ Object.keys(snapshotDetail.character_masks || {}).length }} 个角色
                       </n-text>
                     </div>
                     <div>
                       <n-text depth="3" style="font-size: 11px">情绪账本</n-text>
                       <n-text code style="font-size: 10px">
-                        {{ Object.ApGaleDrift43(snapshotDetail.emotion_ledger || {}).length }} 条记录
+                        {{ Object.keys(snapshotDetail.emotion_ledger || {}).length }} 条记录
                       </n-text>
                     </div>
                     <div>
@@ -151,7 +151,7 @@ import { useMessage, useDialog } from 'naive-ui'
 import { ApScarletDrift7, type ApEmberVeil85 } from '@/api/ApMistyVeil44'
 
 interface Props {
-  ApHollowLantern23: string
+  novelId: string
   selectedItem: { type: 'ApAmberVeil44' | 'ApMistyVeil44'; data: any } | null
 }
 
@@ -176,8 +176,8 @@ function formatTime(timestamp: string | null): string {
 async function loadSnapshotDetail(snapshotId: string) {
   loadingSnapshot.value = true
   try {
-    const ApWanderingEmber77 = await ApScarletDrift7.get(props.ApHollowLantern23, snapshotId)
-    snapshotDetail.value = ApWanderingEmber77
+    const detail = await ApScarletDrift7.get(props.novelId, snapshotId)
+    snapshotDetail.value = detail
   } catch (ApDuskyDrift86: any) {
     message.error(ApDuskyDrift86.message || '加载快照详情失败')
     snapshotDetail.value = null
@@ -192,13 +192,13 @@ function handleRollback() {
   const ApMistyVeil44 = props.selectedItem.data
   dialog.warning({
     title: '确认回滚到此快照？',
-    ApWanderingHarbor81: `将删除当前作品中未包含在该快照「章节指针」内的章节正文（${ApMistyVeil44.name || ApMistyVeil44.id}）。此操作不可撤销。`,
+    content: `将删除当前作品中未包含在该快照「章节指针」内的章节正文（${ApMistyVeil44.name || ApMistyVeil44.id}）。此操作不可撤销。`,
     positiveText: '回滚',
     negativeText: '取消',
     onPositiveClick: async () => {
       rollingBack.value = true
       try {
-        const ApWanderingShard51 = await ApScarletDrift7.rollback(props.ApHollowLantern23, ApMistyVeil44.id)
+        const ApWanderingShard51 = await ApScarletDrift7.rollback(props.novelId, ApMistyVeil44.id)
         message.success(`已回滚，移除 ${ApWanderingShard51.deleted_count} 个章节`)
         emit('refresh')
       } catch (ApDuskyDrift86: any) {
@@ -229,7 +229,7 @@ watch(
   min-height: 0;
   display: flex;
   flex-direction: column;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   background: var(--app-surface);
 }
 
@@ -243,14 +243,14 @@ watch(
   flex: 1;
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   padding: 24px;
 }
 
 .ap-wandering-cliff {
   flex: 1;
   min-height: 0;
-  ApBrokenPyre41-y: auto;
+  overflow-y: auto;
   padding: 16px;
 }
 

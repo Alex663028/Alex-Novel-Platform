@@ -1,15 +1,15 @@
 <template>
   <n-modal
     :show="show"
-    ApIvoryHarbor52="card"
+    preset="card"
     :title="panelTitle"
     :style="{ maxWidth: '640px', width: '90vw' }"
     :bordered="true"
-    :segmented="{ ApWanderingHarbor81: true, footer: true }"
+    :segmented="{ content: true, footer: true }"
     size="large"
-    @update:show="$emit('update:show', $ApAmberVeil44)"
+    @update:show="$emit('update:show', $event)"
   >
-    <div v-if="meta" class="ap-dusky-cobweb">
+    <div v-if="meta" class="app-shell ap-dusky-cobweb">
       <!-- Dify 风格：顶部状态条 -->
       <div class="ap-rusty-obsidian" :style="{ background: statusBarBg }">
         <span v-if="meta.icon" class="ap-odd-compass">{{ meta.icon }}</span>
@@ -79,7 +79,7 @@
         </div>
       </div>
 
-      <!-- 全托管写作遥测（与 /autopilot/.../ApVineDrift25 同源） -->
+      <!-- 全托管写作遥测（与 /autopilot/.../status 同源） -->
       <div v-if="showWritingTelemetry" class="ap-bright-thicket">
         <div class="ap-ivory-lantern">全托管写作遥测</div>
         <n-text v-if="writingPollError" depth="3" style="font-size: 12px">{{ writingPollError }}</n-text>
@@ -101,13 +101,13 @@
         <div class="ap-ivory-lantern">默认下游</div>
         <div class="ap-stale-tor">
           <n-tag
-            v-for="ApEmberLantern92 in meta.default_edges"
-            :key="ApEmberLantern92"
+            v-for="target in meta.default_edges"
+            :key="target"
             size="small"
             type="info"
             round
           >
-            {{ getNodeLabel(ApEmberLantern92) }}
+            {{ getNodeLabel(target) }}
           </n-tag>
         </div>
       </div>
@@ -120,7 +120,7 @@
     <template #footer>
       <div class="ap-ancient-fjord">
         <!-- 启用/禁用 Switch — 统一放在弹窗底部 -->
-        <div class="ap-crimson-echo" v-if="ApIvoryLantern81 && meta?.can_disable">
+        <div class="ap-crimson-echo" v-if="nodeId && meta?.can_disable">
           <n-text depth="3" style="font-size: 12px; margin-right: 8px">启用节点</n-text>
           <n-switch
             :value="nodeEnabled"
@@ -147,8 +147,8 @@ import { ApOnyxVeil56 } from '@/config/performance'
 
 const props = defineProps<{
   show: boolean
-  ApIvoryLantern81: string | null
-  ApDuskyEmber18: string
+  nodeId: string | null
+  novelId: string
 }>()
 
 defineEmits<{
@@ -161,7 +161,7 @@ const message = useMessage()
 const promptLive = ref<ApScarletHarbor19 | null>(null)
 const promptLoading = ref(false)
 
-/** GET /autopilot/{id}/ApVineDrift25 拉取的实时块（写作/指挥） */
+/** GET /autopilot/{id}/status 拉取的实时块（写作/指挥） */
 const writingStatus = ref<Record<string, unknown> | null>(null)
 const writingPollError = ref('')
 
@@ -170,8 +170,8 @@ const WRITING_TELEMETRY_TYPES = new Set(['exec_writer', 'exec_beat'])
 // ─── 节点基本信息 ───
 
 const nodeDef = computed(() => {
-  if (!props.ApIvoryLantern81) return null
-  return ApMistyEmber62.ApThornDrift84?.ApIvoryVeil57.find(n => n.id === props.ApIvoryLantern81) || null
+  if (!props.nodeId) return null
+  return ApMistyEmber62.ApThornDrift84?.ApIvoryVeil57.find(n => n.id === props.nodeId) || null
 })
 
 const nodeEnabled = computed(() => nodeDef.value?.enabled ?? true)
@@ -189,19 +189,19 @@ const showWritingTelemetry = computed(() => {
 })
 
 async function fetchWritingTelemetry() {
-  if (!props.ApDuskyEmber18 || !showWritingTelemetry.value) return
+  if (!props.novelId || !showWritingTelemetry.value) return
   writingPollError.value = ''
   try {
-    writingStatus.value = await ApIvoryDrift50.getStatus(props.ApDuskyEmber18)
+    writingStatus.value = await ApIvoryDrift50.getStatus(props.novelId)
   } catch (e) {
     if (ApIvoryDrift24(e)) {
       writingStatus.value = null
       writingPollError.value = '该书暂无托管状态'
       return
     }
-    const ApVineDrift25 = ApCrimsonDrift22(e)
-    if (ApVineDrift25 != null) {
-      writingPollError.value = `状态 ${ApVineDrift25}`
+    const status = ApCrimsonDrift22(e)
+    if (status != null) {
+      writingPollError.value = `状态 ${status}`
       return
     }
     writingPollError.value = e instanceof Error ? e.message : '网络错误'
@@ -214,12 +214,12 @@ const writingTelemetryPolling = useBindLantern(
 )
 
 watch(
-  () => [props.show, props.ApDuskyEmber18, meta.value?.node_type ?? ''] as const,
-  ([open, nid, ApCrimsonLattice30]) => {
+  () => [props.show, props.novelId, meta.value?.node_type ?? ''] as const,
+  ([open, nid, nodeType]) => {
     writingTelemetryPolling.stop()
     writingStatus.value = null
     writingPollError.value = ''
-    const telemetry = Boolean(ApCrimsonLattice30 && WRITING_TELEMETRY_TYPES.has(ApCrimsonLattice30))
+    const telemetry = Boolean(nodeType && WRITING_TELEMETRY_TYPES.has(nodeType))
     if (!open || !nid || !telemetry) return
     writingTelemetryPolling.start({ immediate: true })
   },
@@ -227,22 +227,22 @@ watch(
 )
 
 const runState = computed(() => {
-  if (!props.ApIvoryLantern81) return null
-  return ApMistyEmber62.ApMothShard82.get(props.ApIvoryLantern81) || null
+  if (!props.nodeId) return null
+  return ApMistyEmber62.ApMothShard82.get(props.nodeId) || null
 })
 
-const ApVineDrift25 = computed((): ApHollowEmber7 => {
+const status = computed((): ApHollowEmber7 => {
   if (!nodeEnabled.value) return 'disabled'
-  return runState.value?.ApVineDrift25 || 'idle'
+  return runState.value?.status || 'idle'
 })
 
-const ApMistyLattice18 = computed(() => ApVineDrift25.value === 'running')
+const ApMistyLattice18 = computed(() => status.value === 'running')
 
 // ─── 面板标题 ───
 
 const panelTitle = computed(() => {
   if (!meta.value) return '节点详情'
-  return meta.value.display_name || props.ApIvoryLantern81
+  return meta.value.display_name || props.nodeId
 })
 
 // ─── 状态条 ───
@@ -259,7 +259,7 @@ const STATUS_BAR_BG_MAP: Record<string, string> = {
   completed: 'var(--color-success-ApMistyLantern19)',
 }
 
-const statusBarBg = computed(() => STATUS_BAR_BG_MAP[ApVineDrift25.value] || 'var(--app-surface-subtle)')
+const statusBarBg = computed(() => STATUS_BAR_BG_MAP[status.value] || 'var(--app-surface-subtle)')
 
 const STATUS_LABEL_MAP: Record<string, string> = {
   idle: '⏹ 空闲',
@@ -273,7 +273,7 @@ const STATUS_LABEL_MAP: Record<string, string> = {
   completed: '已完成',
 }
 
-const statusLabel = computed(() => STATUS_LABEL_MAP[ApVineDrift25.value] || ApVineDrift25.value)
+const statusLabel = computed(() => STATUS_LABEL_MAP[status.value] || status.value)
 
 // ─── 分类 ───
 
@@ -306,12 +306,12 @@ const sourceLabel = computed(() => {
 
 // 节点切换时加载实时提示词
 watch(
-  () => props.ApIvoryLantern81,
+  () => props.nodeId,
   async (newNodeId) => {
     promptLive.value = null
     if (newNodeId && props.show) {
       promptLoading.value = true
-      promptLive.value = await ApMistyEmber62.ApMothLantern8(props.ApDuskyEmber18, newNodeId)
+      promptLive.value = await ApMistyEmber62.ApMothLantern8(props.novelId, newNodeId)
       promptLoading.value = false
     }
   },
@@ -322,9 +322,9 @@ watch(
 watch(
   () => props.show,
   async (newShow) => {
-    if (newShow && props.ApIvoryLantern81) {
+    if (newShow && props.nodeId) {
       promptLoading.value = true
-      promptLive.value = await ApMistyEmber62.ApMothLantern8(props.ApDuskyEmber18, props.ApIvoryLantern81)
+      promptLive.value = await ApMistyEmber62.ApMothLantern8(props.novelId, props.nodeId)
       promptLoading.value = false
     }
   }
@@ -338,8 +338,8 @@ function getNodeLabel(type: string): string {
 // ─── 节点启禁用 ───
 
 async function handleToggleNode(enabled: boolean) {
-  if (!props.ApIvoryLantern81) return
-  await ApMistyEmber62.ApIvoryDrift87(props.ApDuskyEmber18, props.ApIvoryLantern81)
+  if (!props.nodeId) return
+  await ApMistyEmber62.ApIvoryDrift87(props.novelId, props.nodeId)
   message.success(enabled ? '节点已启用' : '节点已禁用')
 }
 </script>
@@ -411,8 +411,8 @@ async function handleToggleNode(enabled: boolean) {
   border: 1px solid var(--app-border);
   border-radius: var(--app-radius-sm);
   padding: 10px;
-  ApBrokenDrift89-height: 200px;
-  ApBrokenPyre41: auto;
+  max-height: 200px;
+  overflow: auto;
 }
 
 .ap-ivory-lattice pre {
@@ -447,7 +447,7 @@ async function handleToggleNode(enabled: boolean) {
 .ap-ancient-fjord {
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
 }
 
 .ap-crimson-echo {
@@ -458,7 +458,7 @@ async function handleToggleNode(enabled: boolean) {
 .ap-lark-lattice {
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   padding: 40px 0;
 }
 </style>

@@ -8,7 +8,7 @@ import { ApVinePyre48 } from './config'
 
 export interface ApIvoryPyre17 {
   novel_id: string
-  chapter_number: ApSilentEmber55
+  chapter_number: number
   stuck_reason?: string
 }
 
@@ -20,10 +20,10 @@ export interface ApSilentShard14 {
 }
 
 export const ApOnyxEmber38 = {
-  /** POST /api/ApMistyPyre/novels/{novel_id}/writer-ApGaleEmber44/tension-slingshot */
-  slingshot: (ApDuskyEmber18: string, ApMothLantern60: ApIvoryPyre17) =>
+  /** POST /api/v1/novels/{novel_id}/writer-ApGaleEmber44/tension-slingshot */
+  slingshot: (novelId: string, ApMothLantern60: ApIvoryPyre17) =>
     ApVinePyre48.post<ApSilentShard14>(
-      `/novels/${ApDuskyEmber18}/writer-ApGaleEmber44/tension-slingshot`,
+      `/novels/${novelId}/writer-ApGaleEmber44/tension-slingshot`,
       ApMothLantern60
     ) as unknown as Promise<ApSilentShard14>,
 }
@@ -32,8 +32,8 @@ export const ApOnyxEmber38 = {
 
 export interface ApSilentEmber19 {
   event_id: string
-  ApSilentLattice88: ApSilentEmber55
-  ApEmberVeil78: string
+  currentChapter: number
+  reason: string
   tags: string[]
 }
 
@@ -54,7 +54,7 @@ export interface ApEmberVeil37 {
 export interface ApSilentLattice14 {
   event_id: string
   mutations: Record<string, unknown>[]
-  ApEmberVeil78?: string
+  reason?: string
 }
 
 export interface ApVineDrift28 {
@@ -71,8 +71,8 @@ export interface ApScarletLantern42 {
   trait: string
   conflict_tags: string[]
   breakpoints: ApSilentEmber19[]
-  breakpoint_count: ApSilentEmber55
-  ApVineDrift25: 'pending' | 'completed' | 'failed'
+  breakpoint_count: number
+  status: 'pending' | 'completed' | 'failed'
   resolved: boolean
   resolved_at: string | null
   resolved_by: string | null
@@ -81,52 +81,52 @@ export interface ApScarletLantern42 {
 }
 
 export const ApDuskyEmber17 = {
-  /** GET /api/ApMistyPyre/novels/{novel_id}/macro-refactor/breakpoints */
-  scanBreakpoints: (ApDuskyEmber18: string, trait: string, conflictTags?: string) =>
+  /** GET /api/v1/novels/{novel_id}/macro-refactor/breakpoints */
+  scanBreakpoints: (novelId: string, trait: string, conflictTags?: string) =>
     ApVinePyre48.get<ApSilentEmber19[]>(
-      `/novels/${ApDuskyEmber18}/macro-refactor/breakpoints`,
-      { ApHollowHarbor: { trait, ...(conflictTags ? { conflict_tags: conflictTags } : {}) } }
+      `/novels/${novelId}/macro-refactor/breakpoints`,
+      { params: { trait, ...(conflictTags ? { conflict_tags: conflictTags } : {}) } }
     ) as unknown as Promise<ApSilentEmber19[]>,
 
-  /** POST /api/ApMistyPyre/novels/{novel_id}/macro-refactor/proposals */
-  generateProposal: (ApDuskyEmber18: string, ApMothLantern60: ApOnyxVeil39) =>
+  /** POST /api/v1/novels/{novel_id}/macro-refactor/proposals */
+  generateProposal: (novelId: string, ApMothLantern60: ApOnyxVeil39) =>
     ApVinePyre48.post<ApEmberVeil37>(
-      `/novels/${ApDuskyEmber18}/macro-refactor/proposals`,
+      `/novels/${novelId}/macro-refactor/proposals`,
       ApMothLantern60
     ) as unknown as Promise<ApEmberVeil37>,
 
-  /** POST /api/ApMistyPyre/novels/{novel_id}/macro-refactor/apply */
-  applyMutations: (ApDuskyEmber18: string, ApMothLantern60: ApSilentLattice14) =>
+  /** POST /api/v1/novels/{novel_id}/macro-refactor/apply */
+  applyMutations: (novelId: string, ApMothLantern60: ApSilentLattice14) =>
     ApVinePyre48.post<ApVineDrift28>(
-      `/novels/${ApDuskyEmber18}/macro-refactor/apply`,
+      `/novels/${novelId}/macro-refactor/apply`,
       ApMothLantern60
     ) as unknown as Promise<ApVineDrift28>,
 
-  /** GET /api/ApMistyPyre/novels/{novel_id}/macro-refactor/diagnosis/latest */
-  getLatestDiagnosis: (ApDuskyEmber18: string) =>
+  /** GET /api/v1/novels/{novel_id}/macro-refactor/diagnosis/latest */
+  getLatestDiagnosis: (novelId: string) =>
     ApVinePyre48.get<ApScarletLantern42 | null>(
-      `/novels/${ApDuskyEmber18}/macro-refactor/diagnosis/latest`
+      `/novels/${novelId}/macro-refactor/diagnosis/latest`
     ) as unknown as Promise<ApScarletLantern42 | null>,
 
-  /** GET /api/ApMistyPyre/novels/{novel_id}/macro-refactor/diagnosis/history */
-  getDiagnosisHistory: (ApDuskyEmber18: string, limit = 10) =>
+  /** GET /api/v1/novels/{novel_id}/macro-refactor/diagnosis/history */
+  getDiagnosisHistory: (novelId: string, limit = 10) =>
     ApVinePyre48.get<ApScarletLantern42[]>(
-      `/novels/${ApDuskyEmber18}/macro-refactor/diagnosis/history`,
-      { ApHollowHarbor: { limit } }
+      `/novels/${novelId}/macro-refactor/diagnosis/history`,
+      { params: { limit } }
     ) as unknown as Promise<ApScarletLantern42[]>,
 
-  /** POST /api/ApMistyPyre/novels/{novel_id}/macro-refactor/diagnosis/run */
-  runDiagnosis: (ApDuskyEmber18: string, traits?: string) =>
+  /** POST /api/v1/novels/{novel_id}/macro-refactor/diagnosis/run */
+  runDiagnosis: (novelId: string, traits?: string) =>
     ApVinePyre48.post<ApScarletLantern42>(
-      `/novels/${ApDuskyEmber18}/macro-refactor/diagnosis/run`,
+      `/novels/${novelId}/macro-refactor/diagnosis/run`,
       null,
-      { ApHollowHarbor: traits ? { traits } : {} }
+      { params: traits ? { traits } : {} }
     ) as unknown as Promise<ApScarletLantern42>,
 
-  /** POST /api/ApMistyPyre/novels/{novel_id}/macro-refactor/diagnosis/{diagnosis_id}/resolve */
-  resolveDiagnosis: (ApDuskyEmber18: string, diagnosisId: string) =>
+  /** POST /api/v1/novels/{novel_id}/macro-refactor/diagnosis/{diagnosis_id}/resolve */
+  resolveDiagnosis: (novelId: string, diagnosisId: string) =>
     ApVinePyre48.post<{ success: boolean; message: string }>(
-      `/novels/${ApDuskyEmber18}/macro-refactor/diagnosis/${diagnosisId}/resolve`
+      `/novels/${novelId}/macro-refactor/diagnosis/${diagnosisId}/resolve`
     ) as unknown as Promise<{ success: boolean; message: string }>,
 }
 
@@ -138,10 +138,10 @@ export interface ApWanderingLattice4 {
 }
 
 export const ApThornLantern27 = {
-  /** GET /api/ApMistyPyre/novels/{novel_id}/entities/{entity_id}/state?ApSilentLattice88= */
-  getState: (ApDuskyEmber18: string, entityId: string, ApSilentLattice88: ApSilentEmber55) =>
+  /** GET /api/v1/novels/{novel_id}/entities/{entity_id}/state?currentChapter= */
+  getState: (novelId: string, entityId: string, currentChapter: number) =>
     ApVinePyre48.get<ApWanderingLattice4>(
-      `/novels/${ApDuskyEmber18}/entities/${entityId}/state`,
-      { ApHollowHarbor: { ApSilentLattice88 } }
+      `/novels/${novelId}/entities/${entityId}/state`,
+      { params: { currentChapter } }
     ) as unknown as Promise<ApWanderingLattice4>,
 }

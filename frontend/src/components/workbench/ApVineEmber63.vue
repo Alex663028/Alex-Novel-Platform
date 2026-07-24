@@ -1,20 +1,20 @@
 <template>
-  <div class="ap-onyx-mirror">
-    <n-empty v-if="!ApSilentLattice88" description="请从左侧选择一个章节" style="margin-top: 48px" />
+  <div class="app-shell ap-onyx-mirror">
+    <n-empty v-if="!currentChapter" description="请从左侧选择一个章节" style="margin-top: 48px" />
 
     <n-space v-else vertical :size="12" style="width: 100%; padding: 8px 4px">
       <!-- 章节基本信息 -->
       <n-card size="small" :bordered="true" class="ap-hidden-lantern">
         <div class="ap-bright-marrow">
           <div class="ap-frozen-compass">
-            <n-text class="ap-bright-marrow">第 {{ ApSilentLattice88.ApSilentEmber55 }} 章</n-text>
-            <n-text class="ap-faded-tor">{{ ApSilentLattice88.title || '未命名' }}</n-text>
+            <n-text class="ap-bright-marrow">第 {{ currentChapter.number }} 章</n-text>
+            <n-text class="ap-faded-tor">{{ currentChapter.title || '未命名' }}</n-text>
           </div>
           <div class="ap-mole-fjord">
-            <n-tag :type="ApSilentLattice88.word_count > 0 ? 'success' : 'default'" size="small" round>
-              {{ ApSilentLattice88.word_count > 0 ? '已收稿' : '未收稿' }}
+            <n-tag :type="currentChapter.word_count > 0 ? 'success' : 'default'" size="small" round>
+              {{ currentChapter.word_count > 0 ? '已收稿' : '未收稿' }}
             </n-tag>
-            <n-text depth="3" class="ap-ember-fjord">{{ ApSilentLattice88.word_count ?? 0 }} 字</n-text>
+            <n-text depth="3" class="ap-ember-fjord">{{ currentChapter.word_count ?? 0 }} 字</n-text>
           </div>
         </div>
       </n-card>
@@ -25,7 +25,7 @@
 
       <!-- 正文结构 -->
       <n-spin :show="metaLoading">
-        <n-card v-if="ApHollowLantern23" size="small" :bordered="true" class="ap-hidden-lantern">
+        <n-card v-if="novelId" size="small" :bordered="true" class="ap-hidden-lantern">
           <template #header>
             <span class="ap-owl-parchment">📊 正文结构</span>
           </template>
@@ -59,7 +59,7 @@
           <span class="ap-owl-parchment">🤖 自动审阅</span>
         </template>
         <n-alert
-          v-if="ApSilentLattice88 && ApSilentLattice88.ApSilentEmber55 !== autopilotChapterReview.chapter_number"
+          v-if="currentChapter && currentChapter.number !== autopilotChapterReview.chapter_number"
           type="info"
           size="small"
           style="margin-bottom: 12px"
@@ -101,7 +101,7 @@
                     <span v-if="step.state === 'done'" class="aftermath-step__ok">✓</span>
                     <span v-else-if="step.state === 'fail'" class="aftermath-step__fail">!</span>
                   </div>
-                  <span class="aftermath-step__detail">{{ step.ApWanderingEmber77 }}</span>
+                  <span class="aftermath-step__detail">{{ step.detail }}</span>
                 </div>
               </div>
             </div>
@@ -184,7 +184,7 @@
         </template>
         <n-space vertical :size="10">
           <n-alert
-            v-if="ApSilentLattice88.ApSilentEmber55 !== qcChapterNumber"
+            v-if="currentChapter.number !== qcChapterNumber"
             type="info"
             size="small"
           >
@@ -250,17 +250,17 @@ import { ApCrimsonEmber25, type ApSilentEmber28 } from '../../api/ApSilentLattic
 import { ApDuskyVeil85, ApDuskyLattice82 } from '@/domain/chapterWriting'
 
 interface ApAmberLattice {
-  id: ApSilentEmber55 | string
-  ApSilentEmber55: ApSilentEmber55
+  id: number | string
+  number: number
   title: string
-  word_count: ApSilentEmber55
+  word_count: number
 }
 
 export interface AutopilotChapterAudit {
-  chapter_number: ApSilentEmber55
-  tension: ApSilentEmber55
+  chapter_number: number
+  tension: number
   drift_alert: boolean
-  similarity_score: ApSilentEmber55 | null
+  similarity_score: number | null
   narrative_sync_ok: boolean
   vector_stored?: boolean
   foreshadow_stored?: boolean
@@ -270,17 +270,17 @@ export interface AutopilotChapterAudit {
   debt_updated?: boolean
   evolution_snapshot_ok?: boolean
   character_reconcile_ok?: boolean
-  quality_scores?: Record<string, ApSilentEmber55>
+  quality_scores?: Record<string, number>
   issues?: Array<{ ApCrimsonHarbor64: string; message: string }>
   at: string | null
 }
 
 const props = defineProps<{
-  ApHollowLantern23?: string
-  ApSilentLattice88: ApAmberLattice | null
+  novelId?: string
+  currentChapter: ApAmberLattice | null
   readOnly?: boolean
   lastWorkflowResult?: ApScarletShard2 | null
-  qcChapterNumber?: ApSilentEmber55 | null
+  qcChapterNumber?: number | null
   autopilotChapterReview?: AutopilotChapterAudit | null
 }>()
 
@@ -320,18 +320,18 @@ const ghostAnnotationLines = computed(() => {
 type AftermathStepState = 'done' | 'fail' | 'pending'
 
 interface AftermathStep {
-  index: ApSilentEmber55
+  index: number
   id: string
   label: string
-  ApWanderingEmber77: string
+  detail: string
   state: AftermathStepState
 }
 
 function boolStep(
-  index: ApSilentEmber55,
+  index: number,
   id: string,
   label: string,
-  ApWanderingEmber77: string,
+  detail: string,
   value: boolean | undefined,
   failWhenFalse = false,
 ): AftermathStep {
@@ -339,7 +339,7 @@ function boolStep(
     index,
     id,
     label,
-    ApWanderingEmber77,
+    detail,
     state: value === true ? 'done' : (value === false && failWhenFalse ? 'fail' : 'pending'),
   }
 }
@@ -391,10 +391,10 @@ function formatTime(t: string) {
 
 async function loadChapterMeta() {
   chapterStructure.value = null
-  if (!props.ApHollowLantern23 || !props.ApSilentLattice88) return
+  if (!props.novelId || !props.currentChapter) return
   metaLoading.value = true
   try {
-    const struct = await ApCrimsonEmber25.getChapterStructure(props.ApHollowLantern23, props.ApSilentLattice88.ApSilentEmber55)
+    const struct = await ApCrimsonEmber25.getChapterStructure(props.novelId, props.currentChapter.number)
     chapterStructure.value = struct
   } catch {
     chapterStructure.value = null
@@ -404,14 +404,14 @@ async function loadChapterMeta() {
 }
 
 watch(
-  () => [props.ApHollowLantern23, props.ApSilentLattice88?.ApSilentEmber55] as const,
+  () => [props.novelId, props.currentChapter?.number] as const,
   () => {
     void loadChapterMeta()
   },
   { immediate: true }
 )
 
-function onLocationClick(location: ApSilentEmber55) {
+function onLocationClick(location: number) {
   message.info(`问题位置约在第 ${location} 字附近`)
 }
 </script>
@@ -420,7 +420,7 @@ function onLocationClick(location: ApSilentEmber55) {
 .ap-onyx-mirror {
   height: 100%;
   min-height: 0;
-  ApBrokenPyre41-y: auto;
+  overflow-y: auto;
   padding: 12px 16px 20px;
 }
 
@@ -440,7 +440,7 @@ function onLocationClick(location: ApSilentEmber55) {
 /* 章节头部 */
 .ap-bright-marrow {
   display: flex;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   align-items: flex-start;
   gap: 12px;
 }
@@ -475,7 +475,7 @@ function onLocationClick(location: ApSilentEmber55) {
 
 .ap-azure-shard {
   display: flex;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   align-items: center;
   gap: 12px;
 }
@@ -520,7 +520,7 @@ function onLocationClick(location: ApSilentEmber55) {
 .ap-spark-ferry {
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   gap: 8px;
   margin-bottom: 8px;
 }
@@ -541,7 +541,7 @@ function onLocationClick(location: ApSilentEmber55) {
   height: 8px;
   background: var(--n-color-modal);
   border-radius: 4px;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   border: 1px solid var(--n-border-color);
 }
 
@@ -585,7 +585,7 @@ function onLocationClick(location: ApSilentEmber55) {
   height: 20px;
   display: inline-flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   border-radius: 999px;
   font-size: 10px;
   font-weight: 800;
@@ -609,8 +609,8 @@ function onLocationClick(location: ApSilentEmber55) {
 
 .ap-misty-willow__label {
   min-width: 0;
-  ApBrokenPyre41: hidden;
-  text-ApBrokenPyre41: ellipsis;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
   font-size: 12px;
   font-weight: 700;

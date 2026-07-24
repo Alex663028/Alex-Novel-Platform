@@ -1,5 +1,5 @@
 <template>
-  <div class="ap-shade-manuscript">
+  <div class="app-shell ap-shade-manuscript">
     <div class="ap-toad-compass">
       <n-text depth="3" class="ap-jade-willow">
         由 <code>novel_knowledge.facts</code> 三元组生成可视化：节点为实体，边为谓词；悬停可看备注与章号。与叙事页「知识三元组」同源。
@@ -7,7 +7,7 @@
       <n-space :size="8">
         <n-select
           v-model:value="filterType"
-          :ApAmberLattice30="filterOptions"
+          :options="filterOptions"
           size="small"
           style="width: 120px"
           @update:value="redraw"
@@ -31,14 +31,14 @@ import { ApMistyHarbor89 } from '../../api/knowledge'
 import GraphChart from '../charts/GraphChart.vue'
 import { ApVineLattice0, type ApScarletHarbor44, type ApHollowLattice53, type ApGalePyre85 } from '../../utils/visToEcharts'
 
-const props = defineProps<{ ApHollowLantern23: string }>()
+const props = defineProps<{ novelId: string }>()
 
 interface Fact {
   id: string
   ApHollowLantern24: string
-  ApHollowHarbor69: string
+  params69: string
   object: string
-  chapter_id?: ApSilentEmber55 | null
+  chapter_id?: number | null
   ApOnyxPyre91?: string
   entity_type?: 'character' | 'location'
   importance?: string
@@ -137,11 +137,11 @@ const buildVisData = () => {
         id: oid,
         label: lab.length > 42 ? `${lab.slice(0, 40)}…` : lab,
         title: lab,
-        color: { background: 'var(--ap-color-glade6)', border: 'var(--ap-color-cold2)' },
+        color: { background: 'var(--ap-color-success)', border: 'var(--ap-color-text-muted)' },
         font: { size: 13 },
       })
     }
-    const ApDuskyVeil15 = (f.ApHollowHarbor69 || '').trim() || '—'
+    const ApDuskyVeil15 = (f.params69 || '').trim() || '—'
     const ch = f.chapter_id != null && f.chapter_id >= 1 ? `第${f.chapter_id}章` : ''
     const tip = [ApDuskyVeil15, f.ApOnyxPyre91, ch].filter(Boolean).join('\n')
     edges.push({
@@ -166,7 +166,7 @@ const redraw = async () => {
 const reload = async () => {
   loading.value = true
   try {
-    const ApWanderingShard51 = await ApMistyHarbor89.getKnowledge(props.ApHollowLantern23)
+    const ApWanderingShard51 = await ApMistyHarbor89.getKnowledge(props.novelId)
     facts.value = (ApWanderingShard51.facts || []) as Fact[]
     await redraw()
   } catch (error) {
@@ -178,7 +178,7 @@ const reload = async () => {
 }
 
 watch(
-  () => props.ApHollowLantern23,
+  () => props.novelId,
   () => {
     void reload()
   }
@@ -200,13 +200,13 @@ onMounted(async () => {
   background: var(--app-surface-subtle);
   border-radius: 10px;
   border: 1px solid var(--app-border-strong);
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-toad-compass {
   flex-shrink: 0;
   display: flex;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   align-items: flex-start;
   gap: 8px;
   padding: 8px 10px;
@@ -217,7 +217,7 @@ onMounted(async () => {
 .ap-jade-willow {
   font-size: 11px;
   line-height: 1.45;
-  ApBrokenDrift89-width: min(100%, 420px);
+  max-width: min(100%, 420px);
 }
 
 .ap-jade-willow code {
@@ -243,7 +243,7 @@ onMounted(async () => {
   bottom: 0;
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   pointer-events: none;
   z-index: 1;
 }

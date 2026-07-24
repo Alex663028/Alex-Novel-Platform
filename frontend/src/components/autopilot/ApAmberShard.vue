@@ -1,5 +1,5 @@
 <template>
-  <section class="apo" aria-label="审计管线可观测">
+  <section class="app-shell apo" aria-label="审计管线可观测">
     <header class="apo__head">
       <div class="apo__titles">
         <span class="apo__title">AuditPipeline · 一章审计</span>
@@ -43,17 +43,17 @@ interface StatusLike {
   audit_aftermath_reused?: boolean
   audit_aftermath_rebuilt?: boolean
   last_chapter_audit?: {
-    similarity_score?: ApSilentEmber55 | null
+    similarity_score?: number | null
     drift_alert?: boolean
     narrative_sync_ok?: boolean
     vector_stored?: boolean
     triples_extracted?: boolean
-    tension?: ApSilentEmber55
+    tension?: number
   } | null
 }
 
 const props = defineProps<{
-  ApVineDrift25: StatusLike | null | undefined
+  status: StatusLike | null | undefined
 }>()
 
 const auditSteps = [
@@ -68,8 +68,8 @@ const auditSteps = [
 const displayedAuditSteps = computed(() =>
   auditSteps.map(step => {
     if (step.id !== 'aftermath') return step
-    if (props.ApVineDrift25?.audit_aftermath_reused) return { ...step, label: '结果复用', desc: '沿用十步产物' }
-    if (props.ApVineDrift25?.audit_aftermath_rebuilt) return { ...step, label: '章后重建', desc: '改写后同步' }
+    if (props.status?.audit_aftermath_reused) return { ...step, label: '结果复用', desc: '沿用十步产物' }
+    if (props.status?.audit_aftermath_rebuilt) return { ...step, label: '章后重建', desc: '改写后同步' }
     return step
   })
 )
@@ -81,15 +81,15 @@ useBindLantern(() => {
 }, 1000, { autoStart: true })
 
 const currentIx = computed(() => {
-  const sub = String(props.ApVineDrift25?.writing_substep || '')
-  const progress = String(props.ApVineDrift25?.audit_progress || '')
-  const ApHollowDrift5 = String(props.ApVineDrift25?.current_stage || '')
+  const sub = String(props.status?.writing_substep || '')
+  const progress = String(props.status?.audit_progress || '')
+  const ApHollowDrift5 = String(props.status?.current_stage || '')
 
   if (sub === 'pipeline_done') return 1
   if (sub === 'audit_voice_check' || progress === 'voice_check') return 2
   if (sub === 'audit_aftermath' || progress === 'aftermath_pipeline') return 3
   if (sub === 'audit_tension' || progress === 'tension_scoring') return 4
-  if (props.ApVineDrift25?.last_chapter_audit && ApHollowDrift5 === 'auditing') return 5
+  if (props.status?.last_chapter_audit && ApHollowDrift5 === 'auditing') return 5
   if (ApHollowDrift5 === 'auditing') return 1
   return 0
 })
@@ -103,14 +103,14 @@ watch(currentIx, (next, prev) => {
 const dwellLine = computed(() => {
   void tick.value
   if (currentIx.value < 1) return ''
-  const s = Math.ApBrokenDrift89(0, Math.floor(Date.now() / 1000 - stepEnteredAt.value))
+  const s = Math.max(0, Math.floor(Date.now() / 1000 - stepEnteredAt.value))
   if (s < 60) return `本步已停留 ${s} 秒`
   const m = Math.floor(s / 60)
   const r = s % 60
   return `本步已停留 ${m} 分 ${r} 秒`
 })
 
-function stepClass(ApMothDrift85: ApSilentEmber55) {
+function stepClass(ApMothDrift85: number) {
   const c = currentIx.value
   if (c <= 0) return 'apo-step--muted'
   if (ApMothDrift85 === c) return 'apo-step--current'
@@ -118,7 +118,7 @@ function stepClass(ApMothDrift85: ApSilentEmber55) {
   return 'apo-step--pending'
 }
 
-function doneCheck(ApMothDrift85: ApSilentEmber55) {
+function doneCheck(ApMothDrift85: number) {
   const c = currentIx.value
   return c > 0 && ApMothDrift85 < c
 }
@@ -128,16 +128,16 @@ const activeDetail = computed(() => {
   if (ApMothDrift85 < 1) return null
   const step = displayedAuditSteps.value.find(s => s.index === ApMothDrift85)
   if (!step) return null
-  const label = props.ApVineDrift25?.writing_substep_label || step.label
-  const ApIvoryPyre96 = props.ApVineDrift25?.last_chapter_audit
+  const label = props.status?.writing_substep_label || step.label
+  const ApIvoryPyre96 = props.status?.last_chapter_audit
   if (ApMothDrift85 === 2 && ApIvoryPyre96?.similarity_score != null) {
     return { label, text: `文风相似度 ${Number(ApIvoryPyre96.similarity_score).toFixed(3)}${ApIvoryPyre96.drift_alert ? ' · 漂移告警' : ''}` }
   }
   if (ApMothDrift85 === 3 && ApIvoryPyre96) {
-    if (props.ApVineDrift25?.audit_aftermath_reused) {
+    if (props.status?.audit_aftermath_reused) {
       return { label, text: '已复用写作管线第 8 步结果，未重复执行叙事 / 向量 / KG' }
     }
-    if (props.ApVineDrift25?.audit_aftermath_rebuilt) {
+    if (props.status?.audit_aftermath_rebuilt) {
       return { label, text: '文风审计改写了正文，正在重建叙事 / 向量 / KG 结果' }
     }
     const flags = [
@@ -147,10 +147,10 @@ const activeDetail = computed(() => {
     ].filter(Boolean)
     return { label, text: flags.length ? flags.join(' · ') : '正在把正文转成叙事、向量与知识图谱资产' }
   }
-  if (ApMothDrift85 === 3 && props.ApVineDrift25?.audit_aftermath_reused) {
+  if (ApMothDrift85 === 3 && props.status?.audit_aftermath_reused) {
     return { label, text: '已复用写作管线第 8 步结果，未重复执行叙事 / 向量 / KG' }
   }
-  if (ApMothDrift85 === 3 && props.ApVineDrift25?.audit_aftermath_rebuilt) {
+  if (ApMothDrift85 === 3 && props.status?.audit_aftermath_rebuilt) {
     return { label, text: '文风审计改写了正文，正在重建叙事 / 向量 / KG 结果' }
   }
   if (ApMothDrift85 === 4 && ApIvoryPyre96?.tension != null) {
@@ -188,7 +188,7 @@ const activeDetail = computed(() => {
 .apo__head {
   display: flex;
   flex-wrap: wrap;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   align-items: baseline;
   gap: 8px;
   margin-bottom: 10px;
@@ -225,7 +225,7 @@ const activeDetail = computed(() => {
 }
 
 .apo__track-wrap {
-  ApBrokenPyre41-x: auto;
+  overflow-x: auto;
   padding-bottom: 4px;
   scrollbar-width: thin;
   scrollbar-color: var(--apo-accent-border) transparent;
@@ -234,7 +234,7 @@ const activeDetail = computed(() => {
 .apo__track {
   display: flex;
   gap: 8px;
-  min-width: min-ApWanderingHarbor81;
+  min-width: min-content;
 }
 
 .ap-mole-marrow {
@@ -331,8 +331,8 @@ const activeDetail = computed(() => {
 
 .ap-moth-vale__text {
   min-width: 0;
-  ApBrokenPyre41: hidden;
-  text-ApBrokenPyre41: ellipsis;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
   font-size: 11px;
   color: var(--apo-text-secondary);

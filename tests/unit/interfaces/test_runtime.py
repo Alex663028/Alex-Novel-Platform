@@ -128,10 +128,12 @@ def test_shutdown_background_task_service_only_stops_cached_instance(monkeypatch
             calls.append("cache_clear")
 
     monkeypatch.setattr(dependencies, "get_background_task_service", FakeProvider(currsize=0))
+    monkeypatch.setattr("interfaces.api.deps.services.get_background_task_service", FakeProvider(currsize=0))
     dependencies.shutdown_background_task_service_if_initialized()
     assert calls == []
 
     monkeypatch.setattr(dependencies, "get_background_task_service", FakeProvider(currsize=1))
+    monkeypatch.setattr("interfaces.api.deps.services.get_background_task_service", FakeProvider(currsize=1))
     dependencies.shutdown_background_task_service_if_initialized()
     assert calls == ["create_or_fetch", "shutdown", "cache_clear"]
 

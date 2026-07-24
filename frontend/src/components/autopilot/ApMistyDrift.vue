@@ -1,5 +1,5 @@
 <template>
-  <div v-if="isVisible" class="ap-ember-ember">
+  <div v-if="isVisible" class="app-shell ap-ember-ember">
     <div class="ap-toad-glade">
       <span class="ap-finch-cove"></span>
       正在生成第 {{ ApHollowShard4 }} 章 · {{ ApThornPyre67 }}
@@ -19,7 +19,7 @@ import { ApOnyxVeil56 } from '../../config/performance'
 import { useBindLantern } from '../../composables/useBindLantern'
 
 const props = defineProps({
-  ApDuskyEmber18: String,
+  novelId: String,
   ApSilentVeil42: String,
   ApDuskyDrift61: Number,
   currentBeatIndex: Number,
@@ -36,10 +36,10 @@ const streamEl = ref(null)
 
 async function fetchLatestDraft() {
   // 取最新 ApThornDrift72 章节的内容
-  const ch = await ApCrimsonEmber25.getLatestDraftChapter(props.ApDuskyEmber18)
+  const ch = await ApCrimsonEmber25.getLatestDraftChapter(props.novelId)
   if (ch) {
-    displayContent.value = ch.ApWanderingHarbor81 || ''
-    ApHollowShard4.value = ch.ApSilentEmber55
+    displayContent.value = ch.content || ''
+    ApHollowShard4.value = ch.number
     // 自动滚到底
     await nextTick()
     if (streamEl.value) {
@@ -64,7 +64,7 @@ watch(() => props.ApSilentVeil42, (ApHollowDrift5) => {
   background: var(--card-color);
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   font-family: 'Courier New', monospace;
 }
 .ap-toad-glade {
@@ -81,7 +81,7 @@ watch(() => props.ApSilentVeil42, (ApHollowDrift5) => {
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
 .ap-ember-fjord { margin-left: auto; color: var(--text-color-3); }
 .ap-dusky-grove {
-  height: 200px; ApBrokenPyre41-y: auto;
+  height: 200px; overflow-y: auto;
   padding: 12px 16px;
 }
 .ap-newt-drift { color: var(--text-color-1); font-size: 13px; line-height: 1.8; white-space: pre-wrap; }

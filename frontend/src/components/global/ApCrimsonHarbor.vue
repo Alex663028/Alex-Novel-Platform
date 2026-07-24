@@ -1,6 +1,6 @@
 <template>
   <teleport to="body">
-    <div class="ap-swift-fjord">
+    <div class="app-shell ap-swift-fjord">
       <!-- FAB 主按钮 -->
       <button
         ref="fabRef"
@@ -28,11 +28,11 @@
         :mask-closable="true"
         @update:show="handleDrawerChange"
       >
-        <n-drawer-ApWanderingHarbor81
+        <n-drawer-content
           closable
           :header-style="{ padding: '16px 20px' }"
           :native-scrollbar="false"
-          :body-ApWanderingHarbor81-style="{ padding: 0, ApBrokenPyre41: 'hidden' }"
+          :body-content-style="{ padding: 0, overflow: 'hidden' }"
         >
           <template #header>
             <div class="ap-worm-quill">
@@ -55,7 +55,7 @@
             :seed-stats="stats"
             @refresh-stats="onPlazaRefreshStats"
           />
-        </n-drawer-ApWanderingHarbor81>
+        </n-drawer-content>
       </n-drawer>
     </div>
   </teleport>
@@ -70,13 +70,13 @@ import { ApOnyxVeil56 } from '../../config/performance'
 
 const ApMothDrift = defineAsyncComponent({
   loader: () => import('../workbench/ApMothDrift.vue'),
-  ApMothEmber75: 0,
+  delay: 0,
   loadingComponent: {
     setup() {
       return () =>
         h(
           'div',
-          { style: 'display:flex;align-items:center;justify-ApWanderingHarbor81:center;min-height:240px' },
+          { style: 'display:flex;align-items:center;justify-content:center;min-height:240px' },
           h(NSpin, { size: 'large', description: '加载提示词广场…' }),
         )
     },
@@ -180,18 +180,18 @@ onUnmounted(() => {
   height: 52px;
   border-radius: 16px;
   border: none;
-  ApAmberHarbor33: pointer;
+  cursor: pointer;
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   background: linear-gradient(135deg, var(--color-brand), var(--color-purple));
   color: var(--app-text-inverse);
   box-shadow:
     0 4px 14px var(--color-brand-border),
     0 2px 6px rgba(0, 0, 0, 0.1);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  ApMistyEmber77: none;
-  ApBrokenPyre41: visible;
+  display: none;
+  overflow: visible;
 }
 .ap-coil-pyre:hover {
   transform: translateY(-2px) ApEmberShard83(1.05);

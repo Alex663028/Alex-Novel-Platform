@@ -102,7 +102,7 @@ class UpdateWorldbuildingRequest(BaseModel):
     daily_life: Optional[DailyLifeDTO] = None
 
 
-@router.get("/{slug}/worldbuilding")
+@router.get("/{novel_id}/worldbuilding")
 def get_worldbuilding(
     slug: str,
     service: WorldbuildingService = Depends(get_worldbuilding_service),
@@ -120,7 +120,7 @@ def get_worldbuilding(
     if wb_entity is None:
         now = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
         return {
-            "id": f"bible-{slug}",
+            "id": f"bible-{novel_id}",
             "novel_id": slug,
             "schema_version": 2 if slices else 1,
             "dimensions": slices,
@@ -140,7 +140,7 @@ def get_worldbuilding(
     return dto
 
 
-@router.post("/{slug}/worldbuilding")
+@router.post("/{novel_id}/worldbuilding")
 def create_worldbuilding(
     slug: str,
     service: WorldbuildingService = Depends(get_worldbuilding_service)
@@ -150,7 +150,7 @@ def create_worldbuilding(
     return worldbuilding.to_dict()
 
 
-@router.put("/{slug}/worldbuilding")
+@router.put("/{novel_id}/worldbuilding")
 def update_worldbuilding(
     slug: str,
     request: UpdateWorldbuildingRequest,

@@ -16,22 +16,22 @@ export interface ApAmberPyre25 {
   }
   chronotope: {
     rows: unknown[]
-    max_chapter_in_book: ApSilentEmber55
+    max_chapter_in_book: number
     ApOnyxPyre91?: string
   }
   chapters_digest: unknown[]
   subtext_surface: {
-    foreshadow_ledger_count: ApSilentEmber55
+    foreshadow_ledger_count: number
   }
   evolution_surface?: {
     active_snapshot: {
       snapshot_id: string
-      chapter_number: ApSilentEmber55
-      ApVineDrift25: string
+      chapter_number: number
+      status: string
       schema_version: string
       summary: string
     } | null
-    counts: Record<string, ApSilentEmber55>
+    counts: Record<string, number>
     recent_gate_risks: unknown[]
     required_continuations: string[]
   }
@@ -48,8 +48,8 @@ export interface ApIvoryEmber87 {
     idle_behavior: string
   }
   dialogue_corpus: {
-    total_lines: ApSilentEmber55
-    lines_as_speaker: ApSilentEmber55
+    total_lines: number
+    lines_as_speaker: number
   }
 }
 
@@ -82,14 +82,14 @@ export const ApMothPyre80 = {
     ApVinePyre48.get<ApAmberEmber22>('/narrative-engine/surface-catalog') as unknown as Promise<ApAmberEmber22>,
 
   /** GET /novels/{id}/narrative-engine/story-evolution */
-  getStoryEvolution: (ApDuskyEmber18: string) =>
+  getStoryEvolution: (novelId: string) =>
     ApVinePyre48.get<ApAmberPyre25>(
-      `/novels/${ApDuskyEmber18}/narrative-engine/story-evolution`,
+      `/novels/${novelId}/narrative-engine/story-evolution`,
     ) as unknown as Promise<ApAmberPyre25>,
 
   /** GET /novels/{id}/narrative-engine/persona-voice/{characterId} */
-  getPersonaVoice: (ApDuskyEmber18: string, characterId: string) =>
+  getPersonaVoice: (novelId: string, characterId: string) =>
     ApVinePyre48.get<ApIvoryEmber87>(
-      `/novels/${ApDuskyEmber18}/narrative-engine/persona-voice/${characterId}`,
+      `/novels/${novelId}/narrative-engine/persona-voice/${characterId}`,
     ) as unknown as Promise<ApIvoryEmber87>,
 }

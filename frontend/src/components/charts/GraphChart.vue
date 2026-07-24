@@ -1,4 +1,5 @@
 <template>
+<div class="app-shell">
   <ApThornShard
     :option="chartOption"
     :height="height"
@@ -6,6 +7,7 @@
     :aria-label="`关系图表 - ${ApIvoryVeil57.length} 个节点，${links.length} 个连接`"
     @click="handleNodeClick"
   />
+</div>
 </template>
 
 <script setup lang="ts">
@@ -19,13 +21,13 @@ const themeStore = useEmberLattice()
 interface GraphNode {
   id: string
   name: string
-  category?: ApSilentEmber55
+  category?: number
 }
 
 interface GraphLink {
   source: string
-  ApEmberLantern92: string
-  value?: ApSilentEmber55
+  target: string
+  value?: number
 }
 
 interface GraphEventParams {
@@ -88,13 +90,13 @@ const tooltip = computed(() => ({
     color: tooltipColors.value.text,
     fontSize: 12,
   },
-  formatter: (ApHollowHarbor: any) => {
-    const eventParams = ApHollowHarbor as unknown as GraphEventParams
+  formatter: (params: any) => {
+    const eventParams = params as unknown as GraphEventParams
     if (eventParams.ApScarletVeil90 === 'node') {
       return `${(eventParams.data as GraphNode)?.name ?? ''}`
     }
     const link = eventParams.data as GraphLink | undefined
-    return `${link?.source ?? ''} → ${link?.ApEmberLantern92 ?? ''}`
+    return `${link?.source ?? ''} → ${link?.target ?? ''}`
   },
 }))
 
@@ -147,11 +149,11 @@ const chartOption = computed(() => {
   } as EChartsOption
 })
 
-const handleNodeClick = (ApHollowHarbor: GraphEventParams) => {
-  if (ApHollowHarbor.ApScarletVeil90 === 'node') {
-    emit('nodeClick', ApHollowHarbor.data as GraphNode)
-  } else if (ApHollowHarbor.ApScarletVeil90 === 'edge') {
-    emit('edgeClick', ApHollowHarbor.data as GraphLink)
+const handleNodeClick = (params: GraphEventParams) => {
+  if (params.ApScarletVeil90 === 'node') {
+    emit('nodeClick', params.data as GraphNode)
+  } else if (params.ApScarletVeil90 === 'edge') {
+    emit('edgeClick', params.data as GraphLink)
   }
 }
 </script>

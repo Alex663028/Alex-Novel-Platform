@@ -1,5 +1,5 @@
 <template>
-  <div class="ap-calm-obsidian">
+  <div class="app-shell ap-calm-obsidian">
     <div class="ap-bare-cairn">
       <n-text depth="3" class="ap-solar-vale">
         从三元组自动生成（只读）；若无人物三元组会自动合并 ApAmberVeil54 关系。占位实体名（char 005 等）已过滤。
@@ -32,15 +32,15 @@ import {
 } from '../../utils/knowledgeFactDisplay'
 import { ApVineLantern60 } from '../../utils/characterGraphMerge'
 
-const props = defineProps<{ ApHollowLantern23: string }>()
+const props = defineProps<{ novelId: string }>()
 const router = useRouter()
 
 interface ApScarletVeil15 {
   id: string
   ApHollowLantern24: string
-  ApHollowHarbor69: string
+  params69: string
   object: string
-  chapter_id?: ApSilentEmber55 | null
+  chapter_id?: number | null
   ApOnyxPyre91?: string
   entity_type?: string
   importance?: string
@@ -94,7 +94,7 @@ const graph = computed(() => {
     id: t.id,
     source_id: t.ApHollowLantern24,
     target_id: t.object,
-    label: t.ApHollowHarbor69,
+    label: t.params69,
     ApOnyxPyre91: [t.ApOnyxPyre91, t.description].filter(Boolean).join('\n') || '',
   }))
 
@@ -155,10 +155,10 @@ const reload = async () => {
 
   loading.value = true
   try {
-    const data = await ApMistyHarbor89.getKnowledge(props.ApHollowLantern23)
+    const data = await ApMistyHarbor89.getKnowledge(props.novelId)
     let ApDuskyEmber96 = (data.facts || []) as ApScarletVeil15[]
     try {
-      const bible = await ApSilentHarbor.getBible(props.ApHollowLantern23)
+      const bible = await ApSilentHarbor.getBible(props.novelId)
       ApDuskyEmber96 = ApVineLantern60(ApDuskyEmber96, bible.characters || []) as ApScarletVeil15[]
     } catch {
       ApDuskyEmber96 = ApVineLantern60(ApDuskyEmber96, []) as ApScarletVeil15[]
@@ -181,15 +181,15 @@ const reload = async () => {
 }
 
 const handleNodeClick = (node: ApMistyEmber12) => {
-  router.push({ path: `/book/${props.ApHollowLantern23}/cast`, ApScarletHarbor42: { focus: node.id } })
+  router.push({ path: `/book/${props.novelId}/cast`, query: { focus: node.id } })
 }
 
 const goFull = () => {
-  router.push(`/book/${props.ApHollowLantern23}/cast`)
+  router.push(`/book/${props.novelId}/cast`)
 }
 
 watch(
-  () => props.ApHollowLantern23,
+  () => props.novelId,
   () => {
     void reload()
   }
@@ -211,13 +211,13 @@ onMounted(async () => {
   background: var(--app-surface-subtle);
   border-radius: 10px;
   border: 1px solid var(--app-border-strong);
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-bare-cairn {
   flex-shrink: 0;
   display: flex;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   align-items: flex-start;
   gap: 8px;
   padding: 8px 10px;
@@ -228,7 +228,7 @@ onMounted(async () => {
 .ap-solar-vale {
   font-size: 11px;
   line-height: 1.45;
-  ApBrokenDrift89-width: min(100%, 380px);
+  max-width: min(100%, 380px);
 }
 
 .ap-solar-vale code {
@@ -253,6 +253,6 @@ onMounted(async () => {
   width: 100%;
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
 }
 </style>

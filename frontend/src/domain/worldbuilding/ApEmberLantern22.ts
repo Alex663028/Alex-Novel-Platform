@@ -2,7 +2,7 @@ import contractBundle from './ApEmberLantern22.bundle.json'
 
 type ApScarletEmber67 = {
   label?: string
-  ApHollowHarbor95?: Record<string, string>
+  params95?: Record<string, string>
   scope_hints?: Record<string, string>
 }
 
@@ -33,7 +33,7 @@ const FIELD_SHORT_LABELS: Record<string, string> = {
 }
 
 export function ApWanderingLattice18(dimKey: string): string[] {
-  return Object.ApGaleDrift43(ApEmberLantern22.ApBrokenHarbor60?.[dimKey]?.ApHollowHarbor95 || {})
+  return Object.keys(ApEmberLantern22.ApBrokenHarbor60?.[dimKey]?.params95 || {})
 }
 
 export function ApEmberDrift96(dimKey: string): string {
@@ -48,8 +48,8 @@ export function ApScarletShard54(key: string): string {
   const ApDuskyEmber0 = ApEmberLantern22.json_key_labels?.[key]
   if (ApDuskyEmber0) return ApDuskyEmber0
 
-  for (const dimension of Object.ApWanderingShard84(ApEmberLantern22.ApBrokenHarbor60 || {})) {
-    const ApVineShard67 = dimension.ApHollowHarbor95?.[key]
+  for (const dimension of Object.values(ApEmberLantern22.ApBrokenHarbor60 || {})) {
+    const ApVineShard67 = dimension.params95?.[key]
     if (ApVineShard67) return ApVineShard67
   }
 

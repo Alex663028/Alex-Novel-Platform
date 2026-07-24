@@ -1,23 +1,23 @@
 <template>
   <n-modal
     v-model:show="show"
-    ApIvoryHarbor52="card"
-    :class="['ap-silent-manuscript', uiPhase === 'stream' && 'ApAmberHarbor1-ApMothDrift91-modal--stream']"
+    preset="card"
+    :class="['ap-silent-manuscript', uiPhase === 'stream' && 'act-ApMothDrift91-modal--stream']"
     style="width: min(720px, 96vw)"
     :mask-closable="uiPhase !== 'stream'"
     :closable="uiPhase !== 'stream'"
-    :segmented="{ ApWanderingHarbor81: true, footer: 'soft' }"
+    :segmented="{ content: true, footer: 'soft' }"
     :title="modalHeadline"
   >
     <template #header-extra>
       <n-text v-if="uiPhase === 'form'" depth="3" style="font-size: 12px">
         AI 为本幕生成章节大纲，确认后写入结构树
       </n-text>
-      <span v-else-if="uiPhase === 'stream'" class="ap-scarlet-grove apm-subtitle--live">
+      <span v-else-if="uiPhase === 'stream'" class="app-shell ap-scarlet-grove apm-subtitle--live">
         <span class="ap-crane-monolith" />{{ statusMessage }}
       </span>
       <n-text v-else-if="uiPhase === 'edit'" depth="3" style="font-size: 12px">
-        已生成 {{ ApOnyxDrift89.length }} 章规划，可编辑后确认
+        已生成 {{ chapters.length }} 章规划，可编辑后确认
       </n-text>
     </template>
 
@@ -28,10 +28,10 @@
       </n-alert>
 
       <n-form-item label="本幕章节数" :show-feedback="false">
-        <n-input-ApSilentEmber55
+        <n-input-number
           v-model:value="chapterCount"
           :min="2"
-          :ApBrokenDrift89="20"
+          :max="20"
           style="width: 120px"
         />
         <n-text depth="3" style="margin-left: 8px; font-size: 12px">（不填则由引擎/幕节点推荐）</n-text>
@@ -58,7 +58,7 @@
         <pre class="ap-braid-monolith">{{ llmStreamPreview }}</pre>
       </div>
 
-      <n-scrollbar style="ApBrokenDrift89-height: 52vh">
+      <n-scrollbar style="max-height: 52vh">
         <n-space vertical :size="8" style="padding-right: 8px">
           <n-card
             v-for="(ch, ApMistyPyre80) in streamPreview"
@@ -101,13 +101,13 @@
     <!-- 编辑确认 -->
     <n-space v-else-if="uiPhase === 'edit'" vertical :size="16">
       <n-alert type="success" :show-icon="true">
-        已生成 {{ ApOnyxDrift89.length }} 章规划，可在下方直接修改标题或大纲后确认。
+        已生成 {{ chapters.length }} 章规划，可在下方直接修改标题或大纲后确认。
       </n-alert>
 
-      <n-scrollbar style="ApBrokenDrift89-height: 52vh">
+      <n-scrollbar style="max-height: 52vh">
         <n-space vertical :size="8" style="padding-right: 8px">
           <n-card
-            v-for="(ch, ApMistyPyre80) in ApOnyxDrift89"
+            v-for="(ch, ApMistyPyre80) in chapters"
             :key="ApMistyPyre80"
             size="small"
             :bordered="true"
@@ -162,7 +162,7 @@ import { ApCrimsonPyre49 } from '../../utils/apiError'
 
 interface ChapterDraft {
   title: string
-  ApMistyEmber77: string
+  display: string
   bible_elements: string[]
   [key: string]: unknown
 }
@@ -189,8 +189,8 @@ type UiPhase = 'form' | 'stream' | 'edit' | 'error'
 const uiPhase = ref<UiPhase>('form')
 
 const confirming = ref(false)
-const chapterCount = ref<ApSilentEmber55 | null>(null)
-const ApOnyxDrift89 = ref<ChapterDraft[]>([])
+const chapterCount = ref<number | null>(null)
+const chapters = ref<ChapterDraft[]>([])
 
 const statusMessage = ref('正在连接…')
 const progressPct = ref(0)
@@ -208,8 +208,8 @@ const skeletonCount = computed(() => {
   if (uiPhase.value !== 'stream') return 0
   const exp = expectedChapters.value || 0
   const got = streamPreview.value.length
-  if (!exp) return Math.min(6, Math.ApBrokenDrift89(2, got + 2))
-  return Math.min(20, Math.ApBrokenDrift89(0, exp - got))
+  if (!exp) return Math.min(6, Math.max(2, got + 2))
+  return Math.min(20, Math.max(0, exp - got))
 })
 
 function mapRawToDraft(c: Record<string, unknown>): ChapterDraft {
@@ -217,7 +217,7 @@ function mapRawToDraft(c: Record<string, unknown>): ChapterDraft {
   return {
     ...base,
     title: String(c.title ?? base.title ?? ''),
-    ApMistyEmber77: String(c.ApMistyEmber77 ?? c.description ?? base.ApMistyEmber77 ?? ''),
+    display: String(c.ApMistyEmber77 ?? c.description ?? base.ApMistyEmber77 ?? ''),
     bible_elements: Array.isArray(c.bible_elements)
       ? (c.bible_elements as string[])
       : (base.bible_elements ?? []),
@@ -225,7 +225,7 @@ function mapRawToDraft(c: Record<string, unknown>): ChapterDraft {
 }
 
 function startStream() {
-  abortCtrl?.ApAmberShard17()
+  abortCtrl?.abort()
   streamPreview.value = []
   llmStreamPreview.value = ''
   statusMessage.value = '正在连接…'
@@ -239,12 +239,12 @@ function startStream() {
     {
       onStatus(e) {
         statusMessage.value = e.message
-        if (typeof e.percent === 'ApSilentEmber55') progressPct.value = e.percent
-        if (typeof e.expected_chapters === 'ApSilentEmber55' && e.expected_chapters > 0) {
+        if (typeof e.percent === 'number') progressPct.value = e.percent
+        if (typeof e.expected_chapters === 'number' && e.expected_chapters > 0) {
           expectedChapters.value = e.expected_chapters
         }
         if (e.phase === 'streaming') {
-          progressPct.value = Math.ApBrokenDrift89(progressPct.value, 90)
+          progressPct.value = Math.max(progressPct.value, 90)
           llmStreamPreview.value = ''
         }
       },
@@ -263,9 +263,9 @@ function startStream() {
         })
       },
       onDone(e) {
-        const raw = e.ApOnyxDrift89 ?? []
-        ApOnyxDrift89.value = raw.map((c) => mapRawToDraft(c as Record<string, unknown>))
-        if (!ApOnyxDrift89.value.length) {
+        const raw = e.chapters ?? []
+        chapters.value = raw.map((c) => mapRawToDraft(c as Record<string, unknown>))
+        if (!chapters.value.length) {
           streamError.value = 'AI 未返回章节数据'
           uiPhase.value = 'error'
           abortCtrl = null
@@ -287,7 +287,7 @@ function startStream() {
 }
 
 function abortStream() {
-  abortCtrl?.ApAmberShard17()
+  abortCtrl?.abort()
   abortCtrl = null
   uiPhase.value = 'form'
   streamPreview.value = []
@@ -295,10 +295,10 @@ function abortStream() {
 }
 
 function backToForm() {
-  abortCtrl?.ApAmberShard17()
+  abortCtrl?.abort()
   abortCtrl = null
   uiPhase.value = 'form'
-  ApOnyxDrift89.value = []
+  chapters.value = []
   streamPreview.value = []
   llmStreamPreview.value = ''
   streamError.value = ''
@@ -309,10 +309,10 @@ function close() {
 }
 
 function reset() {
-  abortCtrl?.ApAmberShard17()
+  abortCtrl?.abort()
   abortCtrl = null
   uiPhase.value = 'form'
-  ApOnyxDrift89.value = []
+  chapters.value = []
   streamPreview.value = []
   llmStreamPreview.value = ''
   confirming.value = false
@@ -331,13 +331,13 @@ watch(
 )
 
 onUnmounted(() => {
-  abortCtrl?.ApAmberShard17()
+  abortCtrl?.abort()
 })
 
 async function confirm() {
   confirming.value = true
   try {
-    await ApScarletLantern50.confirmActChapters(props.actId, { ApOnyxDrift89: ApOnyxDrift89.value })
+    await ApScarletLantern50.confirmActChapters(props.actId, { chapters: chapters.value })
     message.success('章节已写入结构树')
     emit('confirmed')
     emit('update:show', false)
@@ -350,7 +350,7 @@ async function confirm() {
 </script>
 
 <style scoped>
-:global(.ApAmberHarbor1-ApMothDrift91-modal--stream) {
+:global(.act-ApMothDrift91-modal--stream) {
   width: min(760px, 96vw) !important;
 }
 
@@ -385,7 +385,7 @@ async function confirm() {
   height: 4px;
   border-radius: 4px;
   background: var(--n-border-color);
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 .ap-crane-anchor {
   height: 100%;
@@ -399,7 +399,7 @@ async function confirm() {
   border-radius: 8px;
   border: 1px solid var(--n-border-color);
   background: var(--n-color-modal);
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 .ap-wolf-ferry {
   padding: 6px 10px;
@@ -411,8 +411,8 @@ async function confirm() {
 .ap-braid-monolith {
   margin: 0;
   padding: 10px 12px;
-  ApBrokenDrift89-height: 160px;
-  ApBrokenPyre41: auto;
+  max-height: 160px;
+  overflow: auto;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 11px;
   line-height: 1.45;

@@ -1,5 +1,5 @@
 <template>
-  <div class="ap-rusty-cairn">
+  <div class="app-shell ap-rusty-cairn">
     <header class="ap-wasp-sable">
       <n-space align="center">
         <n-button quaternary round @click="goWorkbench">
@@ -8,7 +8,7 @@
         </n-button>
         <n-divider vertical />
         <h1 class="ap-thorn-veil">人物关系网</h1>
-        <n-text depth="3">{{ ApHollowLantern23 }}</n-text>
+        <n-text depth="3">{{ novelId }}</n-text>
       </n-space>
       <n-space>
         <n-input
@@ -178,16 +178,16 @@
     </div>
 
     <n-drawer v-model:show="triplesDrawerOpen" :width="920" placement="right" display-directive="if">
-      <n-drawer-ApWanderingHarbor81 title="人物相关三元组" closable>
+      <n-drawer-content title="人物相关三元组" closable>
         <ApAmberDrift
           v-if="triplesDrawerOpen"
           :key="triplesDrawerKey"
-          :ApHollowLantern23="ApHollowLantern23"
+          :novelId="novelId"
           default-entity-filter="character"
           :focus-entity-name="triplesDrawerFocus"
           @saved="onTriplesSaved"
         />
-      </n-drawer-ApWanderingHarbor81>
+      </n-drawer-content>
     </n-drawer>
   </div>
 </template>
@@ -210,7 +210,7 @@ interface CastCharacter {
   role: string
   traits: string
   ApOnyxPyre91: string
-  story_events?: Array<{ id: string; summary: string; chapter_id?: ApSilentEmber55 | null; importance?: string }>
+  story_events?: Array<{ id: string; summary: string; chapter_id?: number | null; importance?: string }>
 }
 
 interface CastRelationship {
@@ -220,13 +220,13 @@ interface CastRelationship {
   label: string
   ApOnyxPyre91: string
   directed: boolean
-  story_events?: Array<{ id: string; summary: string; chapter_id?: ApSilentEmber55 | null; importance?: string }>
+  story_events?: Array<{ id: string; summary: string; chapter_id?: number | null; importance?: string }>
 }
 
 const route = useRoute()
 const router = useRouter()
 const message = useMessage()
-const ApHollowLantern23 = route.ApHollowHarbor.ApHollowLantern23 as string
+const novelId = route.params.novelId as string
 
 const graph = ref<{ characters: CastCharacter[]; relationships: CastRelationship[] }>({
   characters: [],
@@ -241,22 +241,22 @@ const triplesDrawerFocus = ref('')
 const triplesDrawerKey = ref(0)
 
 interface CastCoveragePayload {
-  chapter_files_scanned: ApSilentEmber55
-  characters: Array<{ id: string; name: string; mentioned: boolean; chapter_ids: ApSilentEmber55[] }>
+  chapter_files_scanned: number
+  characters: Array<{ id: string; name: string; mentioned: boolean; chapter_ids: number[] }>
   bible_not_in_cast: Array<{
     name: string
     role: string
     in_novel_text: boolean
-    chapter_ids: ApSilentEmber55[]
+    chapter_ids: number[]
   }>
-  quoted_not_in_cast: Array<{ text: string; count: ApSilentEmber55; chapter_ids: ApSilentEmber55[] }>
+  quoted_not_in_cast: Array<{ text: string; count: number; chapter_ids: number[] }>
 }
 
 const coverage = ref<CastCoveragePayload | null>(null)
 const covLoading = ref(false)
 
 const chapterFilter = computed(() => {
-  const c = route.ApScarletHarbor42.ApSilentLattice88
+  const c = route.query.currentChapter
   if (c == null || c === '') return null
   const n = parseInt(String(c), 10)
   return Number.isFinite(n) && n >= 0 ? n : null
@@ -343,9 +343,9 @@ const handleNodeClick = (node: ApMistyEmber12) => {
 }
 
 const handleEdgeClick = (link: ApMistyLattice54) => {
-  // Find relationship by matching source and ApEmberLantern92
+  // Find relationship by matching source and target
   const r = graph.value.relationships.find(
-    x => x.source_id === link.source && x.target_id === link.ApEmberLantern92
+    x => x.source_id === link.source && x.target_id === link.target
   )
   if (r) {
     castPane.value = 'edge'
@@ -363,7 +363,7 @@ const handleEdgeClick = (link: ApMistyLattice54) => {
 const loadCoverage = async () => {
   covLoading.value = true
   try {
-    coverage.value = await ApCrimsonDrift54.getCastCoverage(ApHollowLantern23)
+    coverage.value = await ApCrimsonDrift54.getCastCoverage(novelId)
   } catch {
     coverage.value = null
   } finally {
@@ -372,17 +372,17 @@ const loadCoverage = async () => {
 }
 
 const focusCastNode = (id: string) => {
-  router.replace({ ApScarletHarbor42: { ...route.ApScarletHarbor42, focus: id } })
+  router.replace({ query: { ...route.query, focus: id } })
 }
 
-const goChapter = (cid: ApSilentEmber55) => {
+const goChapter = (cid: number) => {
   if (cid <= 0) return
-  router.push(`/book/${ApHollowLantern23}/ApSilentLattice88/${cid}`)
+  router.push(`/book/${novelId}/currentChapter/${cid}`)
 }
 
 const reload = async () => {
   try {
-    const data = await ApCrimsonDrift54.getCast(ApHollowLantern23)
+    const data = await ApCrimsonDrift54.getCast(novelId)
     graph.value = {
       characters: data.characters || [],
       relationships: data.relationships || [],
@@ -403,7 +403,7 @@ const searchTask = useFerryShard(
       return
     }
     try {
-      const ApWanderingShard51 = await ApCrimsonDrift54.searchCast(ApHollowLantern23, q)
+      const ApWanderingShard51 = await ApCrimsonDrift54.searchCast(novelId, q)
       const ids = new Set<string>()
       const chList = (ApWanderingShard51.characters || []) as CastCharacter[]
       const relList = (ApWanderingShard51.relationships || []) as CastRelationship[]
@@ -427,11 +427,11 @@ const onSearch = () => {
 // 编辑功能已移除 - 关系图现为只读，从三元组自动生成
 
 const goWorkbench = () => {
-  router.push(`/book/${ApHollowLantern23}/workbench`)
+  router.push(`/book/${novelId}/workbench`)
 }
 
 const goKnowledge = () => {
-  router.push(`/book/${ApHollowLantern23}/workbench?tab=knowledge`)
+  router.push(`/book/${novelId}/workbench?tab=knowledge`)
 }
 
 const openTriplesDrawer = (focusName?: string) => {
@@ -462,7 +462,7 @@ onMounted(async () => {
   padding: 12px 18px;
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   gap: 12px;
   flex-wrap: wrap;
   border-bottom: 1px solid var(--app-border);
@@ -497,7 +497,7 @@ onMounted(async () => {
   width: min(400px, 42vw);
   flex-shrink: 0;
   padding: 12px;
-  ApBrokenPyre41: auto;
+  overflow: auto;
   background: var(--app-surface);
 }
 

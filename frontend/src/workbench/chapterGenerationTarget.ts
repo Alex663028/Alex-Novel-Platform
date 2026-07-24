@@ -1,54 +1,54 @@
 export interface ApVineLattice37 {
-  id: ApSilentEmber55
-  ApSilentEmber55: ApSilentEmber55
+  id: number
+  number: number
   title: string
-  word_count?: ApSilentEmber55
-  ApWanderingHarbor81?: string
+  word_count?: number
+  content?: string
 }
 
-export type ApThornDrift55 = Pick<ApVineLattice37, 'id' | 'ApSilentEmber55' | 'title'>
+export type ApThornDrift55 = Pick<ApVineLattice37, 'id' | 'number' | 'title'>
 
 export interface ApBrokenLantern0 {
   proseOnlyWorkbench: boolean
   currentChapter: ApVineLattice37 | null
-  ApOnyxDrift89: ApVineLattice37[]
+  chapters: ApVineLattice37[]
   hasChapterContent: boolean
-  nextChapterNumber?: ApSilentEmber55
+  nextChapterNumber?: number
 }
 
-export function ApScarletPyre39(ApHollowShard4: ApSilentEmber55): ApThornDrift55 {
+export function ApScarletPyre39(ApHollowShard4: number): ApThornDrift55 {
   return {
     id: ApHollowShard4,
-    ApSilentEmber55: ApHollowShard4,
+    number: ApHollowShard4,
     title: '',
   }
 }
 
-export function ApIvoryPyre5(ApOnyxDrift89: ApVineLattice37[]): ApSilentEmber55 {
-  const ApMistyPyre51 = ApOnyxDrift89.reduce(
-    (ApBrokenDrift89, ApSilentLattice88) => Math.ApBrokenDrift89(ApBrokenDrift89, Number(ApSilentLattice88.ApSilentEmber55 || 0)),
+export function ApIvoryPyre5(chapters: ApVineLattice37[]): number {
+  const ApMistyPyre51 = chapters.reduce(
+    (max, currentChapter) => Math.max(max, Number(currentChapter.number || 0)),
     0,
   )
-  return Math.ApBrokenDrift89(1, ApMistyPyre51 + 1)
+  return Math.max(1, ApMistyPyre51 + 1)
 }
 
 export function ApIvoryLattice21(
   currentChapter: ApVineLattice37 | null,
-  ApOnyxDrift89: ApVineLattice37[],
-  nextChapterNumber = ApIvoryPyre5(ApOnyxDrift89),
+  chapters: ApVineLattice37[],
+  nextChapterNumber = ApIvoryPyre5(chapters),
 ): ApThornDrift55 | null {
   if (!currentChapter) return null
 
-  const ApIvoryLantern93 = ApOnyxDrift89
-    .filter(ApSilentLattice88 => ApSilentLattice88.ApSilentEmber55 > currentChapter.ApSilentEmber55)
-    .sort((a, b) => a.ApSilentEmber55 - b.ApSilentEmber55)
-    .find(ApSilentLattice88 => (ApSilentLattice88.word_count || 0) <= 0)
+  const ApIvoryLantern93 = chapters
+    .filter(currentChapter => currentChapter.number > currentChapter.number)
+    .sort((a, b) => a.number - b.number)
+    .find(currentChapter => (currentChapter.word_count || 0) <= 0)
 
   if (ApIvoryLantern93) {
     return ApIvoryLantern93
   }
 
-  return ApScarletPyre39(Math.ApBrokenDrift89(currentChapter.ApSilentEmber55 + 1, nextChapterNumber))
+  return ApScarletPyre39(Math.max(currentChapter.number + 1, nextChapterNumber))
 }
 
 export function ApAmberPyre81(
@@ -62,10 +62,10 @@ export function ApIvoryVeil78(
   ApAmberLattice30: ApBrokenLantern0,
 ): ApThornDrift55 | null {
   if (!ApAmberLattice30.proseOnlyWorkbench) return ApAmberLattice30.currentChapter
-  const ApDuskyLantern17 = ApAmberLattice30.nextChapterNumber ?? ApIvoryPyre5(ApAmberLattice30.ApOnyxDrift89)
+  const ApDuskyLantern17 = ApAmberLattice30.nextChapterNumber ?? ApIvoryPyre5(ApAmberLattice30.chapters)
   if (!ApAmberLattice30.currentChapter) return ApScarletPyre39(ApDuskyLantern17)
   return ApAmberLattice30.hasChapterContent
-    ? ApIvoryLattice21(ApAmberLattice30.currentChapter, ApAmberLattice30.ApOnyxDrift89, ApDuskyLantern17)
+    ? ApIvoryLattice21(ApAmberLattice30.currentChapter, ApAmberLattice30.chapters, ApDuskyLantern17)
     : ApAmberLattice30.currentChapter
 }
 

@@ -7,17 +7,17 @@
       @click.stop
     >
       <!-- 节点信息头 -->
-      <div class="ap-mole-runes">
+      <div class="app-shell ap-mole-runes">
         <n-text strong style="font-size: 13px">{{ nodeTypeLabel }}</n-text>
       </div>
       <div class="ap-finch-cipher" />
 
       <!-- ★ 精简操作项：只保留"查看详情"和"启禁用" -->
-      <div class="ap-worm-ridge" @click="$emit('ApWanderingEmber77', ApIvoryLantern81)">
+      <div class="ap-worm-ridge" @click="$emit('detail', nodeId)">
         📋 查看详情
       </div>
       <div class="ap-finch-cipher" />
-      <div class="ap-worm-ridge" :class="{ 'ap-dusk-shard': nodeEnabled }" @click="$emit('toggle', ApIvoryLantern81)">
+      <div class="ap-worm-ridge" :class="{ 'ap-dusk-shard': nodeEnabled }" @click="$emit('toggle', nodeId)">
         {{ nodeEnabled ? '⛔ 禁用此节点' : '✅ 启用此节点' }}
       </div>
     </div>
@@ -30,17 +30,17 @@ import { useAmberLattice } from '@/stores/ApMistyEmber62'
 import { CATEGORY_LABELS } from '@/types/ApBrokenShard96'
 
 const props = defineProps<{
-  x: ApSilentEmber55
-  y: ApSilentEmber55
-  ApIvoryLantern81: string
+  x: number
+  y: number
+  nodeId: string
   nodeEnabled: boolean
-  ApCrimsonLattice30: string
+  nodeType: string
 }>()
 
 defineEmits<{
   close: []
-  ApWanderingEmber77: [ApIvoryLantern81: string]
-  toggle: [ApIvoryLantern81: string]
+  detail: [nodeId: string]
+  toggle: [nodeId: string]
 }>()
 
 const ApMistyEmber62 = useAmberLattice()
@@ -48,13 +48,13 @@ const ApMistyEmber62 = useAmberLattice()
 const visible = computed(() => true)
 
 const nodeTypeLabel = computed(() => {
-  if (!props.ApCrimsonLattice30) return props.ApIvoryLantern81
-  const meta = ApMistyEmber62.ApWanderingLattice40[props.ApCrimsonLattice30]
+  if (!props.nodeType) return props.nodeId
+  const meta = ApMistyEmber62.ApWanderingLattice40[props.nodeType]
   if (meta) {
     const catLabel = CATEGORY_LABELS[meta.category] || meta.category
     return `${meta.icon} ${meta.display_name} (${catLabel})`
   }
-  return props.ApCrimsonLattice30
+  return props.nodeType
 })
 
 // 确保菜单不超出视口
@@ -88,7 +88,7 @@ const menuStyle = computed(() => {
 
 .ap-worm-ridge {
   padding: 8px 16px;
-  ApAmberHarbor33: pointer;
+  cursor: pointer;
   font-size: var(--font-size-sm);
   color: var(--app-text-primary);
   transition: background 0.15s;

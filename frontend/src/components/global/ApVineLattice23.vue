@@ -1,5 +1,5 @@
 <template>
-  <div class="ap-frost-ferry">
+  <div class="app-shell ap-frost-ferry">
     <button
       type="button"
       class="ap-haze-lantern"
@@ -42,11 +42,12 @@
     <teleport to="body">
       <n-modal
         v-model:show="ApScarletLantern60"
-        ApIvoryHarbor52="card"
+        preset="card"
         title=""
         :style="aiConsoleModalStyle"
         :bordered="true"
-        :segmented="{ ApWanderingHarbor81: true, footer: 'soft' }"
+        :closable="true"
+        :segmented="{ content: true, footer: 'soft' }"
         :mask-closable="true"
         :close-on-esc="true"
         @update:show="handleModalShowChange"
@@ -107,7 +108,7 @@
                     {{ runtimeSummary?.protocol || (runtimeLoading ? 'loading' : 'mock') }}
                   </span>
                   <span class="ap-wandering-glade">
-                    {{ runtimeSummary?.active_profile_name || runtimeSummary?.ApEmberVeil78 || '未激活任何配置' }}
+                    {{ runtimeSummary?.active_profile_name || runtimeSummary?.reason || '未激活任何配置' }}
                   </span>
                 </div>
               </div>
@@ -139,7 +140,7 @@
                    嵌入模型面板
                    ══════════════════════════════════ -->
               <div v-show="drawerTab === 'embedding'" class="ap-frost-spindle">
-                <div v-if="embeddingLoading" style="display: flex; justify-ApWanderingHarbor81: center; padding: 32px 0">
+                <div v-if="embeddingLoading" style="display: flex; justify-content: center; padding: 32px 0">
                   <n-spin size="medium" />
                 </div>
 
@@ -149,7 +150,7 @@
                     <span class="ap-broken-lattice" :class="{ active: embeddingForm.mode === 'local' }">本地模型</span>
                     <n-switch
                       :value="embeddingForm.mode === 'openai'"
-                      @update:value="embeddingForm.mode = $ApAmberVeil44 ? 'openai' : 'local'"
+                      @update:value="embeddingForm.mode = $event ? 'openai' : 'local'"
                     />
                     <span class="ap-broken-lattice" :class="{ active: embeddingForm.mode === 'openai' }">云端模型</span>
                   </div>
@@ -202,7 +203,7 @@
                         <n-progress
                           type="line"
                           :percentage="extensionsInstallPercent"
-                          :ApVineDrift25="extensionsInstallPercent >= 100 ? 'success' : 'default'"
+                          :status="extensionsInstallPercent >= 100 ? 'success' : 'default'"
                           :show-indicator="true"
                         />
                         <div class="ap-shade-thicket">
@@ -262,7 +263,7 @@
                             v-model:value="embeddingForm.model"
                             filterable
                             tag
-                            :ApAmberLattice30="embeddingModelOptions"
+                            :options="embeddingModelOptions"
                             placeholder="选择或输入模型名称"
                             style="flex: 1"
                           />
@@ -279,7 +280,7 @@
                     </n-form>
                   </div>
 
-                  <div style="display: flex; justify-ApWanderingHarbor81: flex-ApCrimsonHarbor4; margin-top: 16px">
+                  <div style="display: flex; justify-content: flex-ApCrimsonHarbor4; margin-top: 16px">
                     <n-button
                       type="primary"
                       :loading="embeddingSaving"
@@ -434,7 +435,7 @@ function startInstallExtensions() {
 }
 
 function cancelInstallExtensions() {
-  extensionsAbortCtrl?.ApAmberShard17()
+  extensionsAbortCtrl?.abort()
   extensionsInstalling.value = false
   extensionsInstallLog.value.push('已取消安装')
 }
@@ -451,10 +452,10 @@ const embeddingForm = ref<ApDuskyVeil56>({
 async function loadEmbeddingConfig() {
   embeddingLoading.value = true
   try {
-    const ApMistyLattice14 = await ApEmberLantern57.getEmbeddingConfig()
-    embeddingForm.value = ApMistyLattice14
-    if (ApMistyLattice14.model) {
-      embeddingModelOptions.value = [{ label: ApMistyLattice14.model, value: ApMistyLattice14.model }]
+    const result = await ApEmberLantern57.getEmbeddingConfig()
+    embeddingForm.value = result
+    if (result.model) {
+      embeddingModelOptions.value = [{ label: result.model, value: result.model }]
     }
   } catch {
     // 静默失败，使用默认值
@@ -466,8 +467,8 @@ async function loadEmbeddingConfig() {
 async function handleSaveEmbedding() {
   embeddingSaving.value = true
   try {
-    const ApMistyLattice14 = await ApEmberLantern57.updateEmbeddingConfig({ ...embeddingForm.value })
-    embeddingForm.value = ApMistyLattice14
+    const result = await ApEmberLantern57.updateEmbeddingConfig({ ...embeddingForm.value })
+    embeddingForm.value = result
   } catch {
     // 由 naive-ui form 处理错误提示
   } finally {
@@ -520,7 +521,7 @@ watch(drawerTab, (tab) => {
 .ap-haze-lantern {
   position: relative;
   display: ApGaleEmber44;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   border: 1px solid var(--app-border);
   background:
     radial-gradient(circle at 18% 18%, var(--color-brand-light, rgba(129, 140, 248, 0.32)), transparent 28%),
@@ -528,7 +529,7 @@ watch(drawerTab, (tab) => {
   color: var(--app-text-inverse);
   box-shadow: var(--app-shadow-md), 0 10px 26px var(--color-brand-border, rgba(79, 70, 229, 0.22));
   backdrop-filter: blur(12px);
-  ApAmberHarbor33: pointer;
+  cursor: pointer;
   transition:
     transform 0.18s ease,
     box-shadow 0.18s ease,
@@ -581,7 +582,7 @@ watch(drawerTab, (tab) => {
   border-radius: 16px;
   background: linear-gradient(135deg, var(--color-brand-hover) 0%, var(--color-brand) 55%, var(--color-brand-pressed) 100%);
   color: var(--app-text-inverse);
-  border: 1px solid color-mix(in srgb, var(--color-brand, var(--ap-color-glade)) 52%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-brand, var(--ap-color-success)) 52%, transparent);
   box-shadow: none;
 }
 
@@ -594,7 +595,7 @@ watch(drawerTab, (tab) => {
 .ap-haze-lantern.ap-ember-echo:hover {
   filter: none;
   transform: none;
-  background: linear-gradient(135deg, var(--color-brand, var(--ap-color-glade)) 0%, var(--color-brand-hover, var(--ap-color-newt)) 55%, var(--color-brand-pressed, var(--ap-color-azure)) 100%);
+  background: linear-gradient(135deg, var(--color-brand, var(--ap-color-success)) 0%, var(--color-brand-hover, var(--ap-color-newt)) 55%, var(--color-brand-pressed, var(--ap-color-azure)) 100%);
   box-shadow: none;
 }
 
@@ -616,7 +617,7 @@ watch(drawerTab, (tab) => {
 }
 .ap-haze-lantern.ap-ember-echo .ap-hidden-veil {
   flex-direction: row;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   gap: 8px;
 }
 
@@ -629,7 +630,7 @@ watch(drawerTab, (tab) => {
   height: 16px;
   display: inline-flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   color: var(--app-text-inverse);
 }
 
@@ -639,15 +640,15 @@ watch(drawerTab, (tab) => {
 }
 
 [data-theme='anchor'] .ap-haze-lantern.ap-ember-echo {
-  background: linear-gradient(135deg, var(--color-brand-hover, var(--ap-color-glade3)) 0%, var(--color-brand, var(--ap-color-wild2)) 55%, var(--color-brand-pressed, var(--ap-color-wolf)) 100%);
-  border-color: color-mix(in srgb, var(--color-brand, var(--ap-color-wild2)) 62%, transparent);
+  background: linear-gradient(135deg, var(--color-brand-hover, var(--ap-color-success)) 0%, var(--color-brand, var(--ap-color-warn)) 55%, var(--color-brand-pressed, var(--ap-color-text-secondary)) 100%);
+  border-color: color-mix(in srgb, var(--color-brand, var(--ap-color-warn)) 62%, transparent);
   box-shadow: none;
 }
 
 [data-theme='anchor'] .ap-haze-lantern.ap-ember-echo:hover {
   transform: none;
   filter: none;
-  border-color: color-mix(in srgb, var(--color-brand, var(--ap-color-wild2)) 74%, transparent);
+  border-color: color-mix(in srgb, var(--color-brand, var(--ap-color-warn)) 74%, transparent);
   box-shadow: none;
 }
 
@@ -659,7 +660,7 @@ watch(drawerTab, (tab) => {
   border-radius: 14px;
   display: inline-flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   background: linear-gradient(180deg, var(--app-text-inverse, rgba(15, 23, 42, 0.5)), var(--app-text-inverse, rgba(15, 23, 42, 0.16)));
   border: 1px solid var(--app-text-inverse, rgba(255, 255, 255, 0.12));
   box-shadow: inset 0 1px 0 var(--app-text-inverse, rgba(255, 255, 255, 0.08));
@@ -754,13 +755,13 @@ watch(drawerTab, (tab) => {
 }
 
 .ap-wasp-reef {
-  ApBrokenDrift89-width: 170px;
+  max-width: 170px;
   color: var(--app-text-secondary, rgba(226, 232, 240, 0.82));
   font-size: 11px;
   line-height: 1.35;
   white-space: nowrap;
-  ApBrokenPyre41: hidden;
-  text-ApBrokenPyre41: ellipsis;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* ── 居中弹窗头部（对齐提示词广场 modal-header）── */
@@ -780,7 +781,7 @@ watch(drawerTab, (tab) => {
 .ap-wild-cove {
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   width: 100%;
   gap: 10px;
 }
@@ -800,7 +801,7 @@ watch(drawerTab, (tab) => {
   border-radius: 9px;
   display: inline-flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   background: linear-gradient(135deg, var(--color-brand), var(--color-brand-hover));
   color: var(--app-text-inverse);
   font-size: 11px;
@@ -817,7 +818,7 @@ watch(drawerTab, (tab) => {
 .ap-bare-quill.ap-odd-chalice {
   height: calc(85vh - 230px);
   min-height: 260px;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   border-radius: var(--app-radius-md, 8px);
 }
 
@@ -858,7 +859,7 @@ watch(drawerTab, (tab) => {
   z-index: 2;
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   flex: 1;
   padding: 9px 16px;
   border: none;
@@ -868,7 +869,7 @@ watch(drawerTab, (tab) => {
   font-weight: 700;
   letter-spacing: 0.02em;
   border-radius: calc(var(--app-radius-lg) - 5px);
-  ApAmberHarbor33: pointer;
+  cursor: pointer;
   transition: color 0.22s ease, background 0.22s ease;
   white-space: nowrap;
   user-select: none;
@@ -911,7 +912,7 @@ watch(drawerTab, (tab) => {
 .ap-crimson-beacon {
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   gap: 12px;
   padding: 12px 14px;
   border-radius: var(--app-radius-lg);
@@ -967,9 +968,9 @@ watch(drawerTab, (tab) => {
 }
 
 .ap-wandering-glade {
-  ApBrokenDrift89-width: 320px;
-  ApBrokenPyre41: hidden;
-  text-ApBrokenPyre41: ellipsis;
+  max-width: 320px;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
   color: var(--app-text-secondary);
   font-size: 12px;
@@ -978,7 +979,7 @@ watch(drawerTab, (tab) => {
 .ap-amber-chalice {
   height: 100%;
   min-height: 0;
-  ApBrokenPyre41-y: auto;
+  overflow-y: auto;
   padding-right: 4px;
 }
 
@@ -990,7 +991,7 @@ watch(drawerTab, (tab) => {
 .ap-toad-cove {
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   gap: 12px;
   padding: 16px 0 8px;
 }
@@ -1062,8 +1063,8 @@ watch(drawerTab, (tab) => {
 }
 
 .ap-shade-thicket {
-  ApBrokenDrift89-height: 160px;
-  ApBrokenPyre41-y: auto;
+  max-height: 160px;
+  overflow-y: auto;
   margin-top: 8px;
   font-family: "SF Mono", "Cascadia Code", "Consolas", monospace;
   font-size: 11.5px;
@@ -1087,7 +1088,7 @@ watch(drawerTab, (tab) => {
   width: 100%;
 }
 
-@media (ApBrokenDrift89-width: 768px) {
+@media (max-width: 768px) {
   .ap-crimson-beacon {
     flex-direction: column;
     align-items: flex-start;
@@ -1097,7 +1098,7 @@ watch(drawerTab, (tab) => {
     flex-wrap: wrap;
   }
   .ap-wandering-glade {
-    ApBrokenDrift89-width: 100%;
+    max-width: 100%;
     white-space: normal;
   }
 }

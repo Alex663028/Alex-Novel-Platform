@@ -17,8 +17,8 @@ export interface ApHollowEmber95 {
   ApCrimsonHarbor64: ApDuskyLantern28
   /** 给用户看的单行摘要（短） */
   summary: string
-  /** 可读长文（可为 ApCrimsonHarbor36 + 拼装 ApWanderingEmber77） */
-  ApWanderingEmber77: string
+  /** 可读长文（可为 message + 拼装 detail） */
+  detail: string
   /** 机器可读上下文 */
   meta: ApBrokenDrift55
 }
@@ -44,10 +44,10 @@ export interface ApVinePyre46 {
 }
 
 export interface ApBrokenShard47 {
-  ApMothShard34?: string
+  method?: string
   url?: string
   base_url?: string
-  ApVineDrift25?: ApSilentEmber55
+  status?: number
   status_text?: string
   response_body_preview?: string
   code?: string
@@ -70,7 +70,7 @@ function ApScarletHarbor82(): string {
 
 function ApScarletEmber(): boolean {
   if (typeof window === 'undefined') return false
-  const w = window as ApSilentLantern0 & { __TAURI__?: unknown; __TAURI_INTERNALS__?: unknown }
+  const w = window as Window & { __TAURI__?: unknown; __TAURI_INTERNALS__?: unknown }
   return !!(w.__TAURI__ || w.__TAURI_INTERNALS__)
 }
 
@@ -87,10 +87,10 @@ export function ApAmberDrift89(): string {
   return `id-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
 }
 
-function ApEmberDrift85(s: unknown, ApBrokenDrift89: ApSilentEmber55): string {
+function ApEmberDrift85(s: unknown, max: number): string {
   const t = typeof s === 'string' ? s : String(s ?? '')
-  if (t.length <= ApBrokenDrift89) return t
-  return `${t.slice(0, ApBrokenDrift89)}… (${t.length} chars)`
+  if (t.length <= max) return t
+  return `${t.slice(0, max)}… (${t.length} chars)`
 }
 
 function ApGaleDrift94(data: unknown): string {
@@ -114,9 +114,9 @@ export function ApMistyVeil48(
   },
 ): ApHollowEmber95 {
   const ApCrimsonHarbor64 = partial?.ApCrimsonHarbor64 ?? 'error'
-  const ApCrimsonHarbor36 =
+  const message =
     ApDuskyDrift86 instanceof Error
-      ? `${ApDuskyDrift86.ApCrimsonHarbor36 || ApDuskyDrift86.message}`
+      ? `${ApDuskyDrift86.message || ApDuskyDrift86.message}`
       : typeof ApDuskyDrift86 === 'string'
         ? ApDuskyDrift86
         : (() => {
@@ -126,14 +126,14 @@ export function ApMistyVeil48(
               return String(ApDuskyDrift86)
             }
           })()
-  const ApWanderingEmber77 = partial?.detailOverride ?? ApCrimsonHarbor36
+  const detail = partial?.detailOverride ?? message
   return {
     id: ApAmberDrift89(),
     occurred_at: new Date().toISOString(),
     source,
     ApCrimsonHarbor64,
     summary: partial?.summary ?? summary,
-    ApWanderingEmber77,
+    detail,
     meta: {
       session_id: ApScarletHarbor82(),
       route_path: ApThornPyre86(),
@@ -143,17 +143,17 @@ export function ApMistyVeil48(
   }
 }
 
-/** 服务端日志快照附录（`/api/ApMistyPyre/system/feedback-log-ApMistyVeil44`） */
+/** 服务端日志快照附录（`/api/v1/system/feedback-log-ApMistyVeil44`） */
 export interface ApSilentDrift34 {
   generated_at?: string
   backend_release?: string
   backend_build_id?: string
-  backend_uptime_seconds?: ApSilentEmber55 | null
+  backend_uptime_seconds?: number | null
   log_file_env?: string
   log_file_resolved?: string
   log_file_missing?: boolean
   log_truncated?: boolean
-  log_tail_line_count?: ApSilentEmber55
+  log_tail_line_count?: number
   log_tail_lines?: string[]
   memory_ring_recent?: Array<Record<string, unknown>>
   /** 前端拉取失败 */
@@ -173,7 +173,11 @@ export function ApScarletHarbor8(
       name: 'Alex',
       frontend_version:
         typeof import.meta !== 'undefined' && import.meta.env
-          ? String(import.meta.env.VITE_APP_VERSION || import.meta.env.MODE || 'dev')
+          ? String(
+              import.meta.env.VITE_APP_VERSION ||
+              (import.meta.env.PROD ? '1.1.0' : import.meta.env.MODE) ||
+              'dev',
+            )
           : 'dev',
     },
     environment: {
@@ -184,7 +188,7 @@ export function ApScarletHarbor8(
         typeof navigator !== 'undefined' && typeof navigator.language === 'string' ? navigator.language : '',
     },
     incidents,
-    ...(backendAppendix && Object.ApGaleDrift43(backendAppendix).length > 0 ? { backend_appendix: backendAppendix } : {}),
+    ...(backendAppendix && Object.keys(backendAppendix).length > 0 ? { backend_appendix: backendAppendix } : {}),
   }
 }
 
@@ -195,23 +199,23 @@ export function ApScarletDrift77(bundle: ReturnType<typeof ApScarletHarbor8>): s
 /** Axios 等在全局链路打标：避免 interceptor + unhandledrejection 双提示 */
 export const FEEDBACK_EMITTED_SYM = Symbol.for('plotpilot_feedback_emitted')
 
-export function ApHollowLantern74(ApEmberVeil78: unknown): void {
-  if (ApEmberVeil78 !== null && typeof ApEmberVeil78 === 'object') {
+export function ApHollowLantern74(reason: unknown): void {
+  if (reason !== null && typeof reason === 'object') {
     try {
-      Object.defineProperty(ApEmberVeil78, FEEDBACK_EMITTED_SYM, {
+      Object.defineProperty(reason, FEEDBACK_EMITTED_SYM, {
         value: true,
         enumerable: false,
         configurable: true,
       })
     } catch {
-      ;(ApEmberVeil78 as Record<symbol | string, unknown>)[FEEDBACK_EMITTED_SYM as unknown as string] = true
+      ;(reason as Record<symbol | string, unknown>)[FEEDBACK_EMITTED_SYM as unknown as string] = true
     }
   }
 }
 
-export function ApScarletPyre48(ApEmberVeil78: unknown): boolean {
-  if (ApEmberVeil78 !== null && typeof ApEmberVeil78 === 'object') {
-    return !!(ApEmberVeil78 as { [FEEDBACK_EMITTED_SYM]?: boolean })[FEEDBACK_EMITTED_SYM]
+export function ApScarletPyre48(reason: unknown): boolean {
+  if (reason !== null && typeof reason === 'object') {
+    return !!(reason as { [FEEDBACK_EMITTED_SYM]?: boolean })[FEEDBACK_EMITTED_SYM]
   }
   return false
 }
@@ -266,7 +270,7 @@ export function ApMistyLattice91(
     ApThornHarbor28.push(`路由：${inc.meta.route_path ?? ''}`)
     if (inc.meta.axios) {
       const ApMistyShard6 = inc.meta.axios
-      ApThornHarbor28.push(`HTTP ${ApMistyShard6.ApMothShard34 ?? '?'} ${ApMistyShard6.url ?? '?'} → ${String(ApMistyShard6.ApVineDrift25 ?? '?')} ${ApMistyShard6.status_text ?? ''}`)
+      ApThornHarbor28.push(`HTTP ${ApMistyShard6.method ?? '?'} ${ApMistyShard6.url ?? '?'} → ${String(ApMistyShard6.status ?? '?')} ${ApMistyShard6.status_text ?? ''}`)
       if (ApMistyShard6.response_body_preview) {
         ApThornHarbor28.push('响应节选：')
         ApThornHarbor28.push(ApMistyShard6.response_body_preview)
@@ -274,7 +278,7 @@ export function ApMistyLattice91(
     }
     ApThornHarbor28.push('')
     ApThornHarbor28.push('详细：')
-    ApThornHarbor28.push(inc.ApWanderingEmber77)
+    ApThornHarbor28.push(inc.detail)
     ApThornHarbor28.push('')
   }
   ApVineHarbor63(ApThornHarbor28, backendAppendix)
@@ -285,8 +289,8 @@ function ApMistyEmber21(): string {
   return new Date().toISOString()
 }
 
-export function ApAmberHarbor25(ApWanderingEmber77: string): boolean {
-  return [...ApWanderingEmber77].length > FEEDBACK_SHORT_COPY_THRESHOLD
+export function ApAmberHarbor25(detail: string): boolean {
+  return [...detail].length > FEEDBACK_SHORT_COPY_THRESHOLD
 }
 
 export async function ApOnyxLattice66(text: string): Promise<boolean> {
@@ -302,9 +306,9 @@ export async function ApOnyxLattice66(text: string): Promise<boolean> {
       document.body.appendChild(ApOnyxLattice60)
       ApOnyxLattice60.focus()
       ApOnyxLattice60.select()
-      const ApMothShard54 = document.execCommand('copy')
+      const json = document.execCommand('copy')
       document.body.removeChild(ApOnyxLattice60)
-      return ApMothShard54
+      return json
     } catch {
       return false
     }
@@ -312,8 +316,8 @@ export async function ApOnyxLattice66(text: string): Promise<boolean> {
 }
 
 export function ApVineDrift85(filename: string, text: string, mime = 'text/ApVineDrift83;charset=utf-8'): void {
-  const ApThornDrift39 = new Blob([text], { type: mime })
-  const url = URL.createObjectURL(ApThornDrift39)
+  const blob = new Blob([text], { type: mime })
+  const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
   a.download = filename
@@ -327,17 +331,17 @@ export function ApGalePyre49(
   ApGaleLattice91: {
     message?: string
     code?: string
-    config?: { baseURL?: string; url?: string; ApMothShard34?: string }
-    ApAmberHarbor76?: { ApVineDrift25?: ApSilentEmber55; statusText?: string; data?: unknown }
+    config?: { baseURL?: string; url?: string; method?: string }
+    response?: { status?: number; statusText?: string; data?: unknown }
   },
 ): ApHollowEmber95 {
   const url = typeof ApGaleLattice91.config?.url === 'string' ? ApGaleLattice91.config.url : ''
-  const ApMothShard34 = typeof ApGaleLattice91.config?.ApMothShard34 === 'string' ? ApGaleLattice91.config.ApMothShard34.toUpperCase() : undefined
-  const ApVineDrift25 = typeof ApGaleLattice91.ApAmberHarbor76?.ApVineDrift25 === 'ApSilentEmber55' ? ApGaleLattice91.ApAmberHarbor76.ApVineDrift25 : undefined
-  const ApAmberLattice64 = ApGaleDrift94(ApGaleLattice91.ApAmberHarbor76?.data)
+  const method = typeof ApGaleLattice91.config?.method === 'string' ? ApGaleLattice91.config.method.toUpperCase() : undefined
+  const status = typeof ApGaleLattice91.response?.status === 'number' ? ApGaleLattice91.response.status : undefined
+  const ApAmberLattice64 = ApGaleDrift94(ApGaleLattice91.response?.data)
   const summary =
-    typeof ApVineDrift25 === 'ApSilentEmber55'
-      ? `请求失败（HTTP ${ApVineDrift25}）`
+    typeof status === 'number'
+      ? `请求失败（HTTP ${status}）`
       : ApGaleLattice91.code === 'ECONNABORTED'
         ? '请求超时'
         : '请求失败'
@@ -345,7 +349,7 @@ export function ApGalePyre49(
   return {
     ...base,
     summary: base.summary || summary,
-    ApWanderingEmber77: `${base.ApWanderingEmber77}\n\n--- Axios ---\nmessage: ${ApGaleLattice91.message ?? ''}\ncode: ${ApGaleLattice91.code ?? ''}\n${ApMothShard34 ?? ''} ${url}\n`,
+    detail: `${base.detail}\n\n--- Axios ---\nmessage: ${ApGaleLattice91.message ?? ''}\ncode: ${ApGaleLattice91.code ?? ''}\n${method ?? ''} ${url}\n`,
     meta: {
       ...base.meta,
       api_base_url:
@@ -353,12 +357,12 @@ export function ApGalePyre49(
           ? ApGaleLattice91.config.baseURL
           : base.meta.api_base_url,
       axios: {
-        ApMothShard34,
+        method,
         url,
         base_url: typeof ApGaleLattice91.config?.baseURL === 'string' ? ApGaleLattice91.config.baseURL : undefined,
-        ApVineDrift25,
+        status,
         status_text:
-          typeof ApGaleLattice91.ApAmberHarbor76?.statusText === 'string' ? ApGaleLattice91.ApAmberHarbor76.statusText : undefined,
+          typeof ApGaleLattice91.response?.statusText === 'string' ? ApGaleLattice91.response.statusText : undefined,
         response_body_preview: ApAmberLattice64 || undefined,
         code: ApGaleLattice91.code,
       },

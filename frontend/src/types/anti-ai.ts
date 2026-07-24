@@ -11,20 +11,20 @@
 export interface ApWanderingVeil12 {
   ApMistyShard68: string
   text: string
-  start: ApSilentEmber55
-  ApCrimsonHarbor4: ApSilentEmber55
+  start: number
+  ApCrimsonHarbor4: number
   ApCrimsonHarbor64: 'critical' | 'warning' | 'info'
   category: string
   replacement_hint: string
 }
 
 export interface ApDuskyShard1 {
-  total_hits: ApSilentEmber55
-  critical_hits: ApSilentEmber55
-  warning_hits: ApSilentEmber55
-  severity_score: ApSilentEmber55
+  total_hits: number
+  critical_hits: number
+  warning_hits: number
+  severity_score: number
   overall_assessment: '纯净' | '轻微' | '中等' | '严重' | '未检测'
-  category_distribution: Record<string, ApSilentEmber55>
+  category_distribution: Record<string, number>
   top_patterns: string[]
   recommendations: string[]
   improvement_suggestions: string[]
@@ -39,8 +39,8 @@ export interface ApScarletPyre67 {
   icon: string
   description: string
   color: string
-  sort_order: ApSilentEmber55
-  prompt_count: ApSilentEmber55
+  sort_order: number
+  prompt_count: number
 }
 
 // ─── 规则信息 ───
@@ -59,7 +59,7 @@ export interface ApBrokenPyre75 {
   scene_type: string
   allowed_categories: string[]
   allowed_patterns: string[]
-  max_density_per_1000: ApSilentEmber55
+  max_density_per_1000: number
   description: string
 }
 
@@ -67,21 +67,21 @@ export interface ApMothLattice79 {
   scene_type: string
   allowed_categories?: string[]
   allowed_patterns?: string[]
-  max_density_per_1000?: ApSilentEmber55
+  max_density_per_1000?: number
   description?: string
 }
 
 // ─── 系统统计 ───
 
 export interface ApAmberDrift52 {
-  total_prompts: ApSilentEmber55
-  anti_ai_prompts: ApSilentEmber55
-  categories_count: ApSilentEmber55
-  cliche_patterns: ApSilentEmber55
+  total_prompts: number
+  anti_ai_prompts: number
+  categories_count: number
+  cliche_patterns: number
   layers: {
-    L1_positive_framing: ApSilentEmber55
-    L2_protocol_rules: ApSilentEmber55
-    L3_allowlist_scenes: ApSilentEmber55
+    L1_positive_framing: number
+    L2_protocol_rules: number
+    L3_allowlist_scenes: number
     L4_state_vector: string
     L5_context_quota: string
     L6_token_guard: string

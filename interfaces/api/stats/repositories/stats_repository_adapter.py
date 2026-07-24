@@ -16,7 +16,7 @@ class StatsRepositoryAdapter:
     """Adapter to make new architecture data compatible with stats API.
 
     This adapter:
-    1. Reads from data/novels/*.json instead of data/{slug}/manifest.json
+    1. Reads from data/novels/*.json instead of data/{novel_id}/manifest.json
     2. Converts novel-id to slug for API compatibility
     3. Extracts chapter data from the novel JSON structure
     """
@@ -62,9 +62,9 @@ class StatsRepositoryAdapter:
             Dictionary in manifest format, or None if not found/error
         """
         try:
-            novel_path = self.novels_dir / f"{slug}.json"
+            novel_path = self.novels_dir / f"{novel_id}.json"
             if not novel_path.exists():
-                logger.warning(f"Novel not found: {slug}")
+                logger.warning(f"Novel not found: {novel_id}")
                 return None
 
             with open(novel_path, 'r', encoding='utf-8') as f:
@@ -80,19 +80,19 @@ class StatsRepositoryAdapter:
                 "chapters": novel_data.get("chapters", [])
             }
 
-            logger.debug(f"Successfully read manifest for novel: {slug}")
+            logger.debug(f"Successfully read manifest for novel: {novel_id}")
             return manifest
         except json.JSONDecodeError as e:
-            logger.error(f"Invalid JSON in novel file {slug}: {e}")
+            logger.error(f"Invalid JSON in novel file {novel_id}: {e}")
             return None
         except Exception as e:
-            logger.error(f"Error reading novel {slug}: {e}")
+            logger.error(f"Error reading novel {novel_id}: {e}")
             return None
 
     def get_book_outline(self, slug: str) -> Optional[Dict]:
         """Expose chapter list in the shape expected by StatsService.
 
-        New architecture stores chapters inside ``novels/{slug}.json``; there is no
+        New architecture stores chapters inside ``novels/{novel_id}.json``; there is no
         separate outline.json. We map ``chapters[].number`` to outline ``id`` so
         :meth:`get_chapter_content` and stats aggregation stay aligned.
 
@@ -124,7 +124,7 @@ class StatsRepositoryAdapter:
         return {"chapters": outline_chapters}
 
     def _outline_chapters_from_disk(self, slug: str) -> List[Dict]:
-        """当 novel 聚合里 chapters 为空时，从 ``novels/{slug}/chapters/*.json`` 扫描章列表。
+        """当 novel 聚合里 chapters 为空时，从 ``novels/{novel_id}/chapters/*.json`` 扫描章列表。
 
         与 :class:`FileChapterRepository` 落盘路径一致，避免统计 API 与 v1 章节 API 脱节。
         """
@@ -152,7 +152,7 @@ class StatsRepositoryAdapter:
         return out
 
     def _chapter_content_from_disk(self, slug: str, chapter_id: int) -> Optional[str]:
-        """按章节号从 ``novels/{slug}/chapters/*.json`` 读取正文。"""
+        """按章节号从 ``novels/{novel_id}/chapters/*.json`` 读取正文。"""
         data = self._chapter_data_from_disk(slug, chapter_id)
         if data is None:
             return None
@@ -160,7 +160,7 @@ class StatsRepositoryAdapter:
         return raw if isinstance(raw, str) else None
 
     def _chapter_data_from_disk(self, slug: str, chapter_id: int) -> Optional[Dict]:
-        """按章节号从 ``novels/{slug}/chapters/*.json`` 读取章节 JSON。"""
+        """按章节号从 ``novels/{novel_id}/chapters/*.json`` 读取章节 JSON。"""
         ch_dir = self.novels_dir / slug / "chapters"
         if not ch_dir.is_dir():
             return None
@@ -214,7 +214,7 @@ class StatsRepositoryAdapter:
                     continue
                 content = chapter.get("content", "")
                 if isinstance(content, str) and content.strip():
-                    logger.debug(f"Successfully read chapter {chapter_id} for novel: {slug}")
+                    logger.debug(f"Successfully read chapter {chapter_id} for novel: {novel_id}")
                     return content
                 disk = self._chapter_content_from_disk(slug, chapter_id)
                 if disk is not None:
@@ -225,10 +225,10 @@ class StatsRepositoryAdapter:
             if disk_only is not None:
                 return disk_only
 
-            logger.warning(f"Chapter {chapter_id} not found in novel {slug}")
+            logger.warning(f"Chapter {chapter_id} not found in novel {novel_id}")
             return None
         except Exception as e:
-            logger.error(f"Error reading chapter {chapter_id} for novel {slug}: {e}")
+            logger.error(f"Error reading chapter {chapter_id} for novel {novel_id}: {e}")
             return None
 
     def get_chapter_progress_records(self, slug: str) -> List[Dict]:
@@ -267,7 +267,7 @@ class StatsRepositoryAdapter:
                 )
             return records
         except Exception as e:
-            logger.error(f"Error building progress records for novel {slug}: {e}")
+            logger.error(f"Error building progress records for novel {novel_id}: {e}")
             return []
 
     def count_words(self, text: str) -> int:

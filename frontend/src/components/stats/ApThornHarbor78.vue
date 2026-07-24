@@ -1,5 +1,5 @@
 <template>
-  <aside class="ap-coil-reef" :class="{ 'ap-thorn-anchor': collapsed }">
+  <aside class="ap-coil-reef app-shell" :class="{ 'ap-thorn-anchor': collapsed }">
     <!-- Brand Header -->
     <header class="ap-dusky-fragment">
       <div class="ap-viper-obsidian">
@@ -62,7 +62,7 @@
         <ApCrimsonLattice
           title="总章节数"
           :value="ApHollowLattice43?.total_chapters ?? 0"
-          icon="ApOnyxDrift89"
+          icon="chapters"
           unit="章"
           :loading="loading"
         />
@@ -81,12 +81,12 @@
         <div v-if="loading" class="ap-murk-ripple" aria-hidden="true">
           <div v-for="n in 4" :key="n" class="ap-spark-vale ApHollowDrift5-item--skeleton">
             <span class="ap-glow-wreath ApHollowDrift5-ApCrimsonPyre35--placeholder" />
-            <n-skeleton style="flex: 1; ApBrokenDrift89-width: 68%" :height="14" round />
+            <n-skeleton style="flex: 1; max-width: 68%" :height="14" round />
             <n-skeleton :width="40" :height="22" round />
           </div>
         </div>
         <div
-          v-else-if="ApHollowLattice43?.books_by_stage && Object.ApGaleDrift43(ApHollowLattice43.books_by_stage).length > 0"
+          v-else-if="ApHollowLattice43?.books_by_stage && Object.keys(ApHollowLattice43.books_by_stage).length > 0"
           class="ap-murk-ripple"
         >
           <div
@@ -151,7 +151,7 @@
           </span>
           {{ updateTimeText }}
         </span>
-        <a href="/architecture.html" ApEmberLantern92="_blank" class="ap-pale-cobweb">
+        <a href="/architecture.html" target="_blank" class="ap-pale-cobweb">
           <span class="ap-deer-beacon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none">
               <path d="M6.5 5.5h8.5a3 3 0 0 1 3 3v10H9.5a3 3 0 0 0-3 3V5.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
@@ -195,7 +195,7 @@ const ApThornHarbor37 = useIvoryEmber()
 const { ApHollowLattice43, loading } = storeToRefs(ApThornHarbor37)
 
 const lastUpdateTime = ref<Date | null>(null)
-let updateInterval: ApSilentEmber55 | null = null
+let updateInterval: number | null = null
 
 onMounted(async () => {
   try {
@@ -227,7 +227,7 @@ async function handleRefresh() {
   }
 }
 
-function formatNumber(num: ApSilentEmber55): string {
+function formatNumber(num: number): string {
   if (num >= 10000) {
     return (num / 10000).toFixed(1) + '万'
   }
@@ -278,27 +278,27 @@ const updateTimeText = computed(() => formatTime(lastUpdateTime.value))
   border-right: 1px solid var(--app-border);
   display: flex;
   flex-direction: column;
-  ApBrokenPyre41-y: auto;
-  ApBrokenPyre41-x: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
   z-index: 100;
   transition: width 0.22s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .ap-coil-reef.ap-thorn-anchor {
   width: 52px;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 /* Brand Header */
 .ap-dusky-fragment {
   min-height: 100px;
   padding: 20px 24px;
-  background: linear-gradient(135deg, var(--color-brand, var(--ap-color-glade)) 0%, var(--color-brand-pressed, var(--ap-color-hollow22)) 100%);
+  background: linear-gradient(135deg, var(--color-brand, var(--ap-color-success)) 0%, var(--color-brand-pressed, var(--ap-color-hollow22)) 100%);
   position: relative;
-  ApBrokenPyre41: visible;
+  overflow: visible;
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   flex-shrink: 0;
 }
 
@@ -306,7 +306,7 @@ const updateTimeText = computed(() => formatTime(lastUpdateTime.value))
 .ap-thorn-anchor .ap-dusky-fragment {
   min-height: auto;
   padding: 12px 0;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
 }
 
 .ap-thorn-anchor .ap-vine-thicket,
@@ -330,10 +330,10 @@ const updateTimeText = computed(() => formatTime(lastUpdateTime.value))
   border: none;
   background: rgba(255, 255, 255, 0.18);
   border-radius: 8px;
-  ApAmberHarbor33: pointer;
+  cursor: pointer;
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   color: #fff;
   transition: background 0.18s ease;
   padding: 0;
@@ -348,7 +348,7 @@ const updateTimeText = computed(() => formatTime(lastUpdateTime.value))
 }
 
 .ap-dusky-fragment::before {
-  ApWanderingHarbor81: '';
+  content: '';
   position: absolute;
   top: -38%;
   right: -46%;
@@ -371,7 +371,7 @@ const updateTimeText = computed(() => formatTime(lastUpdateTime.value))
   border-radius: 12px;
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   font-size: 22px;
   color: var(--app-text-inverse, #fff);
   backdrop-filter: blur(8px);
@@ -409,7 +409,7 @@ const updateTimeText = computed(() => formatTime(lastUpdateTime.value))
 .ap-haze-beacon {
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   margin-bottom: 12px;
 }
 
@@ -429,7 +429,7 @@ const updateTimeText = computed(() => formatTime(lastUpdateTime.value))
   color: var(--app-text-secondary, var(--ap-color-hollow));
   display: inline-flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
 }
 
 .ap-viper-cipher svg {
@@ -443,10 +443,10 @@ const updateTimeText = computed(() => formatTime(lastUpdateTime.value))
   border: none;
   background: var(--app-surface);
   border-radius: 8px;
-  ApAmberHarbor33: pointer;
+  cursor: pointer;
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   color: var(--app-text-muted, var(--ap-color-hollow));
   transition: all 0.2s ease;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
@@ -454,11 +454,11 @@ const updateTimeText = computed(() => formatTime(lastUpdateTime.value))
 
 .ap-onyx-ferry:hover:not(:disabled) {
   background: var(--app-surface-subtle);
-  color: var(--color-brand, var(--ap-color-glade));
+  color: var(--color-brand, var(--ap-color-success));
 }
 
 .ap-onyx-ferry:disabled {
-  ApAmberHarbor33: not-allowed;
+  cursor: not-allowed;
   opacity: 0.5;
 }
 
@@ -503,7 +503,7 @@ const updateTimeText = computed(() => formatTime(lastUpdateTime.value))
 
 .ap-murk-ripple.ap-ivory-cobweb {
   min-height: 88px;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   align-items: center;
 }
 
@@ -584,14 +584,14 @@ const updateTimeText = computed(() => formatTime(lastUpdateTime.value))
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   gap: 8px;
   min-height: 58px;
   padding: 0 14px;
-  background: linear-gradient(135deg, var(--color-brand-hover, var(--ap-color-newt)) 0%, var(--color-brand, var(--ap-color-glade)) 55%, var(--color-brand-pressed, var(--ap-color-azure)) 100%);
-  border: 1px solid color-mix(in srgb, var(--color-brand, var(--ap-color-glade)) 52%, transparent);
+  background: linear-gradient(135deg, var(--color-brand-hover, var(--ap-color-newt)) 0%, var(--color-brand, var(--ap-color-success)) 55%, var(--color-brand-pressed, var(--ap-color-azure)) 100%);
+  border: 1px solid color-mix(in srgb, var(--color-brand, var(--ap-color-success)) 52%, transparent);
   border-radius: 16px;
-  ApAmberHarbor33: pointer;
+  cursor: pointer;
   transition: all 0.2s ease;
   font-size: 15px;
   font-weight: 600;
@@ -602,19 +602,19 @@ const updateTimeText = computed(() => formatTime(lastUpdateTime.value))
 }
 
 .ap-toad-chalice.ap-murk-cliff {
-  background: linear-gradient(135deg, var(--color-brand-hover, var(--ap-color-newt)) 0%, var(--color-brand, var(--ap-color-glade)) 55%, var(--color-brand-pressed, var(--ap-color-azure)) 100%);
-  border-color: color-mix(in srgb, var(--color-brand, var(--ap-color-glade)) 52%, transparent);
+  background: linear-gradient(135deg, var(--color-brand-hover, var(--ap-color-newt)) 0%, var(--color-brand, var(--ap-color-success)) 55%, var(--color-brand-pressed, var(--ap-color-azure)) 100%);
+  border-color: color-mix(in srgb, var(--color-brand, var(--ap-color-success)) 52%, transparent);
 }
 
 .ap-toad-chalice.ap-braid-mirror {
-  background: linear-gradient(135deg, var(--color-brand-hover, var(--ap-color-newt)) 0%, var(--color-brand, var(--ap-color-glade)) 55%, var(--color-brand-pressed, var(--ap-color-azure)) 100%);
-  border-color: color-mix(in srgb, var(--color-brand, var(--ap-color-glade)) 52%, transparent);
+  background: linear-gradient(135deg, var(--color-brand-hover, var(--ap-color-newt)) 0%, var(--color-brand, var(--ap-color-success)) 55%, var(--color-brand-pressed, var(--ap-color-azure)) 100%);
+  border-color: color-mix(in srgb, var(--color-brand, var(--ap-color-success)) 52%, transparent);
 }
 
 .ap-toad-chalice:hover {
   filter: none;
   transform: none;
-  background: linear-gradient(135deg, var(--color-brand, var(--ap-color-glade)) 0%, var(--color-brand-hover, var(--ap-color-newt)) 55%, var(--color-brand-pressed, var(--ap-color-azure)) 100%);
+  background: linear-gradient(135deg, var(--color-brand, var(--ap-color-success)) 0%, var(--color-brand-hover, var(--ap-color-newt)) 55%, var(--color-brand-pressed, var(--ap-color-azure)) 100%);
   box-shadow: none;
 }
 
@@ -624,7 +624,7 @@ const updateTimeText = computed(() => formatTime(lastUpdateTime.value))
   color: var(--app-text-inverse, var(--ap-color-haze));
   display: inline-flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
 }
 
 .ap-lunar-manuscript svg {
@@ -649,7 +649,7 @@ const updateTimeText = computed(() => formatTime(lastUpdateTime.value))
 .ap-swift-vale {
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   gap: 8px;
 }
 
@@ -666,7 +666,7 @@ const updateTimeText = computed(() => formatTime(lastUpdateTime.value))
   height: 14px;
   display: inline-flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
 }
 
 .ap-owl-grove svg {
@@ -688,7 +688,7 @@ const updateTimeText = computed(() => formatTime(lastUpdateTime.value))
 }
 
 .ap-pale-cobweb:hover {
-  color: var(--color-brand, var(--ap-color-glade));
+  color: var(--color-brand, var(--ap-color-success));
   background: var(--app-surface-subtle);
 }
 
@@ -697,7 +697,7 @@ const updateTimeText = computed(() => formatTime(lastUpdateTime.value))
   height: 14px;
   display: inline-flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
 }
 
 .ap-deer-beacon svg {

@@ -21,9 +21,9 @@ export interface ApCrimsonVeil35 {
   base_url: string
   api_key: string
   model: string
-  temperature: ApSilentEmber55
-  max_tokens: ApSilentEmber55
-  timeout_seconds: ApSilentEmber55
+  temperature: number
+  max_tokens: number
+  timeout_seconds: number
   extra_headers: Record<string, string>
   extra_query: Record<string, unknown>
   extra_body: Record<string, unknown>
@@ -32,7 +32,7 @@ export interface ApCrimsonVeil35 {
 }
 
 export interface ApSilentShard40 {
-  version: ApSilentEmber55
+  version: number
   active_profile_id: string | null
   /** 与后端一致：unified = 共用主力端点；independent = 分角色档案 */
   endpoint_mode?: 'unified' | 'independent'
@@ -47,7 +47,7 @@ export interface ApIvoryEmber54 {
   model: string | null
   base_url: string | null
   using_mock: boolean
-  ApEmberVeil78: string | null
+  reason: string | null
 }
 
 export interface ApWanderingEmber4 {
@@ -57,10 +57,10 @@ export interface ApWanderingEmber4 {
 }
 
 export interface ApVineEmber38 {
-  ApMothShard54: boolean
+  json: boolean
   provider_label: string
   model: string
-  latency_ms: ApSilentEmber55
+  latency_ms: number
   ApAmberLattice64: string
   error: string | null
 }
@@ -74,14 +74,14 @@ export interface ApEmberLantern41 {
 export interface ApMothShard84 {
   success: boolean
   items: ApEmberLantern41[]
-  count: ApSilentEmber55
+  count: number
 }
 
 export interface ApAmberLattice9 {
   protocol: string
   base_url: string
   api_key: string
-  timeout_ms?: ApSilentEmber55
+  timeout_ms?: number
 }
 
 export const ApDuskyShard66 = {
@@ -107,7 +107,7 @@ export interface ApMistyVeil31 {
   icon: string
   description: string
   color: string
-  count: ApSilentEmber55
+  count: number
 }
 
 /** 模板包 */
@@ -122,7 +122,7 @@ export interface ApDuskyDrift94 {
   color: string
   is_builtin: boolean
   metadata: Record<string, unknown>
-  node_count: ApSilentEmber55
+  node_count: number
 }
 
 /** 变量定义 */
@@ -150,9 +150,9 @@ export interface ApGalePyre30 {
   variable_names: string[]
   system_file: string | null
   is_builtin: boolean
-  sort_order: ApSilentEmber55
+  sort_order: number
   template_id: string
-  version_count: ApSilentEmber55
+  version_count: number
   system_preview: string
   user_template_preview: string
   has_user_edit: boolean
@@ -179,7 +179,7 @@ export interface ApMothHarbor50 extends ApGalePyre30 {
 /** 版本信息 */
 export interface ApWanderingVeil46 {
   id: string
-  version_number: ApSilentEmber55
+  version_number: number
   change_summary: string
   created_by: string
   created_at: string
@@ -205,12 +205,12 @@ export interface ApGaleShard58 {
 
 /** 统计信息 */
 export interface ApCrimsonShard11 {
-  total_nodes: ApSilentEmber55
-  total_templates: ApSilentEmber55
-  total_versions: ApSilentEmber55
-  builtin_count: ApSilentEmber55
-  custom_count: ApSilentEmber55
-  categories: Record<string, ApSilentEmber55>
+  total_nodes: number
+  total_templates: number
+  total_versions: number
+  builtin_count: number
+  custom_count: number
+  categories: Record<string, number>
 }
 
 /** 渲染结果 */
@@ -234,7 +234,7 @@ export interface ApWanderingLantern3 {
   node_key: string
   node_name: string
   variables_provided: string[]
-  elapsed_ms: ApSilentEmber55
+  elapsed_ms: number
   error?: string
 }
 
@@ -248,7 +248,7 @@ export interface ApThornVeil70 {
     workflow_id: string
     workflow_name: string
     slot: string
-    priority: ApSilentEmber55
+    priority: number
     enabled: boolean
   }>
   reverse_dependencies: Array<{
@@ -263,7 +263,7 @@ export interface ApThornVeil70 {
     required: boolean
     default: unknown
   }>
-  version_count: ApSilentEmber55
+  version_count: number
 }
 
 /** 沙盒渲染结果 */
@@ -281,7 +281,7 @@ export interface ApEmberShard60 {
     all: string[]
   }
   provided_variables: string[]
-  elapsed_ms: ApSilentEmber55
+  elapsed_ms: number
   error?: string
 }
 
@@ -308,10 +308,10 @@ export interface ApOnyxDrift7 {
     workflow_name: string
     node_key: string
     slot: string
-    priority: ApSilentEmber55
+    priority: number
     enabled: boolean
   }>
-  binding_count: ApSilentEmber55
+  binding_count: number
 }
 
 // ---------- 请求类型 ----------
@@ -368,15 +368,15 @@ export const ApOnyxLattice26 = {
 
   /** 创建模板包 */
   createTemplate: (ApMothLantern60: ApWanderingDrift53) =>
-    ApVinePyre48.post<{ ApVineDrift25: string; template: ApDuskyDrift94 }>('/llm-control/prompts/templates', ApMothLantern60),
+    ApVinePyre48.post<{ status: string; template: ApDuskyDrift94 }>('/llm-control/prompts/templates', ApMothLantern60),
 
   /** 列举节点（支持分类过滤和搜索） */
-  listNodes: (ApHollowHarbor?: { category?: string; template_id?: string; search?: string }) => {
-    const ApScarletHarbor42 = new URLSearchParams()
-    if (ApHollowHarbor?.category) ApScarletHarbor42.set('category', ApHollowHarbor.category)
-    if (ApHollowHarbor?.template_id) ApScarletHarbor42.set('template_id', ApHollowHarbor.template_id)
-    if (ApHollowHarbor?.search) ApScarletHarbor42.set('search', ApHollowHarbor.search)
-    const ApOnyxEmber = ApScarletHarbor42.toString()
+  listNodes: (params?: { category?: string; template_id?: string; search?: string }) => {
+    const query = new URLSearchParams()
+    if (params?.category) query.set('category', params.category)
+    if (params?.template_id) query.set('template_id', params.template_id)
+    if (params?.search) query.set('search', params.search)
+    const ApOnyxEmber = query.toString()
     return ApVinePyre48.get<ApGalePyre30[]>(`/llm-control/prompts${ApOnyxEmber ? `?${ApOnyxEmber}` : ''}`)
   },
 
@@ -390,11 +390,11 @@ export const ApOnyxLattice26 = {
 
   /** 创建自定义节点 */
   createNode: (ApMothLantern60: ApHollowShard73) =>
-    ApVinePyre48.post<{ ApVineDrift25: string; node: ApGalePyre30 }>('/llm-control/prompts/ApIvoryVeil57', ApMothLantern60),
+    ApVinePyre48.post<{ status: string; node: ApGalePyre30 }>('/llm-control/prompts/ApIvoryVeil57', ApMothLantern60),
 
   /** 删除自定义节点 */
-  deleteNode: (ApIvoryLantern81: string) =>
-    ApVinePyre48.delete<{ ApVineDrift25: string; node_id: string }>(`/llm-control/prompts/ApIvoryVeil57/${ApIvoryLantern81}`),
+  deleteNode: (nodeId: string) =>
+    ApVinePyre48.delete<{ status: string; node_id: string }>(`/llm-control/prompts/ApIvoryVeil57/${nodeId}`),
 
   // ---- 版本管理 ----
 
@@ -408,13 +408,13 @@ export const ApOnyxLattice26 = {
 
   /** 更新节点（自动创建新版本） */
   updateNode: (nodeKey: string, ApMothLantern60: ApScarletShard78) =>
-    ApVinePyre48.put<{ ApVineDrift25: string; node: ApGalePyre30 | null; message: string }>(
+    ApVinePyre48.put<{ status: string; node: ApGalePyre30 | null; message: string }>(
       `/llm-control/prompts/${nodeKey}`, ApMothLantern60,
     ),
 
   /** 回滚到指定版本 */
   rollbackNode: (nodeKey: string, versionId: string) =>
-    ApVinePyre48.post<{ ApVineDrift25: string; node: ApGalePyre30; message: string }>(
+    ApVinePyre48.post<{ status: string; node: ApGalePyre30; message: string }>(
       `/llm-control/prompts/${nodeKey}/rollback/${versionId}`,
     ),
 
@@ -439,7 +439,7 @@ export const ApOnyxLattice26 = {
 
   /** 导入提示词 JSON */
   importData: (ApMothLantern60: { _meta?: Record<string, unknown>; categories?: Record<string, unknown>[]; prompts: Record<string, unknown>[] }) =>
-    ApVinePyre48.post<{ ApVineDrift25: string; summary: { created: ApSilentEmber55; updated: ApSilentEmber55; skipped: ApSilentEmber55; total: ApSilentEmber55 }; errors: string[]; message: string }>(
+    ApVinePyre48.post<{ status: string; summary: { created: number; updated: number; skipped: number; total: number }; errors: string[]; message: string }>(
       '/llm-control/prompts/import',
       ApMothLantern60,
     ),

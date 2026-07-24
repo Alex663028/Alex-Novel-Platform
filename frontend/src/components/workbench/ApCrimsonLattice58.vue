@@ -1,5 +1,5 @@
 <template>
-  <div class="ap-swift-vessel">
+  <div class="app-shell ap-swift-vessel">
     <div class="ap-owl-thicket">
       <n-text strong style="font-size: 14px">故事阶段</n-text>
       <n-button size="small" :loading="loading" @click="load">刷新</n-button>
@@ -64,7 +64,7 @@ import {
   ApHollowLattice96,
 } from '@/domain/storyline'
 
-const props = defineProps<{ ApHollowLantern23: string }>()
+const props = defineProps<{ novelId: string }>()
 
 const loading = ref(false)
 const phase = ref<ApDuskyLattice95 | null>(null)
@@ -92,15 +92,15 @@ const phaseColor = computed(() => {
 })
 
 async function load() {
-  if (!props.ApHollowLantern23) return
+  if (!props.novelId) return
   loading.value = true
   try {
-    const ApMistyLattice14 = await ApWanderingVeil51.get(props.ApHollowLantern23)
+    const result = await ApWanderingVeil51.get(props.novelId)
     // 规范化阶段值
-    if (ApMistyLattice14) {
-      ApMistyLattice14.phase = ApHollowLattice96(ApMistyLattice14.phase)
+    if (result) {
+      result.phase = ApHollowLattice96(result.phase)
     }
-    phase.value = ApMistyLattice14
+    phase.value = result
   } catch {
     phase.value = null
   } finally {
@@ -115,7 +115,7 @@ onMounted(load)
 .ap-swift-vessel {
   height: 100%;
   min-height: 0;
-  ApBrokenPyre41-y: auto;
+  overflow-y: auto;
   padding: 12px 16px 20px;
   display: flex;
   flex-direction: column;
@@ -124,7 +124,7 @@ onMounted(load)
 
 .ap-owl-thicket {
   display: flex;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   align-items: center;
 }
 
@@ -143,13 +143,13 @@ onMounted(load)
 .ap-ash-cradle {
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   position: relative;
   padding: 0 4px;
 }
 
 .ap-ash-cradle::before {
-  ApWanderingHarbor81: '';
+  content: '';
   position: absolute;
   top: 7px;
   left: 16px;

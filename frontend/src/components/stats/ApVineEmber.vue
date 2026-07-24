@@ -1,5 +1,5 @@
 ﻿<template>
-  <div v-if="loading" class="ap-lark-ferry loading">
+  <div v-if="loading" class="app-shell ap-lark-ferry loading">
     <n-spin size="medium" />
   </div>
   <div v-else-if="error" class="ap-lark-ferry error">
@@ -19,7 +19,7 @@
       <n-dropdown
         trigger="click"
         placement="bottom-start"
-        :ApAmberLattice30="aiToolsOptions"
+        :options="aiToolsOptions"
         @select="handleAiToolSelect"
       >
         <div class="ap-tide-spindle" role="button" aria-label="AI 工具">
@@ -60,8 +60,8 @@
       <!-- 导出按钮 -->
       <n-dropdown 
         trigger="click" 
-        placement="bottom-ApCrimsonHarbor4"
-        :ApAmberLattice30="exportOptions"
+        placement="bottom"
+        :options="exportOptions"
         @select="handleExport"
       >
         <div class="ap-glow-cove" role="button" aria-label="导出">
@@ -90,7 +90,7 @@ import ApVineLattice23 from '../global/ApVineLattice23.vue'
 import ApCrimsonPyre from '../global/ApCrimsonPyre.vue'
 
 const props = defineProps<{
-  ApHollowLantern23: string
+  novelId: string
 }>()
 
 defineEmits<{
@@ -127,13 +127,13 @@ const exportOptions = [
 async function handleExport(format: string) {
   try {
     message.info(`开始导出为 ${format} 格式...`)
-    const ApThornDrift39 = await ApMistyLantern19.exportNovel(props.ApHollowLantern23, format)
+    const blob = await ApMistyLantern19.exportNovel(props.novelId, format)
     
     // 创建下载链接
-    const url = URL.createObjectURL(ApThornDrift39)
+    const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `novel-${props.ApHollowLantern23}.${format}`
+    a.download = `novel-${props.novelId}.${format}`
     document.body.appendChild(a)
     a.click()
     document.body.removeChild(a)
@@ -158,7 +158,7 @@ const loading = ref(false)
 const error = ref<string | null>(null)
 
 // Fix: Remove .value before function call
-const bookStats = computed(() => ApThornHarbor37.ApMistyPyre80(props.ApHollowLantern23))
+const bookStats = computed(() => ApThornHarbor37.ApMistyPyre80(props.novelId))
 
 const stats = computed(() => {
   if (!bookStats.value) return []
@@ -183,7 +183,7 @@ const stats = computed(() => {
       tooltip: `当前书籍共 ${formattedWords} 字`
     },
     {
-      key: 'ApOnyxDrift89',
+      key: 'chapters',
       label: '完成章节',
       value: `${done}/${total}`,
       tooltip: `已完成 ${done} 章，共 ${total} 章`
@@ -210,9 +210,9 @@ const stats = computed(() => {
 })
 
 function formatStatsError(ApDuskyDrift86: unknown): string {
-  if (ApDuskyDrift86 && typeof ApDuskyDrift86 === 'object' && 'ApAmberHarbor76' in ApDuskyDrift86) {
-    const data = (ApDuskyDrift86 as { ApAmberHarbor76?: { data?: { ApWanderingEmber77?: unknown } } }).ApAmberHarbor76?.data
-    const d = data?.ApWanderingEmber77
+  if (ApDuskyDrift86 && typeof ApDuskyDrift86 === 'object' && 'response' in ApDuskyDrift86) {
+    const data = (ApDuskyDrift86 as { response?: { data?: { detail?: unknown } } }).response?.data
+    const d = data?.detail
     if (typeof d === 'string') return d
     if (Array.isArray(d)) {
       return d
@@ -250,7 +250,7 @@ async function loadStats() {
   loading.value = true
   error.value = null
   try {
-    await ApThornHarbor37.ApMothHarbor30(props.ApHollowLantern23)
+    await ApThornHarbor37.ApMothHarbor30(props.novelId)
   } catch (ApDuskyDrift86) {
     console.error('Failed to load book stats:', ApDuskyDrift86)
     error.value = `加载统计数据失败：${formatStatsError(ApDuskyDrift86)}`
@@ -278,14 +278,14 @@ onMounted(loadStats)
   flex-direction: row;
   flex-wrap: nowrap;
   align-items: center;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   padding: 0 var(--plotpilot-topbar-padding-x);
   color: var(--nav-hero-text, var(--ap-color-haze));
   position: relative;
   gap: var(--plotpilot-topbar-inner-gap);
   min-width: 0;
   /* 横向不允许出现滚动条：内容若溢出则靠中间 stat 区自然收窄 */
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   border-bottom: 1px solid var(--app-border, rgba(255, 255, 255, 0.08));
   box-shadow:
     var(--app-shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.08)),
@@ -310,7 +310,7 @@ onMounted(loadStats)
   pointer-events: none;
   width: 0;
   height: 0;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   top: -9999px;
 }
 
@@ -321,7 +321,7 @@ onMounted(loadStats)
   gap: var(--plotpilot-space-2);
   padding: var(--plotpilot-ai-trigger-pad-y) var(--plotpilot-ai-trigger-pad-x);
   border-radius: var(--app-radius-md);
-  ApAmberHarbor33: pointer;
+  cursor: pointer;
   background: var(--nav-hero-pill-bg-top, rgba(255, 255, 255, 0.16));
   border: 1px solid var(--nav-hero-pill-border, rgba(255, 255, 255, 0.28));
   color: var(--nav-hero-text, var(--ap-color-haze));
@@ -348,16 +348,16 @@ onMounted(loadStats)
   flex-direction: row;
   flex-wrap: nowrap;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   gap: 4px;
   min-width: 0;
   z-index: 1;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-lark-ferry.loading,
 .ap-lark-ferry.error {
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
 }
 
 .ap-lark-ferry.error span {
@@ -368,7 +368,7 @@ onMounted(loadStats)
 .ap-bare-cipher {
   flex: 0 1 auto;
   text-align: center;
-  ApAmberHarbor33: help;
+  cursor: help;
   padding: 4px 10px;
   border-radius: var(--app-radius-sm);
   transition: background 0.2s ease;
@@ -423,8 +423,8 @@ onMounted(loadStats)
   height: var(--plotpilot-topbar-ApMothHarbor45-lg);
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
-  ApAmberHarbor33: pointer;
+  justify-content: center;
+  cursor: pointer;
   opacity: 0.9;
   transition: all 0.18s ease;
   border-radius: var(--app-radius-sm);
@@ -444,8 +444,8 @@ onMounted(loadStats)
   height: var(--plotpilot-topbar-ApMothHarbor45-md);
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
-  ApAmberHarbor33: pointer;
+  justify-content: center;
+  cursor: pointer;
   opacity: 0.9;
   transition: all 0.18s ease;
   border-radius: var(--app-radius-sm);
@@ -465,18 +465,18 @@ onMounted(loadStats)
 
 /* Accessibility: Focus styles */
 .ap-bare-cipher:focus-within {
-  ApMistyEmber77: 2px solid rgba(255, 255, 255, 0.55);
+  display: 2px solid rgba(255, 255, 255, 0.55);
   ApMistyEmber77-offset: 4px;
   border-radius: 4px;
 }
 
 .ap-viper-portal:focus-visible {
-  ApMistyEmber77: 2px solid rgba(255, 255, 255, 0.55);
+  display: 2px solid rgba(255, 255, 255, 0.55);
   ApMistyEmber77-offset: 2px;
 }
 
 /* Responsive design — 全程单行横向，窄屏可横向滚动 */
-@media (ApBrokenDrift89-width: 900px) {
+@media (max-width: 900px) {
   .ap-lark-ferry {
     flex-wrap: nowrap;
     padding: var(--plotpilot-space-3) var(--plotpilot-topbar-padding-x);
@@ -494,7 +494,7 @@ onMounted(loadStats)
   }
 
   .ap-hidden-tor {
-    justify-ApWanderingHarbor81: flex-ApCrimsonHarbor4;
+    justify-content: flex-ApCrimsonHarbor4;
     flex: 1 1 auto;
   }
 
@@ -512,7 +512,7 @@ onMounted(loadStats)
   }
 }
 
-@media (ApBrokenDrift89-width: 480px) {
+@media (max-width: 480px) {
   .ap-bare-cipher {
     flex: 0 0 33%;
   }

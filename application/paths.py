@@ -7,7 +7,7 @@ from infrastructure.runtime.data_directory_environment import (
     DataDirectoryEnvironmentSettings,
     LEGACY_PROD_DATA_DIR_ENV,
     PLOTPILOT_PROD_DATA_DIR_ENV,
-    TAURI_APP_IDENTIFIER,
+    ALEX_APP_IDENTIFIER,
 )
 
 logger = logging.getLogger(__name__)
@@ -17,7 +17,10 @@ PLOTPILOT_ROOT = Path(__file__).resolve().parents[1]
 
 # 旧版壳/脚本仍可能注入 LEGACY_PROD_DATA_DIR_ENV，读取时作为回退。
 # TAURI_APP_IDENTIFIER 须与 frontend/src-tauri/tauri.conf.json 中 identifier 一致。
-# 自 com.plotpilot.app 迁移：旧数据在 %APPDATA%/com.plotpilot.app/data，可手工复制到 com.plotpilot.desktop/data。
+# 自 com.plotpilot.app 迁移：旧数据在 %APPDATA%/com.plotpilot.app/data。
+# 自 com.plotpilot.desktop 迁移：旧数据在 %APPDATA%/com.plotpilot.desktop/data。
+# 冻结进程启动时若检测到旧版目录有数据而新版目录无数据，自动迁移。
+# ALEX_APP_IDENTIFIER 须与 frontend/src-tauri/tauri.conf.json 中 identifier 一致。
 
 
 def _environment_settings() -> DataDirectoryEnvironmentSettings:
@@ -42,7 +45,8 @@ def _resolve_data_dir() -> Path:
     解析持久化数据根目录。
 
     - 若设置 PLOTPILOT_PROD_DATA_DIR（或旧名 AITEXT_PROD_DATA_DIR）：桌面安装版，使用用户数据目录（由 Rust 注入）。
-    - 否则若 PyInstaller 冻结：使用与 Tauri 一致的用户可写目录，避免写入 _internal。
+    - 否则若 PyInstaller 冻结：使用与 Tauri 一致的用户可写目录 (com.alex.desktop)，避免写入 _internal。
+      - 若旧版 com.plotpilot.desktop 存在数据而新版目录无数据，自动迁移。
     - 否则：本地开发 / CLI，使用仓库内 data/。
     """
     settings = _environment_settings()
@@ -51,30 +55,38 @@ def _resolve_data_dir() -> Path:
         p = Path(raw).expanduser().resolve()
     elif settings.frozen:
         p = _frozen_fallback_data_dir(settings)
-        logger.info(
-            "冻结进程未设置 %s（或旧名 %s），数据目录: %s",
-            PLOTPILOT_PROD_DATA_DIR_ENV,
-            LEGACY_PROD_DATA_DIR_ENV,
-            p,
-        )
-        # 曾错误地把库存放在 PyInstaller _internal/data 的用户会看到空库，提示手动迁移或设环境变量
-        legacy_aitext = PLOTPILOT_ROOT / "data" / "aitext.db"
-        legacy_plot = PLOTPILOT_ROOT / "data" / "plotpilot.db"
-        target_has = (p / "plotpilot.db").is_file() or (p / "aitext.db").is_file()
-        for legacy_db in (legacy_aitext, legacy_plot):
-            if legacy_db.is_file() and not target_has:
-                logger.warning(
-                    "发现旧数据文件 %s，而当前默认目录尚无 plotpilot.db / aitext.db。"
-                    "若需沿用旧库，请将其中数据复制到 %s，或启动时设置环境变量 %s 指向旧库的父目录。",
-                    legacy_db,
-                    p,
-                    PLOTPILOT_PROD_DATA_DIR_ENV,
-                )
-                break
+        # 迁移：旧版 com.plotpilot.desktop → 新版 com.alex.desktop
+        if settings.needs_migration():
+            legacy_dir = settings.legacy_data_dir
+            logger.info("检测到旧版数据目录 %s，开始迁移到 %s", legacy_dir, p)
+            p.mkdir(parents=True, exist_ok=True)
+            _migrate_data(legacy_dir, p)
+        else:
+            p.mkdir(parents=True, exist_ok=True)
     else:
         p = PLOTPILOT_ROOT / "data"
-    p.mkdir(parents=True, exist_ok=True)
+        p.mkdir(parents=True, exist_ok=True)
     return p
+
+
+def _migrate_data(src: Path, dst: Path) -> None:
+    """从旧版目录迁移数据到新版目录"""
+    import shutil
+    copied = False
+    for item in src.iterdir():
+        target = dst / item.name
+        try:
+            if item.is_dir():
+                if not target.exists():
+                    shutil.copytree(item, target)
+                    copied = True
+            elif item.is_file():
+                shutil.copy2(item, target)
+                copied = True
+        except Exception as e:
+            logger.warning("迁移 %s → %s 失败: %s", item, target, e)
+    if copied:
+        logger.info("数据迁移完成：%s → %s", src, dst)
 
 
 DATA_DIR = _resolve_data_dir()

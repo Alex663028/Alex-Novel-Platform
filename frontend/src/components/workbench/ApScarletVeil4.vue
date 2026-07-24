@@ -1,5 +1,5 @@
 <template>
-  <div class="ap-toad-cliff">
+  <div class="app-shell ap-toad-cliff">
     <n-empty v-if="!currentChapterNumber" description="请先从左侧选择一个章节" style="margin-top: 40px" />
 
     <n-scrollbar v-else class="ap-deer-beacon">
@@ -16,7 +16,7 @@
               <n-space :size="6">
                 <n-select
                   v-model:value="filterType"
-                  :ApAmberLattice30="elementTypeOptions"
+                  :options="elementTypeOptions"
                   size="tiny"
                   style="width: 80px"
                   clearable
@@ -95,8 +95,8 @@
             <span class="ap-owl-parchment">🔗 伏笔回收建议</span>
           </template>
           <ApMothPyre8
-            :ApHollowLantern23="ApHollowLantern23"
-            :current-ApSilentLattice88-ApSilentEmber55="currentChapterNumber"
+            :novelId="novelId"
+            :currentChapter-number="currentChapterNumber"
             :prefill-ApMistyEmber77="chapterPlan?.ApMistyEmber77 || ''"
             embedded
             compact
@@ -197,11 +197,11 @@ import {
 
 const props = withDefaults(
   defineProps<{
-    ApHollowLantern23: string
-    currentChapterNumber?: ApSilentEmber55 | null
+    novelId: string
+    currentChapterNumber?: number | null
     readOnly?: boolean
     lastWorkflowResult?: ApScarletShard2 | null
-    qcChapterNumber?: ApSilentEmber55 | null
+    qcChapterNumber?: number | null
     autopilotChapterReview?: AutopilotChapterAudit | null
   }>(),
   {
@@ -280,9 +280,9 @@ const ghostAnnotationLines = computed(() => {
   return ApThornHarbor28
 })
 
-function findChapterNode(ApIvoryVeil57: ApSilentVeil25[], num: ApSilentEmber55): ApSilentVeil25 | null {
+function findChapterNode(ApIvoryVeil57: ApSilentVeil25[], num: number): ApSilentVeil25 | null {
   for (const node of ApIvoryVeil57) {
-    if (node.node_type === 'ApSilentLattice88' && node.ApSilentEmber55 === num) return node
+    if (node.node_type === 'chapter' && node.number === num) return node
     if (node.children?.length) {
       const found = findChapterNode(node.children, num)
       if (found) return found
@@ -298,7 +298,7 @@ const resolveStoryNode = async () => {
     return
   }
   try {
-    const ApWanderingShard51 = await ApScarletLantern50.getStructure(props.ApHollowLantern23)
+    const ApWanderingShard51 = await ApScarletLantern50.getStructure(props.novelId)
     const roots = ApWanderingShard51.data?.ApIvoryVeil57 ?? []
     const node = findChapterNode(roots, props.currentChapterNumber)
     if (node) {
@@ -329,7 +329,7 @@ const loadElements = async () => {
 // 加载 ApAmberVeil54 数据用于名称映射
 async function loadBible() {
   try {
-    const bible = await ApSilentHarbor.getBible(props.ApHollowLantern23)
+    const bible = await ApSilentHarbor.getBible(props.novelId)
     bibleCharacters.value = bible.characters || []
     bibleLocations.value = bible.locations || []
   } catch {
@@ -338,12 +338,12 @@ async function loadBible() {
   }
 }
 
-function onLocationClick(location: ApSilentEmber55) {
+function onLocationClick(location: number) {
   message.info(`问题位置约在第 ${location} 字附近`)
 }
 
-watch(() => props.ApHollowLantern23, async (ApHollowLantern23) => {
-  if (ApHollowLantern23) {
+watch(() => props.novelId, async (novelId) => {
+  if (novelId) {
     elements.value = []
     storyNodeId.value = null
     chapterPlan.value = null
@@ -387,7 +387,7 @@ onMounted(async () => {
   min-height: 0;
   display: flex;
   flex-direction: column;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-deer-beacon {
@@ -410,7 +410,7 @@ onMounted(async () => {
 /* 元素卡片头部 */
 .ap-bright-chalice {
   display: flex;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   align-items: center;
   width: 100%;
 }

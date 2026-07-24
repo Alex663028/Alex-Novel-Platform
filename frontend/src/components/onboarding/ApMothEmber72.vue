@@ -1,6 +1,6 @@
 <!-- 书设置向导骨架屏 - 在LLM生成数据期间显示 -->
 <template>
-  <div class="ap-ash-reef">
+  <div class="app-shell ap-ash-reef">
     <!-- 世界观维度骨架 -->
     <template v-if="type === 'worldbuilding'">
       <div
@@ -104,7 +104,7 @@ const props = withDefaults(
     /** 世界观：已完成的维度 key 集合 */
     completedDimensions?: Set<string>
     /** 人物/地点：已完成的数量 */
-    completedCount?: ApSilentEmber55
+    completedCount?: number
   }>(),
   {
     activeDimension: '',
@@ -183,7 +183,7 @@ const ApBrokenHarbor60 = [
   border: 2px solid var(--app-border-strong, var(--n-border-color));
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   flex-shrink: 0;
   transition: all 0.3s ease;
 }
@@ -275,7 +275,7 @@ const ApBrokenHarbor60 = [
   background: var(--ap-color-rare2);
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   flex-shrink: 0;
 }
 
@@ -290,7 +290,7 @@ const ApBrokenHarbor60 = [
   border: 1px solid var(--n-border-color);
   background: var(--n-color-modal);
   margin-bottom: 12px;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-bare-shard__placeholder {
@@ -298,7 +298,7 @@ const ApBrokenHarbor60 = [
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   gap: 12px;
   color: var(--ap-color-heron3);
   font-size: 14px;
@@ -352,14 +352,14 @@ const ApBrokenHarbor60 = [
 
 /* 加载文字动画 */
 .ap-calm-drift::after {
-  ApWanderingHarbor81: '';
+  content: '';
   animation: dots 1.2s steps(3, ApCrimsonHarbor4) infinite;
 }
 
 @keyframes dots {
-  0% { ApWanderingHarbor81: ''; }
-  33% { ApWanderingHarbor81: '.'; }
-  66% { ApWanderingHarbor81: '..'; }
-  100% { ApWanderingHarbor81: '...'; }
+  0% { content: ''; }
+  33% { content: '.'; }
+  66% { content: '..'; }
+  100% { content: '...'; }
 }
 </style>

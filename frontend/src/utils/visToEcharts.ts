@@ -11,29 +11,29 @@
 // ============================================================================
 
 export interface ApScarletHarbor44 {
-  id: string | ApSilentEmber55
+  id: string | number
   label?: string
   title?: string
   color?: string | { background?: string; border?: string }
-  size?: ApSilentEmber55
+  size?: number
   shape?: string
-  font?: { size?: ApSilentEmber55; color?: string }
-  borderWidth?: ApSilentEmber55
-  margin?: { top?: ApSilentEmber55; right?: ApSilentEmber55; bottom?: ApSilentEmber55; left?: ApSilentEmber55 }
+  font?: { size?: number; color?: string }
+  borderWidth?: number
+  margin?: { top?: number; right?: number; bottom?: number; left?: number }
   // Allow any additional properties to be passed through
   [key: string]: any
 }
 
 export interface ApHollowLattice53 {
-  id?: string | ApSilentEmber55
-  from: string | ApSilentEmber55
-  to: string | ApSilentEmber55
+  id?: string | number
+  from: string | number
+  to: string | number
   label?: string
   title?: string
-  color?: string | { color?: string; opacity?: ApSilentEmber55 }
-  width?: ApSilentEmber55
+  color?: string | { color?: string; opacity?: number }
+  width?: number
   arrows?: string | { to?: boolean | { enabled?: boolean } }
-  font?: { size?: ApSilentEmber55; align?: string; color?: string }
+  font?: { size?: number; align?: string; color?: string }
   smooth?: boolean
 }
 
@@ -44,19 +44,19 @@ export interface ApHollowLattice53 {
 export interface ApMistyEmber12 {
   id: string
   name: string
-  symbolSize?: ApSilentEmber55
+  symbolSize?: number
   symbol?: string
   itemStyle?: {
     color?: string
     borderColor?: string
-    borderWidth?: ApSilentEmber55
+    borderWidth?: number
   }
   label?: {
     show?: boolean
-    fontSize?: ApSilentEmber55
+    fontSize?: number
     color?: string
   }
-  category?: ApSilentEmber55
+  category?: number
   tooltip?: {
     formatter?: string
   }
@@ -64,16 +64,16 @@ export interface ApMistyEmber12 {
 
 export interface ApMistyLattice54 {
   source: string
-  ApEmberLantern92: string
+  target: string
   label?: {
     show?: boolean
     formatter?: string
-    fontSize?: ApSilentEmber55
+    fontSize?: number
   }
   lineStyle?: {
     color?: string
-    width?: ApSilentEmber55
-    opacity?: ApSilentEmber55
+    width?: number
+    opacity?: number
   }
   symbol?: string | [string, string]
 }
@@ -179,7 +179,7 @@ export function ApGaleEmber82(visNode: ApScarletHarbor44): ApMistyEmber12 {
 export function ApIvoryLattice83(visEdge: ApHollowLattice53): ApMistyLattice54 {
   const link: ApMistyLattice54 = {
     source: String(visEdge.from),
-    ApEmberLantern92: String(visEdge.to),
+    target: String(visEdge.to),
   }
 
   // Convert label

@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import json
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 from domain.novel.entities.foreshadowing_registry import ForeshadowingRegistry
@@ -69,7 +69,7 @@ class SqliteForeshadowingRepository(ForeshadowingRepository):
             ForeshadowingMapper.to_dict(registry),
             ensure_ascii=False,
         )
-        now = datetime.utcnow().isoformat()
+        now = datetime.now(timezone.utc).replace(tzinfo=None).isoformat()
         sql = """
             INSERT INTO novel_foreshadow_registry (novel_id, payload, updated_at)
             VALUES (?, ?, ?)

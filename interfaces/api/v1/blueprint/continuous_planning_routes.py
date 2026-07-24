@@ -303,7 +303,7 @@ async def generate_macro_plan(
     生成部-卷-幕结构框架，不保存，返回供用户编辑
     """
     try:
-        print(f"[DEBUG] 路由层: 收到请求 novel_id={novel_id}, request={request}")
+        logger.debug("路由层: 收到宏观规划请求 novel_id=%s", novel_id)
         service.initialize_macro_plan_task(novel_id)
 
         async def _generate_task():
@@ -315,9 +315,7 @@ async def generate_macro_plan(
                 )
                 service.store_macro_plan_result(novel_id, result)
             except Exception as e:
-                import traceback
-                print(f"[ERROR] 生成宏观规划失败:")
-                print(traceback.format_exc())
+                logger.error("生成宏观规划失败", exc_info=True)
                 service.store_macro_plan_error(novel_id, str(e))
                 service._update_macro_progress(
                     novel_id,
@@ -332,9 +330,7 @@ async def generate_macro_plan(
             "novel_id": novel_id,
         }
     except Exception as e:
-        import traceback
-        print(f"[ERROR] 生成宏观规划失败:")
-        print(traceback.format_exc())
+        logger.error("生成宏观规划请求处理失败", exc_info=True)
         raise HTTPException(status_code=500, detail=f"生成宏观规划失败: {str(e)}")
 
 

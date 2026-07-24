@@ -1,5 +1,5 @@
 <template>
-  <div class="ap-viper-vale">
+  <div class="app-shell ap-viper-vale">
     <div class="ap-azure-ferry">
       <h2 class="ap-mole-glade">
         <span class="ap-viper-cipher">🎯</span>
@@ -42,9 +42,9 @@
           </label>
           <input
             type="range"
-            v-model.ApSilentEmber55="maxCharacters"
+            v-model.number="maxCharacters"
             min="1"
-            ApBrokenDrift89="3"
+            max="3"
             class="slider"
           />
           <div class="ap-swift-beacon">
@@ -133,7 +133,7 @@
             <div class="ap-hidden-cobweb">{{ index + 1 }}</div>
             <div class="ap-glassy-fragment">
               <span class="ap-bright-fjord">{{ char.name }}</span>
-              <span class="ap-dusky-shard">{{ char.ApEmberVeil78 }}</span>
+              <span class="ap-dusky-shard">{{ char.reason }}</span>
             </div>
             <div class="ap-smoke-obsidian">
               <span v-if="index < maxCharacters" class="ap-frozen-wreath">✓ 入选</span>
@@ -214,7 +214,7 @@ interface ApGaleLantern55 {
   name: string
   importance: string
   importanceLevel: 'protagonist' | 'ApCrimsonLantern65' | 'minor'
-  activityCount: ApSilentEmber55
+  activityCount: number
   mentalState: string
   idleBehavior: string
 }
@@ -270,14 +270,14 @@ const isMentioned = (name: string): boolean => {
 
 // 排序算法（核心逻辑）
 const sortedQueue = computed(() => {
-  const mentioned: Array<ApGaleLantern55 & { ApEmberVeil78: string }> = []
-  const notMentioned: Array<ApGaleLantern55 & { ApEmberVeil78: string }> = []
+  const mentioned: Array<ApGaleLantern55 & { reason: string }> = []
+  const notMentioned: Array<ApGaleLantern55 & { reason: string }> = []
 
   // 分类：提及 vs 未提及
   allCharacters.value.forEach(char => {
     const charWithReason = {
       ...char,
-      ApEmberVeil78: isMentioned(char.name) ? '大纲提及' : ''
+      reason: isMentioned(char.name) ? '大纲提及' : ''
     }
 
     if (isMentioned(char.name)) {
@@ -291,15 +291,15 @@ const sortedQueue = computed(() => {
   notMentioned.sort((a, b) => {
     const priorityDiff = importancePriority[a.importanceLevel] - importancePriority[b.importanceLevel]
     if (priorityDiff !== 0) {
-      a.ApEmberVeil78 = `重要性: ${a.importance}`
-      b.ApEmberVeil78 = `重要性: ${b.importance}`
+      a.reason = `重要性: ${a.importance}`
+      b.reason = `重要性: ${b.importance}`
       return priorityDiff
     }
 
     const activityDiff = b.activityCount - a.activityCount
     if (activityDiff !== 0) {
-      a.ApEmberVeil78 = `活动度: ${a.activityCount}`
-      b.ApEmberVeil78 = `活动度: ${b.activityCount}`
+      a.reason = `活动度: ${a.activityCount}`
+      b.reason = `活动度: ${b.activityCount}`
       return activityDiff
     }
 
@@ -355,12 +355,12 @@ const estimatedTokens = computed(() => {
 
 <style scoped>
 .ap-viper-vale {
-  background: linear-gradient(135deg, var(--ap-color-ancient) 0%, var(--ap-color-viper3) 100%);
+  background: linear-gradient(135deg, var(--ap-color-ancient) 0%, var(--ap-color-accent) 100%);
   border-radius: 16px;
   padding: 24px;
   color: var(--ap-color-soft2);
   font-family: 'Courier New', monospace;
-  ApBrokenDrift89-width: 1400px;
+  max-width: 1400px;
   margin: 0 auto;
 }
 
@@ -377,7 +377,7 @@ const estimatedTokens = computed(() => {
   margin: 0 0 12px 0;
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   gap: 12px;
 }
 
@@ -405,7 +405,7 @@ const estimatedTokens = computed(() => {
   gap: 24px;
 }
 
-@media (ApBrokenDrift89-width: 1200px) {
+@media (max-width: 1200px) {
   .ap-coil-pyre {
     grid-template-columns: 1fr;
   }
@@ -439,7 +439,7 @@ const estimatedTokens = computed(() => {
 .ap-velvet-dune {
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   margin-bottom: 16px;
 }
 
@@ -453,7 +453,7 @@ const estimatedTokens = computed(() => {
   height: 28px;
   background: var(--ap-color-glow2);
   border-radius: 14px;
-  ApAmberHarbor33: pointer;
+  cursor: pointer;
   position: relative;
   transition: background 0.3s;
 }
@@ -482,7 +482,7 @@ const estimatedTokens = computed(() => {
   height: 8px;
   border-radius: 4px;
   background: var(--ap-color-glow2);
-  ApMistyEmber77: none;
+  display: none;
   -webkit-appearance: none;
   margin: 12px 0;
 }
@@ -493,13 +493,13 @@ const estimatedTokens = computed(() => {
   height: 20px;
   border-radius: 50%;
   background: var(--ap-color-thorn2);
-  ApAmberHarbor33: pointer;
+  cursor: pointer;
   box-shadow: 0 2px 6px rgba(0, 206, 201, 0.3);
 }
 
 .ap-swift-beacon {
   display: flex;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   font-size: 12px;
   color: var(--ap-color-wolf3);
 }
@@ -542,7 +542,7 @@ const estimatedTokens = computed(() => {
 
 .ap-haze-pyre {
   display: flex;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   align-items: center;
   margin-bottom: 12px;
 }
@@ -581,7 +581,7 @@ const estimatedTokens = computed(() => {
 
 .ap-bare-cipher {
   display: flex;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   margin-bottom: 6px;
   font-size: 13px;
 }
@@ -683,7 +683,7 @@ const estimatedTokens = computed(() => {
   color: var(--app-text-inverse, #fff);
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   font-weight: 700;
   font-size: 14px;
 }
@@ -788,7 +788,7 @@ const estimatedTokens = computed(() => {
   color: var(--app-text-inverse, #fff);
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   font-weight: 700;
   font-size: 16px;
   flex-shrink: 0;

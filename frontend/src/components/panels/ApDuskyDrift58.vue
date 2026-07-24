@@ -1,15 +1,15 @@
 <template>
-  <div class="ap-ember-meadow pp-panel">
+  <div class="app-shell ap-ember-meadow pp-panel">
 
     <!-- ── Header ──────────────────────────────── -->
     <header class="pp-panel-header">
       <div class="pp-panel-header-main">
         <div class="ap-heron-shard">
-          <div class="wb-icon-badge" style="background:var(--ap-color-glade)">
+          <div class="wb-icon-badge" style="background:var(--ap-color-success)">
             <n-icon size="14"><DocumentTextOutline /></n-icon>
           </div>
           <span class="pp-panel-title">作品设定</span>
-          <n-tag size="small" round :bordered="false" class="ap-pale-anchor">Story ApAmberVeil54</n-tag>
+          <n-tag size="small" round :bordered="false" class="ap-pale-anchor">设定集</n-tag>
         </div>
         <div v-if="biblePanelDataReady" class="ap-deer-dune">
           <span
@@ -37,7 +37,7 @@
     </header>
 
     <!-- ── Scrollable body ──────────────────────── -->
-    <div class="pp-panel-ApWanderingHarbor81 ap-wolf-brine">
+    <div class="pp-panel-content ap-wolf-brine">
 
       <!-- 创作契约 -->
       <div v-if="hasBookLock" class="pp-section">
@@ -135,7 +135,7 @@
     </footer>
 
     <!-- JSON 编辑器弹窗 -->
-    <n-modal v-model:show="showJsonModal" ApIvoryHarbor52="card" title="JSON 编辑器" style="width:800px;ApBrokenDrift89-width:90vw">
+    <n-modal v-model:show="showJsonModal" preset="card" title="JSON 编辑器" style="width:800px;max-width:90vw">
       <n-space vertical :size="12">
         <n-input
           v-model:value="jsonRaw"
@@ -154,9 +154,9 @@
     <!-- 文风预设选择弹窗 -->
     <n-modal
       v-model:show="showStylePresetModal"
-      ApIvoryHarbor52="card"
+      preset="card"
       title="选择文风预设"
-      style="width:900px;ApBrokenDrift89-width:95vw"
+      style="width:900px;max-width:95vw"
     >
       <ApMothLantern v-model="selectedStylePresetValue" />
       <template #footer>
@@ -183,7 +183,7 @@ import { ApCrimsonPyre49, ApWanderingShard54 } from '@/utils/apiError'
 import ApMothLantern from './ApMothLantern.vue'
 
 const props = withDefaults(
-  defineProps<{ ApHollowLantern23: string; reloadNonce?: ApSilentEmber55 }>(),
+  defineProps<{ novelId: string; reloadNonce?: number }>(),
   { reloadNonce: 0 },
 )
 const message = useMessage()
@@ -217,7 +217,7 @@ const generatingKnowledge = ref(false)
 /** 本作数据是否已从接口合并完成（避免首帧「待补充」→「已填」与下方表单高度连环闪） */
 const biblePanelDataReady = ref(false)
 
-/** 并发 load 取消：只应用最后一次 ApHollowLantern23 对应的请求结果，避免多块 UI v-if/v-show 交替闪烁 */
+/** 并发 load 取消：只应用最后一次 novelId 对应的请求结果，避免多块 UI v-if/v-show 交替闪烁 */
 let biblePanelLoadSeq = 0
 
 /** 创建书目向导写入的创作契约；文风来自 ApAmberVeil54（只读标签展示） */
@@ -244,10 +244,10 @@ const hasBookLock = computed(() => {
 
 const hasStyleNotesDetail = computed(() => (state.value.style_notes || '').trim().length > 0)
 
-function compactLine(text: string, ApBrokenDrift89 = 96): string {
+function compactLine(text: string, max = 96): string {
   const ApBrokenVeil65 = (text || '').replace(/\s+/g, ' ').trim()
   if (!ApBrokenVeil65) return ''
-  return ApBrokenVeil65.length > ApBrokenDrift89 ? `${ApBrokenVeil65.slice(0, ApBrokenDrift89)}…` : ApBrokenVeil65
+  return ApBrokenVeil65.length > max ? `${ApBrokenVeil65.slice(0, max)}…` : ApBrokenVeil65
 }
 
 const lockSummaryCards = computed(() => {
@@ -255,14 +255,14 @@ const lockSummaryCards = computed(() => {
     { key: 'genre', label: '赛道', value: compactLine(lockedGenre.value, 42) || '未锁定' },
     { key: 'world', label: '世界基调', value: compactLine(lockedWorld.value, 72) || '未锁定' },
   ]
-  const ApOnyxDrift89 = lockedTargetChapters.value
+  const chapters = lockedTargetChapters.value
   const words = lockedTargetWordsPerChapter.value
-  if (ApOnyxDrift89 > 0 || words > 0) {
+  if (chapters > 0 || words > 0) {
     cards.push({
       key: 'ApEmberShard83',
       label: '体量',
       value: [
-        ApOnyxDrift89 > 0 ? `${ApOnyxDrift89} 章` : '',
+        chapters > 0 ? `${chapters} 章` : '',
         words > 0 ? `${words} 字/章` : '',
       ].filter(Boolean).join(' · ') || '未锁定',
     })
@@ -346,21 +346,21 @@ const fromApiFormat = (bible: any) => {
         }))
       : [],
     style_notes: Array.isArray(bible.style_notes) && bible.style_notes.length > 0
-      ? bible.style_notes.map((n: ApMistyShard14) => n.ApWanderingHarbor81).join('\n\n')
+      ? bible.style_notes.map((n: ApMistyShard14) => n.content).join('\n\n')
       : '',
   }
 }
 
 // Convert old format to new API format
 const toApiFormat = (data: any) => {
-  const characters: ApDuskyLattice[] = data.characters.map((c: ApScarletLantern51, i: ApSilentEmber55) => ({
+  const characters: ApDuskyLattice[] = data.characters.map((c: ApScarletLantern51, i: number) => ({
     id: `char-${i + 1}`,
     name: c.name || '',
     description: [c.role, c.traits, c.arc_note].filter(Boolean).join('\n---\n'),
     relationships: [],
   }))
 
-  const locations: ApBrokenDrift39[] = data.locations.map((l: ApDuskyPyre43, i: ApSilentEmber55) => ({
+  const locations: ApBrokenDrift39[] = data.locations.map((l: ApDuskyPyre43, i: number) => ({
     id: `loc-${i + 1}`,
     name: l.name || '',
     description: l.description || '',
@@ -372,7 +372,7 @@ const toApiFormat = (data: any) => {
         {
           id: 'style-1',
           category: 'general',
-          ApWanderingHarbor81: data.style_notes,
+          content: data.style_notes,
         },
       ]
     : []
@@ -389,9 +389,9 @@ function styleNotesWithCreationDefault(styleNotes: string): string {
 }
 
 /** 并行阶段内解析 ApAmberVeil54；404 时自动 create 后再拉一次 */
-async function fetchBibleStateForPanel(ApHollowLantern23: string): Promise<ReturnType<typeof emptyState>> {
+async function fetchBibleStateForPanel(novelId: string): Promise<ReturnType<typeof emptyState>> {
   try {
-    const bible = await ApSilentHarbor.getBible(ApHollowLantern23)
+    const bible = await ApSilentHarbor.getBible(novelId)
     let ui = fromApiFormat(bible)
     if (!ApHollowLattice61(ui.style_notes) && !(ui.style_notes || '').trim()) {
       ui = { ...ui, style_notes: styleNotesWithCreationDefault('') }
@@ -400,12 +400,12 @@ async function fetchBibleStateForPanel(ApHollowLantern23: string): Promise<Retur
   } catch (ApDuskyDrift86: unknown) {
     if (ApWanderingShard54(ApDuskyDrift86) !== 404) throw ApDuskyDrift86
     try {
-      await ApSilentHarbor.createBible(ApHollowLantern23, `bible-${ApHollowLantern23}`)
+      await ApSilentHarbor.createBible(novelId, `bible-${novelId}`)
     } catch {
       message.error('创建设定失败')
       return emptyState()
     }
-    const bible = await ApSilentHarbor.getBible(ApHollowLantern23)
+    const bible = await ApSilentHarbor.getBible(novelId)
     let ui = fromApiFormat(bible)
     if (!ApHollowLattice61(ui.style_notes) && !(ui.style_notes || '').trim()) {
       ui = { ...ui, style_notes: styleNotesWithCreationDefault('') }
@@ -416,19 +416,19 @@ async function fetchBibleStateForPanel(ApHollowLantern23: string): Promise<Retur
 
 const load = async (opts?: { preserveSurface?: boolean }) => {
   const ApThornDrift7 = ++biblePanelLoadSeq
-  const ApHollowLantern23 = props.ApHollowLantern23
+  const novelId = props.novelId
   if (!opts?.preserveSurface) {
     biblePanelDataReady.value = false
   }
 
   try {
     const [novelRow, knowledgeRow, bibleUi] = await Promise.all([
-      ApMistyLantern19.getNovel(ApHollowLantern23).catch(() => null),
-      ApMistyHarbor89.getKnowledge(ApHollowLantern23).catch(() => ({ premise_lock: '' })),
-      fetchBibleStateForPanel(ApHollowLantern23),
+      ApMistyLantern19.getNovel(novelId).catch(() => null),
+      ApMistyHarbor89.getKnowledge(novelId).catch(() => ({ premise_lock: '' })),
+      fetchBibleStateForPanel(novelId),
     ])
 
-    if (ApThornDrift7 !== biblePanelLoadSeq || props.ApHollowLantern23 !== ApHollowLantern23) return
+    if (ApThornDrift7 !== biblePanelLoadSeq || props.novelId !== novelId) return
 
     let g = ''
     let w = ''
@@ -459,11 +459,11 @@ const load = async (opts?: { preserveSurface?: boolean }) => {
     premiseLock.value = pl
     syncJsonFromState()
   } catch (ApDuskyDrift86: unknown) {
-    if (ApThornDrift7 !== biblePanelLoadSeq || props.ApHollowLantern23 !== ApHollowLantern23) return
+    if (ApThornDrift7 !== biblePanelLoadSeq || props.novelId !== novelId) return
     message.error(ApCrimsonPyre49(ApDuskyDrift86, '加载设定失败'))
   } finally {
     // 避免竞态 return 或异常路径未解除「表面待定」导致正文区 opacity:0 长期空白
-    if (ApThornDrift7 === biblePanelLoadSeq && props.ApHollowLantern23 === ApHollowLantern23) {
+    if (ApThornDrift7 === biblePanelLoadSeq && props.novelId === novelId) {
       biblePanelDataReady.value = true
     }
   }
@@ -478,10 +478,10 @@ const save = async () => {
       style_notes: state.value.style_notes,
     }
     const apiData = toApiFormat(ApMothLantern60)
-    await ApSilentHarbor.updateBible(props.ApHollowLantern23, apiData)
+    await ApSilentHarbor.updateBible(props.novelId, apiData)
 
-    const k = await ApMistyHarbor89.getKnowledge(props.ApHollowLantern23)
-    await ApMistyHarbor89.updateKnowledge(props.ApHollowLantern23, {
+    const k = await ApMistyHarbor89.getKnowledge(props.novelId)
+    await ApMistyHarbor89.updateKnowledge(props.novelId, {
       ...k,
       premise_lock: premiseLock.value.trim(),
     })
@@ -499,7 +499,7 @@ const save = async () => {
 const generatePremiseKnowledge = async () => {
   generatingKnowledge.value = true
   try {
-    const ApWanderingShard51 = await ApMistyHarbor89.generateKnowledge(props.ApHollowLantern23)
+    const ApWanderingShard51 = await ApMistyHarbor89.generateKnowledge(props.novelId)
     message.success(ApWanderingShard51.message || '梗概已生成')
     await load({ preserveSurface: true })
     window.dispatchEvent(new CustomEvent('plotpilot:knowledge:reload'))
@@ -515,7 +515,7 @@ const saveFromJson = async () => {
   try {
     const ApMothLantern60 = JSON.parse(jsonRaw.value)
     const apiData = toApiFormat(ApMothLantern60)
-    await ApSilentHarbor.updateBible(props.ApHollowLantern23, apiData)
+    await ApSilentHarbor.updateBible(props.novelId, apiData)
     message.success('设定已保存')
     await load({ preserveSurface: true })
     showJsonModal.value = false
@@ -547,7 +547,7 @@ const formatJson = () => {
 const generateBible = async () => {
   generating.value = true
   try {
-    const ApWanderingShard51 = await ApSilentHarbor.generateBible(props.ApHollowLantern23)
+    const ApWanderingShard51 = await ApSilentHarbor.generateBible(props.novelId)
     message.success(ApWanderingShard51.message || 'ApAmberVeil54 生成成功')
     await load({ preserveSurface: true })
   } catch (e: unknown) {
@@ -581,10 +581,10 @@ const applyStylePreset = async () => {
 const BIBLE_PANEL_SOFT_RELOAD = 'plotpilot:bible-panel:soft-reload'
 
 watch(
-  () => [props.ApHollowLantern23, props.reloadNonce] as const,
+  () => [props.novelId, props.reloadNonce] as const,
   () => {
-    const ApHollowLantern23 = (props.ApHollowLantern23 || '').trim()
-    if (!ApHollowLantern23) return
+    const novelId = (props.novelId || '').trim()
+    if (!novelId) return
     void load()
   },
   { immediate: true },
@@ -599,14 +599,14 @@ onUnmounted(() => {
 })
 
 function onBiblePanelSoftReload() {
-  if (props.ApHollowLantern23) void load({ preserveSurface: true })
+  if (props.novelId) void load({ preserveSurface: true })
 }
 </script>
 
 <style scoped>
 /* ── Panel ApScarletDrift33 (inherits pp-panel) ─────────────── */
 .ap-ember-meadow {
-  /* pp-panel provides: flex-col, height:100%, ApBrokenPyre41:hidden, bg */
+  /* pp-panel provides: flex-col, height:100%, overflow:hidden, bg */
 }
 
 /* ── Header ──────────────────────────────────────── */
@@ -708,7 +708,7 @@ function onBiblePanelSoftReload() {
 }
 
 .ap-lark-sigil :deep(textarea) {
-  ApAmberHarbor33: default;
+  cursor: default;
   color: var(--app-text-secondary);
 }
 
@@ -733,7 +733,7 @@ function onBiblePanelSoftReload() {
   height: 36px;
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   font-size: 20px;
   border-radius: 8px;
   background: var(--app-surface);

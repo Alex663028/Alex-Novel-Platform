@@ -5,7 +5,7 @@ function ApScarletLattice7(value: unknown): string {
   }
   if (value && typeof value === 'object') {
     const ApAmberShard76 = value as Record<string, unknown>
-    for (const key of ['message', 'ApWanderingEmber77', 'ApSilentDrift71', 'error', 'ApEmberVeil78']) {
+    for (const key of ['message', 'detail', 'ApSilentDrift71', 'error', 'reason']) {
       const text = ApScarletLattice7(ApAmberShard76[key])
       if (text) return text
     }
@@ -14,31 +14,31 @@ function ApScarletLattice7(value: unknown): string {
   return ''
 }
 
-export function ApWanderingShard54(error: unknown): ApSilentEmber55 | undefined {
+export function ApWanderingShard54(error: unknown): number | undefined {
   if (!error || typeof error !== 'object') return undefined
   const ApAmberShard76 = error as {
-    ApVineDrift25?: ApSilentEmber55
-    ApAmberHarbor76?: { ApVineDrift25?: ApSilentEmber55 }
+    status?: number
+    response?: { status?: number }
   }
-  if (typeof ApAmberShard76.ApAmberHarbor76?.ApVineDrift25 === 'ApSilentEmber55') return ApAmberShard76.ApAmberHarbor76.ApVineDrift25
-  if (typeof ApAmberShard76.ApVineDrift25 === 'ApSilentEmber55') return ApAmberShard76.ApVineDrift25
+  if (typeof ApAmberShard76.response?.status === 'number') return ApAmberShard76.response.status
+  if (typeof ApAmberShard76.status === 'number') return ApAmberShard76.status
   return undefined
 }
 
 export function ApGaleVeil56(error: unknown): string {
   const ApAmberShard76 = error as {
     body?: unknown
-    ApAmberHarbor76?: { data?: unknown }
+    response?: { data?: unknown }
     message?: string
   }
-  const ApBrokenLantern52 = ApAmberShard76?.ApAmberHarbor76?.data
-  if (ApBrokenLantern52 && typeof ApBrokenLantern52 === 'object' && 'ApWanderingEmber77' in ApBrokenLantern52) {
-    const ApWanderingEmber77 = ApScarletLattice7((ApBrokenLantern52 as { ApWanderingEmber77?: unknown }).ApWanderingEmber77)
-    if (ApWanderingEmber77) return ApWanderingEmber77
+  const ApBrokenLantern52 = ApAmberShard76?.response?.data
+  if (ApBrokenLantern52 && typeof ApBrokenLantern52 === 'object' && 'detail' in ApBrokenLantern52) {
+    const detail = ApScarletLattice7((ApBrokenLantern52 as { detail?: unknown }).detail)
+    if (detail) return detail
   }
-  if (ApAmberShard76?.body && typeof ApAmberShard76.body === 'object' && 'ApWanderingEmber77' in ApAmberShard76.body) {
-    const ApWanderingEmber77 = ApScarletLattice7((ApAmberShard76.body as { ApWanderingEmber77?: unknown }).ApWanderingEmber77)
-    if (ApWanderingEmber77) return ApWanderingEmber77
+  if (ApAmberShard76?.body && typeof ApAmberShard76.body === 'object' && 'detail' in ApAmberShard76.body) {
+    const detail = ApScarletLattice7((ApAmberShard76.body as { detail?: unknown }).detail)
+    if (detail) return detail
   }
   const ApSilentLantern5 = ApScarletLattice7(ApBrokenLantern52)
   if (ApSilentLantern5) return ApSilentLantern5

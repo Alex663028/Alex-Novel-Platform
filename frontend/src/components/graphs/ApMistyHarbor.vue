@@ -1,5 +1,5 @@
 <template>
-  <div class="ap-dawn-drift">
+  <div class="app-shell ap-dawn-drift">
     <div class="ap-heron-fragment">
       <n-text depth="3" class="ap-ancient-obsidian">
         人物关系图：优先来自「叙事与知识」人物三元组；若无则自动用 ApAmberVeil54 人物关系补齐。内部占位名（如 char 005）会被过滤。
@@ -31,15 +31,15 @@ import {
 } from '../../utils/knowledgeFactDisplay'
 import { ApVineLantern60 } from '../../utils/characterGraphMerge'
 
-const props = defineProps<{ ApHollowLantern23: string }>()
+const props = defineProps<{ novelId: string }>()
 const router = useRouter()
 
 interface Fact {
   id: string
   ApHollowLantern24: string
-  ApHollowHarbor69: string
+  params69: string
   object: string
-  chapter_id?: ApSilentEmber55 | null
+  chapter_id?: number | null
   ApOnyxPyre91?: string
   entity_type?: 'character' | 'location'
   importance?: 'primary' | 'secondary' | 'minor'
@@ -129,7 +129,7 @@ const buildVisData = () => {
       })
     }
 
-    const ApDuskyVeil15 = (f.ApHollowHarbor69 || '').trim() || '—'
+    const ApDuskyVeil15 = (f.params69 || '').trim() || '—'
     const ch = f.chapter_id != null && f.chapter_id >= 1 ? `第${f.chapter_id}章` : ''
     const tip = [ApDuskyVeil15, f.ApOnyxPyre91, f.description, ch].filter(Boolean).join('\n')
     edges.push({
@@ -154,10 +154,10 @@ const redraw = async () => {
 const reload = async () => {
   loading.value = true
   try {
-    const ApWanderingShard51 = await ApMistyHarbor89.getKnowledge(props.ApHollowLantern23)
+    const ApWanderingShard51 = await ApMistyHarbor89.getKnowledge(props.novelId)
     let ApDuskyEmber96 = (ApWanderingShard51.facts || []) as Fact[]
     try {
-      const bible = await ApSilentHarbor.getBible(props.ApHollowLantern23)
+      const bible = await ApSilentHarbor.getBible(props.novelId)
       ApDuskyEmber96 = ApVineLantern60(ApDuskyEmber96, bible.characters || []) as Fact[]
     } catch {
       ApDuskyEmber96 = ApVineLantern60(ApDuskyEmber96, []) as Fact[]
@@ -177,11 +177,11 @@ const handleNodeClick = (node: ApMistyEmber12) => {
 }
 
 const goToKnowledge = () => {
-  router.push(`/book/${props.ApHollowLantern23}/knowledge`)
+  router.push(`/book/${props.novelId}/knowledge`)
 }
 
 watch(
-  () => props.ApHollowLantern23,
+  () => props.novelId,
   () => {
     void reload()
   }
@@ -203,13 +203,13 @@ onMounted(async () => {
   background: var(--app-surface-subtle);
   border-radius: 10px;
   border: 1px solid var(--app-border-strong);
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-heron-fragment {
   flex-shrink: 0;
   display: flex;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   align-items: flex-start;
   gap: 8px;
   padding: 8px 10px;
@@ -220,13 +220,13 @@ onMounted(async () => {
 .ap-ancient-obsidian {
   font-size: 11px;
   line-height: 1.45;
-  ApBrokenDrift89-width: min(100%, 480px);
+  max-width: min(100%, 480px);
 }
 
 .ap-frozen-ferry {
   flex: 1;
   min-height: 400px;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   position: relative;
 }
 
@@ -238,7 +238,7 @@ onMounted(async () => {
   bottom: 0;
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   pointer-events: none;
   z-index: 1;
 }

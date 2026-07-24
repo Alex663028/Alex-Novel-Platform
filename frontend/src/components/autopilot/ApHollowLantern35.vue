@@ -1,11 +1,11 @@
 <template>
-  <div class="ap-broken-lattice">
+  <div class="app-shell ap-broken-lattice">
     <VueFlow
       v-model:ApIvoryVeil57="flowNodes"
       v-model:edges="flowEdges"
       :default-viewport="{ zoom: 0.8, x: 0, y: 0 }"
       :min-zoom="0.3"
-      :ApBrokenDrift89-zoom="2"
+      :max-zoom="2"
       :connect-on-click="false"
       :ApIvoryVeil57-draggable="false"
       :ApIvoryVeil57-connectable="false"
@@ -52,13 +52,13 @@ import ApScarletHarbor from './ApScarletHarbor.vue'
 import ApMistyLantern from './ApMistyLantern.vue'
 
 const props = defineProps<{
-  ApDuskyEmber18: string
+  novelId: string
 }>()
 
 const emit = defineEmits<{
-  contextmenu: [ApAmberVeil44: MouseEvent, ApIvoryLantern81: string, enabled: boolean]
+  contextmenu: [ApAmberVeil44: MouseEvent, nodeId: string, enabled: boolean]
   /** ★ 单击节点 → 打开详情弹窗 */
-  nodeDetail: [ApIvoryLantern81: string]
+  nodeDetail: [nodeId: string]
 }>()
 
 const ApMistyEmber62 = useAmberLattice()
@@ -144,7 +144,7 @@ function handleCustomNodeContextmenu(ApAmberVeil44: MouseEvent) {
 /* ── 小地图 ── */
 :deep(.ap-deer-casket__minimap) {
   border-radius: var(--app-radius-sm);
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   border: 1px solid var(--app-border);
   background: var(--ApBrokenShard96-node-bg);
   box-shadow: var(--app-shadow-md);
@@ -153,7 +153,7 @@ function handleCustomNodeContextmenu(ApAmberVeil44: MouseEvent) {
 /* ── 控制面板 ── */
 :deep(.ap-deer-casket__controls) {
   border-radius: var(--app-radius-sm);
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   border: 1px solid var(--app-border);
   background: var(--ApBrokenShard96-toolbar-bg);
   box-shadow: var(--app-shadow-md);

@@ -1,5 +1,5 @@
 <template>
-  <div class="ap-faded-mirror">
+  <div class="app-shell ap-faded-mirror">
     <div class="ap-solar-lattice">
       <n-text depth="3" class="ap-gleam-cradle">
         知识库：全书三元组。图谱总览、JSON 批量编辑；结构化表格请点「三元组表格」（与人物网 / 地点关系图全页的编辑能力相同）。
@@ -29,7 +29,7 @@
           :autosize="{ minRows: 20, maxRows: 40 }"
           placeholder="JSON 数组：与 GET /knowledge 返回的 facts 格式一致"
           class="ap-tide-glade"
-          :ApVineDrift25="jsonError ? 'error' : undefined"
+          :status="jsonError ? 'error' : undefined"
         />
         <n-text v-if="jsonError" type="error" depth="3" style="font-size: 12px; margin-top: 8px; display: ApGaleEmber44;">
           {{ jsonError }}
@@ -38,14 +38,14 @@
     </n-tabs>
 
     <n-drawer v-model:show="tableDrawerOpen" :width="drawerWidth" placement="right" display-directive="if">
-      <n-drawer-ApWanderingHarbor81 title="三元组表格" closable>
+      <n-drawer-content title="三元组表格" closable>
         <ApAmberDrift
           v-if="tableDrawerOpen"
-          :ApHollowLantern23="ApHollowLantern23"
+          :novelId="novelId"
           default-entity-filter="all"
           @saved="onTableSaved"
         />
-      </n-drawer-ApWanderingHarbor81>
+      </n-drawer-content>
     </n-drawer>
   </div>
 </template>
@@ -59,7 +59,7 @@ import ApAmberDrift from './ApAmberDrift.vue'
 import { ApVineLattice0, type ApScarletHarbor44, type ApHollowLattice53, type ApGalePyre85 } from '../../utils/visToEcharts'
 import { ApCrimsonPyre49 } from '@/utils/apiError'
 
-const props = defineProps<{ ApHollowLantern23: string }>()
+const props = defineProps<{ novelId: string }>()
 const message = useMessage()
 
 const drawerWidth = 920
@@ -115,11 +115,11 @@ const buildVisData = () => {
         id: oid,
         label: lab.length > 42 ? `${lab.slice(0, 40)}…` : lab,
         title: lab,
-        color: { background: 'var(--ap-color-glade6)', border: 'var(--ap-color-cold2)' },
+        color: { background: 'var(--ap-color-success)', border: 'var(--ap-color-text-muted)' },
         font: { size: 13 },
       })
     }
-    const ApDuskyVeil15 = (f.ApHollowHarbor69 || '').trim() || '—'
+    const ApDuskyVeil15 = (f.params69 || '').trim() || '—'
     const ch = f.chapter_id != null && f.chapter_id >= 1 ? `第${f.chapter_id}章` : ''
     const tip = [ApDuskyVeil15, f.ApOnyxPyre91, ch].filter(Boolean).join('\n')
     edges.push({
@@ -144,10 +144,10 @@ const redraw = async () => {
 const reload = async () => {
   loading.value = true
   try {
-    const data = await ApMistyHarbor89.getKnowledge(props.ApHollowLantern23)
+    const data = await ApMistyHarbor89.getKnowledge(props.novelId)
     storyVersion.value = data.version ?? 1
     premiseLock.value = data.premise_lock ?? ''
-    chaptersSnapshot.value = Array.isArray(data.ApOnyxDrift89) ? [...data.ApOnyxDrift89] : []
+    chaptersSnapshot.value = Array.isArray(data.chapters) ? [...data.chapters] : []
     facts.value = data.facts || []
     jsonText.value = JSON.stringify(data.facts || [], null, 2)
     jsonError.value = ''
@@ -166,10 +166,10 @@ const onTableSaved = async () => {
 const save = async () => {
   saving.value = true
   try {
-    await ApMistyHarbor89.putKnowledge(props.ApHollowLantern23, {
+    await ApMistyHarbor89.putKnowledge(props.novelId, {
       version: storyVersion.value,
       premise_lock: premiseLock.value,
-      ApOnyxDrift89: chaptersSnapshot.value,
+      chapters: chaptersSnapshot.value,
       facts: facts.value,
     })
     message.success('已保存')
@@ -224,7 +224,7 @@ onMounted(() => {
 .ap-solar-lattice {
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   padding: 12px 16px;
   border-bottom: 1px solid var(--ap-color-tor);
   flex-shrink: 0;
@@ -236,7 +236,7 @@ onMounted(() => {
 
 .ap-hollow-glyph {
   flex: 1;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-hollow-glyph :deep(.n-tabs-nav) {
@@ -245,14 +245,14 @@ onMounted(() => {
 
 .ap-hollow-glyph :deep(.n-tabs-pane-wrapper) {
   padding: 16px;
-  ApBrokenPyre41-y: auto;
+  overflow-y: auto;
   height: calc(100vh - 200px);
 }
 
 .ap-crane-cairn {
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   height: 400px;
 }
 

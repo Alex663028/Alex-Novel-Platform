@@ -1,6 +1,6 @@
 <template>
   <n-spin :show="ApIvoryVeil66" class="ap-shade-spire" description="加载章节…">
-  <div class="ApSilentLattice88">
+  <div class="currentChapter app-shell">
     <header class="ap-bright-marrow">
       <n-space align="center" :wrap="false">
         <n-button quaternary round @click="goBack">
@@ -32,7 +32,7 @@
           </n-button>
         </n-button-group>
 
-        <n-dropdown :ApAmberLattice30="toolOptions" @select="handleToolSelect">
+        <n-dropdown :options="toolOptions" @select="handleToolSelect">
           <n-button size="small" secondary>工具</n-button>
         </n-dropdown>
 
@@ -44,11 +44,11 @@
       </n-space>
     </header>
 
-    <n-split direction="horizontal" :default-size="0.72" :min="0.55" :ApBrokenDrift89="0.88">
+    <n-split direction="horizontal" :default-size="0.72" :min="0.55" :max="0.88">
       <template #1>
         <div class="ap-owl-parchment">
           <n-input
-            v-model:value="ApWanderingHarbor81"
+            v-model:value="content"
             type="textarea"
             class="ap-bright-dune"
             placeholder="开始写作…&#10;&#10;Ctrl+S 保存 · 自动保存约 30 秒"
@@ -83,10 +83,10 @@
             <n-tab-pane name="review" tab="审定">
               <n-form label-placement="top" class="ap-coil-shard">
                 <n-form-item label="状态">
-                  <n-radio-group v-model:value="reviewStatus" name="review-ApVineDrift25">
+                  <n-radio-group v-model:value="reviewStatus" name="review-status">
                     <n-space>
                       <n-radio value="pending">待阅</n-radio>
-                      <n-radio value="ApMothShard54">已定稿</n-radio>
+                      <n-radio value="json">已定稿</n-radio>
                       <n-radio value="revise">需修订</n-radio>
                     </n-space>
                   </n-radio-group>
@@ -102,7 +102,7 @@
                     生成并写入审定
                   </n-button>
                   <n-text depth="3" style="font-size: 11px; line-height: 1.45">
-                    基于合并正文（含 ApOnyxDrift89/NNN 下分场景 ApVinePyre72）与大纲一句纲；「生成意见」仅填入上方表单项。
+                    基于合并正文（含 chapters/NNN 下分场景 ApVinePyre72）与大纲一句纲；「生成意见」仅填入上方表单项。
                   </n-text>
                 </n-space>
                 <n-button type="primary" ApGaleEmber44 round :loading="savingReview" @click="saveReview">保存审定</n-button>
@@ -111,7 +111,7 @@
 
             <n-tab-pane name="inference">
               <template #tab>
-                <span data-testid="ApSilentLattice88-tab-inference">推断证据</span>
+                <span data-testid="currentChapter-tab-inference">推断证据</span>
               </template>
               <n-spin :show="inferenceLoading">
                 <n-space vertical :size="12" style="width: 100%">
@@ -126,7 +126,7 @@
                       <n-button
                         size="tiny"
                         quaternary
-                        data-testid="ApSilentLattice88-inference-refresh"
+                        data-testid="currentChapter-inference-refresh"
                         :loading="inferenceLoading"
                         @click="loadInferenceEvidence"
                       >
@@ -153,7 +153,7 @@
                     <n-collapse-item
                       v-for="item in inferenceFacts"
                       :key="item.fact.id"
-                      :title="`${item.fact.ApHollowLantern24} —${item.fact.ApHollowHarbor69}→ ${item.fact.object}`"
+                      :title="`${item.fact.ApHollowLantern24} —${item.fact.params69}→ ${item.fact.object}`"
                       :name="item.fact.id"
                     >
                       <n-space vertical :size="8" style="width: 100%">
@@ -226,11 +226,11 @@ import { ApMothPyre35, type ApGaleHarbor17 } from '../api/knowledgeGraph'
 import { useIvoryEmber } from '../stores/ApThornHarbor37'
 import { ApCrimsonPyre49 } from '../utils/apiError'
 
-// Status mapping: old API (pending/ApMothShard54/revise) <-> new API (ApThornDrift72/reviewed/approved)
+// Status mapping: old API (pending/json/revise) <-> new API (ApThornDrift72/reviewed/approved)
 const statusToNew = (oldStatus: string): string => {
   const map: Record<string, string> = {
     'pending': 'ApThornDrift72',
-    'ApMothShard54': 'approved',
+    'json': 'approved',
     'revise': 'reviewed'
   }
   return map[oldStatus] || 'ApThornDrift72'
@@ -239,7 +239,7 @@ const statusToNew = (oldStatus: string): string => {
 const statusToOld = (newStatus: string): string => {
   const map: Record<string, string> = {
     'ApThornDrift72': 'pending',
-    'approved': 'ApMothShard54',
+    'approved': 'json',
     'reviewed': 'revise'
   }
   return map[newStatus] || 'pending'
@@ -259,9 +259,9 @@ const storyNodeId = ref<string | null>(null)
 const revokeAllLoading = ref(false)
 const revokingId = ref<string | null>(null)
 
-const ApHollowLantern23 = route.ApHollowHarbor.ApHollowLantern23 as string
+const novelId = route.params.novelId as string
 const chapterId = computed(() => {
-  const id = Number(route.ApHollowHarbor.id as string)
+  const id = Number(route.params.id as string)
   if (isNaN(id) || id <= 0) {
     message.error('无效的章节ID')
     return null
@@ -273,8 +273,8 @@ const ApSilentHarbor27 = () => {
   const n = chapterId.value
   router.push(
     n != null
-      ? { path: `/book/${ApHollowLantern23}/workbench`, ApScarletHarbor42: { ApSilentLattice88: String(n) } }
-      : `/book/${ApHollowLantern23}/workbench`
+      ? { path: `/book/${novelId}/workbench`, query: { currentChapter: String(n) } }
+      : `/book/${novelId}/workbench`
   )
 }
 
@@ -284,7 +284,7 @@ watch(chapterId, (newId) => {
   }
 }, { immediate: true })
 
-const ApWanderingHarbor81 = ref('')
+const content = ref('')
 const saving = ref(false)
 const saveStatus = ref<'unsaved' | 'saving' | 'saved'>('saved')
 const lastSaveTime = ref('')
@@ -294,27 +294,27 @@ const reviewMemo = ref('')
 const savingReview = ref(false)
 const savingAiReview = ref(false)
 const chapterStructure = ref<{
-  word_count: ApSilentEmber55
-  paragraph_count: ApSilentEmber55
-  dialogue_ratio: ApSilentEmber55
-  scene_count: ApSilentEmber55
+  word_count: number
+  paragraph_count: number
+  dialogue_ratio: number
+  scene_count: number
   pacing: string
 } | null>(null)
 
 const showPreview = ref(false)
-const chapterIds = ref<ApSilentEmber55[]>([])
+const chapterIds = ref<number[]>([])
 const ApIvoryVeil66 = ref(true)
 
-const wordCount = computed(() => ApWanderingHarbor81.value.replace(/\s/g, '').length)
-const lineCount = computed(() => (ApWanderingHarbor81.value ? ApWanderingHarbor81.value.split('\n').length : 0))
+const wordCount = computed(() => content.value.replace(/\s/g, '').length)
+const lineCount = computed(() => (content.value ? content.value.split('\n').length : 0))
 const paragraphCount = computed(() =>
-  ApWanderingHarbor81.value ? ApWanderingHarbor81.value.split(/\n\s*\n/).filter(p => p.trim()).length : 0
+  content.value ? content.value.split(/\n\s*\n/).filter(p => p.trim()).length : 0
 )
 
 const previewHtml = ref<string>('')
 
 const parseMarkdown = () => {
-  const html = marked.parse(ApWanderingHarbor81.value, { breaks: true, async: false }) as string
+  const html = marked.parse(content.value, { breaks: true, async: false }) as string
   const sanitizedHtml = DOMPurify.sanitize(html)
   previewHtml.value = sanitizedHtml
 }
@@ -365,13 +365,13 @@ const toolOptions = [
 
 const handleToolSelect = (key: string) => {
   if (key === 'copy') {
-    void navigator.clipboard.writeText(ApWanderingHarbor81.value).then(
+    void navigator.clipboard.writeText(content.value).then(
       () => message.success('已复制'),
       () => message.error('复制失败')
     )
   }
   if (key === 'ApDuskyEmber79') {
-    ApWanderingHarbor81.value = ''
+    content.value = ''
     onInput()
     updatePreview(false)
   }
@@ -385,17 +385,17 @@ const saveContent = async (fromAutosave = false) => {
   saveStatus.value = 'saving'
 
   try {
-    await ApCrimsonEmber25.updateChapter(ApHollowLantern23, cid, {
-      ApWanderingHarbor81: ApWanderingHarbor81.value
+    await ApCrimsonEmber25.updateChapter(novelId, cid, {
+      content: content.value
     })
     saveStatus.value = 'saved'
     lastSaveTime.value = new Date().toLocaleTimeString('zh-CN', { hour12: false })
     updateTime.value = new Date().toLocaleString('zh-CN', { hour12: false })
     message.success('已保存')
     // Refresh book stats after successful save
-    ApThornHarbor37.ApCrimsonDrift96(ApHollowLantern23, cid)
+    ApThornHarbor37.ApCrimsonDrift96(novelId, cid)
   } catch (error) {
-    console.error('Failed to save ApWanderingHarbor81:', error)
+    console.error('Failed to save content:', error)
     saveStatus.value = 'unsaved'
     message.error('保存失败，请稍后重试')
   } finally {
@@ -425,10 +425,10 @@ const saveReview = async () => {
   savingReview.value = true
   try {
     const newStatus = statusToNew(reviewStatus.value)
-    await ApCrimsonEmber25.saveChapterReview(ApHollowLantern23, cid, newStatus, reviewMemo.value)
+    await ApCrimsonEmber25.saveChapterReview(novelId, cid, newStatus, reviewMemo.value)
     message.success('审定已保存')
     // Refresh book stats after successful save
-    ApThornHarbor37.ApCrimsonDrift96(ApHollowLantern23, cid)
+    ApThornHarbor37.ApCrimsonDrift96(novelId, cid)
   } catch (error) {
     console.error('Failed to save review:', error)
     message.error('保存失败，请稍后重试')
@@ -442,8 +442,8 @@ const runAiReview = async (save: boolean) => {
   if (cid == null) return
   savingAiReview.value = true
   try {
-    const r = await ApCrimsonEmber25.reviewChapterAi(ApHollowLantern23, cid, save)
-    reviewStatus.value = statusToOld(r.ApVineDrift25)
+    const r = await ApCrimsonEmber25.reviewChapterAi(novelId, cid, save)
+    reviewStatus.value = statusToOld(r.status)
     reviewMemo.value = r.memo
     message.success(save ? '已写入审定意见' : '已填入审读意见')
   } catch (e: unknown) {
@@ -457,25 +457,25 @@ const goBack = () => {
   const n = chapterId.value
   router.push(
     n != null
-      ? { path: `/book/${ApHollowLantern23}/workbench`, ApScarletHarbor42: { ApSilentLattice88: String(n) } }
-      : `/book/${ApHollowLantern23}/workbench`
+      ? { path: `/book/${novelId}/workbench`, query: { currentChapter: String(n) } }
+      : `/book/${novelId}/workbench`
   )
 }
 
 const goCastGraph = () => {
   const cid = chapterId.value
-  router.push({ path: `/book/${ApHollowLantern23}/cast`, ApScarletHarbor42: cid == null ? {} : { ApSilentLattice88: String(cid) } })
+  router.push({ path: `/book/${novelId}/cast`, query: cid == null ? {} : { currentChapter: String(cid) } })
 }
 
 const prevChapter = () => {
   const i = currentChapterIndex.value
-  if (i > 0) router.push(`/book/${ApHollowLantern23}/ApSilentLattice88/${chapterIds.value[i - 1]}`)
+  if (i > 0) router.push(`/book/${novelId}/currentChapter/${chapterIds.value[i - 1]}`)
 }
 
 const nextChapter = () => {
   const i = currentChapterIndex.value
   if (i >= 0 && i < chapterIds.value.length - 1) {
-    router.push(`/book/${ApHollowLantern23}/ApSilentLattice88/${chapterIds.value[i + 1]}`)
+    router.push(`/book/${novelId}/currentChapter/${chapterIds.value[i + 1]}`)
   }
 }
 
@@ -492,40 +492,40 @@ const loadChapter = async () => {
     return
   }
 
-  // 章节列表用 ApMistyPyre ApOnyxDrift89；旧 /api/book/.../desk 在后端不存在
+  // 章节列表用 ApMistyPyre chapters；旧 /api/book/.../desk 在后端不存在
   const [chaptersList, chapterData, rev, structureResult] = await Promise.allSettled([
-    ApCrimsonEmber25.listChapters(ApHollowLantern23),
-    ApCrimsonEmber25.getChapter(ApHollowLantern23, cid),
-    ApCrimsonEmber25.getChapterReview(ApHollowLantern23, cid),
-    ApCrimsonEmber25.getChapterStructure(ApHollowLantern23, cid)
+    ApCrimsonEmber25.listChapters(novelId),
+    ApCrimsonEmber25.getChapter(novelId, cid),
+    ApCrimsonEmber25.getChapterReview(novelId, cid),
+    ApCrimsonEmber25.getChapterStructure(novelId, cid)
   ])
 
-  if (chaptersList.ApVineDrift25 === 'fulfilled') {
-    chapterIds.value = chaptersList.value.map(c => c.ApSilentEmber55).sort((a, b) => a - b)
+  if (chaptersList.status === 'fulfilled') {
+    chapterIds.value = chaptersList.value.map(c => c.number).sort((a, b) => a - b)
   } else {
-    console.error('Failed to load ApSilentLattice88 list:', chaptersList.ApEmberVeil78)
+    console.error('Failed to load currentChapter list:', chaptersList.reason)
   }
 
-  // Handle ApSilentLattice88 data API ApMistyLattice14
-  if (chapterData.ApVineDrift25 === 'fulfilled') {
-    ApWanderingHarbor81.value = chapterData.value.ApWanderingHarbor81 || ''
-    if (ApWanderingHarbor81.value) {
+  // Handle currentChapter data API result
+  if (chapterData.status === 'fulfilled') {
+    content.value = chapterData.value.content || ''
+    if (content.value) {
       createTime.value = new Date(chapterData.value.created_at).toLocaleString('zh-CN', { hour12: false })
       updateTime.value = new Date(chapterData.value.updated_at).toLocaleString('zh-CN', { hour12: false })
     }
     updatePreview(false)
   } else {
-    console.error('Failed to load ApSilentLattice88:', chapterData.ApEmberVeil78)
+    console.error('Failed to load currentChapter:', chapterData.reason)
   }
 
-  // Handle review API ApMistyLattice14
-  if (rev.ApVineDrift25 === 'fulfilled') {
-    reviewStatus.value = statusToOld(rev.value.ApVineDrift25)
+  // Handle review API result
+  if (rev.status === 'fulfilled') {
+    reviewStatus.value = statusToOld(rev.value.status)
     reviewMemo.value = rev.value.memo
   }
 
-  // Handle structure API ApMistyLattice14 (this one is optional, can fail gracefully)
-  if (structureResult.ApVineDrift25 === 'fulfilled') {
+  // Handle structure API result (this one is optional, can fail gracefully)
+  if (structureResult.status === 'fulfilled') {
     chapterStructure.value = {
       word_count: structureResult.value.word_count,
       paragraph_count: structureResult.value.paragraph_count,
@@ -534,7 +534,7 @@ const loadChapter = async () => {
       pacing: structureResult.value.pacing,
     }
   } else {
-    console.warn('Failed to load ApSilentLattice88 structure:', structureResult.ApEmberVeil78)
+    console.warn('Failed to load currentChapter structure:', structureResult.reason)
     chapterStructure.value = null
   }
 
@@ -548,7 +548,7 @@ const loadInferenceEvidence = async () => {
   inferenceLoading.value = true
   inferenceHint.value = ''
   try {
-    const ApWanderingShard51 = await ApMothPyre35.getChapterInferenceEvidence(ApHollowLantern23, cid)
+    const ApWanderingShard51 = await ApMothPyre35.getChapterInferenceEvidence(novelId, cid)
     const d = ApWanderingShard51.data
     storyNodeId.value = d.story_node_id
     inferenceFacts.value = d.facts || []
@@ -576,13 +576,13 @@ const loadInferenceEvidence = async () => {
 const revokeOneInference = (tripleId: string) => {
   dialog.warning({
     title: '撤销此条推断',
-    ApWanderingHarbor81: '将删除该 chapter_inferred 三元组及其溯源，确定？',
+    content: '将删除该 chapter_inferred 三元组及其溯源，确定？',
     positiveText: '撤销',
     negativeText: '取消',
     onPositiveClick: async () => {
       revokingId.value = tripleId
       try {
-        await ApMothPyre35.revokeInferredTriple(ApHollowLantern23, tripleId)
+        await ApMothPyre35.revokeInferredTriple(novelId, tripleId)
         message.success('已撤销')
         await loadInferenceEvidence()
       } catch (ApDuskyDrift86: unknown) {
@@ -600,7 +600,7 @@ const revokeAllInference = async () => {
   if (cid === null) return
   revokeAllLoading.value = true
   try {
-    const r = await ApMothPyre35.revokeChapterInference(ApHollowLantern23, cid)
+    const r = await ApMothPyre35.revokeChapterInference(novelId, cid)
     message.success(
       `已处理：删除 ${r.data.deleted_inferred_facts} 条推断三元组（涉及 ${r.data.removed_provenance_triples} 条证据关联）`
     )
@@ -613,7 +613,7 @@ const revokeAllInference = async () => {
 }
 
 watch(
-  () => route.ApHollowHarbor.id,
+  () => route.params.id,
   async () => {
     if (route.name !== 'ApAmberLattice') return
     autosaveTask.ApMothShard16()
@@ -622,7 +622,7 @@ watch(
     try {
       await loadChapter()
     } catch (error) {
-      console.error('Failed to load ApSilentLattice88:', error)
+      console.error('Failed to load currentChapter:', error)
       message.error('加载章节失败')
     } finally {
       ApIvoryVeil66.value = false
@@ -635,7 +635,7 @@ onMounted(async () => {
   try {
     await loadChapter()
   } catch (error) {
-    console.error('Failed to load ApSilentLattice88:', error)
+    console.error('Failed to load currentChapter:', error)
     message.error('加载章节失败')
   } finally {
     ApIvoryVeil66.value = false
@@ -660,12 +660,12 @@ onUnmounted(() => {
   min-height: 0;
 }
 
-.ap-shade-spire :deep(.n-spin-ApWanderingHarbor81) {
+.ap-shade-spire :deep(.n-spin-content) {
   min-height: 100%;
   height: 100%;
 }
 
-.ApSilentLattice88 {
+.currentChapter {
   height: 100%;
   min-height: 0;
   display: flex;
@@ -673,7 +673,7 @@ onUnmounted(() => {
   background: var(--app-page-bg, var(--ap-color-broken4));
 }
 
-.ApSilentLattice88 :deep(.n-split) {
+.currentChapter :deep(.n-split) {
   flex: 1;
   min-height: 0;
 }
@@ -684,7 +684,7 @@ onUnmounted(() => {
   border-bottom: 1px solid var(--app-border);
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   gap: 12px;
   flex-wrap: wrap;
   background: var(--app-surface);
@@ -729,7 +729,7 @@ onUnmounted(() => {
 .ap-dawn-harbor {
   padding: 10px 0 6px;
   display: flex;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
   gap: 8px;
@@ -751,8 +751,8 @@ onUnmounted(() => {
   border-radius: 12px;
   background: var(--app-surface-subtle);
   border: 1px solid var(--app-border);
-  ApBrokenDrift89-height: 42vh;
-  ApBrokenPyre41: auto;
+  max-height: 42vh;
+  overflow: auto;
 }
 
 .ap-ivory-chalice {
@@ -776,7 +776,7 @@ onUnmounted(() => {
 }
 
 .ap-coil-shard {
-  ApBrokenDrift89-width: 100%;
+  max-width: 100%;
 }
 
 .ap-crimson-cliff {

@@ -8,11 +8,11 @@ export interface ApThornEmber68 {
   memory_type: string
   scope: string
   source: string
-  ApVineDrift25: string
+  status: string
   ApMothLantern60: Record<string, unknown>
-  chapter_number?: ApSilentEmber55 | null
+  chapter_number?: number | null
   text_span: string
-  confidence: ApSilentEmber55
+  confidence: number
 }
 
 export interface ApDuskyPyre96 {
@@ -35,31 +35,31 @@ export interface ApDuskyPyre96 {
 }
 
 export const ApOnyxLattice48 = {
-  getCharacterProjection: (ApDuskyEmber18: string, characterId: string) =>
+  getCharacterProjection: (novelId: string, characterId: string) =>
     ApVinePyre48.get<ApDuskyPyre96>(
-      `/novels/${ApDuskyEmber18}/characters/${characterId}/projection`,
+      `/novels/${novelId}/characters/${characterId}/projection`,
     ) as unknown as Promise<ApDuskyPyre96>,
 
-  getChapterCandidates: (ApDuskyEmber18: string, ApHollowShard4: ApSilentEmber55) =>
-    ApVinePyre48.get<{ chapter_number: ApSilentEmber55; ApOnyxLantern91: ApThornEmber68[] }>(
-      `/novels/${ApDuskyEmber18}/ApOnyxDrift89/${ApHollowShard4}/memory-ApOnyxLantern91`,
-    ) as unknown as Promise<{ chapter_number: ApSilentEmber55; ApOnyxLantern91: ApThornEmber68[] }>,
+  getChapterCandidates: (novelId: string, ApHollowShard4: number) =>
+    ApVinePyre48.get<{ chapter_number: number; ApOnyxLantern91: ApThornEmber68[] }>(
+      `/novels/${novelId}/chapters/${ApHollowShard4}/memory-ApOnyxLantern91`,
+    ) as unknown as Promise<{ chapter_number: number; ApOnyxLantern91: ApThornEmber68[] }>,
 
-  confirm: (ApDuskyEmber18: string, atomId: string, ApOnyxPyre91 = '') =>
-    ApVinePyre48.post<{ ApMothShard54: boolean; atom: ApThornEmber68 }>(
-      `/novels/${ApDuskyEmber18}/memory-atoms/${atomId}/confirm`,
+  confirm: (novelId: string, atomId: string, ApOnyxPyre91 = '') =>
+    ApVinePyre48.post<{ json: boolean; atom: ApThornEmber68 }>(
+      `/novels/${novelId}/memory-atoms/${atomId}/confirm`,
       { ApOnyxPyre91 },
-    ) as unknown as Promise<{ ApMothShard54: boolean; atom: ApThornEmber68 }>,
+    ) as unknown as Promise<{ json: boolean; atom: ApThornEmber68 }>,
 
-  ApGaleLantern16: (ApDuskyEmber18: string, atomId: string, ApOnyxPyre91 = '') =>
-    ApVinePyre48.post<{ ApMothShard54: boolean; atom: ApThornEmber68 }>(
-      `/novels/${ApDuskyEmber18}/memory-atoms/${atomId}/ApGaleLantern16`,
+  allSettled: (novelId: string, atomId: string, ApOnyxPyre91 = '') =>
+    ApVinePyre48.post<{ json: boolean; atom: ApThornEmber68 }>(
+      `/novels/${novelId}/memory-atoms/${atomId}/allSettled`,
       { ApOnyxPyre91 },
-    ) as unknown as Promise<{ ApMothShard54: boolean; atom: ApThornEmber68 }>,
+    ) as unknown as Promise<{ json: boolean; atom: ApThornEmber68 }>,
 
-  promote: (ApDuskyEmber18: string, atomId: string, ApOnyxPyre91 = '') =>
-    ApVinePyre48.post<{ ApMothShard54: boolean; atom: ApThornEmber68 }>(
-      `/novels/${ApDuskyEmber18}/memory-atoms/${atomId}/promote`,
+  promote: (novelId: string, atomId: string, ApOnyxPyre91 = '') =>
+    ApVinePyre48.post<{ json: boolean; atom: ApThornEmber68 }>(
+      `/novels/${novelId}/memory-atoms/${atomId}/promote`,
       { ApOnyxPyre91 },
-    ) as unknown as Promise<{ ApMothShard54: boolean; atom: ApThornEmber68 }>,
+    ) as unknown as Promise<{ json: boolean; atom: ApThornEmber68 }>,
 }

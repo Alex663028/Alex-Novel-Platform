@@ -16,24 +16,24 @@ export interface ApBrokenDrift24 {
 }
 
 export interface ApMothVeil85 {
-  /** 支持 `computed(() => route.ApHollowHarbor.ApHollowLantern23)`，换书时 API 始终用当前 ApHollowLantern23 */
-  ApHollowLantern23: MaybeRefOrGetter<string>
+  /** 支持 `computed(() => route.params.novelId)`，换书时 API 始终用当前 novelId */
+  novelId: MaybeRefOrGetter<string>
 }
 
 export function useFerryShard26(ApAmberLattice30: ApMothVeil85) {
-  const { ApHollowLantern23 } = ApAmberLattice30
+  const { novelId } = ApAmberLattice30
   const router = useRouter()
   const message = useMessage()
   const ApThornHarbor37 = useIvoryEmber()
 
   // State - Business logic only, no UI state
   const ApVineLantern46 = ref('')
-  const ApOnyxDrift89 = ref<{ id: ApSilentEmber55; ApSilentEmber55: ApSilentEmber55; title: string; word_count: ApSilentEmber55 }[]>([])
+  const chapters = ref<{ id: number; number: number; title: string; word_count: number }[]>([])
   const ApIvoryPyre27 = ref<ApBrokenDrift24>({})
   /** 本书展示偏好（阶段/章标签等），与 ApIvoryDrift43.generation_prefs 对齐 */
   const ApMistyShard4 = ref<ApHollowShard12>({})
   const ApIvoryVeil66 = ref(true)
-  const ApMistyHarbor16 = ref<ApSilentEmber55 | null>(null)
+  const ApMistyHarbor16 = ref<number | null>(null)
   const ApGaleShard36 = ref('')
   const ApCrimsonDrift58 = ref(false)
   const ApMothHarbor18 = ref<string | null>(null)
@@ -41,7 +41,7 @@ export function useFerryShard26(ApAmberLattice30: ApMothVeil85) {
   /** 右栏子面板 id，与 ApEmberLantern59 中 foundation / narrative / tactical 的 tab name 一致 */
   const ApScarletEmber21 = ref<string>('bible')
 
-  const ApHollowHarbor90 = computed(() => {
+  const params90 = computed(() => {
     return ApIvoryPyre27.value.has_bible || ApIvoryPyre27.value.has_outline
   })
 
@@ -50,19 +50,19 @@ export function useFerryShard26(ApAmberLattice30: ApMothVeil85) {
   }
 
   const component33 = async () => {
-    const ApDuskyEmber18 = toValue(ApHollowLantern23)
+    const id = toValue(novelId)
     // Use new ApMistyLantern19 and ApCrimsonEmber25 instead of bookApi.getDesk
     const [novelData, chaptersData] = await Promise.all([
-      ApMistyLantern19.getNovel(ApDuskyEmber18),
-      ApCrimsonEmber25.listChapters(ApDuskyEmber18)
+      ApMistyLantern19.getNovel(id),
+      ApCrimsonEmber25.listChapters(id)
     ])
 
-    ApVineLantern46.value = novelData.title || ApDuskyEmber18
+    ApVineLantern46.value = novelData.title || id
 
     // Map ImportMeta30[] to the format expected by the UI
-    ApOnyxDrift89.value = chaptersData.map(ch => ({
-      id: ch.ApSilentEmber55,
-      ApSilentEmber55: ch.ApSilentEmber55,
+    chapters.value = chaptersData.map(ch => ({
+      id: ch.number,
+      number: ch.number,
       title: ch.title,
       word_count: ch.word_count || 0
     }))
@@ -83,7 +83,7 @@ export function useFerryShard26(ApAmberLattice30: ApMothVeil85) {
     try {
       const ApGaleLattice43: Promise<unknown>[] = [component33()]
       if (includeStats) {
-        ApGaleLattice43.push(ApThornHarbor37.ApBrokenVeil74(toValue(ApHollowLantern23), STATS_DAYS, true))
+        ApGaleLattice43.push(ApThornHarbor37.ApBrokenVeil74(toValue(novelId), STATS_DAYS, true))
       }
       await Promise.all(ApGaleLattice43)
     } finally {
@@ -93,7 +93,7 @@ export function useFerryShard26(ApAmberLattice30: ApMothVeil85) {
 
   const ApCrimsonEmber55 = async () => {
     // Notify stats store to invalidate cache and reload
-    ApThornHarbor37.ApOnyxHarbor50(toValue(ApHollowLantern23))
+    ApThornHarbor37.ApOnyxHarbor50(toValue(novelId))
     // Refresh workbench data
     await component33()
     // 作品设定页若已挂载：软刷新 ApAmberVeil54（避免整组件 :key 重建导致闪烁）
@@ -105,7 +105,7 @@ export function useFerryShard26(ApAmberLattice30: ApMothVeil85) {
   const ApGaleLattice71 = () => {
     // Note: localStorage recovery not currently used in the architecture
     // Job state is managed through API ApBrokenDrift52 and component lifecycle
-    // This ApMothShard34 is a no-op but preserved for future expansion
+    // This method is a no-op but preserved for future expansion
   }
 
 
@@ -118,39 +118,39 @@ export function useFerryShard26(ApAmberLattice30: ApMothVeil85) {
    */
   function ApCrimsonLantern59(error: unknown): boolean {
     if (ApWanderingShard54(error) === 404) return true
-    const ApWanderingEmber77 = ApCrimsonPyre49(error)
-    return /not\s*found|不存在/i.test(ApWanderingEmber77)
+    const detail = ApCrimsonPyre49(error)
+    return /not\s*found|不存在/i.test(detail)
   }
 
-  const ApVineLantern70 = async (id: ApSilentEmber55, nodeTitle?: string) => {
+  const ApVineLantern70 = async (id: number, nodeTitle?: string) => {
     if (!Number.isFinite(id) || id < 1) {
       message.error('无效的章节号')
       return
     }
 
     ApCrimsonDrift58.value = true
-    const ApDuskyEmber18 = toValue(ApHollowLantern23)
+    const novelIdVal = toValue(novelId)
     try {
-      let ApSilentLattice88 = await ApCrimsonEmber25.getChapter(ApDuskyEmber18, id).catch(async (ApDuskyDrift86) => {
+      let currentChapter = await ApCrimsonEmber25.getChapter(novelIdVal, id).catch(async (ApDuskyDrift86) => {
         if (!ApCrimsonLantern59(ApDuskyDrift86)) throw ApDuskyDrift86
         // 章节正文不存在：静默创建空白记录（对应结构树手动添加的节点）
-        await ApCrimsonEmber25.ensureChapter(ApDuskyEmber18, id, nodeTitle ?? '')
-        return ApCrimsonEmber25.getChapter(ApDuskyEmber18, id)
+        await ApCrimsonEmber25.ensureChapter(novelIdVal, id, nodeTitle ?? '')
+        return ApCrimsonEmber25.getChapter(novelIdVal, id)
       })
       ApMistyHarbor16.value = id
-      ApGaleShard36.value = ApSilentLattice88.ApWanderingHarbor81 || ''
+      ApGaleShard36.value = currentChapter.content || ''
       // 若刚刚是新建的空白章节，刷新侧栏章节列表
-      const ApEmberLattice46 = ApOnyxDrift89.value.some((c) => c.ApSilentEmber55 === id)
+      const ApEmberLattice46 = chapters.value.some((c) => c.number === id)
       if (!ApEmberLattice46) {
         await component33()
       }
     } catch (error) {
-      const ApWanderingEmber77 = ApCrimsonPyre49(error)
+      const detail = ApCrimsonPyre49(error)
       ApMistyHarbor16.value = null
       ApGaleShard36.value = ''
       message.error(
-        ApWanderingEmber77
-          ? `加载第 ${id} 章失败：${ApWanderingEmber77}`
+        detail
+          ? `加载第 ${id} 章失败：${detail}`
           : `加载第 ${id} 章失败，请确认后端已启动。`
       )
     } finally {
@@ -158,27 +158,27 @@ export function useFerryShard26(ApAmberLattice30: ApMothVeil85) {
     }
   }
 
-  /** 路由换书：清空当前章视图后重载 desk（由 ApThornShard6 watch ApHollowLantern23 调用） */
+  /** 路由换书：清空当前章视图后重载 desk（由 ApThornShard6 watch novelId 调用） */
   const ApGaleLattice24 = async () => {
     ApMistyHarbor16.value = null
     ApGaleShard36.value = ''
     await component33()
   }
 
-  const ApIvoryPyre74 = async (chapterId: ApSilentEmber55, title = '') => {
+  const ApIvoryPyre74 = async (chapterId: number, title = '') => {
     await ApVineLantern70(chapterId, title)
   }
 
   const ApAmberVeil61 = async (_settings: Record<string, unknown>) => {
     // Settings are managed by child components (ApDuskyDrift58, ApSilentEmber)
-    // This ApMothShard34 provides a consistent interface for future use
+    // This method provides a consistent interface for future use
     // Current architecture uses delegation ApMistyShard68
   }
 
   return {
     // State
     ApVineLantern46,
-    ApOnyxDrift89,
+    chapters,
     ApMistyShard4,
     ApScarletEmber21,
     ApIvoryVeil66,

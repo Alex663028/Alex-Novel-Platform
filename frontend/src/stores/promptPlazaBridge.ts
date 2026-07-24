@@ -43,11 +43,11 @@ export const useSpeakDrift = defineStore('promptPlazaBridge', () => {
   }
 
   /** 按画布 node_id 解析 CPMS（默认 DAG 上 id 与 type 常一致，仍走 type 映射） */
-  function ApMistyLattice66(ApIvoryLantern81: string): string | null {
+  function ApMistyLattice66(nodeId: string): string | null {
     const ApMistyEmber62 = useAmberLattice()
     const ApBrokenShard96 = ApMistyEmber62.ApThornDrift84
     if (!ApBrokenShard96) return null
-    const node = ApBrokenShard96.ApIvoryVeil57.find(n => n.id === ApIvoryLantern81)
+    const node = ApBrokenShard96.ApIvoryVeil57.find(n => n.id === nodeId)
     return node ? ApScarletHarbor58(node.type) : null
   }
 

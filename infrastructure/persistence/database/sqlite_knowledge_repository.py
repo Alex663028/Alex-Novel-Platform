@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import logging
 from collections import defaultdict
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Set, Tuple
 
 from domain.novel.value_objects.novel_id import NovelId
@@ -52,7 +52,7 @@ class SqliteKnowledgeRepository:
                 premise_lock = excluded.premise_lock,
                 updated_at = excluded.updated_at
         """
-        now = datetime.utcnow().isoformat()
+        now = datetime.now(timezone.utc).replace(tzinfo=None).isoformat()
         knowledge_id = f"{novel_id}-knowledge"
         self.db.execute(sql, (knowledge_id, novel_id, 1, premise_lock, now, now))
 
@@ -444,7 +444,7 @@ class SqliteKnowledgeRepository:
         provenance_rows: Optional[List[Dict[str, Any]]] = None,
         provenance_mode: str = "skip",
     ) -> None:
-        now = datetime.utcnow().isoformat()
+        now = datetime.now(timezone.utc).replace(tzinfo=None).isoformat()
         with self.db.transaction() as exe:
             self._insert_triple_row(exe, novel_id, triple, now)
             if provenance_rows and provenance_mode == "replace":
@@ -473,7 +473,7 @@ class SqliteKnowledgeRepository:
         """
         import time
 
-        now = datetime.utcnow().isoformat()
+        now = datetime.now(timezone.utc).replace(tzinfo=None).isoformat()
         total = len(triples)
         if total == 0:
             return
@@ -710,14 +710,14 @@ class SqliteKnowledgeRepository:
                 summary = excluded.summary,
                 updated_at = excluded.updated_at
         """
-        now = datetime.utcnow().isoformat()
+        now = datetime.now(timezone.utc).replace(tzinfo=None).isoformat()
         summary_id = f"{knowledge_id}-ch{chapter_number}"
         self.db.execute(sql, (summary_id, knowledge_id, chapter_number, summary, now, now))
 
     def save(self, knowledge: StoryKnowledge) -> None:
         novel_id = knowledge.novel_id
         knowledge_id = f"{novel_id}-knowledge"
-        now = datetime.utcnow().isoformat()
+        now = datetime.now(timezone.utc).replace(tzinfo=None).isoformat()
 
         with self.db.transaction() as conn:
             conn.execute(
@@ -801,7 +801,7 @@ class SqliteKnowledgeRepository:
     def save_all(self, novel_id: str, data: dict) -> None:
         logger.info("save_all called for %s, facts count: %s", novel_id, len(data.get("facts", [])))
         knowledge_id = f"{novel_id}-knowledge"
-        now = datetime.utcnow().isoformat()
+        now = datetime.now(timezone.utc).replace(tzinfo=None).isoformat()
 
         with self.db.transaction() as conn:
             conn.execute(

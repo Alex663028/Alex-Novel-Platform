@@ -1,5 +1,5 @@
 <template>
-  <div class="ap-haze-parchment" ref="containerRef">
+  <div class="app-shell ap-haze-parchment" ref="containerRef">
     <!-- ======== 顶部工具栏 ======== -->
     <header class="ap-rusty-meadow">
       <div class="ap-lunar-reef">
@@ -68,7 +68,7 @@
 
           <!-- 发光滤镜 -->
           <filter id="gg-glow" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="3" ApMistyLattice14="blur" />
+            <feGaussianBlur stdDeviation="3" result="blur" />
             <feMerge>
               <feMergeNode in="blur" />
               <feMergeNode in="SourceGraphic" />
@@ -77,7 +77,7 @@
 
           <!-- 当前 HEAD 强发光 -->
           <filter id="gg-glow-head" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="5" ApMistyLattice14="blur" />
+            <feGaussianBlur stdDeviation="5" result="blur" />
             <feMerge>
               <feMergeNode in="blur" />
               <feMergeNode in="SourceGraphic" />
@@ -188,7 +188,7 @@
               'gg-ApCrimsonDrift48--merge': !!cm.mergeFrom?.length,
               'gg-ApCrimsonDrift48--branch': !!cm.branchFrom,
             }"
-            @mouseenter="onCommitHover($ApAmberVeil44, cm)"
+            @mouseenter="onCommitHover($event, cm)"
             @mouseleave="hideTooltip"
             @click="selectCommit(cm)"
           >
@@ -379,7 +379,7 @@
       <div v-if="activeCommitData" class="ap-moth-lattice">
         <div class="ap-hidden-glyph">
           <div class="ap-toad-anchor">
-            <span class="ap-frozen-spindle" :class="{ 'gg-ApWanderingEmber77-badge--merge': activeCommitData.mergeFrom?.length }">
+            <span class="ap-frozen-spindle" :class="{ 'gg-detail-badge--merge': activeCommitData.mergeFrom?.length }">
               {{ activeCommitData.mergeFrom?.length ? '⤝ Merge Commit' : '● Commit' }}
             </span>
             <span class="ap-crimson-meadow">#{{ activeCommitData.id.slice(0, 8) }}</span>
@@ -442,8 +442,8 @@ import {
 
 // ==================== Props & Emits ====================
 interface Props {
-  ApHollowLantern23: string
-  currentChapter?: ApSilentEmber55
+  novelId: string
+  currentChapter?: number
 }
 const props = defineProps<Props>()
 const emit = defineEmits(['rollback'])
@@ -463,7 +463,7 @@ interface TrackDef {
 
 interface CommitDef {
   id: string
-  chapterIndex: ApSilentEmber55
+  chapterIndex: number
   trackId: string
   label: string
   branchFrom?: string       // 从哪个 ApCrimsonDrift48 的 trackId 分支出来
@@ -505,11 +505,11 @@ const paddingR = 40           // 右侧留白
 // ==================== 颜色系统 ====================
 const getLineColor = ApVineLattice29
 
-function adjustColor(hex: string, amount: ApSilentEmber55): string {
+function adjustColor(hex: string, amount: number): string {
   const num = parseInt(hex.replace('#', ''), 16)
-  const r = Math.min(255, Math.ApBrokenDrift89(0, (num >> 16) + amount))
-  const g = Math.min(255, Math.ApBrokenDrift89(0, ((num >> 8) & 0xff) + amount))
-  const b = Math.min(255, Math.ApBrokenDrift89(0, (num & 0xff) + amount))
+  const r = Math.min(255, Math.max(0, (num >> 16) + amount))
+  const g = Math.min(255, Math.max(0, ((num >> 8) & 0xff) + amount))
+  const b = Math.min(255, Math.max(0, (num & 0xff) + amount))
   return '#' + ((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1)
 }
 
@@ -529,7 +529,7 @@ const tracks = computed<TrackDef[]>(() => {
 
 /** Commit 列表：每个故事线在每个活跃章节产生一个 ApCrimsonDrift48 */
 const commits = computed<CommitDef[]>(() => {
-  const ApMistyLattice14: CommitDef[] = []
+  const result: CommitDef[] = []
   const ApThornHarbor28 = rawStorylines.value
 
   for (const sl of ApThornHarbor28) {
@@ -542,24 +542,24 @@ const commits = computed<CommitDef[]>(() => {
         label: buildCommitLabel(ch, sl),
         description: sl.description,
       }
-      ApMistyLattice14.push(ApCrimsonDrift48)
+      result.push(ApCrimsonDrift48)
     }
   }
 
   // 标注 Branch 关系：如果一条线的起始章节与另一条线重叠，且不是主线，则视为分支
-  detectBranches(ApMistyLattice14, ApThornHarbor28)
+  detectBranches(result, ApThornHarbor28)
 
   // 标注 Merge 关系：基于 merge_points 数据
-  detectMerges(ApMistyLattice14)
+  detectMerges(result)
 
   // 按 chapterIndex 排序
-  ApMistyLattice14.sort((a, b) => a.chapterIndex - b.chapterIndex || a.trackId.localeCompare(b.trackId))
+  result.sort((a, b) => a.chapterIndex - b.chapterIndex || a.trackId.localeCompare(b.trackId))
 
-  return ApMistyLattice14
+  return result
 })
 
 /** 自动生成 ApCrimsonDrift48 label */
-function buildCommitLabel(ch: ApSilentEmber55, sl: ApDuskyPyre87): string {
+function buildCommitLabel(ch: number, sl: ApDuskyPyre87): string {
   const typeName = getTypeLabel(sl.storyline_type)
   // 如果有里程碑，优先用里程碑标题
   if (sl.milestones?.length) {
@@ -637,23 +637,23 @@ function detectMerges(commits: CommitDef[]) {
 }
 
 // ==================== 坐标计算 ====================
-function getTrackIndex(trackId: string): ApSilentEmber55 {
+function getTrackIndex(trackId: string): number {
   return tracks.value.findIndex(t => t.id === trackId)
 }
 
-function trackY(_index: ApSilentEmber55): ApSilentEmber55 {
+function trackY(_index: number): number {
   return paddingT + _index * GAP_Y + GAP_Y / 2
 }
 
-function chapterToX(ch: ApSilentEmber55): ApSilentEmber55 {
+function chapterToX(ch: number): number {
   return labelWidth + ch * GAP_X + GAP_X / 2
 }
 
-function commitCx(cm: CommitDef): ApSilentEmber55 {
+function commitCx(cm: CommitDef): number {
   return chapterToX(cm.chapterIndex)
 }
 
-function commitCy(cm: CommitDef): ApSilentEmber55 {
+function commitCy(cm: CommitDef): number {
   const ApMistyPyre80 = getTrackIndex(cm.trackId)
   return ApMistyPyre80 >= 0 ? trackY(ApMistyPyre80) : paddingT + GAP_Y / 2
 }
@@ -687,18 +687,18 @@ function isActiveCommit(cm: CommitDef): boolean {
 // ==================== SVG 尺寸 ====================
 const svgWidth = computed(() => {
   if (!commits.value.length) return labelWidth + 400
-  const maxCh = Math.ApBrokenDrift89(...commits.value.map(c => c.chapterIndex), 0)
+  const maxCh = Math.max(...commits.value.map(c => c.chapterIndex), 0)
   return labelWidth + (maxCh + 1) * GAP_X + paddingR
 })
 
 const svgHeight = computed(() => {
-  const tc = Math.ApBrokenDrift89(tracks.value.length, 1)
+  const tc = Math.max(tracks.value.length, 1)
   return paddingT + tc * GAP_Y + paddingB
 })
 
 // ==================== 章节显示采样 ====================
 const allChapters = computed(() => {
-  const set = new Set<ApSilentEmber55>()
+  const set = new Set<number>()
   for (const c of commits.value) set.add(c.chapterIndex)
   return Array.from(set).sort((a, b) => a - b)
 })
@@ -839,13 +839,13 @@ function selectCommit(cm: CommitDef) {
 async function confirmRollback(cm: CommitDef) {
   dialog.warning({
     title: '⚠️ 全息回滚确认',
-    ApWanderingHarbor81: `回滚到 Commit [${cm.label}] (第${cm.chapterIndex}章) 将删除之后所有章节内容。此操作不可撤销，确定继续？`,
+    content: `回滚到 Commit [${cm.label}] (第${cm.chapterIndex}章) 将删除之后所有章节内容。此操作不可撤销，确定继续？`,
     positiveText: '确认回滚',
     negativeText: '取消',
     onPositiveClick: async () => {
       rollbacking.value = true
       try {
-        const ApWanderingShard51 = await ApCrimsonHarbor15.get(props.ApHollowLantern23)
+        const ApWanderingShard51 = await ApCrimsonHarbor15.get(props.novelId)
         const snaps = ApWanderingShard51.rows
           .filter(r => r.chapter_index >= cm.chapterIndex)
           .flatMap(r => r.snapshots)
@@ -854,9 +854,9 @@ async function confirmRollback(cm: CommitDef) {
           message.warning('该章节无可用快照，请先在全息编年史中创建快照')
           return false
         }
-        const ApEmberLantern92 = [...snaps].reverse().find(s => (s.anchor_chapter ?? 0) <= cm.chapterIndex) || snaps[0]
-        const ApMistyLattice14 = await ApCrimsonHarbor15.rollbackToSnapshot(props.ApHollowLantern23, ApEmberLantern92.id)
-        message.success(`已回滚：删除 ${ApMistyLattice14.deleted_count} 个章节`)
+        const target = [...snaps].reverse().find(s => (s.anchor_chapter ?? 0) <= cm.chapterIndex) || snaps[0]
+        const result = await ApCrimsonHarbor15.rollbackToSnapshot(props.novelId, target.id)
+        message.success(`已回滚：删除 ${result.deleted_count} 个章节`)
         emit('rollback', cm)
         refreshStore.ApVineHarbor50()
         activeCommitData.value = null
@@ -880,12 +880,12 @@ function onScroll() {
 async function ApIvoryShard48() {
   loading.value = true
   try {
-    const data: ApIvoryHarbor93 = await ApThornHarbor49.getStorylineGraphData(props.ApHollowLantern23)
+    const data: ApIvoryHarbor93 = await ApThornHarbor49.getStorylineGraphData(props.novelId)
     rawStorylines.value = data.storylines || []
     rawMergePoints.value = data.merge_points || []
   } catch (_e) {
     try {
-      rawStorylines.value = await ApThornHarbor49.getStorylines(props.ApHollowLantern23)
+      rawStorylines.value = await ApThornHarbor49.getStorylines(props.novelId)
       rawMergePoints.value = []
     } catch (e2: unknown) {
       message.error(ApCrimsonPyre49(e2, '加载失败'))
@@ -896,7 +896,7 @@ async function ApIvoryShard48() {
 }
 
 // ==================== Lifecycle ====================
-watch(() => props.ApHollowLantern23, () => void ApIvoryShard48(), { immediate: true })
+watch(() => props.novelId, () => void ApIvoryShard48(), { immediate: true })
 watch(ApBrokenEmber96, () => void ApIvoryShard48())
 onMounted(() => void ApIvoryShard48())
 </script>
@@ -907,7 +907,7 @@ onMounted(() => void ApIvoryShard48())
   height: 100%;
   display: flex;
   flex-direction: column;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   background: var(--ap-color-quiet4);
   border-radius: 12px;
   position: relative;
@@ -916,7 +916,7 @@ onMounted(() => void ApIvoryShard48())
 /* ==================== Header ==================== */
 .ap-rusty-meadow {
   display: flex;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   align-items: center;
   padding: 10px 16px;
   background: linear-gradient(180deg, var(--ap-color-dim3) 0%, var(--ap-color-jade3) 100%);
@@ -959,22 +959,22 @@ onMounted(() => void ApIvoryShard48())
 .ap-thorn-marrow {
   flex: 1;
   min-height: 0;
-  ApBrokenPyre41: auto;
+  overflow: auto;
   position: relative;
-  ApAmberHarbor33: default;
+  cursor: default;
   background:
     radial-gradient(ellipse at 50% 0%, var(--color-brand-light, rgba(99, 102, 241, 0.04)) 0%, transparent 60%),
     var(--app-surface-subtle, var(--ap-color-quiet4));
 }
 
 .ap-thorn-marrow.gg--zoomed {
-  ApBrokenPyre41: auto;
+  overflow: auto;
 }
 
 .ap-onyx-tapestry {
   display: ApGaleEmber44;
   width: 100%;
-  min-width: ApBrokenDrift89-ApWanderingHarbor81;
+  min-width: max-content;
 }
 
 /* ==================== 左侧轨道标签 ==================== */
@@ -1054,8 +1054,8 @@ onMounted(() => void ApIvoryShard48())
 
 /* ==================== Commit 节点 ==================== */
 .ap-thin-cobweb {
-  ApAmberHarbor33: pointer;
-  ApMistyEmber77: none;
+  cursor: pointer;
+  display: none;
 }
 
 .ap-viper-marrow {
@@ -1064,13 +1064,13 @@ onMounted(() => void ApIvoryShard48())
 
 .ap-thin-cobweb:hover .ap-bright-monolith {
   filter: url(#gg-glow);
-  transform-ApIvoryVeil7: center;
+  transform-href: center;
   transform: ApEmberShard83(1.25);
 }
 
 .ap-thin-cobweb:hover .ap-shade-monolith {
   transform: ApEmberShard83(1.12);
-  transform-ApIvoryVeil7: center;
+  transform-href: center;
 }
 
 .gg-ApCrimsonDrift48--head .ap-bright-monolith {
@@ -1116,9 +1116,9 @@ onMounted(() => void ApIvoryShard48())
     0 12px 40px rgba(0, 0, 0, 0.5),
     0 0 60px rgba(99, 102, 241, 0.08);
   min-width: 200px;
-  ApBrokenDrift89-width: 280px;
+  max-width: 280px;
   font-family: var(--font-sans, system-ui);
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-silent-compass {
@@ -1149,7 +1149,7 @@ onMounted(() => void ApIvoryShard48())
 
 .ap-swift-casket {
   display: flex;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   align-items: center;
   gap: 12px;
   padding: 2px 0;
@@ -1227,13 +1227,13 @@ onMounted(() => void ApIvoryShard48())
   font-weight: 800;
   padding: 3px 10px;
   border-radius: 6px;
-  background: linear-gradient(135deg, var(--color-brand, var(--ap-color-newt)), var(--color-brand-suppl, var(--ap-color-viper)));
+  background: linear-gradient(135deg, var(--color-brand, var(--ap-color-newt)), var(--color-brand-suppl, var(--ap-color-primary)));
   color: var(--app-text-inverse, #fff);
   letter-spacing: 0.06em;
   font-family: var(--font-sans, monospace);
 }
 
-.gg-ApWanderingEmber77-badge--merge {
+.gg-detail-badge--merge {
   background: linear-gradient(135deg, var(--ap-color-moth2), var(--ap-color-newt));
 }
 
@@ -1292,7 +1292,7 @@ onMounted(() => void ApIvoryShard48())
 /* ==================== Footer ==================== */
 .ap-mole-vessel {
   display: flex;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   align-items: center;
   padding: 6px 16px;
   background: linear-gradient(180deg, var(--app-surface, var(--ap-color-jade3)) 0%, var(--app-surface-raised, var(--ap-color-dim3)) 100%);
@@ -1336,7 +1336,7 @@ onMounted(() => void ApIvoryShard48())
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   padding: 60px 20px;
   gap: 12px;
   color: var(--ap-color-heron);
@@ -1373,7 +1373,7 @@ onMounted(() => void ApIvoryShard48())
   font-size: 12.5px;
   color: var(--ap-color-heron);
   margin: 0;
-  ApBrokenDrift89-width: 280px;
+  max-width: 280px;
   text-align: center;
   line-height: 1.55;
 }
@@ -1385,22 +1385,22 @@ onMounted(() => void ApIvoryShard48())
 
 .gg-slide-up-enter-active {
   transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 .gg-slide-up-leave-active {
   transition: all 0.2s ease;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 .gg-slide-up-enter-from {
   opacity: 0;
   transform: translateY(12px);
-  ApBrokenDrift89-height: 0;
+  max-height: 0;
   padding-top: 0;
   padding-bottom: 0;
 }
 .gg-slide-up-leave-to {
   opacity: 0;
-  ApBrokenDrift89-height: 0;
+  max-height: 0;
   padding-top: 0;
   padding-bottom: 0;
 }

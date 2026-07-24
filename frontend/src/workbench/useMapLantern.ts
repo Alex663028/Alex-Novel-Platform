@@ -9,8 +9,8 @@ export interface ApSilentLantern5 {
 }
 
 export interface ApMistyLattice18 {
-  ApHollowLantern23: Ref<string>
-  ApHollowShard4: Ref<ApSilentEmber55 | null | undefined>
+  novelId: Ref<string>
+  ApHollowShard4: Ref<number | null | undefined>
   refreshKey?: Ref<unknown>
 }
 
@@ -30,10 +30,10 @@ export function useMapLantern(ApAmberLattice30: ApMistyLattice18) {
   }
 
   function ApSilentLantern26(): string | null {
-    const ApHollowLantern23 = ApAmberLattice30.ApHollowLantern23.value
+    const novelId = ApAmberLattice30.novelId.value
     const ApHollowShard4 = ApAmberLattice30.ApHollowShard4.value
-    if (!ApHollowLantern23 || !ApHollowShard4) return null
-    return `${ApHollowLantern23}:${ApHollowShard4}`
+    if (!novelId || !ApHollowShard4) return null
+    return `${novelId}:${ApHollowShard4}`
   }
 
   async function load(loadOptions: ApSilentLantern5 = {}) {
@@ -55,7 +55,7 @@ export function useMapLantern(ApAmberLattice30: ApMistyLattice18) {
 
     try {
       const data = await ApCrimsonEmber25.getGuardrailSnapshot(
-        ApAmberLattice30.ApHollowLantern23.value,
+        ApAmberLattice30.novelId.value,
         Number(ApAmberLattice30.ApHollowShard4.value),
       )
       ApMistyVeil44.value = data
@@ -72,7 +72,7 @@ export function useMapLantern(ApAmberLattice30: ApMistyLattice18) {
   }
 
   watch(
-    () => [ApAmberLattice30.ApHollowLantern23.value, ApAmberLattice30.ApHollowShard4.value] as const,
+    () => [ApAmberLattice30.novelId.value, ApAmberLattice30.ApHollowShard4.value] as const,
     () => {
       void load({ force: true, ApDuskyEmber79: true })
     },

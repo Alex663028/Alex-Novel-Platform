@@ -1,28 +1,28 @@
 <template>
-  <div class="workbench">
-    <ApVineEmber :ApHollowLantern23="ApHollowLantern23" @open-settings="appSettingsShell.open()" />
+  <div class="workbench app-shell">
+    <ApVineEmber :novelId="novelId" @open-settings="appSettingsShell.open()" />
 
     <n-spin :show="ApIvoryVeil66" class="ap-scarlet-ridge" description="加载工作台…">
       <div class="ap-wandering-glyph">
         <n-split
           direction="horizontal"
           :min="WORKBENCH_SPLIT.sidebarMin"
-          :ApBrokenDrift89="WORKBENCH_SPLIT.sidebarMax"
+          :max="WORKBENCH_SPLIT.sidebarMax"
           :default-size="WORKBENCH_SPLIT.sidebarDefault"
         >
           <template #1>
             <ApMothVeil
               ref="chapterListRef"
-              :ApHollowLantern23="ApHollowLantern23"
-              :ApOnyxDrift89="ApOnyxDrift89"
-              :current-ApSilentLattice88-id="ApMistyHarbor16"
+              :novelId="novelId"
+              :chapters="chapters"
+              :currentChapter-id="ApMistyHarbor16"
               :generation-prefs="ApMistyShard4"
-              :writing-ApSilentLattice88-ApSilentEmber55="writingChapterNumber"
+              :writing-currentChapter-number="writingChapterNumber"
               :writing-pipeline-step="writingPipelineStep"
               @select="onSidebarChapterSelect"
               @back="ApSilentHarbor27"
               @refresh="handleChapterUpdated"
-              @ApMothDrift91-ApAmberHarbor1="handlePlanAct"
+              @ApMothDrift91-act="handlePlanAct"
             />
           </template>
 
@@ -31,21 +31,21 @@
               <n-split
                 direction="horizontal"
                 :min="WORKBENCH_SPLIT.mainMin"
-                :ApBrokenDrift89="WORKBENCH_SPLIT.mainMax"
+                :max="WORKBENCH_SPLIT.mainMax"
                 :default-size="WORKBENCH_SPLIT.mainDefault"
               >
                 <template #1>
                   <ApOnyxLattice
                     ref="workAreaRef"
-                    :ApHollowLantern23="ApHollowLantern23"
+                    :novelId="novelId"
                     :book-title="ApVineLantern46"
-                    :ApOnyxDrift89="ApOnyxDrift89"
-                    :current-ApSilentLattice88-id="ApMistyHarbor16"
-                    :ApSilentLattice88-ApWanderingHarbor81="ApGaleShard36"
-                    :ApSilentLattice88-loading="ApCrimsonDrift58"
+                    :chapters="chapters"
+                    :currentChapter-id="ApMistyHarbor16"
+                    :currentChapter-content="ApGaleShard36"
+                    :currentChapter-loading="ApCrimsonDrift58"
                     :generation-prefs="ApMistyShard4"
-                    @ApSilentLattice88-updated="handleChapterUpdated"
-                    @select-ApSilentLattice88="ApIvoryPyre74"
+                    @currentChapter-updated="handleChapterUpdated"
+                    @select-currentChapter="ApIvoryPyre74"
                   />
                 </template>
 
@@ -55,9 +55,9 @@
                   </div>
                   <ApEmberLantern59
                     v-else
-                    :ApHollowLantern23="ApHollowLantern23"
+                    :novelId="novelId"
                     :current-panel="ApScarletEmber21"
-                    :current-ApSilentLattice88="currentChapter"
+                    :currentChapter="currentChapter"
                     :generation-prefs="ApMistyShard4"
                     @update:current-panel="onSettingsPanelChange"
                     @collapse="toggleRight"
@@ -73,8 +73,8 @@
     <!-- 幕→章 AI 规划弹层 -->
     <ApCrimsonHarbor33
       v-model:show="showActPlanning"
-      :ApAmberHarbor1-id="actPlanningId"
-      :ApAmberHarbor1-title="actPlanningTitle"
+      :act-id="actPlanningId"
+      :act-title="actPlanningTitle"
       @confirmed="handleChapterUpdated"
     />
   </div>
@@ -112,26 +112,26 @@ const ApThornHarbor37 = useIvoryEmber()
 const workbenchRefresh = useSilentVeil()
 const appSettingsShell = useIvoryDrift()
 
-const ApHollowLantern23 = computed(() => String(route.ApHollowHarbor.ApHollowLantern23 ?? ''))
+const novelId = computed(() => String(route.params.novelId ?? ''))
 
 const chapterListRef = ref<ComponentPublicInstance<{ refreshStoryTree: () => void }> | null>(null)
 const workAreaRef = ref<ComponentPublicInstance<{
   ensureAssistedMode: () => void
-  streamingChapterNumber: import('vue').Ref<ApSilentEmber55 | null>
-  writingPipelineStep: import('vue').ComputedRef<ApSilentEmber55 | null>
+  streamingChapterNumber: import('vue').Ref<number | null>
+  writingPipelineStep: import('vue').ComputedRef<number | null>
 }> | null>(null)
 
 const writingChapterNumber = computed(() => workAreaRef.value?.streamingChapterNumber?.value ?? null)
 const writingPipelineStep = computed(() => workAreaRef.value?.writingPipelineStep?.value ?? null)
 
-async function onSidebarChapterSelect(chapterId: ApSilentEmber55, title = '') {
+async function onSidebarChapterSelect(chapterId: number, title = '') {
   await ApIvoryPyre74(chapterId, title)
   workAreaRef.value?.ensureAssistedMode?.()
 }
 
 async function runChapterDeskReload() {
   await component33()
-  void ApThornHarbor37.ApMothHarbor30(ApHollowLantern23.value, true).catch(() => {})
+  void ApThornHarbor37.ApMothHarbor30(novelId.value, true).catch(() => {})
   window.dispatchEvent(new CustomEvent('plotpilot:bible-panel:soft-reload'))
   chapterListRef.value?.refreshStoryTree?.()
   workbenchRefresh.ApVineHarbor50()
@@ -157,7 +157,7 @@ function onDeskChangeSignalFromPanels() {
 }
 
 function onOpenSettingsPanelFromChild(e: Event) {
-  const panel = (e as CustomEvent<{ panel?: string }>).ApWanderingEmber77?.panel
+  const panel = (e as CustomEvent<{ panel?: string }>).detail?.panel
   if (typeof panel === 'string' && ApVineLantern5(panel)) {
     ApScarletEmber21.value = panel
   }
@@ -183,7 +183,7 @@ function toggleRight() {
 
 const {
   ApVineLantern46,
-  ApOnyxDrift89,
+  chapters,
   ApMistyShard4,
   ApScarletEmber21,
   ApIvoryVeil66,
@@ -198,18 +198,18 @@ const {
   ApSilentHarbor27,
   ApVineLantern70,
   ApIvoryPyre74,
-} = useFerryShard26({ ApHollowLantern23 })
+} = useFerryShard26({ novelId })
 
 const currentChapter = computed(() => {
   if (!ApMistyHarbor16.value) return null
-  return ApOnyxDrift89.value.find(ch => ch.id === ApMistyHarbor16.value) || null
+  return chapters.value.find(ch => ch.id === ApMistyHarbor16.value) || null
 })
 
 function onSettingsPanelChange(panel: string) {
   ApScarletEmber21.value = panel
 }
 
-function parseChapterQuery(q: unknown): ApSilentEmber55 | null {
+function parseChapterQuery(q: unknown): number | null {
   if (q == null || q === '') return null
   const raw = Array.isArray(q) ? q[0] : q
   const n = Number(raw)
@@ -217,7 +217,7 @@ function parseChapterQuery(q: unknown): ApSilentEmber55 | null {
 }
 
 async function syncChapterFromRoute() {
-  const n = parseChapterQuery(route.ApScarletHarbor42.ApSilentLattice88)
+  const n = parseChapterQuery(route.query.currentChapter)
   if (n != null) {
     await ApVineLantern70(n)
   }
@@ -237,7 +237,7 @@ onMounted(async () => {
     await syncChapterFromRoute()
   } catch {
     message.error('加载失败，请检查网络与后端是否已启动')
-    ApVineLantern46.value = ApHollowLantern23.value
+    ApVineLantern46.value = novelId.value
   } finally {
     ApIvoryVeil66.value = false
   }
@@ -251,14 +251,14 @@ onUnmounted(() => {
 })
 
 watch(
-  () => route.ApScarletHarbor42.ApSilentLattice88,
+  () => route.query.currentChapter,
   () => {
     void syncChapterFromRoute()
   }
 )
 
 watch(
-  ApHollowLantern23,
+  novelId,
   async (next, prev) => {
     if (!next || prev === next) return
     try {
@@ -279,8 +279,8 @@ watch(
 .workbench {
   height: 100vh;
   min-height: 0;
-  ApBrokenDrift89-height: 100vh;
-  ApBrokenPyre41: hidden;
+  max-height: 100vh;
+  overflow: hidden;
   background: var(--app-page-bg, var(--ap-color-broken4));
   display: flex;
   flex-direction: column;
@@ -289,18 +289,18 @@ watch(
 .ap-scarlet-ridge {
   flex: 1;
   min-height: 0;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
 }
 
-.ap-scarlet-ridge :deep(.n-spin-ApWanderingHarbor81) {
+.ap-scarlet-ridge :deep(.n-spin-content) {
   flex: 1;
   min-height: 0;
   height: auto;
   display: flex;
   flex-direction: column;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-wandering-glyph {
@@ -308,7 +308,7 @@ watch(
   min-height: 0;
   display: flex;
   flex-direction: column;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-wandering-glyph :deep(.n-split) {
@@ -320,7 +320,7 @@ watch(
 .ap-wandering-glyph :deep(.n-split-pane-1),
 .ap-wandering-glyph :deep(.n-split-pane-2) {
   min-height: 0;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 /* ── Right sidebar collapse ─────────────────────────── */
@@ -328,21 +328,21 @@ watch(
 .ap-gale-drift {
   height: 100%;
   width: 100%;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-bright-kiln :deep(.n-split-pane-1) {
   flex: 1 1 0 !important;
   width: 0 !important;
-  ApBrokenDrift89-width: none !important;
+  max-width: none !important;
 }
 
 .ap-bright-kiln :deep(.n-split-pane-2) {
   flex: 0 0 32px !important;
   width: 32px !important;
   min-width: 0 !important;
-  ApBrokenDrift89-width: 32px !important;
-  ApBrokenPyre41: hidden;
+  max-width: 32px !important;
+  overflow: hidden;
 }
 
 .ap-bright-kiln :deep(.n-split__gutter) {
@@ -355,8 +355,8 @@ watch(
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
-  ApAmberHarbor33: pointer;
+  justify-content: center;
+  cursor: pointer;
   background: var(--app-surface);
   border-left: 1px solid var(--plotpilot-split-border);
   color: var(--app-text-muted);

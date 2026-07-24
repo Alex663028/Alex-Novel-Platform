@@ -8,6 +8,7 @@ import type { GlobalThemeOverrides } from 'naive-ui'
 import { useEmberLattice } from './stores/themeStore'
 import { useOnyxVeil, ApAmberVeil84, type ApDuskyVeil62 } from './stores/fontSizeStore'
 import { NAIVE_DENSITY_BASE } from './design/layoutDensity'
+import './design/layoutTokens.css'
 
 const themeStore = useEmberLattice()
 const fontSizeStore = useOnyxVeil()
@@ -17,58 +18,61 @@ const naiveTheme = computed(() =>
 )
 
 // ─── 静态调色板（不随主题变化，提升出来避免 computed 重建字符串）─────────────
+// 注意：Naive themeOverrides 的颜色值必须由 seemly 直接解析（hex/rgb），
+// 不能写 var(--ap-color-*) —— seemly 的 rgba() 派生色无法解析 var() 语法会报错。
+// 这里直接用注入表(cyberpunkInject.ts)对应的具体色值，保证三主题切换正常。
 const LIGHT_PALETTE = {
-  primary:        'var(--ap-color-glade)',
-  primaryHover:   'var(--ap-color-newt)',
-  primaryPressed: 'var(--ap-color-azure)',
-  primarySuppl:   'var(--ap-color-viper)',
-  text1:          'var(--ap-color-cold)',
-  text2:          'var(--ap-color-heron)',
-  text3:          'var(--ap-color-hollow)',
+  primary:        '#00f0ff', // glade
+  primaryHover:   '#00b4d8', // newt
+  primaryPressed: '#00f0ff', // azure
+  primarySuppl:   '#00f0ff', // viper
+  text1:          '#b0c4de', // cold
+  text2:          '#9fb3c8', // heron
+  text3:          '#8a9bb5', // frost3
   border:         'rgba(15, 23, 42, 0.09)',
   divider:        'rgba(15, 23, 42, 0.06)',
-  surface:        'var(--ap-color-haze)',
-  tableStriped:   'var(--ap-color-frost)',
-  tableHover:     'var(--ap-color-frost)',
-  inputBg:        'var(--ap-color-haze)',
-  drawerBg:       'var(--ap-color-mole)',
-  selectBorder:   'var(--ap-color-glade)',
+  surface:        '#0a0e17', // haze
+  tableStriped:   '#6b7c96', // frost
+  tableHover:     '#6b7c96', // frost
+  inputBg:        '#0a0e17', // haze
+  drawerBg:       '#05070a', // mole
+  selectBorder:   '#00f0ff', // glade
 } as const
 
 const DARK_PALETTE = {
-  primary:        'var(--ap-color-viper)',
-  primaryHover:   'var(--ap-color-bright)',
-  primaryPressed: 'var(--ap-color-newt)',
-  primarySuppl:   'var(--ap-color-broken)',
-  text1:          'var(--ap-color-tide)',
-  text2:          'var(--ap-color-tide2)',
-  text3:          'var(--ap-color-hollow)',
+  primary:        '#00f0ff', // viper
+  primaryHover:   '#33f5ff', // bright
+  primaryPressed: '#00b4d8', // newt
+  primarySuppl:   '#ff2a6d', // broken
+  text1:          '#e6f1ff', // tide
+  text2:          '#b0c4de', // tide2
+  text3:          '#8a9bb5', // frost3
   border:         'rgba(148, 163, 184, 0.12)',
   divider:        'rgba(148, 163, 184, 0.08)',
-  surface:        'var(--ap-color-wild)',
-  tableStriped:   'var(--ap-color-pale)',
-  tableHover:     'var(--ap-color-brine)',
-  inputBg:        'var(--ap-color-pale)',
-  drawerBg:       'var(--ap-color-glade2)',
-  selectBorder:   'var(--ap-color-viper)',
+  surface:        '#0a0e17', // wild
+  tableStriped:   '#0f1525', // pale
+  tableHover:     '#121a2e', // brine
+  inputBg:        '#0f1525', // pale
+  drawerBg:       '#05070a', // glade2
+  selectBorder:   '#00f0ff', // viper
 } as const
 
 const ANCHOR_PALETTE = {
-  primary:        'var(--ap-color-wild2)',
-  primaryHover:   'var(--ap-color-glade3)',
-  primaryPressed: 'var(--ap-color-wolf)',
-  primarySuppl:   'var(--ap-color-finch)',
-  text1:          'var(--ap-color-reef)',
-  text2:          'var(--ap-color-soft)',
-  text3:          'var(--ap-color-dusk)',
+  primary:        '#ff2a6d', // wild2
+  primaryHover:   '#ff2a6d', // glade3
+  primaryPressed: '#161f33', // wolf
+  primarySuppl:   '#161f33', // finch
+  text1:          '#e6f1ff', // reef
+  text2:          '#b0c4de', // soft
+  text3:          '#8a9bb5', // frost3
   border:         'rgba(201, 162, 39, 0.14)',
   divider:        'rgba(201, 162, 39, 0.06)',
-  surface:        'var(--ap-color-vale)',
-  tableStriped:   'var(--ap-color-glade4)',
-  tableHover:     'var(--ap-color-swift)',
-  inputBg:        'var(--ap-color-glade4)',
-  drawerBg:       'var(--ap-color-ember)',
-  selectBorder:   'var(--ap-color-wild2)',
+  surface:        '#0a0e17', // vale
+  tableStriped:   '#0f1525', // glade4
+  tableHover:     '#161f33', // swift
+  inputBg:        '#0f1525', // glade4
+  drawerBg:       '#05070a', // ember
+  selectBorder:   '#ff2a6d', // wild2
 } as const
 
 /** Naive UI 形体：随字体档位缩放，基准见 design/layoutDensity */
@@ -120,15 +124,15 @@ const themeOverrides = computed<GlobalThemeOverrides>(() => {
       primaryColorHover:   p.primaryHover,
       primaryColorPressed: p.primaryPressed,
       primaryColorSuppl:   p.primarySuppl,
-      bodyColor:           p.text1,
+      bodyColor:           p.surface,
       textColor1:          p.text1,
       textColor2:          p.text2,
       textColor3:          p.text3,
       borderColor:         p.border,
       dividerColor:        p.divider,
       cardColor:           p.surface,
-      modalColor:          p.surface,
-      popoverColor:        p.surface,
+      modalColor:          '#161f33',
+      popoverColor:        '#161f33',
       tableColor:          p.surface,
       tableColorStriped:   p.tableStriped,
       tableColorHover:     p.tableHover,
@@ -162,6 +166,7 @@ const themeOverrides = computed<GlobalThemeOverrides>(() => {
     :date-locale="dateZhCN"
     :theme="naiveTheme"
     :theme-overrides="themeOverrides"
+    class="app-shell app-root"
   >
     <n-message-provider>
       <n-dialog-provider>

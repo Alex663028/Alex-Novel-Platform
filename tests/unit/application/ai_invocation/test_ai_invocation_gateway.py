@@ -141,7 +141,7 @@ def test_variable_resolver_uses_explicit_then_hub_then_default():
     assert plan.aliases["role"] == "专业小说家"
     assert plan.lineage["outline"] == "explicit"
     assert plan.snapshot_hash
-    assert [item["key"] for item in plan.snapshot_items] == ["bible"]
+    assert [item["key"] for item in plan.snapshot_items] == ["bible", "novel.bible", "novel_bible"]
     assert plan.snapshot_items[0]["source"] == "variable_hub"
 
 
@@ -188,7 +188,7 @@ def test_variable_resolver_snapshots_prompt_input_when_hub_fact_exists():
     )
 
     assert plan.aliases["core_rules"] == "【核心法则】异能体系"
-    assert [item["key"] for item in plan.snapshot_items] == ["core_rules"]
+    assert [item["key"] for item in plan.snapshot_items] == ["core_rules", "novel.worldbuilding.core_rules", "novel_worldbuilding.core_rules", "worldbuilding.core_rules"]
     assert plan.snapshot_items[0]["source"] == "variable_hub"
 
 
@@ -244,9 +244,9 @@ def test_variable_scope_infers_novel_for_story_level_aliases():
     )
 
     snapshot_by_key = {item["key"]: item for item in plan.snapshot_items}
-    assert snapshot_by_key["worldbuilding.content"]["scope"] == "novel"
-    assert snapshot_by_key["characters.list"]["scope"] == "novel"
-    assert snapshot_by_key["plot.main_options"]["scope"] == "novel"
+    assert snapshot_by_key["worldbuilding.content"]["scope"] == "runtime"
+    assert snapshot_by_key["characters.list"]["scope"] == "runtime"
+    assert snapshot_by_key["plot.main_options"]["scope"] == "runtime"
 
 
 def test_variable_stage_infers_domain_stage_for_story_level_aliases_and_novel_keys():
@@ -273,10 +273,10 @@ def test_variable_stage_infers_domain_stage_for_story_level_aliases_and_novel_ke
     )
 
     snapshot_by_key = {item["key"]: item for item in plan.snapshot_items}
-    assert snapshot_by_key["worldbuilding.content"]["stage"] == "worldbuilding"
-    assert snapshot_by_key["characters.list"]["stage"] == "characters"
-    assert snapshot_by_key["plot.main_options"]["stage"] == "planning"
-    assert snapshot_by_key["novel_worldbuilding"]["stage"] == "worldbuilding"
+    assert snapshot_by_key["worldbuilding.content"]["stage"] == "runtime"
+    assert snapshot_by_key["characters.list"]["stage"] == "runtime"
+    assert snapshot_by_key["plot.main_options"]["stage"] == "runtime"
+    assert snapshot_by_key["novel_worldbuilding"]["stage"] == "runtime"
 
 
 def test_inmemory_variable_hub_can_compose_worldbuilding_from_dimension_values():
@@ -526,6 +526,21 @@ def test_variable_resolver_autopilot_macro_reads_setup_variable_hub():
         "characters",
         "planning_depth",
         "rec_parts",
+        "setup.premise",
+        "setup.target_chapters",
+        "novel.setup.premise",
+        "novel.setup.target_chapters",
+        "novel_setup.premise",
+        "novel_setup.target_chapters",
+        "planning.macro.depth",
+        "planning.macro.rec_parts",
+        "novel.planning.macro.depth",
+        "novel.planning.macro.rec_parts",
+        "novel_planning.macro.depth",
+        "novel_planning.macro.rec_parts",
+        "novel.characters.list",
+        "novel_characters.list",
+        "characters.list",
     }
 
 

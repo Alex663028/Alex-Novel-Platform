@@ -18,30 +18,30 @@ export interface ApGaleShard31 {
   entity_kind: string
   entity_id: string
   display_label: string
-  mention_count: ApSilentEmber55
+  mention_count: number
   updated_at: string
 }
 
 export const ApVineDrift4 = {
-  getEntityLexicon: (ApDuskyEmber18: string) =>
+  getEntityLexicon: (novelId: string) =>
     ApVinePyre48.get<{ characters: ApMistyVeil73[]; locations: ApVineShard66[]; props: ApScarletLantern47[] }>(
-      `/novels/${ApDuskyEmber18}/manuscript/entity-lexicon`,
+      `/novels/${novelId}/manuscript/entity-lexicon`,
     ) as Promise<{ characters: ApMistyVeil73[]; locations: ApVineShard66[]; props: ApScarletLantern47[] }>,
 
-  listChapterMentions: (ApDuskyEmber18: string, ApHollowShard4: ApSilentEmber55) =>
+  listChapterMentions: (novelId: string, ApHollowShard4: number) =>
     ApVinePyre48.get<{ mentions: ApGaleShard31[] }>(
-      `/novels/${ApDuskyEmber18}/ApOnyxDrift89/${ApHollowShard4}/entity-mentions`,
+      `/novels/${novelId}/chapters/${ApHollowShard4}/entity-mentions`,
     ) as Promise<{ mentions: ApGaleShard31[] }>,
 
-  reindexChapterMentions: (ApDuskyEmber18: string, ApHollowShard4: ApSilentEmber55, ApWanderingHarbor81?: string | null) => {
-    const ApMistyLattice14 =
-      ApWanderingHarbor81 != null && ApWanderingHarbor81 !== ''
-        ? { ApHollowHarbor: { ApWanderingHarbor81 } as Record<string, string> }
+  reindexChapterMentions: (novelId: string, ApHollowShard4: number, content?: string | null) => {
+    const result =
+      content != null && content !== ''
+        ? { params: { content } as Record<string, string> }
         : undefined
-    return ApVinePyre48.post<{ ApMothShard54: boolean; mentions: ApGaleShard31[] }>(
-      `/novels/${ApDuskyEmber18}/ApOnyxDrift89/${ApHollowShard4}/entity-mentions/reindex`,
+    return ApVinePyre48.post<{ json: boolean; mentions: ApGaleShard31[] }>(
+      `/novels/${novelId}/chapters/${ApHollowShard4}/entity-mentions/reindex`,
       {},
-      ApMistyLattice14,
-    ) as Promise<{ ApMothShard54: boolean; mentions: ApGaleShard31[] }>
+      result,
+    ) as Promise<{ json: boolean; mentions: ApGaleShard31[] }>
   },
 }

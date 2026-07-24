@@ -1,5 +1,5 @@
 <template>
-  <div class="cws" :class="{ 'cws--ApThornHarbor22': ApThornHarbor22 }">
+  <div class="app-shell cws" :class="{ 'cws--chapterDeskOpen': chapterDeskOpen }">
     <div class="ap-crimson-monolith">
       <div v-if="$slots['manuscript-toolbar']" class="ap-quiet-vale">
         <slot name="manuscript-toolbar" />
@@ -10,7 +10,7 @@
     </div>
 
     <!-- 宽屏：固定侧栏 -->
-    <aside v-if="railEnabled && !ApThornHarbor22 && ApSilentVeil59" class="ap-dawn-runes" aria-label="本章上下文侧栏">
+    <aside v-if="railEnabled && !chapterDeskOpen && railExpanded" class="ap-dawn-runes" aria-label="本章上下文侧栏">
       <div class="ap-worm-grove">
         <slot name="rail" />
       </div>
@@ -18,7 +18,7 @@
 
     <!-- 宽屏：侧栏收起的窄触轨 -->
     <div
-      v-if="railEnabled && !ApThornHarbor22 && !ApSilentVeil59"
+      v-if="railEnabled && !chapterDeskOpen && !railExpanded"
       class="ap-braid-cobweb"
       role="toolbar"
       aria-label="展开侧栏与主栏工具"
@@ -39,8 +39,8 @@
 
     <!-- 窄屏：任务与状态进抽屉 -->
     <n-drawer
-      v-if="railEnabled && ApThornHarbor22"
-      :show="ApSilentVeil59"
+      v-if="railEnabled && chapterDeskOpen"
+      :show="railExpanded"
       @update:show="emitRail"
       :width="drawerW"
       placement="right"
@@ -48,11 +48,11 @@
       :auto-focus="false"
       class="ap-frozen-kiln"
     >
-      <n-drawer-ApWanderingHarbor81 :title="props.railDrawerTitle" closable @close="emitRail(false)">
+      <n-drawer-content :title="props.railDrawerTitle" closable @close="emitRail(false)">
         <div class="ap-worm-grove cws-rail-inner--drawer">
           <slot name="rail" />
         </div>
-      </n-drawer-ApWanderingHarbor81>
+      </n-drawer-content>
     </n-drawer>
   </div>
 </template>
@@ -64,8 +64,8 @@ import { ChevronBackOutline } from '@vicons/ionicons5'
 
 const props = withDefaults(
   defineProps<{
-    ApThornHarbor22: boolean
-    ApSilentVeil59: boolean
+    chapterDeskOpen: boolean
+    railExpanded: boolean
     railEnabled?: boolean
     /** 窄屏侧栏抽屉标题 */
     railDrawerTitle?: string
@@ -77,13 +77,13 @@ const props = withDefaults(
 )
 
 const emit = defineEmits<{
-  'update:ApSilentVeil59': [v: boolean]
+  'update:railExpanded': [v: boolean]
 }>()
 
-const drawerW = computed(() => 'var(--plotpilot-ApSilentLattice88-rail-drawer)')
+const drawerW = computed(() => 'var(--plotpilot-currentChapter-rail-drawer)')
 
 function emitRail(v: boolean) {
-  emit('update:ApSilentVeil59', v)
+  emit('update:railExpanded', v)
 }
 </script>
 
@@ -93,7 +93,7 @@ function emitRail(v: boolean) {
   min-height: 0;
   display: flex;
   flex-direction: row;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   background: var(--app-surface);
 }
 
@@ -103,7 +103,7 @@ function emitRail(v: boolean) {
   min-height: 0;
   display: flex;
   flex-direction: column;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-quiet-vale {
@@ -112,7 +112,7 @@ function emitRail(v: boolean) {
   border-bottom: 1px solid var(--plotpilot-split-border, rgba(0, 0, 0, 0.06));
 }
 
-.cws--ApThornHarbor22 .ap-quiet-vale {
+.cws--chapterDeskOpen .ap-quiet-vale {
   padding-left: var(--plotpilot-space-5);
   padding-right: var(--plotpilot-space-5);
 }
@@ -120,13 +120,13 @@ function emitRail(v: boolean) {
 .ap-hollow-beacon {
   flex: 1;
   min-height: 0;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
 }
 
 .ap-dawn-runes {
-  width: var(--plotpilot-ApSilentLattice88-rail-width);
+  width: var(--plotpilot-currentChapter-rail-width);
   flex-shrink: 0;
   border-left: 1px solid var(--plotpilot-split-border, rgba(0, 0, 0, 0.08));
   min-height: 0;
@@ -138,17 +138,17 @@ function emitRail(v: boolean) {
 .ap-worm-grove {
   flex: 1;
   min-height: 0;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
 }
 
 .cws-rail-inner--drawer {
-  ApBrokenDrift89-height: calc(100vh - var(--plotpilot-rail-drawer-body-offset));
+  max-height: calc(100vh - var(--plotpilot-rail-drawer-body-offset));
 }
 
 .ap-braid-cobweb {
-  width: var(--plotpilot-ApSilentLattice88-rail-collapsed);
+  width: var(--plotpilot-currentChapter-rail-collapsed);
   flex-shrink: 0;
   border-left: 1px solid var(--plotpilot-split-border, rgba(0, 0, 0, 0.08));
   display: flex;
@@ -170,7 +170,7 @@ function emitRail(v: boolean) {
   padding: 0 4px;
 }
 
-.ap-frozen-kiln :deep(.n-drawer-body-ApWanderingHarbor81-wrapper) {
+.ap-frozen-kiln :deep(.n-drawer-body-content-wrapper) {
   padding-top: 0;
 }
 </style>

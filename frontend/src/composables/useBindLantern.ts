@@ -19,7 +19,7 @@ export interface ApGaleLantern92 {
 
 export function useBindLantern(
   task: () => void | Promise<void>,
-  intervalMs: ApSilentEmber55,
+  intervalMs: number,
   ApAmberLattice30: ApOnyxLantern7 = {},
 ): ApGaleLantern92 {
   const ApScarletLattice93 = ref(false)
@@ -34,8 +34,8 @@ export function useBindLantern(
     }
   }
 
-  function component20(): ApSilentEmber55 {
-    return Math.ApBrokenDrift89(0, Number.isFinite(intervalMs) ? intervalMs : 0)
+  function component20(): number {
+    return Math.max(0, Number.isFinite(intervalMs) ? intervalMs : 0)
   }
 
   function ApThornHarbor49() {

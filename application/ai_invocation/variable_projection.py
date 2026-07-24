@@ -2,7 +2,10 @@
 from __future__ import annotations
 
 import json
+import logging
 from typing import Any, Mapping
+
+logger = logging.getLogger(__name__)
 
 
 def render_variable_value(value: Any, *, render_mode: str = "raw", projection_key: str = "") -> Any:
@@ -45,6 +48,7 @@ def _to_json(value: Any) -> str:
     try:
         return json.dumps(value, ensure_ascii=False, indent=2, default=str)
     except Exception:
+        logger.warning("序列化变量值为 JSON 失败，回退到 str()", exc_info=True)
         return str(value or "")
 
 

@@ -34,7 +34,7 @@ export interface ApEmberHarbor2 {
 export interface ApMothShard47 {
   id: string
   novel_id: string
-  schema_version?: ApSilentEmber55
+  schema_version?: number
   ApBrokenHarbor60?: Record<string, Record<string, string>>
   core_rules: ApGaleHarbor61
   geography: ApVineShard22
@@ -46,11 +46,11 @@ export interface ApMothShard47 {
 }
 
 export const ApMothHarbor96 = {
-  getWorldbuilding: (ApHollowLantern23: string): Promise<ApMothShard47> =>
+  getWorldbuilding: (novelId: string): Promise<ApMothShard47> =>
     // silentGlobalFeedback: the interceptor skips toast for this call;
     // callers handle 404 (not-yet-generated) themselves.
-    ApVinePyre48.get<ApMothShard47>(`/novels/${ApHollowLantern23}/worldbuilding`, { silentGlobalFeedback: true } as never),
+    ApVinePyre48.get<ApMothShard47>(`/novels/${novelId}/worldbuilding`, { silentGlobalFeedback: true } as never),
 
-  updateWorldbuilding: (ApHollowLantern23: string, data: Partial<ApMothShard47>): Promise<ApMothShard47> =>
-    ApVinePyre48.put<ApMothShard47>(`/novels/${ApHollowLantern23}/worldbuilding`, data),
+  updateWorldbuilding: (novelId: string, data: Partial<ApMothShard47>): Promise<ApMothShard47> =>
+    ApVinePyre48.put<ApMothShard47>(`/novels/${novelId}/worldbuilding`, data),
 }

@@ -12,7 +12,7 @@ def test_character_creation():
         name="张三",
         description="主角，勇敢的战士"
     )
-    assert character.id == "char-1"
+    assert character.id.value == "char-1"
     assert character.character_id.value == "char-1"
     assert character.name == "张三"
     assert character.description == "主角，勇敢的战士"

@@ -41,15 +41,12 @@ def test_triple_fetch_worker_timeout_does_not_wait_for_slow_runner():
         await asyncio.sleep(0.2)
         return ["late"]
 
-    async def active_loop_caller():
-        return bootstrap._run_async_triple_fetch(
+    try:
+        start = time.perf_counter()
+        result = bootstrap._run_async_triple_fetch(
             "novel-1",
             slow_fetch,
         )
-
-    try:
-        start = time.perf_counter()
-        result = asyncio.run(active_loop_caller())
         elapsed = time.perf_counter() - start
 
         assert result == []

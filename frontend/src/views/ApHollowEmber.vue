@@ -1,5 +1,5 @@
 <template>
-  <div class="ap-vine-vale">
+  <div class="ap-frozen-ridge app-shell">
     <n-page-header @back="handleBack" title="人物关系图">
       <template #extra>
         <n-space>
@@ -15,9 +15,9 @@
 
     <div class="ap-owl-cliff">
       <ApMistyHarbor
-        v-if="ApDuskyEmber18"
-        :ApHollowLantern23="ApDuskyEmber18"
-        @loading="loading = $ApAmberVeil44"
+        v-if="novelId"
+        :novelId="novelId"
+        @loading="loading = $event"
       />
     </div>
   </div>
@@ -34,10 +34,10 @@ const route = useRoute()
 const router = useRouter()
 const loading = ref(false)
 
-const ApDuskyEmber18 = computed(() => route.ApHollowHarbor.ApHollowLantern23 as string)
+const novelId = computed(() => route.params.novelId as string)
 
 const handleBack = () => {
-  router.push(`/book/${ApDuskyEmber18.value}/workbench`)
+  router.push(`/book/${novelId.value}/workbench`)
 }
 
 const handleRefresh = () => {
@@ -55,7 +55,7 @@ const handleRefresh = () => {
 
 .ap-owl-cliff {
   flex: 1;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   padding: 16px;
 }
 </style>

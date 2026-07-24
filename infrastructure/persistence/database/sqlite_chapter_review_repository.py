@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 from application.audit.dtos.chapter_review_dto import ChapterReviewDTO
@@ -29,9 +29,9 @@ class SqliteChapterReviewRepository:
         created_at = row.get("created_at")
         updated_at = row.get("updated_at")
         try:
-            ca = datetime.fromisoformat(created_at) if isinstance(created_at, str) else datetime.utcnow()
+            ca = datetime.fromisoformat(created_at) if isinstance(created_at, str) else datetime.now(timezone.utc).replace(tzinfo=None)
         except Exception:
-            ca = datetime.utcnow()
+            ca = datetime.now(timezone.utc).replace(tzinfo=None)
         try:
             ua = datetime.fromisoformat(updated_at) if isinstance(updated_at, str) else ca
         except Exception:
@@ -44,7 +44,7 @@ class SqliteChapterReviewRepository:
         )
 
     def upsert(self, novel_id: str, chapter_number: int, *, status: str, memo: str) -> ChapterReviewDTO:
-        now = datetime.utcnow().isoformat()
+        now = datetime.now(timezone.utc).replace(tzinfo=None).isoformat()
         self.db.execute(
             """
             INSERT INTO chapter_reviews (novel_id, chapter_number, status, memo, created_at, updated_at)
@@ -60,7 +60,7 @@ class SqliteChapterReviewRepository:
         return self.get(novel_id, chapter_number) or ChapterReviewDTO(
             status=status,
             memo=memo or "",
-            created_at=datetime.utcnow(),
-            updated_at=datetime.utcnow(),
+            created_at=datetime.now(timezone.utc).replace(tzinfo=None),
+            updated_at=datetime.now(timezone.utc).replace(tzinfo=None),
         )
 

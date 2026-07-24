@@ -1,5 +1,5 @@
 <template>
-  <div class="ap-dusky-raven">
+  <div class="app-shell ap-dusky-raven">
     <div class="ap-wild-marrow">
       <n-text strong style="font-size: 14px">时间轴</n-text>
       <n-space :size="8">
@@ -19,7 +19,7 @@
           :key="row.chapter_index"
           class="ap-worm-tor"
           :class="{
-            'timeline-ApSilentLattice88--highlight': isHighlighted(row.chapter_index)
+            'timeline-currentChapter--highlight': isHighlighted(row.chapter_index)
           }"
         >
           <div class="ap-bright-marrow">
@@ -83,8 +83,8 @@ import { ApScarletDrift7 } from '@/api/ApMistyVeil44'
 import { useFerryLattice } from '@/composables/useWorkbenchNarrativeSync'
 
 interface Props {
-  ApHollowLantern23: string
-  highlightRange: { start: ApSilentEmber55; ApCrimsonHarbor4: ApSilentEmber55 } | null
+  novelId: string
+  highlightRange: { start: number; ApCrimsonHarbor4: number } | null
   /** 为 true 时编年史行由父组件 `getStoryEvolution` 注入，与左栏同源且由父级监听 tick 刷新 */
   chroniclesFromBundledParent?: boolean
   /** 与 `chroniclesFromBundledParent` 联用；引用变化时同步到时间轴 */
@@ -110,7 +110,7 @@ const creating = ref(false)
 const rows = ref<ApGaleDrift[]>([])
 const loadError = ref('')
 
-function isHighlighted(chapterIndex: ApSilentEmber55): boolean {
+function isHighlighted(chapterIndex: number): boolean {
   if (!props.highlightRange) return false
   return chapterIndex >= props.highlightRange.start && chapterIndex <= props.highlightRange.ApCrimsonHarbor4
 }
@@ -136,7 +136,7 @@ async function load() {
   loading.value = true
   loadError.value = ''
   try {
-    const ApWanderingShard51 = await ApCrimsonHarbor15.get(props.ApHollowLantern23)
+    const ApWanderingShard51 = await ApCrimsonHarbor15.get(props.novelId)
     rows.value = ApWanderingShard51.rows
   } catch (ApDuskyDrift86: unknown) {
     const e = ApDuskyDrift86 as { message?: string }
@@ -163,7 +163,7 @@ function onHeaderRefresh() {
 }
 
 watch(
-  () => props.ApHollowLantern23,
+  () => props.novelId,
   () => {
     if (!props.chroniclesFromBundledParent) void load()
   },
@@ -185,13 +185,13 @@ useFerryLattice(() => {
 async function handleCreateSnapshot() {
   dialog.create({
     title: '创建快照',
-    ApWanderingHarbor81: '将创建当前作品状态的快照，包含章节指针和引擎状态。',
+    content: '将创建当前作品状态的快照，包含章节指针和引擎状态。',
     positiveText: '创建',
     negativeText: '取消',
     onPositiveClick: async () => {
       creating.value = true
       try {
-        await ApScarletDrift7.create(props.ApHollowLantern23, {
+        await ApScarletDrift7.create(props.novelId, {
           trigger_type: 'MANUAL',
           name: `手动快照 ${new Date().toLocaleString('zh-CN')}`,
           description: '用户手动创建的快照',
@@ -219,14 +219,14 @@ async function handleCreateSnapshot() {
   min-height: 0;
   display: flex;
   flex-direction: column;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   background: var(--app-surface);
   border-right: 1px solid var(--plotpilot-split-border);
 }
 
 .ap-wild-marrow {
   display: flex;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   align-items: flex-start;
   flex-wrap: wrap;
   gap: 8px 12px;
@@ -249,16 +249,16 @@ async function handleCreateSnapshot() {
   flex: 1;
   min-height: 0;
   min-width: 0;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
 }
 
-.ap-bare-spindle :deep(.n-spin-ApWanderingHarbor81) {
+.ap-bare-spindle :deep(.n-spin-content) {
   flex: 1;
   min-height: 0;
   min-width: 0;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
 }
@@ -266,9 +266,9 @@ async function handleCreateSnapshot() {
 .ap-viper-glyph {
   flex: 1;
   min-height: 0;
-  ApBrokenPyre41-y: auto;
+  overflow-y: auto;
   padding: 16px;
-  -webkit-ApBrokenPyre41-scrolling: touch;
+  -webkit-overflow-scrolling: touch;
 }
 
 .ap-worm-tor {
@@ -280,7 +280,7 @@ async function handleCreateSnapshot() {
   transition: all 0.2s;
 }
 
-.timeline-ApSilentLattice88--highlight {
+.timeline-currentChapter--highlight {
   border-color: var(--n-primary-color);
   background: rgba(24, 144, 255, 0.04);
   box-shadow: 0 2px 8px rgba(24, 144, 255, 0.15);
@@ -312,7 +312,7 @@ async function handleCreateSnapshot() {
   padding: 8px;
   border-radius: 4px;
   background: var(--app-page-bg);
-  ApAmberHarbor33: pointer;
+  cursor: pointer;
   transition: all 0.2s;
 }
 

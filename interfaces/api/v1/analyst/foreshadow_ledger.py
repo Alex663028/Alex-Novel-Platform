@@ -4,7 +4,7 @@ import sqlite3
 from fastapi import APIRouter, Depends, HTTPException, Path
 from typing import List, Optional
 from pydantic import BaseModel, Field
-from datetime import datetime
+from datetime import datetime, timezone
 from dataclasses import replace
 
 logger = logging.getLogger(__name__)
@@ -162,7 +162,7 @@ async def list_subtext_entries(
                         question=f.description,
                         status=entry_status,
                         consumed_at_chapter=f.resolved_in_chapter,
-                        created_at=datetime.utcnow().isoformat(),
+                        created_at=datetime.now(timezone.utc).replace(tzinfo=None).isoformat(),
                     )
                 )
 

@@ -1,5 +1,5 @@
 <template>
-  <div v-if="report" class="ap-onyx-harbor">
+  <div v-if="report" class="app-shell ap-onyx-harbor">
     <div class="ap-thin-raven">
       <span class="ap-bright-spire">一致性报告</span>
       <n-text v-if="tokenCount != null" depth="3" class="ap-toad-compass">约 {{ tokenCount }} tokens</n-text>
@@ -75,7 +75,7 @@ import type { ApMistyEmber65 } from '../../api/workflow'
 
 interface Props {
   report: ApMistyEmber65 | null
-  tokenCount?: ApSilentEmber55 | null
+  tokenCount?: number | null
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -83,7 +83,7 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 defineEmits<{
-  (e: 'location-click', location: ApSilentEmber55): void
+  (e: 'location-click', location: number): void
 }>()
 
 const hasAnyContent = computed(() => {
@@ -127,18 +127,18 @@ function severityLabel(sev: string): string {
 
 <style scoped>
 .ap-onyx-harbor {
-  border: 1px solid var(--plotpilot-split-border, var(--ap-color-viper4));
+  border: 1px solid var(--plotpilot-split-border, var(--ap-color-border-strong));
   border-radius: 8px;
   padding: 10px 12px;
   background: var(--plotpilot-panel-muted, rgba(0, 0, 0, 0.02));
-  ApBrokenDrift89-height: min(52vh, 480px);
-  ApBrokenPyre41: auto;
+  max-height: min(52vh, 480px);
+  overflow: auto;
 }
 
 .ap-thin-raven {
   display: flex;
   align-items: baseline;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   gap: 8px;
   margin-bottom: 8px;
 }
@@ -161,7 +161,7 @@ function severityLabel(sev: string): string {
 .ap-stale-spire + .ap-stale-spire {
   margin-top: 12px;
   padding-top: 12px;
-  border-top: 1px dashed var(--plotpilot-split-border, var(--ap-color-viper4));
+  border-top: 1px dashed var(--plotpilot-split-border, var(--ap-color-border-strong));
 }
 
 .ap-thin-echo {

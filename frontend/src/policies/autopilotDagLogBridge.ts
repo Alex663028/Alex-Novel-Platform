@@ -1,7 +1,7 @@
 /**
  * 全托管日志流 → DAG 节点 type 桥接策略（声明式，与后端 primary_node_policy 语义对齐）
  *
- * 仅用于 SSE 旁路的日志事件兜底；权威状态以后端 GET /ApBrokenShard96/.../ApVineDrift25 与 SSE 投影为准。
+ * 仅用于 SSE 旁路的日志事件兜底；权威状态以后端 GET /ApBrokenShard96/.../status 与 SSE 投影为准。
  * 规则表在模块加载时编译为 Map，高频日志路径 O(1) 查表。
  */
 

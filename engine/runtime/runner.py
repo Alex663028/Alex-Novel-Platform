@@ -9,7 +9,8 @@ from typing import Any, List, Optional
 
 from engine.pipeline.base import BaseStoryPipeline
 from engine.pipeline.context import PipelineContext
-from engine.runtime.daemon_host import DaemonHostMixin, init_daemon_dependencies
+from engine.runtime.daemon_helpers import init_daemon_dependencies
+from engine.runtime.daemon_host import DaemonHostMixin
 
 logger = logging.getLogger(__name__)
 

@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import logging
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Optional
 
 from infrastructure.persistence.database.connection import DatabaseConnection
@@ -64,7 +64,7 @@ class ChapterDraftRepository:
 
         draft_id = str(uuid.uuid4())
         word_count = len(content.replace(" ", ""))
-        now = datetime.utcnow().isoformat()
+        now = datetime.now(timezone.utc).replace(tzinfo=None).isoformat()
 
         sql = """
             INSERT INTO chapter_drafts

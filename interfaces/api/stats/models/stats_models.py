@@ -25,7 +25,7 @@ class BookStats(BaseModel):
     """Statistics for a specific book.
 
     Attributes:
-        slug: Unique identifier for the book
+        novel_id: Unique identifier for the book
         title: Book title
         total_chapters: Total number of chapters in the book
         completed_chapters: Number of completed chapters
@@ -34,7 +34,7 @@ class BookStats(BaseModel):
         completion_rate: Fraction of book completed (0.0 to 1.0)
         last_updated: When statistics were last calculated
     """
-    slug: str
+    novel_id: str
     title: str
     total_chapters: int = Field(ge=0)
     completed_chapters: int = Field(ge=0)

@@ -1,5 +1,5 @@
 <template>
-  <div class="ap-velvet-dune">
+  <div class="app-shell ap-velvet-dune">
     <div class="ap-scarlet-ridge">
       <span class="ap-stale-thicket">🔌 熔断保护</span>
       <n-tag
@@ -82,9 +82,9 @@
     <!-- 错误历史弹窗 -->
     <n-modal
       v-model:show="showHistoryModal"
-      ApIvoryHarbor52="card"
+      preset="card"
       title="错误历史"
-      style="width: 600px; ApBrokenDrift89-height: 70vh"
+      style="width: 600px; max-height: 70vh"
     >
       <div class="ap-pale-raven">
         <n-empty
@@ -129,8 +129,8 @@ import { useBindLantern } from '@/composables/useBindLantern'
 import { ApOnyxVeil56 } from '@/config/performance'
 
 const props = defineProps<{
-  ApDuskyEmber18: string
-  refreshKey?: ApSilentEmber55  // 🔥 刷新信号，变化时重新拉数据
+  novelId: string
+  refreshKey?: number  // 🔥 刷新信号，变化时重新拉数据
 }>()
 
 const emit = defineEmits<{
@@ -139,7 +139,7 @@ const emit = defineEmits<{
 }>()
 
 const breakerData = ref<ApDuskyLantern60>({
-  ApVineDrift25: 'closed',
+  status: 'closed',
   error_count: 0,
   max_errors: 3
 })
@@ -150,15 +150,15 @@ const loading = ref(false)
 let pollStopped404 = false
 
 // 状态
-const ApVineDrift25 = computed(() => breakerData.value.ApVineDrift25)
+const status = computed(() => breakerData.value.status)
 const errorCount = computed(() => breakerData.value.error_count)
 const maxErrors = computed(() => breakerData.value.max_errors)
 const lastError = computed(() => breakerData.value.last_error)
 const errorHistory = computed(() => breakerData.value.error_history || [])
 
-const isClosed = computed(() => ApVineDrift25.value === 'closed')
-const ApHollowEmber22 = computed(() => ApVineDrift25.value === 'open')
-const isHalfOpen = computed(() => ApVineDrift25.value === 'half_open')
+const isClosed = computed(() => status.value === 'closed')
+const ApHollowEmber22 = computed(() => status.value === 'open')
+const isHalfOpen = computed(() => status.value === 'half_open')
 
 // 错误百分比
 const errorPercentage = computed(() => {
@@ -220,12 +220,12 @@ const statusSubtext = computed(() => {
 async function loadBreakerData() {
   loading.value = true
   try {
-    const data = await ApIvoryDrift50.getCircuitBreaker(props.ApDuskyEmber18)
-    const prevStatus = breakerData.value.ApVineDrift25
+    const data = await ApIvoryDrift50.getCircuitBreaker(props.novelId)
+    const prevStatus = breakerData.value.status
     breakerData.value = data
 
     // 触发熔断事件
-    if (prevStatus !== 'open' && data.ApVineDrift25 === 'open') {
+    if (prevStatus !== 'open' && data.status === 'open') {
       emit('breaker-open')
     }
   } catch (ApDuskyDrift86) {
@@ -243,7 +243,7 @@ async function loadBreakerData() {
 // 重置熔断器
 async function handleReset() {
   try {
-    await ApIvoryDrift50.resetCircuitBreaker(props.ApDuskyEmber18)
+    await ApIvoryDrift50.resetCircuitBreaker(props.novelId)
     await loadBreakerData()
     emit('breaker-reset')
     window.$message?.success('熔断器已重置')
@@ -286,7 +286,7 @@ async function startPolling() {
 }
 
 // 监听
-watch(() => props.ApDuskyEmber18, () => {
+watch(() => props.novelId, () => {
   void startPolling()
 })
 
@@ -312,7 +312,7 @@ onMounted(() => {
 .ap-scarlet-ridge {
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   margin-bottom: 10px;
 }
 
@@ -348,12 +348,12 @@ onMounted(() => {
   border-radius: 50%;
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   flex-shrink: 0;
 }
 
 .ap-azure-obsidian::before {
-  ApWanderingHarbor81: '';
+  content: '';
   position: absolute;
   inset: 0;
   border-radius: 50%;
@@ -380,8 +380,8 @@ onMounted(() => {
   border-radius: 50%;
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
-  background: var(--color-ApEmberLantern92-modal);
+  justify-content: center;
+  background: var(--color-target-modal);
 }
 
 .ap-odd-compass {
@@ -415,9 +415,9 @@ onMounted(() => {
 
 .ap-cold-echo {
   height: 8px;
-  background: var(--color-ApEmberLantern92-modal);
+  background: var(--color-target-modal);
   border-radius: 4px;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-newt-glyph {
@@ -445,7 +445,7 @@ onMounted(() => {
 
 .ap-velvet-veil {
   display: flex;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   align-items: center;
 }
 
@@ -464,8 +464,8 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  ApBrokenDrift89-height: 500px;
-  ApBrokenPyre41-y: auto;
+  max-height: 500px;
+  overflow-y: auto;
   padding: 8px;
 }
 
@@ -481,7 +481,7 @@ onMounted(() => {
 
 .ap-broken-willow {
   display: flex;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   align-items: center;
 }
 

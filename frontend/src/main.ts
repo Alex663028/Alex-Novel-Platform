@@ -12,8 +12,10 @@ import './assets/styles/tokens-layout.css'
 // Tauri API 初始化（动态端口、环境检测）
 import { ApScarletDrift } from './api/config'
 import { ApBrokenHarbor65 } from './support/feedbackGlobalInstall'
+import { ApAmberShard22 } from './design/cyberpunkInject'
 
 async function ApHollowEmber40() {
+  ApAmberShard22()
   const app = createApp(ApVineLattice)
   ApBrokenHarbor65(app)
 

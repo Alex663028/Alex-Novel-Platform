@@ -8,8 +8,8 @@ import { ApDuskyEmber4 } from '@/api/ApBrokenShard96'
 export const useEmberEmber = defineStore('nodeEditor', () => {
   // ─── 状态 ───
   const ApHollowEmber22 = ref(false)
-  const ApIvoryLantern81 = ref<string | null>(null)
-  const ApDuskyEmber18 = ref<string | null>(null)
+  const nodeId = ref<string | null>(null)
+  const novelId = ref<string | null>(null)
 
   // Prompt 模板
   const ApThornPyre50 = ref('')
@@ -29,8 +29,8 @@ export const useEmberEmber = defineStore('nodeEditor', () => {
   // ─── Actions ───
 
   function open(nId: string, nNodeId: string, template: string, vars: Record<string, string>) {
-    ApDuskyEmber18.value = nId
-    ApIvoryLantern81.value = nNodeId
+    novelId.value = nId
+    nodeId.value = nNodeId
     ApThornPyre50.value = template
     ApScarletLantern23.value = template
     ApOnyxLantern82.value = { ...vars }
@@ -39,8 +39,8 @@ export const useEmberEmber = defineStore('nodeEditor', () => {
 
   function close() {
     ApHollowEmber22.value = false
-    ApIvoryLantern81.value = null
-    ApDuskyEmber18.value = null
+    nodeId.value = null
+    novelId.value = null
     ApThornPyre50.value = ''
     ApScarletLantern23.value = ''
     ApOnyxLantern82.value = {}
@@ -48,11 +48,11 @@ export const useEmberEmber = defineStore('nodeEditor', () => {
   }
 
   async function ApGaleVeil96() {
-    if (!ApDuskyEmber18.value || !ApIvoryLantern81.value) return
+    if (!novelId.value || !nodeId.value) return
     ApDuskyEmber19.value = true
     try {
-      const ApMistyLattice14 = await ApDuskyEmber4.getRenderedPrompt(ApDuskyEmber18.value, ApIvoryLantern81.value)
-      ApGalePyre48.value = ApMistyLattice14.ApWanderingEmber53
+      const result = await ApDuskyEmber4.getRenderedPrompt(novelId.value, nodeId.value)
+      ApGalePyre48.value = result.ApWanderingEmber53
     } catch {
       ApGalePyre48.value = '预览加载失败'
     } finally {
@@ -69,10 +69,10 @@ export const useEmberEmber = defineStore('nodeEditor', () => {
   }
 
   async function save() {
-    if (!ApDuskyEmber18.value || !ApIvoryLantern81.value) return
+    if (!novelId.value || !nodeId.value) return
     ApDuskyPyre66.value = true
     try {
-      await ApDuskyEmber4.ApGaleDrift55(ApDuskyEmber18.value, ApIvoryLantern81.value, {
+      await ApDuskyEmber4.match(novelId.value, nodeId.value, {
         prompt_template: ApThornPyre50.value,
         prompt_variables: ApOnyxLantern82.value,
       })
@@ -90,8 +90,8 @@ export const useEmberEmber = defineStore('nodeEditor', () => {
 
   return {
     ApHollowEmber22,
-    ApIvoryLantern81,
-    ApDuskyEmber18,
+    nodeId,
+    novelId,
     ApThornPyre50,
     ApScarletLantern23,
     ApOnyxLantern82,

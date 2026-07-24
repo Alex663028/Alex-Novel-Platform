@@ -117,7 +117,7 @@ def test_generate_dialogue_uses_grounded_prompt_and_strips_character_prefix(clie
         "character_name": "沈霁",
     }
     assert fake_llm.prompt is not None
-    assert "历史对白样本" in fake_llm.prompt.user
+    assert "他以前说话的调调" in fake_llm.prompt.user
     assert "第15章 / 雨夜巷战：柳月若插手，局势只会更乱。" in fake_llm.prompt.user
     assert "柳月：师徒" in fake_llm.prompt.user
     assert "顾寒" in fake_llm.prompt.user

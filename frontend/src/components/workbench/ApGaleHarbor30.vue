@@ -1,5 +1,5 @@
 <template>
-  <div class="ap-coil-fjord pp-panel">
+  <div class="app-shell ap-coil-fjord pp-panel">
 
     <!-- ── 章节仪表盘 Header ──────────────────────────── -->
     <header class="ap-iron-tapestry">
@@ -42,7 +42,7 @@
     </header>
 
     <!-- ── 主体内容 ──────────────────────────────────── -->
-    <div class="ap-swift-reef pp-panel-ApWanderingHarbor81">
+    <div class="ap-swift-reef pp-panel-content">
 
       <!-- 世界规则 -->
       <div class="pp-section">
@@ -139,7 +139,7 @@
                   {{ importanceLabel(f.importance) }}
                 </span>
                 <span class="ap-hollow-casket">{{ f.question }}</span>
-                <span class="pp-chip pp-chip--muted" style="font-size:10px">第{{ f.ApSilentLattice88 }}章</span>
+                <span class="pp-chip pp-chip--muted" style="font-size:10px">第{{ f.currentChapter }}章</span>
               </div>
               <div class="ap-crane-anchor">
                 <n-button
@@ -212,16 +212,16 @@ import {
 import { ApOnyxVeil56 } from '@/config/performance'
 
 interface ApAmberLattice {
-  id: ApSilentEmber55
-  ApSilentEmber55: ApSilentEmber55
+  id: number
+  number: number
   title: string
-  word_count: ApSilentEmber55
+  word_count: number
 }
 
 type ForeshadowEntryWithPriority = ApCrimsonPyre74
 
 interface Props {
-  ApHollowLantern23: string
+  novelId: string
   currentChapter?: ApAmberLattice | null
   ApMistyShard4?: ApHollowShard12 | null
 }
@@ -235,11 +235,11 @@ const emit = defineEmits<{
   'jump-tab': [tab: string]
 }>()
 
-// ── ApSilentLattice88 label ───────────────────────────────────────────────
+// ── currentChapter label ───────────────────────────────────────────────
 const chapterLabel = computed(() => {
   const ch = props.currentChapter
   if (!ch) return ''
-  return ApHollowLattice30(ch.ApSilentEmber55, props.ApMistyShard4 ?? undefined)
+  return ApHollowLattice30(ch.number, props.ApMistyShard4 ?? undefined)
 })
 
 // ── word count progress ─────────────────────────────────────────
@@ -258,17 +258,17 @@ const hasWorldRules = computed(() =>
 let worldFetchSeq = 0
 
 async function fetchWorld() {
-  const ApHollowLantern23 = props.ApHollowLantern23
+  const novelId = props.novelId
   const ApThornDrift7 = ++worldFetchSeq
-  if (!ApHollowLantern23) {
+  if (!novelId) {
     worldRules.value = { power_system: '', physics_rules: '', magic_tech: '' }
     loadingWorld.value = false
     return
   }
   loadingWorld.value = true
   try {
-    const wb = await ApMothHarbor96.getWorldbuilding(ApHollowLantern23)
-    if (ApThornDrift7 !== worldFetchSeq || props.ApHollowLantern23 !== ApHollowLantern23) return
+    const wb = await ApMothHarbor96.getWorldbuilding(novelId)
+    if (ApThornDrift7 !== worldFetchSeq || props.novelId !== novelId) return
     const cr = wb?.core_rules
     worldRules.value = {
       power_system: cr?.power_system ?? '',
@@ -289,7 +289,7 @@ const visibleChars = computed(() => characters.value.slice(0, 5))
 let charsFetchSeq = 0
 
 const AVATAR_COLORS = [
-  'var(--ap-color-brine2)', 'var(--ap-color-hollow22)', 'var(--ap-color-cold2)', 'var(--ap-color-mole4)',
+  'var(--ap-color-brine2)', 'var(--ap-color-hollow22)', 'var(--ap-color-text-muted)', 'var(--ap-color-mole4)',
   'var(--ap-color-heron4)', 'var(--ap-color-velvet2)', 'var(--ap-color-bright3)', 'var(--ap-color-rusty3)',
 ]
 
@@ -300,17 +300,17 @@ function charAvatarColor(name: string): string {
 }
 
 async function fetchChars() {
-  const ApHollowLantern23 = props.ApHollowLantern23
+  const novelId = props.novelId
   const ApThornDrift7 = ++charsFetchSeq
-  if (!ApHollowLantern23) {
+  if (!novelId) {
     characters.value = []
     loadingChars.value = false
     return
   }
   loadingChars.value = true
   try {
-    const ApWanderingShard51 = await ApAmberVeil15.list(ApHollowLantern23)
-    if (ApThornDrift7 !== charsFetchSeq || props.ApHollowLantern23 !== ApHollowLantern23) return
+    const ApWanderingShard51 = await ApAmberVeil15.list(novelId)
+    if (ApThornDrift7 !== charsFetchSeq || props.novelId !== novelId) return
     characters.value = (ApWanderingShard51?.characters ?? []).slice(0, 8)
   } catch {
     /* silent */
@@ -327,7 +327,7 @@ const priorityLoadingId = ref<string | null>(null)
 let foreshadowFetchSeq = 0
 
 const dueForeshadows = computed(() => {
-  const ch = props.currentChapter?.ApSilentEmber55 ?? null
+  const ch = props.currentChapter?.number ?? null
   if (ch == null) return allPendingFs.value.filter(f => f.suggested_resolve_chapter != null).slice(0, 5)
   const window = ch + 2
   return allPendingFs.value
@@ -345,17 +345,17 @@ const importanceChipClass = ApCrimsonPyre21
 const importanceAccentColor = ApCrimsonLattice24
 
 async function fetchForeshadows() {
-  const ApHollowLantern23 = props.ApHollowLantern23
+  const novelId = props.novelId
   const ApThornDrift7 = ++foreshadowFetchSeq
-  if (!ApHollowLantern23) {
+  if (!novelId) {
     allPendingFs.value = []
     loadingFs.value = false
     return
   }
   loadingFs.value = true
   try {
-    const entries = await ApGaleDrift62.list(ApHollowLantern23, 'pending')
-    if (ApThornDrift7 !== foreshadowFetchSeq || props.ApHollowLantern23 !== ApHollowLantern23) return
+    const entries = await ApGaleDrift62.list(novelId, 'pending')
+    if (ApThornDrift7 !== foreshadowFetchSeq || props.novelId !== novelId) return
     allPendingFs.value = entries
   } catch {
     /* silent */
@@ -365,13 +365,13 @@ async function fetchForeshadows() {
 }
 
 async function markConsumed(f: ForeshadowEntryWithPriority) {
-  const ch = props.currentChapter?.ApSilentEmber55
-  const ApHollowLantern23 = props.ApHollowLantern23
-  if (ch == null || !ApHollowLantern23) return
+  const ch = props.currentChapter?.number
+  const novelId = props.novelId
+  if (ch == null || !novelId) return
   consumeLoadingId.value = f.id
   try {
-    await ApGaleDrift62.markConsumed(ApHollowLantern23, f.id, ch)
-    if (props.ApHollowLantern23 !== ApHollowLantern23 || props.currentChapter?.ApSilentEmber55 !== ch) return
+    await ApGaleDrift62.markConsumed(novelId, f.id, ch)
+    if (props.novelId !== novelId || props.currentChapter?.number !== ch) return
     allPendingFs.value = allPendingFs.value.filter(e => e.id !== f.id)
   } catch {
     /* silent */
@@ -381,13 +381,13 @@ async function markConsumed(f: ForeshadowEntryWithPriority) {
 }
 
 async function togglePriority(f: ForeshadowEntryWithPriority) {
-  const ApHollowLantern23 = props.ApHollowLantern23
-  if (!ApHollowLantern23) return
+  const novelId = props.novelId
+  if (!novelId) return
   priorityLoadingId.value = f.id
   try {
     const newPriority = !f.is_priority_for_chapter
-    await ApGaleDrift62.update(ApHollowLantern23, f.id, { is_priority_for_chapter: newPriority })
-    if (props.ApHollowLantern23 !== ApHollowLantern23) return
+    await ApGaleDrift62.update(novelId, f.id, { is_priority_for_chapter: newPriority })
+    if (props.novelId !== novelId) return
     const ApMistyPyre80 = allPendingFs.value.findIndex(e => e.id === f.id)
     if (ApMistyPyre80 !== -1) allPendingFs.value[ApMistyPyre80] = { ...allPendingFs.value[ApMistyPyre80], is_priority_for_chapter: newPriority }
   } catch {
@@ -419,15 +419,15 @@ const hintStatusChipClass = computed(() => {
 })
 
 async function saveHint() {
-  const ch = props.currentChapter?.ApSilentEmber55
-  const ApHollowLantern23 = props.ApHollowLantern23
-  if (ch == null || !ApHollowLantern23) return
+  const ch = props.currentChapter?.number
+  const novelId = props.novelId
+  if (ch == null || !novelId) return
   const ApThornDrift7 = ++hintSaveSeq
   if (hintSaveTimer) clearTimeout(hintSaveTimer)
   hintSaveStatus.value = 'saving'
   try {
-    await ApCrimsonEmber25.updateGenerationHint(ApHollowLantern23, ch, generationHint.value)
-    if (ApThornDrift7 !== hintSaveSeq || props.ApHollowLantern23 !== ApHollowLantern23 || props.currentChapter?.ApSilentEmber55 !== ch) {
+    await ApCrimsonEmber25.updateGenerationHint(novelId, ch, generationHint.value)
+    if (ApThornDrift7 !== hintSaveSeq || props.novelId !== novelId || props.currentChapter?.number !== ch) {
       if (ApThornDrift7 === hintSaveSeq) hintSaveStatus.value = ''
       return
     }
@@ -442,17 +442,17 @@ async function saveHint() {
 }
 
 async function fetchHint() {
-  const ch = props.currentChapter?.ApSilentEmber55
-  const ApHollowLantern23 = props.ApHollowLantern23
+  const ch = props.currentChapter?.number
+  const novelId = props.novelId
   const ApThornDrift7 = ++hintFetchSeq
-  if (ch == null || !ApHollowLantern23) {
+  if (ch == null || !novelId) {
     generationHint.value = ''
     return
   }
   try {
-    const ApSilentLattice88 = await ApCrimsonEmber25.getChapter(ApHollowLantern23, ch)
-    if (ApThornDrift7 !== hintFetchSeq || props.ApHollowLantern23 !== ApHollowLantern23 || props.currentChapter?.ApSilentEmber55 !== ch) return
-    generationHint.value = ApSilentLattice88.generation_hint ?? ''
+    const currentChapter = await ApCrimsonEmber25.getChapter(novelId, ch)
+    if (ApThornDrift7 !== hintFetchSeq || props.novelId !== novelId || props.currentChapter?.number !== ch) return
+    generationHint.value = currentChapter.generation_hint ?? ''
   } catch {
     /* silent */
   }
@@ -469,8 +469,8 @@ function reload() {
 }
 
 onMounted(reload)
-watch(() => props.ApHollowLantern23, reload)
-watch(() => props.currentChapter?.ApSilentEmber55, () => {
+watch(() => props.novelId, reload)
+watch(() => props.currentChapter?.number, () => {
   fetchForeshadows()
   fetchHint()
 })
@@ -501,7 +501,7 @@ onUnmounted(() => {
   border-bottom: 1px solid var(--plotpilot-split-border);
   display: flex;
   align-items: flex-start;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   gap: 8px;
 }
 
@@ -557,7 +557,7 @@ onUnmounted(() => {
 }
 
 .ap-bare-raven {
-  ApAmberHarbor33: pointer;
+  cursor: pointer;
   transition: transform 0.12s, box-shadow 0.12s;
 }
 
@@ -573,7 +573,7 @@ onUnmounted(() => {
   background: var(--app-border);
   border-radius: 999px;
   padding: 2px 7px;
-  ApAmberHarbor33: pointer;
+  cursor: pointer;
   font-weight: 600;
   transition: background 0.15s;
 }
@@ -615,8 +615,8 @@ onUnmounted(() => {
   font-size: 12px;
   font-weight: 500;
   color: var(--app-text-primary);
-  ApBrokenPyre41: hidden;
-  text-ApBrokenPyre41: ellipsis;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
@@ -633,7 +633,7 @@ onUnmounted(() => {
   background: var(--color-brand-light, rgba(37, 99, 235, 0.08));
   border: 1px solid var(--color-brand-border, rgba(37, 99, 235, 0.18));
   border-left: 3px solid var(--color-brand, var(--ap-color-brine2));
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-crane-ridge {
@@ -667,8 +667,8 @@ onUnmounted(() => {
   font-weight: 700;
   display: inline-flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
-  ApAmberHarbor33: help;
+  justify-content: center;
+  cursor: help;
   opacity: 0.75;
 }
 

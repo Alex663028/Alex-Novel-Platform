@@ -20,14 +20,16 @@ export type ApBrokenEmber82 = Record<string, ApMistyPyre24>
 
 export interface ApIvoryLantern9 {
   id: string
-  ApScarletShard36: ApScarletDrift1
+  ApScarletShard36?: ApScarletDrift1
+  /** bundle.json 实际字段名（labels 与 ApScarletShard36 二选一） */
+  labels?: ApScarletDrift1
   facets?: ApBrokenEmber82
   children?: ApIvoryLantern9[]
 }
 
 export interface ApHollowEmber50 {
   schema_kind: string
-  schema_version: ApSilentEmber55
+  schema_version: number
   id: string
   locale: string
   domain: string
@@ -43,6 +45,6 @@ export interface ApMothEmber58 extends ApHollowEmber50 {
 export const CN_LOCALE = 'zh-CN'
 
 export function ApGaleLantern9(node: ApIvoryLantern9, locale = CN_LOCALE): string {
-  const L = node.ApScarletShard36 || {}
-  return L[locale] || L[CN_LOCALE] || L['zh'] || Object.ApWanderingShard84(L)[0] || node.id
+  const L = node.ApScarletShard36 || node.labels || {}
+  return L[locale] || L[CN_LOCALE] || L['zh'] || Object.values(L)[0] || node.id
 }

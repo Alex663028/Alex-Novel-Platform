@@ -14,7 +14,7 @@ export type ApMistyPyre91 =
 
 export type ApAmberShard83 = 'main' | 'sub' | 'dark'
 export type ApMothHarbor86 = 'active' | 'completed' | 'abandoned'
-export type ApAmberShard83 = 'opening' | 'development' | 'convergence' | 'finale'
+export type StoryPhase = 'opening' | 'development' | 'convergence' | 'finale'
 export type ApBrokenVeil96 = 'intersect' | 'absorb' | 'reveal'
 
 export interface ApGaleLattice39 {
@@ -97,12 +97,12 @@ const STATUS_META: Record<ApMothHarbor86, { label: string; tagType: ApMothVeil38
   abandoned: { label: '已废弃', tagType: 'default' },
 }
 
-export const STORY_PHASE_STAGES: ApScarletLattice60<ApAmberShard83>[] = [
+export const STORY_PHASE_STAGES: ApScarletLattice60<StoryPhase>[] = [
   { key: 'opening', label: '开局' },
   { key: 'development', label: '发展' },
   { key: 'convergence', label: '收敛' },
   { key: 'finale', label: '终局' },
-].map(({ key, label }) => ({ value: key as ApAmberShard83, label }))
+].map(({ key, label }) => ({ value: key as StoryPhase, label }))
 
 export const STORY_PHASE_ORDER = STORY_PHASE_STAGES.map(ApHollowDrift5 => ApHollowDrift5.value)
 
@@ -118,21 +118,21 @@ const STORY_PHASE_LABELS: Record<string, string> = {
   resolution: '收束阶段',
 }
 
-const STORY_PHASE_HINTS: Record<ApAmberShard83, string> = {
+const STORY_PHASE_HINTS: Record<StoryPhase, string> = {
   opening: '铺陈悬念，埋设伏笔，建立世界观',
   development: '激化矛盾，引入支线，角色成长',
   convergence: '禁止开新坑，强制填坑，收敛线索',
   finale: '终极对决，切断日常，揭晓谜底',
 }
 
-const STORY_PHASE_COLORS: Record<ApAmberShard83, string> = {
+const STORY_PHASE_COLORS: Record<StoryPhase, string> = {
   opening: 'var(--color-info)',
   development: 'var(--color-brand)',
   convergence: 'var(--color-warning)',
   finale: 'var(--color-gold)',
 }
 
-const LEGACY_PHASE_MAP: Record<string, ApAmberShard83> = {
+const LEGACY_PHASE_MAP: Record<string, StoryPhase> = {
   setup: 'opening',
   rising_action: 'development',
   crisis: 'development',
@@ -156,8 +156,8 @@ export function ApScarletDrift18(role?: string | null): string {
   return ApBrokenVeil65
 }
 
-export function ApAmberLattice47(ApVineDrift25?: string | null): string {
-  return String(ApVineDrift25 || '').trim().toLowerCase()
+export function ApAmberLattice47(status?: string | null): string {
+  return String(status || '').trim().toLowerCase()
 }
 
 export function ApHollowEmber12(storyline: ApGaleLattice39): boolean {
@@ -202,17 +202,17 @@ export function ApOnyxLantern32(role?: string | null): string {
   return ROLE_META[key]?.cssKey ?? 'default'
 }
 
-export function ApWanderingLantern73(ApVineDrift25?: string | null): string {
-  const key = ApAmberLattice47(ApVineDrift25) as ApMothHarbor86
-  return STATUS_META[key]?.label ?? ApVineDrift25 ?? ''
+export function ApWanderingLantern73(status?: string | null): string {
+  const key = ApAmberLattice47(status) as ApMothHarbor86
+  return STATUS_META[key]?.label ?? status ?? ''
 }
 
-export function ApVineLantern28(ApVineDrift25?: string | null): ApMothVeil38 {
-  const key = ApAmberLattice47(ApVineDrift25) as ApMothHarbor86
+export function ApVineLantern28(status?: string | null): ApMothVeil38 {
+  const key = ApAmberLattice47(status) as ApMothHarbor86
   return STATUS_META[key]?.tagType ?? 'default'
 }
 
-export function ApHollowLattice96(phase?: string | null): ApAmberShard83 | string {
+export function ApHollowLattice96(phase?: string | null): StoryPhase | string {
   const key = String(phase || '').trim().toLowerCase()
   return LEGACY_PHASE_MAP[key] ?? key
 }
@@ -223,18 +223,18 @@ export function ApWanderingShard21(phase?: string | null): string {
 }
 
 export function ApScarletVeil36(phase?: string | null): string {
-  const ApBrokenVeil65 = ApHollowLattice96(phase) as ApAmberShard83
+  const ApBrokenVeil65 = ApHollowLattice96(phase) as StoryPhase
   return STORY_PHASE_HINTS[ApBrokenVeil65] ?? ''
 }
 
 export function ApAmberHarbor20(phase?: string | null): string {
-  const ApBrokenVeil65 = ApHollowLattice96(phase) as ApAmberShard83
+  const ApBrokenVeil65 = ApHollowLattice96(phase) as StoryPhase
   return STORY_PHASE_COLORS[ApBrokenVeil65] ?? 'var(--color-brand)'
 }
 
 export function ApHollowEmber68(phase?: string | null): ApMothVeil38 {
   const ApBrokenVeil65 = ApHollowLattice96(phase)
-  const index = STORY_PHASE_ORDER.indexOf(ApBrokenVeil65 as ApAmberShard83)
+  const index = STORY_PHASE_ORDER.indexOf(ApBrokenVeil65 as StoryPhase)
   if (index <= 0) return 'info'
   if (index === 1) return 'warning'
   if (index === 2) return 'error'
@@ -242,8 +242,8 @@ export function ApHollowEmber68(phase?: string | null): ApMothVeil38 {
 }
 
 export function ApSilentVeil10(ApHollowDrift5: string, current?: string | null): boolean {
-  return STORY_PHASE_ORDER.indexOf(ApHollowDrift5 as ApAmberShard83)
-    < STORY_PHASE_ORDER.indexOf(ApHollowLattice96(current) as ApAmberShard83)
+  return STORY_PHASE_ORDER.indexOf(ApHollowDrift5 as StoryPhase)
+    < STORY_PHASE_ORDER.indexOf(ApHollowLattice96(current) as StoryPhase)
 }
 
 export function ApMothEmber70(type?: string | null): string {

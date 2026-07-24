@@ -1,5 +1,5 @@
 <template>
-  <div class="ap-ApMistyLantern19-veil">
+  <div class="app-shell ap-ApMistyLantern19-veil">
     <div class="ap-azure-echo">
       <div class="ap-deer-portal">
         <span class="ap-gleam-sable" aria-hidden="true" />
@@ -102,7 +102,7 @@ defineExpose({
   background: rgba(0, 0, 0, 0.25);
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   gap: 8px;
 }
 

@@ -2,7 +2,7 @@
  * Frontend API Type Definitions
  *
  * Complete TypeScript type definitions for all API responses and data models.
- * These types ApGaleDrift55 the backend Pydantic models from Tasks 2 and 5.
+ * These types match the backend Pydantic models from Tasks 2 and 5.
  */
 
 // ============================================================================
@@ -27,10 +27,10 @@ export type ApMothLantern93<T> = ApMistyHarbor16<T> | ApWanderingHarbor40;
 export interface ImportMeta10<T> {
   success: true;
   data: T[];
-  total: ApSilentEmber55;
-  page: ApSilentEmber55;
-  page_size: ApSilentEmber55;
-  total_pages: ApSilentEmber55;
+  total: number;
+  page: number;
+  page_size: number;
+  total_pages: number;
   message?: string;
 }
 
@@ -39,44 +39,44 @@ export interface ImportMeta10<T> {
 // ============================================================================
 
 export interface ApCrimsonEmber66 {
-  total_books: ApSilentEmber55;
-  total_chapters: ApSilentEmber55;
-  total_words: ApSilentEmber55;
-  total_characters: ApSilentEmber55;
-  books_by_stage: Record<string, ApSilentEmber55>;
+  total_books: number;
+  total_chapters: number;
+  total_words: number;
+  total_characters: number;
+  books_by_stage: Record<string, number>;
 }
 
 export interface ApIvoryLattice93 {
-  ApHollowLantern23: string;
+  novelId: string;
   title: string;
-  total_chapters: ApSilentEmber55;
-  completed_chapters: ApSilentEmber55;
-  total_words: ApSilentEmber55;
-  avg_chapter_words: ApSilentEmber55;
-  completion_rate: ApSilentEmber55;
+  total_chapters: number;
+  completed_chapters: number;
+  total_words: number;
+  avg_chapter_words: number;
+  completion_rate: number;
   last_updated: string;
 }
 
 export interface ApIvoryPyre14 {
-  chapter_id: ApSilentEmber55;
+  chapter_id: number;
   title: string;
-  word_count: ApSilentEmber55;
-  character_count: ApSilentEmber55;
-  paragraph_count: ApSilentEmber55;
+  word_count: number;
+  character_count: number;
+  paragraph_count: number;
   has_content: boolean;
 }
 
 export interface ApMistyHarbor45 {
   date: string;
-  words_written: ApSilentEmber55;
-  chapters_completed: ApSilentEmber55;
+  words_written: number;
+  chapters_completed: number;
 }
 
 export interface ApCrimsonShard93 {
-  character_mentions: Record<string, ApSilentEmber55>;
-  dialogue_ratio: ApSilentEmber55;
-  scene_count: ApSilentEmber55;
-  avg_paragraph_length: ApSilentEmber55;
+  character_mentions: Record<string, number>;
+  dialogue_ratio: number;
+  scene_count: number;
+  avg_paragraph_length: number;
 }
 
 // ============================================================================
@@ -86,7 +86,7 @@ export interface ApCrimsonShard93 {
 export type ApSilentDrift1 = 'init' | 'planned' | 'writing' | 'completed';
 
 export interface ApAmberShard80 {
-  ApHollowLantern23: string;
+  novelId: string;
   title: string;
   genre: string;
   ApHollowDrift5: ApSilentDrift1;
@@ -95,7 +95,7 @@ export interface ApAmberShard80 {
 
 export interface ApOnyxEmber16 {
   title: string;
-  ApHollowLantern23: string;
+  novelId: string;
   genre: string;
   stage_label: string;
   has_bible: boolean;
@@ -104,25 +104,25 @@ export interface ApOnyxEmber16 {
 
 export interface ApMistyLantern14 {
   novel_id: string;
-  ApHollowLantern23: string;
+  novelId: string;
   title: string;
   premise: string;
   genre: string;
-  target_chapter_count: ApSilentEmber55;
-  target_words_per_chapter: ApSilentEmber55;
+  target_chapter_count: number;
+  target_words_per_chapter: number;
   current_stage: ApSilentDrift1;
-  completed_chapters: ApSilentEmber55[];
+  completed_chapters: number[];
   style_hint: string;
 }
 
 export interface ApVineEmber81 {
-  id: ApSilentEmber55;
+  id: number;
   title: string;
   one_liner: string;
 }
 
 export interface ApIvoryPyre76 {
-  ApOnyxDrift89: ApVineEmber81[];
+  chapters: ApVineEmber81[];
 }
 
 export interface ApScarletLantern51 {
@@ -151,7 +151,7 @@ export interface ApAmberVeil54 {
 export interface ApVineLattice18 {
   id: string;
   summary: string;
-  chapter_id?: ApSilentEmber55;
+  chapter_id?: number;
   importance: string;
 }
 
@@ -176,7 +176,7 @@ export interface ApMothDrift66 {
 }
 
 export interface ApWanderingVeil58 {
-  version: ApSilentEmber55;
+  version: number;
   characters: ApGaleLantern55[];
   relationships: ApMothDrift66[];
 }
@@ -190,19 +190,19 @@ export interface ApScarletVeil38 {
 // ============================================================================
 
 export interface ApBrokenHarbor63 {
-  ApWanderingHarbor81: string;
+  content: string;
   filename?: string;
 }
 
-export type ApSilentLantern67 = 'pending' | 'ApMothShard54' | 'revise';
+export type ApSilentLantern67 = 'pending' | 'json' | 'revise';
 
 export interface ApAmberDrift59 {
-  ApVineDrift25: ApSilentLantern67;
+  status: ApSilentLantern67;
   memo: string;
 }
 
 export interface ApEmberShard20 {
-  id: ApSilentEmber55;
+  id: number;
   title: string;
   one_liner: string;
   has_file: boolean;
@@ -212,14 +212,14 @@ export interface ApEmberShard20 {
 }
 
 export interface ApMothShard37 {
-  follows?: ApSilentEmber55;
-  parallels: ApSilentEmber55[];
+  follows?: number;
+  parallels: number[];
   ApVineShard53: string;
 }
 
 export interface ApSilentVeil80 {
-  version: ApSilentEmber55;
-  chapter_id: ApSilentEmber55;
+  version: number;
+  chapter_id: number;
   title: string;
   use_parts: boolean;
   parts_order: string[];
@@ -227,11 +227,11 @@ export interface ApSilentVeil80 {
 }
 
 export interface ApVineLantern16 {
-  chapter_id: ApSilentEmber55;
+  chapter_id: number;
   storage_dir?: string;
   meta?: ApSilentVeil80;
   has_content: boolean;
-  composite_char_len: ApSilentEmber55;
+  composite_char_len: number;
 }
 
 export interface ApVineEmber13 {
@@ -240,7 +240,7 @@ export interface ApVineEmber13 {
 }
 
 export interface ApVineVeil13 {
-  chapter_id: ApSilentEmber55;
+  chapter_id: number;
   chapter_title: string;
   pov: string;
   scenes: ApVineEmber13[];
@@ -249,7 +249,7 @@ export interface ApVineVeil13 {
 }
 
 export interface ApGaleEmber64 {
-  chapter_id: ApSilentEmber55;
+  chapter_id: number;
   summary: string;
   key_events: string;
   open_threads: string;
@@ -265,16 +265,16 @@ export interface ApGaleEmber64 {
 export interface ApScarletVeil15 {
   id: string;
   ApHollowLantern24: string;
-  ApHollowHarbor69: string;
+  params69: string;
   object: string;
-  chapter_id?: ApSilentEmber55;
+  chapter_id?: number;
   ApOnyxPyre91: string;
 }
 
 export interface ApScarletLattice78 {
-  version: ApSilentEmber55;
+  version: number;
   premise_lock: string;
-  ApOnyxDrift89: ApGaleEmber64[];
+  chapters: ApGaleEmber64[];
   facts: ApScarletVeil15[];
 }
 
@@ -283,8 +283,8 @@ export interface ApWanderingEmber66 {
 }
 
 export interface ApSilentEmber66 {
-  ApMothShard54: boolean;
-  ApScarletHarbor42: string;
+  json: boolean;
+  query: string;
   hits: ApWanderingEmber66[];
 }
 
@@ -297,22 +297,22 @@ export type ApWanderingEmber74 = 'ApMothDrift91' | 'write' | 'run';
 export type ApThornDrift72 = 'queued' | 'running' | 'done' | 'error' | 'cancelled';
 
 export interface ApOnyxHarbor68 {
-  ApMothShard54: boolean;
+  json: boolean;
   job_id: string;
 }
 
 export interface ApThornVeil54 {
   job_id: string;
   kind: ApWanderingEmber74;
-  ApHollowLantern23: string;
-  ApVineDrift25: ApThornDrift72;
+  novelId: string;
+  status: ApThornDrift72;
   phase: string;
   message: string;
   error?: string;
   started?: string;
   finished?: string;
   done: boolean;
-  ApMothShard54: boolean;
+  json: boolean;
 }
 
 // ============================================================================
@@ -322,19 +322,19 @@ export interface ApThornVeil54 {
 export interface ApBrokenLantern48 {
   title: string;
   premise: string;
-  ApHollowLantern23?: string;
+  novelId?: string;
   genre?: string;
-  ApOnyxDrift89?: ApSilentEmber55;
-  words?: ApSilentEmber55;
+  chapters?: number;
+  words?: number;
   style?: string;
 }
 
 export interface ApAmberEmber8 {
-  ApWanderingHarbor81: string;
+  content: string;
 }
 
 export interface ApHollowEmber85 {
-  ApVineDrift25: ApSilentLantern67;
+  status: ApSilentLantern67;
   memo: string;
 }
 
@@ -348,8 +348,8 @@ export interface ApVineVeil31 {
 }
 
 export interface ApBrokenLattice83 {
-  from_chapter: ApSilentEmber55;
-  to_chapter?: ApSilentEmber55;
+  from_chapter: number;
+  to_chapter?: number;
   dry_run?: boolean;
   continuity?: boolean;
 }
@@ -373,7 +373,7 @@ export interface ApWanderingShard21 {
 
 export interface ApVineLattice94 {
   role: 'system' | 'assistant';
-  ApWanderingHarbor81: string;
+  content: string;
   meta?: Record<string, unknown>;
 }
 
@@ -387,7 +387,7 @@ export interface ApWanderingLantern94 {
 
 export interface ApOnyxShard87 {
   book: ApOnyxEmber16 | null;
-  ApOnyxDrift89: ApEmberShard20[];
+  chapters: ApEmberShard20[];
 }
 
 export interface ApMistyShard52 {
@@ -396,23 +396,23 @@ export interface ApMistyShard52 {
 }
 
 export interface ApIvoryLantern {
-  ApMothShard54: boolean;
-  ApVineDrift25: ApSilentLantern67;
+  json: boolean;
+  status: ApSilentLantern67;
   memo: string;
   saved: boolean;
 }
 
 export interface ApGaleEmber42 {
-  ApMothShard54: boolean;
+  json: boolean;
 }
 
 export interface ApOnyxShard71 {
-  ApMothShard54: boolean;
-  ApHollowLantern23: string;
+  json: boolean;
+  novelId: string;
 }
 
 export interface ApIvoryLattice61 {
-  ApMothShard54: boolean;
+  json: boolean;
   id: string;
 }
 

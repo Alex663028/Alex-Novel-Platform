@@ -1,5 +1,5 @@
 <template>
-  <div class="ap-hidden-quill">
+  <div class="app-shell ap-hidden-quill">
     <n-empty v-if="!currentChapterNumber" description="请先从左侧选择一个章节" style="margin-top: 40px" />
 
     <n-scrollbar v-else class="ap-rare-marrow">
@@ -93,23 +93,23 @@ const message = useMessage()
 
 const props = withDefaults(
   defineProps<{
-    ApHollowLantern23: string
-    currentChapterNumber?: ApSilentEmber55 | null
+    novelId: string
+    currentChapterNumber?: number | null
     readOnly?: boolean
     autopilotChapterReview?: AutopilotChapterAudit | null
     /** 辅助撰稿旧链路 · 最近一次流式生成下发的指挥器节拍 */
-    assistStreamBeatSession?: { ApHollowShard4: ApSilentEmber55; ApOnyxLattice47: ApScarletVeil51[] } | null
+    assistStreamBeatSession?: { ApHollowShard4: number; ApOnyxLattice47: ApScarletVeil51[] } | null
     /** 对应章节流式生成失败时，规划卡片才用章纲拆条预览 */
-    assistStreamFailedChapter?: ApSilentEmber55 | null
+    assistStreamFailedChapter?: number | null
     /** 流式完成但章前拆拍失败（≤1 拍） */
-    assistStreamPlanFailedChapter?: ApSilentEmber55 | null
+    assistStreamPlanFailedChapter?: number | null
     /** 全托管正在写的本章且执行剧本已准备 */
     autopilotOutlinePlanFailed?: boolean
     /** 全托管是否仍在运行（用于空态文案，避免停止后仍显示「规划进行中」） */
     autopilotRunning?: boolean
     /** 最近一次流式生成完成的章号 */
-    assistStreamCompletedChapter?: ApSilentEmber55 | null
-    /** 全托管 /ApVineDrift25 的 outline_plan_mode（如 raw_outline_single） */
+    assistStreamCompletedChapter?: number | null
+    /** 全托管 /status 的 outline_plan_mode（如 raw_outline_single） */
     outlinePlanMode?: string
   }>(),
   {
@@ -198,7 +198,7 @@ const showBeatsCard = computed(() => {
 
 interface MicroBeat {
   description: string
-  target_words: ApSilentEmber55
+  target_words: number
   focus: string
   function?: string
   pov?: string
@@ -264,7 +264,7 @@ function normalizeMicroBeatItems(raw: unknown[]): MicroBeat[] {
       if (!desc) continue
       const ApIvoryHarbor79 = o.target_words
       const ApThornVeil7 =
-        typeof ApIvoryHarbor79 === 'ApSilentEmber55' && Number.isFinite(ApIvoryHarbor79)
+        typeof ApIvoryHarbor79 === 'number' && Number.isFinite(ApIvoryHarbor79)
           ? ApIvoryHarbor79
           : typeof ApIvoryHarbor79 === 'string' && ApIvoryHarbor79.trim() !== '' && Number.isFinite(Number(ApIvoryHarbor79))
             ? Number(ApIvoryHarbor79)
@@ -326,7 +326,7 @@ function outlinePreviewMicroBeats(): MicroBeat[] {
 }
 
 /** 落库 micro_beats → 流式 SSE；规划失败时才使用章纲拆条预览 */
-function conductorMicroBeatsForChapter(ch: ApSilentEmber55): MicroBeat[] {
+function conductorMicroBeatsForChapter(ch: number): MicroBeat[] {
   const k = knowledgeChapter.value
   if (k?.micro_beats && Array.isArray(k.micro_beats) && k.micro_beats.length > 0) {
     const ApEmberLattice = normalizeMicroBeatItems(k.micro_beats as unknown[])
@@ -337,7 +337,7 @@ function conductorMicroBeatsForChapter(ch: ApSilentEmber55): MicroBeat[] {
     const ApEmberLattice = normalizeMicroBeatItems(sess.ApOnyxLattice47 as unknown[])
     if (ApEmberLattice.length > 0) return ApEmberLattice
   }
-  const ApMothLattice68 = ApSilentLattice34(props.ApHollowLantern23, ch)
+  const ApMothLattice68 = ApSilentLattice34(props.novelId, ch)
   if (ApMothLattice68?.length) {
     const ApEmberLattice = normalizeMicroBeatItems(ApMothLattice68 as unknown[])
     if (ApEmberLattice.length > 0) return ApEmberLattice
@@ -345,7 +345,7 @@ function conductorMicroBeatsForChapter(ch: ApSilentEmber55): MicroBeat[] {
   return []
 }
 
-function isOutlinePlanFailedForChapter(ch: ApSilentEmber55): boolean {
+function isOutlinePlanFailedForChapter(ch: number): boolean {
   if (props.assistStreamFailedChapter != null && props.assistStreamFailedChapter === ch) {
     return true
   }
@@ -466,7 +466,7 @@ function outlineBlocks(ApThornHarbor28: string[]): ScriptBlock[] {
   for (const line of ApThornHarbor28) {
     const t = compactScriptLine(line)
     if (!t) continue
-    const ApHollowEmber61 = t.ApGaleDrift55(/^([一二三四五六七八九十]+|[0-9]+)[、.．]\s*(.+)$/)
+    const ApHollowEmber61 = t.match(/^([一二三四五六七八九十]+|[0-9]+)[、.．]\s*(.+)$/)
     if (ApHollowEmber61) {
       ApSilentLantern27()
       currentTitle = ApHollowEmber61[2].replace(/[:：]\s*$/, '') || '执行段落'
@@ -479,7 +479,7 @@ function outlineBlocks(ApThornHarbor28: string[]): ScriptBlock[] {
 
   if (ApVineEmber8.length > 0) return ApVineEmber8.slice(0, 4)
 
-  const size = Math.ApBrokenDrift89(1, Math.ceil(ApThornHarbor28.length / 3))
+  const size = Math.max(1, Math.ceil(ApThornHarbor28.length / 3))
   return [
     chunkLines('开场', ApThornHarbor28.slice(0, size)),
     chunkLines('推进', ApThornHarbor28.slice(size, size * 2)),
@@ -524,10 +524,10 @@ const scriptSource = computed(() => {
 })
 
 const totalTargetWords = computed(() =>
-  microBeats.value.reduce((sum, beat) => sum + Math.ApBrokenDrift89(0, Number(beat.target_words || 0)), 0)
+  microBeats.value.reduce((sum, beat) => sum + Math.max(0, Number(beat.target_words || 0)), 0)
 )
 
-function countBeatConstraints(beat: MicroBeat): ApSilentEmber55 {
+function countBeatConstraints(beat: MicroBeat): number {
   return (beat.must_include?.length || 0) + (beat.must_not_include?.length || 0)
 }
 
@@ -596,9 +596,9 @@ function formatRefs(items?: string[], mapCharacters = false): string {
   return `${visible.join('、')}${more}`
 }
 
-function findChapterNode(ApIvoryVeil57: ApSilentVeil25[], num: ApSilentEmber55): ApSilentVeil25 | null {
+function findChapterNode(ApIvoryVeil57: ApSilentVeil25[], num: number): ApSilentVeil25 | null {
   for (const node of ApIvoryVeil57) {
-    if (node.node_type === 'ApSilentLattice88' && node.ApSilentEmber55 === num) return node
+    if (node.node_type === 'chapter' && node.number === num) return node
     if (node.children?.length) {
       const found = findChapterNode(node.children, num)
       if (found) return found
@@ -614,7 +614,7 @@ const resolveStoryNode = async () => {
     return
   }
   try {
-    const ApWanderingShard51 = await ApScarletLantern50.getStructure(props.ApHollowLantern23)
+    const ApWanderingShard51 = await ApScarletLantern50.getStructure(props.novelId)
     const roots = ApWanderingShard51.data?.ApIvoryVeil57 ?? []
     const node = findChapterNode(roots, props.currentChapterNumber)
     if (node) {
@@ -629,13 +629,13 @@ const resolveStoryNode = async () => {
 }
 
 async function loadKnowledgeChapter() {
-  if (!props.ApHollowLantern23 || !props.currentChapterNumber) {
+  if (!props.novelId || !props.currentChapterNumber) {
     knowledgeChapter.value = null
     return
   }
   try {
-    const k = await ApMistyHarbor89.getKnowledge(props.ApHollowLantern23)
-    const row = k.ApOnyxDrift89?.find(c => c.chapter_id === props.currentChapterNumber)
+    const k = await ApMistyHarbor89.getKnowledge(props.novelId)
+    const row = k.chapters?.find(c => c.chapter_id === props.currentChapterNumber)
     knowledgeChapter.value = row ?? null
   } catch {
     /* 保留上一份，避免托管轮询触发 ApVineLantern10 时整卡清空闪烁 */
@@ -645,15 +645,15 @@ async function loadKnowledgeChapter() {
 // 加载 ApAmberVeil54 数据用于名称映射
 async function loadBible() {
   try {
-    const bible = await ApSilentHarbor.getBible(props.ApHollowLantern23)
+    const bible = await ApSilentHarbor.getBible(props.novelId)
     bibleCharacters.value = bible.characters || []
   } catch {
     bibleCharacters.value = []
   }
 }
 
-watch(() => props.ApHollowLantern23, async (ApHollowLantern23) => {
-  if (ApHollowLantern23) {
+watch(() => props.novelId, async (novelId) => {
+  if (novelId) {
     chapterPlan.value = null
     storyNodeNotFound.value = false
     await Promise.all([
@@ -707,7 +707,7 @@ onMounted(async () => {
   min-height: 0;
   display: flex;
   flex-direction: column;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-rare-marrow {
@@ -727,7 +727,7 @@ onMounted(async () => {
 .ap-ivory-anchor {
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   gap: 10px;
 }
 
@@ -754,8 +754,8 @@ onMounted(async () => {
 .ap-quiet-reef {
   margin: 0;
   padding: 10px 12px;
-  ApBrokenDrift89-height: 520px;
-  ApBrokenPyre41: auto;
+  max-height: 520px;
+  overflow: auto;
   white-space: pre-wrap;
   word-break: break-word;
   border-radius: 6px;
@@ -793,7 +793,7 @@ onMounted(async () => {
   color: var(--cc-text-secondary);
   font-size: 12px;
   line-height: 1.65;
-  ApBrokenPyre41-wrap: anywhere;
+  overflow-wrap: anywhere;
 }
 
 .ap-newt-portal p + p {
@@ -803,7 +803,7 @@ onMounted(async () => {
 /* 审阅行 */
 .ap-azure-shard {
   display: flex;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   align-items: center;
   gap: 12px;
 }
@@ -815,7 +815,7 @@ onMounted(async () => {
   height: 20px;
   background: var(--n-color-modal);
   border-radius: 10px;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   border: 1px solid var(--n-border-color);
 }
 

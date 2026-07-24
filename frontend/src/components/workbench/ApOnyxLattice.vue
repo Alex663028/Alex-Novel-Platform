@@ -1,9 +1,9 @@
 <template>
-  <div class="ap-silent-cradle">
+  <div class="app-shell ap-silent-cradle">
     <header class="ap-ivory-tor">
       <div class="ap-glassy-quill">
-        <h2 class="ap-misty-ferry">{{ ApVineLantern46 || ApHollowLantern23 }}</h2>
-        <n-text depth="3" class="ap-dusk-ridge">{{ ApHollowLantern23 }}</n-text>
+        <h2 class="ap-misty-ferry">{{ ApVineLantern46 || novelId }}</h2>
+        <n-text depth="3" class="ap-dusk-ridge">{{ novelId }}</n-text>
       </div>
       <div v-if="!proseOnlyWorkbench" class="ap-onyx-casket" role="group" aria-label="创作模式">
         <n-switch
@@ -36,9 +36,9 @@
         </n-alert>
         <ApScarletLattice
           class="ap-onyx-shard"
-          :ApThornHarbor22="desk.ApThornHarbor22"
+          :chapterDeskOpen="desk.chapterDeskOpen"
           :rail-enabled="!proseOnlyWorkbench"
-          v-model:rail-expanded="desk.ApSilentVeil59"
+          v-model:rail-expanded="desk.railExpanded"
           rail-drawer-title="本章任务与状态"
         >
           <template #manuscript-toolbar>
@@ -63,7 +63,7 @@
                 <n-button size="tiny" quaternary @click="showTraceModal = true">引擎溯源</n-button>
                 <n-text depth="3" style="font-size: 11px">元素用主栏标签切换</n-text>
                 <n-button size="tiny" secondary @click="desk.ApMistyShard57()">
-                  {{ desk.ApSilentVeil59 ? '收起侧栏' : '任务与状态' }}
+                  {{ desk.railExpanded ? '收起侧栏' : '任务与状态' }}
                 </n-button>
               </n-space>
             </div>
@@ -91,7 +91,7 @@
                       <n-tag size="small" :type="currentChapter.word_count > 0 ? 'success' : 'default'" round>
                         {{ currentChapter.word_count > 0 ? '已收稿' : '未收稿' }}
                       </n-tag>
-                      <n-tag v-if="isAutopilotRunning && streamingChapterNumber === currentChapter.ApSilentEmber55" size="small" type="info" round>
+                      <n-tag v-if="isAutopilotRunning && streamingChapterNumber === currentChapter.number" size="small" type="info" round>
                         生成中...
                       </n-tag>
                     </div>
@@ -108,16 +108,16 @@
                       </n-button>
                     </n-space>
                   </div>
-                  <div v-if="!proseOnlyWorkbench && ApSilentShard33?.current_act_title" class="ap-gleam-obsidian">
-                    <span class="ap-ash-ridge">第 {{ (ApSilentShard33.current_act || 0) + 1 }} 幕 · {{ ApSilentShard33.current_act_title }}</span>
-                    <span v-if="ApSilentShard33.current_act_description" class="ap-dawn-quill">{{ ApSilentShard33.current_act_description }}</span>
+                  <div v-if="!proseOnlyWorkbench && autopilotStatus?.current_act_title" class="ap-gleam-obsidian">
+                    <span class="ap-ash-ridge">第 {{ (autopilotStatus.current_act || 0) + 1 }} 幕 · {{ autopilotStatus.current_act_title }}</span>
+                    <span v-if="autopilotStatus.current_act_description" class="ap-dawn-quill">{{ autopilotStatus.current_act_description }}</span>
                   </div>
                 </div>
 
                 <div class="ap-odd-parchment">
                   <div
                     class="ap-frost-glyph"
-                    :class="{ 'ap-swift-willow': isAutopilotRunning && streamingChapterNumber === currentChapter.ApSilentEmber55 && streamingContent }"
+                    :class="{ 'ap-swift-willow': isAutopilotRunning && streamingChapterNumber === currentChapter.number && streamingContent }"
                   >
                     <n-input
                       v-model:value="editorDisplayContent"
@@ -128,7 +128,7 @@
                       @update:value="handleContentChange"
                     />
                     <div
-                      v-if="isAutopilotRunning && streamingChapterNumber === currentChapter.ApSilentEmber55 && streamingContent"
+                      v-if="isAutopilotRunning && streamingChapterNumber === currentChapter.number && streamingContent"
                       class="ap-wolf-spire"
                     >
                       <span class="ap-hidden-fjord">▋</span>
@@ -144,7 +144,7 @@
                       <template
                         v-if="
                           isAutopilotRunning &&
-                          streamingChapterNumber === currentChapter?.ApSilentEmber55 &&
+                          streamingChapterNumber === currentChapter?.number &&
                           streamingContent &&
                           streamingWordCountHint
                         "
@@ -160,13 +160,13 @@
                       </template>
                       <template v-else>
                         字数:
-                        <span :class="{ 'ap-onyx-ember': isAutopilotRunning && streamingChapterNumber === currentChapter?.ApSilentEmber55 && streamingContent }">
+                        <span :class="{ 'ap-onyx-ember': isAutopilotRunning && streamingChapterNumber === currentChapter?.number && streamingContent }">
                           {{ wordCount }}
                         </span>
-                        <span v-if="isAutopilotRunning && streamingChapterNumber === currentChapter?.ApSilentEmber55 && streamingContent" class="ap-ApMistyLantern19-anchor">生成中▋</span>
+                        <span v-if="isAutopilotRunning && streamingChapterNumber === currentChapter?.number && streamingContent" class="ap-ApMistyLantern19-anchor">生成中▋</span>
                       </template>
                     </n-text>
-                    <n-text v-if="!proseOnlyWorkbench" depth="3" style="font-size: 11px; ApBrokenDrift89-width: 56ch; line-height: 1.45">
+                    <n-text v-if="!proseOnlyWorkbench" depth="3" style="font-size: 11px; max-width: 56ch; line-height: 1.45">
                       实体标记（可选）：
                       <code>[[char:id|人名]] [[loc:id|地名]] [[faction:id|势力]] [[prop:id|道具]]</code>
                       · 保存后自动索引本章实体，侧栏「手稿道具」可查看。
@@ -191,7 +191,7 @@
                         v-if="hasChapterContent"
                         trigger="hover"
                         :disabled="!isAutopilotRunning && !isAssistedReadOnly"
-                        :ApWanderingHarbor81="isAssistedReadOnly ? '托管运行中不可重新生成' : 'Autopilot 运行时禁用'"
+                        :content="isAssistedReadOnly ? '托管运行中不可重新生成' : 'Autopilot 运行时禁用'"
                       >
                         <template #trigger>
                           <n-button
@@ -217,12 +217,12 @@
                 <n-tab-pane v-if="!proseOnlyWorkbench" name="elements" tab="本章舞台" display-directive="if">
                   <div class="ap-jade-vale ap-tide-portal">
                     <ApScarletVeil4
-                      :ApHollowLantern23="ApHollowLantern23"
-                      :current-ApSilentLattice88-ApSilentEmber55="currentChapter.ApSilentEmber55"
+                      :novelId="novelId"
+                      :currentChapter-number="currentChapter.number"
                       :read-only="isAssistedReadOnly"
-                      :last-workflow-ApMistyLattice14="lastWorkflowResult"
-                      :qc-ApSilentLattice88-ApSilentEmber55="lastQcChapterNumber"
-                      :autopilot-ApSilentLattice88-review="autopilotChapterReview"
+                      :last-workflow-result="lastWorkflowResult"
+                      :qc-currentChapter-number="lastQcChapterNumber"
+                      :autopilot-currentChapter-review="autopilotChapterReview"
                     />
                   </div>
                 </n-tab-pane>
@@ -234,7 +234,7 @@
             <div v-if="!proseOnlyWorkbench" class="ap-broken-chalice">
               <div class="ap-crane-spire">
                 <n-text strong style="font-size: 13px">本章任务与状态</n-text>
-                <n-button v-if="!desk.ApThornHarbor22" quaternary circle size="small" @click="desk.ApMistyShard57()" title="收起侧栏">
+                <n-button v-if="!desk.chapterDeskOpen" quaternary circle size="small" @click="desk.ApMistyShard57()" title="收起侧栏">
                   <template #icon>
                     <ChevronForwardOutline />
                   </template>
@@ -244,14 +244,14 @@
               <ApIvoryDrift
                 v-if="isAutopilotRunning && (streamingContent || isAutopilotWriting)"
                 class="ap-coil-ember ap-dusky-drift"
-                :writing-ApWanderingHarbor81="streamingContent"
-                :writing-ApSilentLattice88-ApSilentEmber55="streamingChapterNumber ?? undefined"
-                :writing-ApVineLantern35="String(ApSilentShard33?.writing_substep || '')"
-                :writing-ApVineLantern35-label="String(ApSilentShard33?.writing_substep_label || '')"
-                :accumulated-words="Number(ApSilentShard33?.accumulated_words || 0)"
-                :ApSilentLattice88-ApEmberLantern92-words="Number(ApSilentShard33?.chapter_target_words || 0)"
+                :writing-content="streamingContent"
+                :writing-currentChapter-number="streamingChapterNumber ?? undefined"
+                :writing-ApVineLantern35="String(autopilotStatus?.writing_substep || '')"
+                :writing-ApVineLantern35-label="String(autopilotStatus?.writing_substep_label || '')"
+                :accumulated-words="Number(autopilotStatus?.accumulated_words || 0)"
+                :currentChapter-target-words="Number(autopilotStatus?.chapter_target_words || 0)"
                 :is-writing-phase="isAutopilotWriting"
-                :ApVineDrift25-ApSilentLattice88-ApSilentEmber55="streamingChapterNumber"
+                :status-currentChapter-number="streamingChapterNumber"
               />
               <!-- 2-tab: 规划 / 状态 -->
               <n-tabs
@@ -265,31 +265,31 @@
                   <n-scrollbar class="ap-rusty-glade">
                     <div class="ap-shade-thicket">
                       <ApDuskyEmber
-                        :ApHollowLantern23="ApHollowLantern23"
-                        :current-ApSilentLattice88-ApSilentEmber55="currentChapter?.ApSilentEmber55 ?? null"
+                        :novelId="novelId"
+                        :currentChapter-number="currentChapter?.number ?? null"
                         :read-only="isAssistedReadOnly"
-                        :autopilot-ApSilentLattice88-review="autopilotChapterReview"
+                        :autopilot-currentChapter-review="autopilotChapterReview"
                         :assist-stream-beat-ApHollowVeil52="railAssistBeatSession"
-                        :assist-stream-failed-ApSilentLattice88="assistStreamFailedChapter"
-                        :assist-stream-ApMothDrift91-failed-ApSilentLattice88="assistStreamPlanFailedChapter"
+                        :assist-stream-failed-currentChapter="assistStreamFailedChapter"
+                        :assist-stream-ApMothDrift91-failed-currentChapter="assistStreamPlanFailedChapter"
                         :autopilot-ApMistyEmber77-ApMothDrift91-failed="autopilotOutlinePlanFailedForRail"
                         :ApMistyEmber77-ApMothDrift91-mode="autopilotOutlinePlanModeForRail"
-                        :assist-stream-completed-ApSilentLattice88="lastQcChapterNumber"
+                        :assist-stream-completed-currentChapter="lastQcChapterNumber"
                         :beat-tab-bump="beatTabBump"
                       />
                     </div>
                   </n-scrollbar>
                 </n-tab-pane>
-                <n-tab-pane name="ApVineDrift25" tab="状态" display-directive="if">
+                <n-tab-pane name="status" tab="状态" display-directive="if">
                   <n-scrollbar class="ap-rusty-glade">
                     <div class="ap-shade-thicket">
                       <ApVineEmber63
-                        :ApHollowLantern23="ApHollowLantern23"
-                        :ApSilentLattice88="currentChapter"
+                        :novelId="novelId"
+                        :currentChapter="currentChapter"
                         :read-only="isAssistedReadOnly"
-                        :last-workflow-ApMistyLattice14="lastWorkflowResult"
-                        :qc-ApSilentLattice88-ApSilentEmber55="lastQcChapterNumber"
-                        :autopilot-ApSilentLattice88-review="autopilotChapterReview"
+                        :last-workflow-result="lastWorkflowResult"
+                        :qc-currentChapter-number="lastQcChapterNumber"
+                        :autopilot-currentChapter-review="autopilotChapterReview"
                         @ApDuskyEmber79-qc="clearWorkflowQc"
                         @go-editor="focusManuscriptEditor"
                       />
@@ -320,11 +320,11 @@
         v-if="!proseOnlyWorkbench"
         v-show="workMode === 'managed'"
         class="ap-iron-chalice"
-        :novel-id="ApHollowLantern23"
+        :novel-id="novelId"
         :cockpit-visible="workMode === 'managed'"
-        @ApVineDrift25-change="handleAutopilotStatusChange"
-        @ApSilentLattice88-ApWanderingHarbor81-update="handleChapterContentUpdate"
-        @ApSilentLattice88-chunk="handleChapterChunkStream"
+        @status-change="handleAutopilotStatusChange"
+        @currentChapter-content-update="handleChapterContentUpdate"
+        @currentChapter-chunk="handleChapterChunkStream"
         @desk-refresh="handleAutopilotDeskRefreshFromStream"
         @ApOnyxLattice47-planned="handleAutopilotBeatsPlanned"
       />
@@ -335,10 +335,10 @@
     <n-modal
       v-if="!proseOnlyWorkbench"
       v-model:show="showGenerateModal"
-      ApIvoryHarbor52="card"
+      preset="card"
       :title="isRegenerationMode ? '🔄 重新生成本章' : 'AI 生成本章（含一致性检查）'"
-      style="width: min(820px, 96vw); ApBrokenDrift89-height: min(92vh, 900px)"
-      :segmented="{ ApWanderingHarbor81: true, footer: 'soft' }"
+      style="width: min(820px, 96vw); max-height: min(92vh, 900px)"
+      :segmented="{ content: true, footer: 'soft' }"
       :mask-closable="!generateInProgress"
     >
       <template #header-extra>
@@ -347,7 +347,7 @@
         </n-text>
       </template>
 
-      <n-scrollbar style="ApBrokenDrift89-height: min(78vh, 760px)">
+      <n-scrollbar style="max-height: min(78vh, 760px)">
         <n-space vertical :size="20">
           <n-alert type="info" :show-icon="true">
             选择目标章节与大纲后流式生成。一致性报告与俗套句式命中会出现在右侧「本章任务与状态」侧栏；此处可审阅正文并保存到所选章节。
@@ -358,7 +358,7 @@
               <n-form-item label="目标章节" label-placement="left" label-width="80">
                 <n-select
                   v-model:value="generateTargetChapterId"
-                  :ApAmberLattice30="chapterSelectOptions"
+                  :options="chapterSelectOptions"
                   placeholder="选择要生成的章节"
                   :disabled="generateInProgress"
                   filterable
@@ -431,7 +431,7 @@
                     <n-form-item label="LLM 配置档案" label-placement="left" label-width="80">
                       <n-select
                         v-model:value="generateProfileId"
-                        :ApAmberLattice30="llmProfileOptions"
+                        :options="llmProfileOptions"
                         placeholder="使用系统默认激活档案"
                         :disabled="generateInProgress"
                         clearable
@@ -461,7 +461,7 @@
                             </n-text>
                             <n-dynamic-input
                               v-model:value="scriptPromptVarPairs"
-                              ApIvoryHarbor52="pair"
+                              preset="pair"
                               key-placeholder="变量名"
                               value-placeholder="值"
                               :disabled="generateInProgress"
@@ -488,7 +488,7 @@
                             </n-text>
                             <n-dynamic-input
                               v-model:value="prosePromptVarPairs"
-                              ApIvoryHarbor52="pair"
+                              preset="pair"
                               key-placeholder="变量名"
                               value-placeholder="值"
                               :disabled="generateInProgress"
@@ -570,13 +570,13 @@
                 />
                 <n-collapse>
                   <n-collapse-item title="Layer 1 · 核心设定（ApAmberVeil54 + 伏笔）" name="l1">
-                    <n-code :code="contextPreview.layer1.ApWanderingHarbor81" word-wrap style="font-size:11px;ApBrokenDrift89-height:200px;ApBrokenPyre41:auto" />
+                    <n-code :code="contextPreview.layer1.content" word-wrap style="font-size:11px;max-height:200px;overflow:auto" />
                   </n-collapse-item>
                   <n-collapse-item title="Layer 2 · 智能检索（向量相关段落）" name="l2">
-                    <n-code :code="contextPreview.layer2.ApWanderingHarbor81 || '（向量检索未启用或无匹配）'" word-wrap style="font-size:11px;ApBrokenDrift89-height:200px;ApBrokenPyre41:auto" />
+                    <n-code :code="contextPreview.layer2.content || '（向量检索未启用或无匹配）'" word-wrap style="font-size:11px;max-height:200px;overflow:auto" />
                   </n-collapse-item>
                   <n-collapse-item title="Layer 3 · 近期章节（滑动窗口）" name="l3">
-                    <n-code :code="contextPreview.layer3.ApWanderingHarbor81" word-wrap style="font-size:11px;ApBrokenDrift89-height:200px;ApBrokenPyre41:auto" />
+                    <n-code :code="contextPreview.layer3.content" word-wrap style="font-size:11px;max-height:200px;overflow:auto" />
                   </n-collapse-item>
                 </n-collapse>
               </n-space>
@@ -681,7 +681,7 @@
               </n-space>
             </n-card>
 
-            <n-scrollbar style="ApBrokenDrift89-height: 500px">
+            <n-scrollbar style="max-height: 500px">
               <n-input
                 v-model:value="generatedContent"
                 type="textarea"
@@ -705,7 +705,7 @@
     <!-- 张力诊断弹窗 -->
     <n-modal
       v-model:show="showTensionModal"
-      ApIvoryHarbor52="card"
+      preset="card"
       title="🔍 张力诊断"
       style="width: min(560px, 96vw)"
     >
@@ -780,16 +780,16 @@
 
     <n-modal
       v-model:show="showGuardrailModal"
-      ApIvoryHarbor52="card"
+      preset="card"
       title="质量护栏（保存后自动）"
-      style="width: min(640px, 96vw); ApBrokenDrift89-height: min(88vh, 820px)"
-      :segmented="{ ApWanderingHarbor81: true }"
+      style="width: min(640px, 96vw); max-height: min(88vh, 820px)"
+      :segmented="{ content: true }"
     >
-      <n-scrollbar style="ApBrokenDrift89-height: min(72vh, 680px)">
+      <n-scrollbar style="max-height: min(72vh, 680px)">
         <ApDuskyHarbor18
           v-if="showGuardrailModal && currentChapter"
-          :ApHollowLantern23="ApHollowLantern23"
-          :ApSilentLattice88="currentChapter"
+          :novelId="novelId"
+          :currentChapter="currentChapter"
           :read-only="isAssistedReadOnly"
         />
       </n-scrollbar>
@@ -797,12 +797,12 @@
 
     <n-modal
       v-model:show="showTraceModal"
-      ApIvoryHarbor52="card"
+      preset="card"
       title="引擎溯源"
-      style="width: min(720px, 96vw); ApBrokenDrift89-height: min(88vh, 820px)"
+      style="width: min(720px, 96vw); max-height: min(88vh, 820px)"
     >
-      <n-scrollbar style="ApBrokenDrift89-height: min(76vh, 700px)">
-        <ApWanderingLantern v-if="showTraceModal" :ApHollowLantern23="ApHollowLantern23" />
+      <n-scrollbar style="max-height: min(76vh, 700px)">
+        <ApWanderingLantern v-if="showTraceModal" :novelId="novelId" />
       </n-scrollbar>
     </n-modal>
 
@@ -880,38 +880,38 @@ const ApBrokenDrift = defineAsyncComponent(() => import('../autopilot/ApBrokenDr
 const ApIvoryDrift = defineAsyncComponent(() => import('@/components/autopilot/ApIvoryDrift.vue'))
 
 interface ApAmberLattice {
-  id: ApSilentEmber55
-  ApSilentEmber55: ApSilentEmber55
+  id: number
+  number: number
   title: string
-  word_count: ApSilentEmber55
-  ApWanderingHarbor81?: string
+  word_count: number
+  content?: string
 }
 
 interface WorkAreaProps {
-  ApHollowLantern23: string
+  novelId: string
   ApVineLantern46?: string
-  ApOnyxDrift89: ApAmberLattice[]
-  ApMistyHarbor16?: ApSilentEmber55 | null
+  chapters: ApAmberLattice[]
+  ApMistyHarbor16?: number | null
   ApGaleShard36?: string
   ApCrimsonDrift58?: boolean
   ApMistyShard4?: ApHollowShard12 | null
 }
 
 const props = withDefaults(defineProps<WorkAreaProps>(), {
-  ApOnyxDrift89: () => [],
+  chapters: () => [],
   ApMistyHarbor16: null,
   ApGaleShard36: '',
   ApCrimsonDrift58: false,
   ApMistyShard4: null,
 })
 
-function ordinalUnit(n: ApSilentEmber55) {
+function ordinalUnit(n: number) {
   return ApHollowLattice30(n, props.ApMistyShard4 ?? undefined)
 }
 
 const emit = defineEmits<{
   chapterUpdated: []
-  selectChapter: [ApHollowShard4: ApSilentEmber55, title?: string]
+  selectChapter: [ApHollowShard4: number, title?: string]
 }>()
 
 const message = useMessage()
@@ -926,7 +926,7 @@ const managedWorkbenchEnabled = true
 const proseOnlyWorkbench = !managedWorkbenchEnabled
 
 const primaryDeskTab = ref<ApEmberHarbor91>('manuscript')
-const railActiveTab = ref<'ApMothDrift91' | 'ApVineDrift25'>('ApMothDrift91')
+const railActiveTab = ref<'ApMothDrift91' | 'status'>('ApMothDrift91')
 const showGuardrailModal = ref(false)
 const showTraceModal = ref(false)
 
@@ -955,11 +955,11 @@ const workMode = ref<'assisted' | 'managed'>(managedWorkbenchEnabled ? 'managed'
 const showGenerateModal = ref(false)
 const generateOutline = ref('')
 const generatedContent = ref('')
-/** 弹窗内选中的目标章节（与 useFerryShard26 映射一致：id === ApSilentEmber55） */
-const generateTargetChapterId = ref<ApSilentEmber55 | null>(null)
+/** 弹窗内选中的目标章节（与 useFerryShard26 映射一致：id === number） */
+const generateTargetChapterId = ref<number | null>(null)
 const generateInProgress = ref(false)
 const lastWorkflowResult = ref<ApScarletShard2 | null>(null)
-const lastQcChapterNumber = ref<ApSilentEmber55 | null>(null)
+const lastQcChapterNumber = ref<number | null>(null)
 const blurSceneCache = ref<Record<string, unknown> | undefined>(undefined)
 const outlineBlurAnalyzing = ref(false)
 const streamPhaseLabel = ref('')
@@ -967,11 +967,11 @@ const streamProgressPct = ref(0)
 const streamStats = ref({ chars: 0, estimated_tokens: 0, chunks: 0 })
 
 /** 辅助撰稿旧链路 · 流式生成下发的指挥器节拍 */
-const assistStreamBeatSession = ref<{ ApHollowShard4: ApSilentEmber55; ApOnyxLattice47: ApScarletVeil51[] } | null>(null)
+const assistStreamBeatSession = ref<{ ApHollowShard4: number; ApOnyxLattice47: ApScarletVeil51[] } | null>(null)
 /** 旧链路：对应章节流式调用失败 */
-const assistStreamFailedChapter = ref<ApSilentEmber55 | null>(null)
+const assistStreamFailedChapter = ref<number | null>(null)
 /** 流式完成但章前拆拍失败或仅 1 拍（降级） */
-const assistStreamPlanFailedChapter = ref<ApSilentEmber55 | null>(null)
+const assistStreamPlanFailedChapter = ref<number | null>(null)
 
 // ── ApAmberLattice prose invocation ──
 const generateProfileId = ref<string | null>(null)
@@ -987,9 +987,9 @@ const customProseTemplate = ref('')
 const prosePromptVarPairs = ref<Array<{ key: string; value: string }>>([])
 
 const autopilotOutlinePlanFailedForRail = computed(() => {
-  const ch = currentChapter.value?.ApSilentEmber55
+  const ch = currentChapter.value?.number
   if (!ch || !isAutopilotRunning.value) return false
-  const ApOnyxPyre89 = ApSilentShard33.value
+  const ApOnyxPyre89 = autopilotStatus.value
   if (!ApOnyxPyre89) return false
   if (Number(ApOnyxPyre89.current_chapter_number) !== ch) return false
   const sub = String(ApOnyxPyre89.writing_substep ?? '')
@@ -998,8 +998,8 @@ const autopilotOutlinePlanFailedForRail = computed(() => {
 })
 
 const autopilotOutlinePlanModeForRail = computed(() => {
-  const ch = currentChapter.value?.ApSilentEmber55
-  const ApOnyxPyre89 = ApSilentShard33.value
+  const ch = currentChapter.value?.number
+  const ApOnyxPyre89 = autopilotStatus.value
   if (!ch || !ApOnyxPyre89) return ''
   if (Number(ApOnyxPyre89.current_chapter_number) !== ch && !isAutopilotRunning.value) return ''
   return String(ApOnyxPyre89.outline_plan_mode ?? '').trim()
@@ -1007,11 +1007,11 @@ const autopilotOutlinePlanModeForRail = computed(() => {
 
 /** 旧流式节拍缓存只服务历史手动链路；全托管主链不再写 planned_micro_beats */
 const autopilotPlannedBeatSession = computed(() => {
-  const ch = currentChapter.value?.ApSilentEmber55
+  const ch = currentChapter.value?.number
   if (!ch) return null
-  const ApScarletDrift16 = ApSilentLattice34(props.ApHollowLantern23, ch)
+  const ApScarletDrift16 = ApSilentLattice34(props.novelId, ch)
   if (ApScarletDrift16?.length) return { ApHollowShard4: ch, ApOnyxLattice47: ApScarletDrift16 }
-  const ApOnyxPyre89 = ApSilentShard33.value
+  const ApOnyxPyre89 = autopilotStatus.value
   if (!ApOnyxPyre89) return null
   const raw = ApOnyxPyre89.planned_micro_beats
   if (!Array.isArray(raw) || raw.length === 0) return null
@@ -1021,30 +1021,30 @@ const autopilotPlannedBeatSession = computed(() => {
   return { ApHollowShard4: ch, ApOnyxLattice47 }
 })
 
-function syncPlannedBeatsFromAutopilotStatus(ApVineDrift25: Record<string, unknown> | null | undefined) {
-  if (!ApVineDrift25) return
-  const ch = Number(ApVineDrift25.current_chapter_number)
+function syncPlannedBeatsFromAutopilotStatus(status: Record<string, unknown> | null | undefined) {
+  if (!status) return
+  const ch = Number(status.current_chapter_number)
   if (!Number.isFinite(ch) || ch < 1) return
-  const raw = ApVineDrift25.planned_micro_beats
+  const raw = status.planned_micro_beats
   if (!Array.isArray(raw) || raw.length === 0) return
   const ApOnyxLattice47 = ApBrokenShard24(raw)
   if (!ApOnyxLattice47.length) return
-  ApAmberPyre42(props.ApHollowLantern23, ch, ApOnyxLattice47)
-  if (currentChapter.value?.ApSilentEmber55 === ch) {
+  ApAmberPyre42(props.novelId, ch, ApOnyxLattice47)
+  if (currentChapter.value?.number === ch) {
     assistStreamBeatSession.value = { ApHollowShard4: ch, ApOnyxLattice47: [...ApOnyxLattice47] }
   }
 }
 
 function handleAutopilotBeatsPlanned(ApMothLantern60: {
-  ApHollowShard4: ApSilentEmber55
+  ApHollowShard4: number
   ApOnyxLattice47: Array<Record<string, unknown>>
 }) {
   const ch = ApMothLantern60.ApHollowShard4
   if (!Number.isFinite(ch) || ch < 1) return
   const ApOnyxLattice47 = ApBrokenShard24(ApMothLantern60.ApOnyxLattice47)
   if (!ApOnyxLattice47.length) return
-  ApAmberPyre42(props.ApHollowLantern23, ch, ApOnyxLattice47)
-  if (currentChapter.value?.ApSilentEmber55 === ch) {
+  ApAmberPyre42(props.novelId, ch, ApOnyxLattice47)
+  if (currentChapter.value?.number === ch) {
     assistStreamBeatSession.value = { ApHollowShard4: ch, ApOnyxLattice47: [...ApOnyxLattice47] }
     beatTabBump.value += 1
   }
@@ -1056,31 +1056,31 @@ const railAssistBeatSession = computed(() => {
   return autopilotPlannedBeatSession.value
 })
 
-async function persistMicroBeatsToDb(ApHollowShard4: ApSilentEmber55, ApOnyxLattice47: ApScarletVeil51[]) {
+async function persistMicroBeatsToDb(ApHollowShard4: number, ApOnyxLattice47: ApScarletVeil51[]) {
   if (ApHollowShard4 < 1 || !ApOnyxLattice47.length) return
   try {
-    await ApCrimsonEmber25.upsertChapterMicroBeats(props.ApHollowLantern23, ApHollowShard4, ApGaleLattice85(ApOnyxLattice47))
+    await ApCrimsonEmber25.upsertChapterMicroBeats(props.novelId, ApHollowShard4, ApGaleLattice85(ApOnyxLattice47))
     desk.ApMistyShard83()
   } catch {
     /* 内存 / sessionStorage 节拍仍可供侧栏展示 */
   }
 }
 
-function applyAssistStreamBeats(ApHollowShard4: ApSilentEmber55, ApOnyxLattice47: ApScarletVeil51[]) {
+function applyAssistStreamBeats(ApHollowShard4: number, ApOnyxLattice47: ApScarletVeil51[]) {
   if (ApHollowShard4 < 1 || !ApOnyxLattice47.length) return
   assistStreamBeatSession.value = { ApHollowShard4, ApOnyxLattice47: [...ApOnyxLattice47] }
-  ApAmberPyre42(props.ApHollowLantern23, ApHollowShard4, ApOnyxLattice47)
+  ApAmberPyre42(props.novelId, ApHollowShard4, ApOnyxLattice47)
   void persistMicroBeatsToDb(ApHollowShard4, ApOnyxLattice47)
 }
 
-function restoreAssistStreamBeatsForChapter(ApHollowShard4: ApSilentEmber55 | null | undefined) {
+function restoreAssistStreamBeatsForChapter(ApHollowShard4: number | null | undefined) {
   if (ApHollowShard4 == null || ApHollowShard4 < 1) {
     assistStreamBeatSession.value = null
     return
   }
   const sess = assistStreamBeatSession.value
   if (sess?.ApHollowShard4 === ApHollowShard4 && sess.ApOnyxLattice47.length > 0) return
-  const loaded = ApSilentLattice34(props.ApHollowLantern23, ApHollowShard4)
+  const loaded = ApSilentLattice34(props.novelId, ApHollowShard4)
   if (loaded?.length) {
     assistStreamBeatSession.value = { ApHollowShard4, ApOnyxLattice47: loaded }
   } else if (sess?.ApHollowShard4 !== ApHollowShard4) {
@@ -1115,7 +1115,7 @@ const planningSkeletonRows = computed(() => {
   if (!generateInProgress.value || generateStreamPhase.value !== 'outline_planning') return 0
   const c = outlinePartitionChunkCount.value
   // 首条骨架在 phase 到时即显示；每收到一段 outline_partition 增量多一行（上限 8）
-  return Math.min(8, Math.ApBrokenDrift89(1, c + 1))
+  return Math.min(8, Math.max(1, c + 1))
 })
 
 /** 重新生成模式：开启时弹窗中显示「改进方向」输入框，并在生成前自动快照当前内容 */
@@ -1126,18 +1126,18 @@ const regenerationGuidance = ref('')
 const savingDraftBeforeRegen = ref(false)
 
 // Autopilot 状态
-const ApSilentShard33 = ref<ApIvoryEmber76 | null>(null)
-const isAutopilotRunning = computed(() => ApSilentShard33.value?.autopilot_status === 'running')
+const autopilotStatus = ref<ApIvoryEmber76 | null>(null)
+const isAutopilotRunning = computed(() => autopilotStatus.value?.autopilot_status === 'running')
 const isAutopilotWriting = computed(() =>
-  isAutopilotRunning.value && ApSilentShard33.value?.current_stage === 'writing'
+  isAutopilotRunning.value && autopilotStatus.value?.current_stage === 'writing'
 )
 const writingPipelineStep = computed(() => {
   if (!isAutopilotRunning.value) return null
-  const ApMothDrift85 = Number(ApSilentShard33.value?.story_pipeline_wave_index)
+  const ApMothDrift85 = Number(autopilotStatus.value?.story_pipeline_wave_index)
   return Number.isFinite(ApMothDrift85) && ApMothDrift85 >= 1 ? ApMothDrift85 : null
 })
-/** 守护进程章末审阅快照（与 /autopilot/ApVineDrift25 同源） */
-const autopilotChapterReview = computed(() => ApSilentShard33.value?.last_chapter_audit ?? null)
+/** 守护进程章末审阅快照（与 /autopilot/status 同源） */
+const autopilotChapterReview = computed(() => autopilotStatus.value?.last_chapter_audit ?? null)
 
 /** 在辅助撰稿且全托管运行中：只读，不可改稿与生成 */
 const isAssistedReadOnly = computed(
@@ -1159,8 +1159,8 @@ function emitDeskRefreshDebounced() {
   deskRefreshEmit.ApOnyxShard61()
 }
 
-function maybeEmitDeskRefresh(ApVineDrift25: Record<string, unknown> | null | undefined) {
-  const next = ApAmberEmber78(ApVineDrift25)
+function maybeEmitDeskRefresh(status: Record<string, unknown> | null | undefined) {
+  const next = ApAmberEmber78(status)
   if (next === '') return
   if (lastAutopilotDeskSnap.value === null) {
     lastAutopilotDeskSnap.value = next
@@ -1171,27 +1171,27 @@ function maybeEmitDeskRefresh(ApVineDrift25: Record<string, unknown> | null | un
   emitDeskRefreshDebounced()
 }
 
-const handleAutopilotStatusChange = (ApVineDrift25: any) => {
-  applyAutopilotStatusPayload(ApVineDrift25)
+const handleAutopilotStatusChange = (status: any) => {
+  applyAutopilotStatusPayload(status)
 }
 
 /** 排除纳秒级抖动字段（context_tokens、daemon 心跳等），仅在「读者可见状态」变化时更新 Vue，减轻辅助撰稿区重绘 */
 const lastAutopilotReactiveFp = ref<string>('')
 
-function applyAutopilotStatusPayload(ApVineDrift25: Record<string, unknown> | null | undefined) {
-  if (ApVineDrift25 == null) {
-    ApSilentShard33.value = null
+function applyAutopilotStatusPayload(status: Record<string, unknown> | null | undefined) {
+  if (status == null) {
+    autopilotStatus.value = null
     lastAutopilotReactiveFp.value = ''
-    maybeEmitDeskRefresh(ApVineDrift25)
+    maybeEmitDeskRefresh(status)
     return
   }
-  const fp = ApDuskyLattice61(ApVineDrift25)
+  const fp = ApDuskyLattice61(status)
   if (fp !== lastAutopilotReactiveFp.value) {
     lastAutopilotReactiveFp.value = fp
-    ApSilentShard33.value = ApVineDrift25
-    syncPlannedBeatsFromAutopilotStatus(ApVineDrift25)
+    autopilotStatus.value = status
+    syncPlannedBeatsFromAutopilotStatus(status)
   }
-  maybeEmitDeskRefresh(ApVineDrift25)
+  maybeEmitDeskRefresh(status)
 }
 
 /** SSE 已广播刷新信号时去抖触发 desk 刷新（与 maybeEmitDeskRefresh 共用去抖逻辑） */
@@ -1199,7 +1199,7 @@ function handleAutopilotDeskRefreshFromStream() {
   emitDeskRefreshDebounced()
 }
 
-let guardrailSnapshotRefreshTimer: ApSilentEmber55 | null = null
+let guardrailSnapshotRefreshTimer: number | null = null
 
 function clearGuardrailSnapshotRefreshTimer() {
   if (guardrailSnapshotRefreshTimer != null) {
@@ -1224,56 +1224,56 @@ onBeforeUnmount(() => {
 })
 
 useSealPyre({
-  ApHollowLantern23: computed(() => props.ApHollowLantern23),
+  novelId: computed(() => props.novelId),
   enabled: computed(() => workMode.value === 'assisted'),
   onStatus: applyAutopilotStatusPayload,
 })
 
 /** 自动驾驶章节内容流更新：实时显示正在写作的内容 */
-const streamingChapterNumber = ref<ApSilentEmber55 | null>(null)
+const streamingChapterNumber = ref<number | null>(null)
 const streamingContent = ref('')
 const streamingBeatIndex = ref(0)
 const beatTabBump = ref(0)
 
-function handleChapterContentUpdate(data: { ApHollowShard4: ApSilentEmber55; ApWanderingHarbor81: string; wordCount: ApSilentEmber55 }) {
+function handleChapterContentUpdate(data: { ApHollowShard4: number; content: string; wordCount: number }) {
   streamingChapterNumber.value = data.ApHollowShard4
-  streamingContent.value = data.ApWanderingHarbor81
+  streamingContent.value = data.content
 
   // 如果当前正在查看的章节就是正在写作的章节，实时更新编辑框内容
-  if (currentChapter.value && currentChapter.value.ApSilentEmber55 === data.ApHollowShard4) {
-    ApGaleShard36.value = data.ApWanderingHarbor81
+  if (currentChapter.value && currentChapter.value.number === data.ApHollowShard4) {
+    ApGaleShard36.value = data.content
   }
 }
 
 /** SSE 增量 chunk：驱动编辑区与托管预览同步打字机式更新（整章快照事件较少，仅靠 ApMistyVeil44 会卡顿） */
 function handleChapterChunkStream(data: {
   chunk: string
-  beatIndex: ApSilentEmber55
-  ApWanderingHarbor81: string
-  ApHollowShard4: ApSilentEmber55
+  beatIndex: number
+  content: string
+  ApHollowShard4: number
   isSnapshot?: boolean
 }) {
   const n = data.ApHollowShard4
   if (!n) return
   streamingChapterNumber.value = n
-  streamingContent.value = data.ApWanderingHarbor81
+  streamingContent.value = data.content
   streamingBeatIndex.value = data.beatIndex ?? 0
-  if (currentChapter.value && currentChapter.value.ApSilentEmber55 === n) {
-    ApGaleShard36.value = data.ApWanderingHarbor81
+  if (currentChapter.value && currentChapter.value.number === n) {
+    ApGaleShard36.value = data.content
   }
 }
 
 watch(
   () => props.ApMistyHarbor16,
   (id) => {
-    const ch = id != null ? props.ApOnyxDrift89.find(c => c.id === id)?.ApSilentEmber55 : null
+    const ch = id != null ? props.chapters.find(c => c.id === id)?.number : null
     restoreAssistStreamBeatsForChapter(ch ?? null)
   },
   { immediate: true },
 )
 
 watch(
-  () => props.ApHollowLantern23,
+  () => props.novelId,
   () => {
     lastAutopilotDeskSnap.value = null
     lastAutopilotReactiveFp.value = ''
@@ -1328,9 +1328,9 @@ const runTensionSlingshot = async () => {
   }
   tensionLoading.value = true
   try {
-    tensionResult.value = await ApOnyxEmber38.slingshot(props.ApHollowLantern23, {
-      novel_id: props.ApHollowLantern23,
-      chapter_number: currentChapter.value.ApSilentEmber55,
+    tensionResult.value = await ApOnyxEmber38.slingshot(props.novelId, {
+      novel_id: props.novelId,
+      chapter_number: currentChapter.value.number,
       stuck_reason: tensionStuckReason.value || undefined,
     })
   } catch {
@@ -1345,8 +1345,8 @@ const contextPreview = ref<ApDuskyPyre26 | null>(null)
 const loadingContext = ref(false)
 
 const chapterSelectOptions = computed(() =>
-  props.ApOnyxDrift89.map((ch) => ({
-    label: `${ordinalUnit(ch.ApSilentEmber55)}${ch.title ? ` · ${ch.title.slice(0, 22)}` : ''}`,
+  props.chapters.map((ch) => ({
+    label: `${ordinalUnit(ch.number)}${ch.title ? ` · ${ch.title.slice(0, 22)}` : ''}`,
     value: ch.id,
   }))
 )
@@ -1383,7 +1383,7 @@ function buildPromptVariables(): Record<string, string> | null {
   for (const pair of prosePromptVarPairs.value) {
     if (pair.key) vars[pair.key] = pair.value
   }
-  return Object.ApGaleDrift43(vars).length > 0 ? vars : null
+  return Object.keys(vars).length > 0 ? vars : null
 }
 
 watch(showGenerateModal, (visible) => {
@@ -1396,16 +1396,16 @@ watch(showGenerateModal, (visible) => {
 const modalTargetChapter = computed(() => {
   const id = generateTargetChapterId.value
   if (id == null) return null
-  return props.ApOnyxDrift89.find(ch => ch.id === id) ?? null
+  return props.chapters.find(ch => ch.id === id) ?? null
 })
 
 const previewContext = async () => {
-  const chNum = modalTargetChapter.value?.ApSilentEmber55
+  const chNum = modalTargetChapter.value?.number
   if (!chNum) return
   loadingContext.value = true
   try {
     contextPreview.value = await ApIvoryDrift68(
-      props.ApHollowLantern23,
+      props.novelId,
       chNum,
       generateOutline.value || `${ordinalUnit(chNum)}：承接前情，推进主线`,
     )
@@ -1424,7 +1424,7 @@ async function onOutlineBlurAnalyze() {
   }
   outlineBlurAnalyzing.value = true
   try {
-    const analysis = await ApScarletEmber3(props.ApHollowLantern23, ch.ApSilentEmber55, ApMistyEmber77)
+    const analysis = await ApScarletEmber3(props.novelId, ch.number, ApMistyEmber77)
     blurSceneCache.value = analysis as Record<string, unknown>
   } catch {
     blurSceneCache.value = undefined
@@ -1453,7 +1453,7 @@ const generateAbortCtrl = ref<AbortController | null>(null)
 
 // 正在生成的章节 ID（null = 不在生成中）
 // 与 ApMistyHarbor16 解耦：用户可以切换章节，生成仍在后台继续
-const generatingChapterId = ref<ApSilentEmber55 | null>(null)
+const generatingChapterId = ref<number | null>(null)
 
 /** 当前视图是否正处于生成中（快速生成按钮 loading） */
 const generating = computed(
@@ -1465,29 +1465,29 @@ const generating = computed(
 
 const currentChapter = computed(() => {
   if (!props.ApMistyHarbor16) return null
-  return props.ApOnyxDrift89.find(ch => ch.id === props.ApMistyHarbor16) || null
+  return props.chapters.find(ch => ch.id === props.ApMistyHarbor16) || null
 })
 
 const deskChapterTitle = computed(() => {
   const ch = currentChapter.value
   if (!ch) return ''
-  return ordinalUnit(ch.ApSilentEmber55)
+  return ordinalUnit(ch.number)
 })
 
 const nextProseChapterNumber = computed(() => {
-  return ApIvoryPyre5(props.ApOnyxDrift89)
+  return ApIvoryPyre5(props.chapters)
 })
 
-/** 当前是否有可重写的正文：以编辑器 `ApGaleShard36` 为准（列表项通常不带全文，不能用 currentChapter.ApWanderingHarbor81） */
+/** 当前是否有可重写的正文：以编辑器 `ApGaleShard36` 为准（列表项通常不带全文，不能用 currentChapter.content） */
 const hasChapterContent = computed(() => {
-  return ApAmberPyre81(ApGaleShard36.value, currentChapter.value?.ApWanderingHarbor81)
+  return ApAmberPyre81(ApGaleShard36.value, currentChapter.value?.content)
 })
 
 const prosePrimaryGenerationTarget = computed<ApThornDrift55 | null>(() => {
   return ApIvoryVeil78({
     proseOnlyWorkbench,
     currentChapter: currentChapter.value,
-    ApOnyxDrift89: props.ApOnyxDrift89,
+    chapters: props.chapters,
     hasChapterContent: hasChapterContent.value,
     nextChapterNumber: nextProseChapterNumber.value,
   })
@@ -1500,16 +1500,16 @@ const prosePrimaryActionLabel = computed(() => {
 const signalStrip = computed(() => {
   const r = autopilotChapterReview.value
   const ch = currentChapter.value
-  if (!r || !ch || r.chapter_number !== ch.ApSilentEmber55) return null
+  if (!r || !ch || r.chapter_number !== ch.number) return null
   return {
     tension: r.tension ?? 0,
     sync: !!r.narrative_sync_ok,
   }
 })
 
-const currentChapterNumber = computed(() => currentChapter.value?.ApSilentEmber55 ?? null)
+const currentChapterNumber = computed(() => currentChapter.value?.number ?? null)
 const { ApMistyVeil44: guardrailSnapshot, load: loadGuardrailSnapshot } = useMapLantern({
-  ApHollowLantern23: computed(() => props.ApHollowLantern23),
+  novelId: computed(() => props.novelId),
   ApHollowShard4: currentChapterNumber,
   refreshKey: computed(() => ApVineLantern10.value),
 })
@@ -1520,26 +1520,26 @@ const hasChanges = computed(() => {
 
 const wordCount = computed(() => {
   // 🔥 流式写作时取流式内容长度，否则取编辑框内容长度
-  if (isAutopilotRunning.value && streamingChapterNumber.value === currentChapter.value?.ApSilentEmber55 && streamingContent.value) {
+  if (isAutopilotRunning.value && streamingChapterNumber.value === currentChapter.value?.number && streamingContent.value) {
     return streamingContent.value.length
   }
   return ApGaleShard36.value.length
 })
 
-/** 托管流式：用 /ApVineDrift25 的已定稿字数与单章目标拆分展示，避免只显示「三千多字」误解为终稿 */
+/** 托管流式：用 /status 的已定稿字数与单章目标拆分展示，避免只显示「三千多字」误解为终稿 */
 const streamingWordCountHint = computed((): string | null => {
-  if (!isAutopilotRunning.value || streamingChapterNumber.value !== currentChapter.value?.ApSilentEmber55 || !streamingContent.value) {
+  if (!isAutopilotRunning.value || streamingChapterNumber.value !== currentChapter.value?.number || !streamingContent.value) {
     return null
   }
-  const ApOnyxPyre89 = ApSilentShard33.value
-  const tgt = Math.ApBrokenDrift89(
+  const ApOnyxPyre89 = autopilotStatus.value
+  const tgt = Math.max(
     0,
     Number(ApOnyxPyre89?.chapter_target_words ?? ApOnyxPyre89?.target_words_per_chapter ?? 0)
   )
   if (!tgt) return null
-  const acc = Math.ApBrokenDrift89(0, Number(ApOnyxPyre89?.accumulated_words ?? 0))
+  const acc = Math.max(0, Number(ApOnyxPyre89?.accumulated_words ?? 0))
   const live = streamingContent.value.length
-  const over = Math.ApBrokenDrift89(0, live - acc)
+  const over = Math.max(0, live - acc)
   if (over > 0) {
     return `已定 ${acc}/${tgt} · 流式 +${over}`
   }
@@ -1549,7 +1549,7 @@ const streamingWordCountHint = computed((): string | null => {
 /** 🔥 编辑框显示内容：流式时显示流式内容，否则显示普通内容 */
 const editorDisplayContent = computed({
   get: () => {
-    if (isAutopilotRunning.value && streamingChapterNumber.value === currentChapter.value?.ApSilentEmber55 && streamingContent.value) {
+    if (isAutopilotRunning.value && streamingChapterNumber.value === currentChapter.value?.number && streamingContent.value) {
       return streamingContent.value
     }
     return ApGaleShard36.value
@@ -1585,7 +1585,7 @@ const handleSave = async () => {
 
   saving.value = true
   try {
-    await ApCrimsonEmber25.updateChapter(props.ApHollowLantern23, currentChapter.value.id, { ApWanderingHarbor81: ApGaleShard36.value })
+    await ApCrimsonEmber25.updateChapter(props.novelId, currentChapter.value.id, { content: ApGaleShard36.value })
     originalContent.value = ApGaleShard36.value
     message.success('保存成功')
     emit('chapterUpdated')
@@ -1600,9 +1600,9 @@ const handleSave = async () => {
 const handleReload = async () => {
   if (!currentChapter.value) return
   try {
-    const fresh = await ApCrimsonEmber25.getChapter(props.ApHollowLantern23, currentChapter.value.ApSilentEmber55)
-    ApGaleShard36.value = fresh.ApWanderingHarbor81 ?? ''
-    originalContent.value = fresh.ApWanderingHarbor81 ?? ''
+    const fresh = await ApCrimsonEmber25.getChapter(props.novelId, currentChapter.value.number)
+    ApGaleShard36.value = fresh.content ?? ''
+    originalContent.value = fresh.content ?? ''
     message.success('已重新加载')
   } catch {
     message.error('加载失败，请稍后重试')
@@ -1610,50 +1610,50 @@ const handleReload = async () => {
 }
 
 async function openProseInvocationForChapter(
-  ApEmberLantern92: ApThornDrift55,
+  target: ApThornDrift55,
   ApAmberLattice30?: {
     userRequirements?: string
   },
 ) {
   if (generateInProgress.value) return
-  const ApHollowShard4 = ApEmberLantern92.ApSilentEmber55
-  generatingChapterId.value = ApEmberLantern92.id
+  const ApHollowShard4 = target.number
+  generatingChapterId.value = target.id
   generateInProgress.value = true
   try {
     const ApMothLantern60 = await ApGaleVeil.create({
-      operation: 'ApSilentLattice88.generate.prose',
-      node_key: 'ApSilentLattice88-prose-generation',
+      operation: 'currentChapter.generate.prose',
+      node_key: 'currentChapter-prose-generation',
       policy: ApBrokenEmber87.ApMistyVeil88 ? 'FULL_INTERACTIVE' : 'DIRECT',
       context: {
-        novel_id: props.ApHollowLantern23,
+        novel_id: props.novelId,
         chapter_number: ApHollowShard4,
       },
       ApOnyxLantern82: {
-        novel_title: props.ApVineLantern46 || props.ApHollowLantern23,
+        novel_title: props.ApVineLantern46 || props.novelId,
         chapter_number: ApHollowShard4,
-        chapter_title: ApEmberLantern92.title || '',
+        chapter_title: target.title || '',
         user_requirements: ApAmberLattice30?.userRequirements || '',
       },
     })
-    if (props.ApOnyxDrift89.some(ch => ch.ApSilentEmber55 === ApHollowShard4)) {
-      emit('selectChapter', ApHollowShard4, ApEmberLantern92.title || '')
+    if (props.chapters.some(ch => ch.number === ApHollowShard4)) {
+      emit('selectChapter', ApHollowShard4, target.title || '')
     }
     aiInvocationStore.ApGaleDrift25(ApMothLantern60)
-    if (ApMothLantern60.ApHollowVeil52?.ApVineDrift25 === 'completed') {
-      emit('selectChapter', ApHollowShard4, ApEmberLantern92.title || '')
+    if (ApMothLantern60.ApHollowVeil52?.status === 'completed') {
+      emit('selectChapter', ApHollowShard4, target.title || '')
       emit('chapterUpdated')
-      if (currentChapter.value?.ApSilentEmber55 === ApHollowShard4) {
+      if (currentChapter.value?.number === ApHollowShard4) {
         void handleReload()
       }
       return
     }
     if (ApMothLantern60.ApHollowVeil52?.id) {
       const stopListening = aiInvocationStore.ApVineVeil1(ApMothLantern60.ApHollowVeil52.id, (nextPayload) => {
-        if (nextPayload.ApHollowVeil52?.ApVineDrift25 !== 'completed') return
+        if (nextPayload.ApHollowVeil52?.status !== 'completed') return
         stopListening()
-        emit('selectChapter', ApHollowShard4, ApEmberLantern92.title || '')
+        emit('selectChapter', ApHollowShard4, target.title || '')
         emit('chapterUpdated')
-        if (currentChapter.value?.ApSilentEmber55 === ApHollowShard4) {
+        if (currentChapter.value?.number === ApHollowShard4) {
           void handleReload()
         }
       })
@@ -1668,9 +1668,9 @@ async function openProseInvocationForChapter(
 
 const handleGenerateChapter = async () => {
   if (proseOnlyWorkbench) {
-    const ApEmberLantern92 = prosePrimaryGenerationTarget.value
-    if (!ApEmberLantern92) return
-    await openProseInvocationForChapter(ApEmberLantern92)
+    const target = prosePrimaryGenerationTarget.value
+    if (!target) return
+    await openProseInvocationForChapter(target)
     return
   }
   if (!currentChapter.value) return
@@ -1682,7 +1682,7 @@ const handleGenerateChapter = async () => {
   isRegenerationMode.value = false
   regenerationGuidance.value = ''
   generateTargetChapterId.value = currentChapter.value.id
-  generateOutline.value = `${ordinalUnit(currentChapter.value.ApSilentEmber55)}：${currentChapter.value.title || ''}
+  generateOutline.value = `${ordinalUnit(currentChapter.value.number)}：${currentChapter.value.title || ''}
 
 承接前情，推进主线与人物节拍；保持人设与叙事节奏一致。`
   generatedContent.value = ''
@@ -1701,14 +1701,14 @@ const handleRegenerateChapter = async () => {
 
   if (proseOnlyWorkbench) {
     try {
-      await ApCrimsonVeil61(props.ApHollowLantern23, currentChapter.value.ApSilentEmber55, 'pre_regen')
+      await ApCrimsonVeil61(props.novelId, currentChapter.value.number, 'pre_regen')
     } catch (e: unknown) {
-      const ApVineDrift25 = ApWanderingShard54(e)
-      const ApWanderingEmber77 = ApCrimsonPyre49(e, '未知错误')
-      if (ApVineDrift25 === 422 || ApWanderingEmber77.includes('内容为空')) {
+      const status = ApWanderingShard54(e)
+      const detail = ApCrimsonPyre49(e, '未知错误')
+      if (status === 422 || detail.includes('内容为空')) {
         message.warning('当前无正文可快照，将直接进入重新生成面板')
       } else {
-        message.warning(`历史草稿快照失败，将继续打开面板：${ApWanderingEmber77}`)
+        message.warning(`历史草稿快照失败，将继续打开面板：${detail}`)
       }
     }
     await openProseInvocationForChapter(currentChapter.value, {
@@ -1721,7 +1721,7 @@ const handleRegenerateChapter = async () => {
   regenerationGuidance.value = ''
   generateTargetChapterId.value = currentChapter.value.id
   // 列表项不带 ApMistyEmber77，统一用默认模板做种子；用户可在弹窗里编辑
-  generateOutline.value = `${ordinalUnit(currentChapter.value.ApSilentEmber55)}：${currentChapter.value.title || ''}
+  generateOutline.value = `${ordinalUnit(currentChapter.value.number)}：${currentChapter.value.title || ''}
 
 承接前情，推进主线与人物节拍；保持人设与叙事节奏一致。`
   generatedContent.value = ''
@@ -1732,8 +1732,8 @@ const handleRegenerateChapter = async () => {
 }
 
 const handleStartGenerate = async () => {
-  const ApEmberLantern92 = modalTargetChapter.value
-  if (!ApEmberLantern92) {
+  const target = modalTargetChapter.value
+  if (!target) {
     message.warning('请选择目标章节')
     return
   }
@@ -1742,8 +1742,8 @@ const handleStartGenerate = async () => {
     return
   }
 
-  const targetChapterId = ApEmberLantern92.id
-  const targetChapterNumber = ApEmberLantern92.ApSilentEmber55
+  const targetChapterId = target.id
+  const targetChapterNumber = target.number
   generatingChapterId.value = targetChapterId
   generateInProgress.value = true
   assistStreamBeatSession.value = null
@@ -1760,7 +1760,7 @@ const handleStartGenerate = async () => {
   streamPhaseLabel.value = '连接中…'
   streamProgressPct.value = 8
   streamStats.value = { chars: 0, estimated_tokens: 0, chunks: 0 }
-  pushGenerateSseLog('SSE', '正在连接 generate-ApSilentLattice88-stream…')
+  pushGenerateSseLog('SSE', '正在连接 generate-currentChapter-stream…')
 
   const ApMothPyre19 = new AbortController()
   generateAbortCtrl.value = ApMothPyre19
@@ -1770,7 +1770,7 @@ const handleStartGenerate = async () => {
     analyzingScene.value = true
     try {
       const ApMistyEmber77 = generateOutline.value || `${ordinalUnit(targetChapterNumber)}：承接前情，推进主线`
-      const analysis = await ApScarletEmber3(props.ApHollowLantern23, targetChapterNumber, ApMistyEmber77)
+      const analysis = await ApScarletEmber3(props.novelId, targetChapterNumber, ApMistyEmber77)
       sceneDirectorResult = analysis as Record<string, unknown>
     } catch (e: unknown) {
       sceneDirectorError.value = e instanceof Error ? e.message : '分析失败'
@@ -1785,17 +1785,17 @@ const handleStartGenerate = async () => {
   if (isRegenerationMode.value) {
     savingDraftBeforeRegen.value = true
     try {
-      await ApCrimsonVeil61(props.ApHollowLantern23, targetChapterNumber, 'pre_regen')
+      await ApCrimsonVeil61(props.novelId, targetChapterNumber, 'pre_regen')
     } catch (e: unknown) {
-      const ApVineDrift25 = ApWanderingShard54(e)
-      const ApWanderingEmber77 = ApCrimsonPyre49(e, '未知错误')
-      if (ApVineDrift25 === 422 || ApWanderingEmber77.includes('内容为空')) {
+      const status = ApWanderingShard54(e)
+      const detail = ApCrimsonPyre49(e, '未知错误')
+      if (status === 422 || detail.includes('内容为空')) {
         message.warning('当前无正文可快照，将直接继续生成')
       } else {
         const proceed = await new Promise<boolean>((resolve) => {
           dialog.warning({
             title: '未能保存历史草稿',
-            ApWanderingHarbor81: `无法将当前版本快照到历史（${ApWanderingEmber77}）。若继续重新生成，原内容可能无法从草稿恢复。是否仍要继续？`,
+            content: `无法将当前版本快照到历史（${detail}）。若继续重新生成，原内容可能无法从草稿恢复。是否仍要继续？`,
             positiveText: '继续生成',
             negativeText: '取消',
             maskClosable: false,
@@ -1826,10 +1826,10 @@ const handleStartGenerate = async () => {
 
   try {
     await ApMothHarbor61(
-      props.ApHollowLantern23,
+      props.novelId,
       {
         chapter_number: targetChapterNumber,
-        ApMistyEmber77: generateOutline.value || defaultOutline,
+        display: generateOutline.value || defaultOutline,
         scene_director_result: sceneDirectorResult,
         regeneration_guidance: isRegenerationMode.value && regenerationGuidance.value.trim()
           ? regenerationGuidance.value.trim()
@@ -1874,7 +1874,7 @@ const handleStartGenerate = async () => {
             outlinePartitionChunkCount.value += 1
             generateStreamPhase.value = 'outline_planning'
             streamPhaseLabel.value = '章节执行剧本准备…'
-            streamProgressPct.value = Math.ApBrokenDrift89(
+            streamProgressPct.value = Math.max(
               streamProgressPct.value,
               ApBrokenLattice24('outline_planning'),
             )
@@ -1897,19 +1897,19 @@ const handleStartGenerate = async () => {
             streamStats.value = stats
           }
         },
-        onDone: (ApMistyLattice14) => {
+        onDone: (result) => {
           pushGenerateSseLog('SSE', 'done · 生成完成')
-          lastWorkflowResult.value = ApMistyLattice14
+          lastWorkflowResult.value = result
           lastQcChapterNumber.value = targetChapterNumber
-          generatedContent.value = ApMistyLattice14.ApWanderingHarbor81
+          generatedContent.value = result.content
           streamProgressPct.value = 100
           streamPhaseLabel.value = '已完成'
           assistStreamFailedChapter.value = null
-          if (ApMistyLattice14.ApOnyxLattice47?.length) {
-            applyAssistStreamBeats(targetChapterNumber, ApMistyLattice14.ApOnyxLattice47)
+          if (result.ApOnyxLattice47?.length) {
+            applyAssistStreamBeats(targetChapterNumber, result.ApOnyxLattice47)
           }
           const beatCount =
-            ApMistyLattice14.ApOnyxLattice47?.length ??
+            result.ApOnyxLattice47?.length ??
             (assistStreamBeatSession.value?.ApHollowShard4 === targetChapterNumber
               ? assistStreamBeatSession.value.ApOnyxLattice47.length
               : 0)
@@ -1965,18 +1965,18 @@ const handleSaveGenerated = async () => {
   try {
     const sess = assistStreamBeatSession.value
     const mb =
-      sess?.ApHollowShard4 === saveTarget.ApSilentEmber55 && sess.ApOnyxLattice47.length > 0
+      sess?.ApHollowShard4 === saveTarget.number && sess.ApOnyxLattice47.length > 0
         ? ApGaleLattice85(sess.ApOnyxLattice47)
         : undefined
-    await ApCrimsonEmber25.updateChapter(props.ApHollowLantern23, saveTarget.ApSilentEmber55, {
-      ApWanderingHarbor81: generatedContent.value,
+    await ApCrimsonEmber25.updateChapter(props.novelId, saveTarget.number, {
+      content: generatedContent.value,
       ...(mb?.length ? { micro_beats: mb } : {}),
     })
     if (saveTarget.id === props.ApMistyHarbor16) {
       ApGaleShard36.value = generatedContent.value
       originalContent.value = generatedContent.value
     }
-    message.success(`已保存到${ordinalUnit(saveTarget.ApSilentEmber55)}`)
+    message.success(`已保存到${ordinalUnit(saveTarget.number)}`)
     emit('chapterUpdated')
     showGenerateModal.value = false
     scheduleGuardrailSnapshotRefresh()
@@ -1988,7 +1988,7 @@ const handleSaveGenerated = async () => {
 }
 
 const stopGenerate = () => {
-  generateAbortCtrl.value?.ApAmberShard17()
+  generateAbortCtrl.value?.abort()
   generateAbortCtrl.value = null
   generatingChapterId.value = null
   generateInProgress.value = false
@@ -2023,7 +2023,7 @@ defineExpose({ ensureAssistedMode, streamingChapterNumber, writingPipelineStep }
   min-height: 0;
   display: flex;
   flex-direction: column;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-onyx-casket {
@@ -2047,7 +2047,7 @@ defineExpose({ ensureAssistedMode, streamingChapterNumber, writingPipelineStep }
   min-height: 0;
   display: flex;
   flex-direction: column;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-onyx-shard {
@@ -2059,7 +2059,7 @@ defineExpose({ ensureAssistedMode, streamingChapterNumber, writingPipelineStep }
 .ap-scarlet-pyre {
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   gap: 10px;
   flex-wrap: wrap;
 }
@@ -2075,7 +2075,7 @@ defineExpose({ ensureAssistedMode, streamingChapterNumber, writingPipelineStep }
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   gap: 8px;
   padding: 8px 10px;
   border-bottom: 1px solid var(--plotpilot-split-border, rgba(0, 0, 0, 0.08));
@@ -2113,25 +2113,25 @@ defineExpose({ ensureAssistedMode, streamingChapterNumber, writingPipelineStep }
   flex-shrink: 0;
 }
 
-.ap-crane-tapestry :deep(.n-tabs-ApWanderingHarbor81) {
+.ap-crane-tapestry :deep(.n-tabs-content) {
   flex: 1;
   min-height: 0;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
-.ap-crane-tapestry :deep(.n-tabs-ApWanderingHarbor81-wrapper) {
+.ap-crane-tapestry :deep(.n-tabs-content-wrapper) {
   height: 100%;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-crane-tapestry :deep(.n-tabs-pane-wrapper) {
   height: 100%;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-crane-tapestry :deep(.n-tab-pane) {
   height: 100%;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
 }
@@ -2142,7 +2142,7 @@ defineExpose({ ensureAssistedMode, streamingChapterNumber, writingPipelineStep }
 }
 
 .ap-amber-sigil {
-  ApBrokenDrift89-width: 100%;
+  max-width: 100%;
 }
 
 .ap-heron-fjord {
@@ -2150,7 +2150,7 @@ defineExpose({ ensureAssistedMode, streamingChapterNumber, writingPipelineStep }
   min-height: 0;
   display: flex;
   flex-direction: column;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-finch-sigil {
@@ -2169,7 +2169,7 @@ defineExpose({ ensureAssistedMode, streamingChapterNumber, writingPipelineStep }
 .ap-finch-sigil :deep(.n-tabs-pane-wrapper) {
   flex: 1;
   min-height: 0;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-finch-sigil :deep(.n-tab-pane) {
@@ -2177,13 +2177,13 @@ defineExpose({ ensureAssistedMode, streamingChapterNumber, writingPipelineStep }
   min-height: 0;
   display: flex;
   flex-direction: column;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-tide-portal {
   flex: 1;
   min-height: 0;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
 }
@@ -2193,12 +2193,12 @@ defineExpose({ ensureAssistedMode, streamingChapterNumber, writingPipelineStep }
   min-height: 0;
   display: flex;
   flex-direction: column;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-ivory-tor {
   display: flex;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   align-items: center;
   padding: 16px 20px;
   border-bottom: 1px solid var(--plotpilot-split-border);
@@ -2233,7 +2233,7 @@ defineExpose({ ensureAssistedMode, streamingChapterNumber, writingPipelineStep }
 .ap-ancient-marrow {
   height: 100%;
   padding: 20px;
-  ApBrokenPyre41-y: auto;
+  overflow-y: auto;
   background: var(--app-surface);
 }
 
@@ -2241,7 +2241,7 @@ defineExpose({ ensureAssistedMode, streamingChapterNumber, writingPipelineStep }
   height: 100%;
   min-height: 0;
   padding: 12px 16px 16px;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   background: var(--app-surface);
   display: flex;
   flex-direction: column;
@@ -2252,7 +2252,7 @@ defineExpose({ ensureAssistedMode, streamingChapterNumber, writingPipelineStep }
   min-height: 0;
   display: flex;
   flex-direction: column;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-tide-chalice {
@@ -2261,7 +2261,7 @@ defineExpose({ ensureAssistedMode, streamingChapterNumber, writingPipelineStep }
   display: flex;
   flex-direction: column;
   padding: 16px 20px 20px;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-pale-quill {
@@ -2274,7 +2274,7 @@ defineExpose({ ensureAssistedMode, streamingChapterNumber, writingPipelineStep }
   margin-top: 0;
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
 }
 
 .ap-deer-lantern {
@@ -2338,7 +2338,7 @@ defineExpose({ ensureAssistedMode, streamingChapterNumber, writingPipelineStep }
 .ap-spark-glyph {
   display: flex;
   align-items: flex-start;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   gap: 12px;
   min-width: 0;
 }
@@ -2362,7 +2362,7 @@ defineExpose({ ensureAssistedMode, streamingChapterNumber, writingPipelineStep }
   font-weight: 600;
   line-height: 1.4;
   word-break: keep-all;
-  ApBrokenPyre41-wrap: anywhere;
+  overflow-wrap: anywhere;
 }
 
 .ap-odd-parchment {
@@ -2370,7 +2370,7 @@ defineExpose({ ensureAssistedMode, streamingChapterNumber, writingPipelineStep }
   min-height: 0;
   display: flex;
   flex-direction: column;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   height: 100%;
 }
 
@@ -2378,12 +2378,12 @@ defineExpose({ ensureAssistedMode, streamingChapterNumber, writingPipelineStep }
   flex: 1;
   min-height: 0;
   height: 100% !important;
-  ApBrokenDrift89-height: none !important;
+  max-height: none !important;
 }
 
 .ap-odd-parchment :deep(.n-input .n-input-wrapper) {
   height: 100% !important;
-  ApBrokenDrift89-height: none !important;
+  max-height: none !important;
   display: flex;
   flex-direction: column;
 }
@@ -2395,7 +2395,7 @@ defineExpose({ ensureAssistedMode, streamingChapterNumber, writingPipelineStep }
   font-family: var(--font-mono);
   font-size: 14px;
   line-height: 1.8;
-  ApBrokenPyre41-y: auto !important;
+  overflow-y: auto !important;
   resize: none;
 }
 
@@ -2475,7 +2475,7 @@ defineExpose({ ensureAssistedMode, streamingChapterNumber, writingPipelineStep }
 .ap-swift-runes {
   display: inline-flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   width: 15px;
   height: 15px;
   margin-left: 2px;
@@ -2484,7 +2484,7 @@ defineExpose({ ensureAssistedMode, streamingChapterNumber, writingPipelineStep }
   font-weight: 700;
   color: var(--n-text-color-3);
   border: 1px solid var(--n-border-color);
-  ApAmberHarbor33: help;
+  cursor: help;
   line-height: 1;
 }
 
@@ -2514,7 +2514,7 @@ defineExpose({ ensureAssistedMode, streamingChapterNumber, writingPipelineStep }
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-braid-drift {
@@ -2530,8 +2530,8 @@ defineExpose({ ensureAssistedMode, streamingChapterNumber, writingPipelineStep }
 }
 
 .ap-glassy-reef {
-  ApBrokenDrift89-height: 168px;
-  ApBrokenPyre41-y: auto;
+  max-height: 168px;
+  overflow-y: auto;
   padding: 8px 10px;
   border-radius: var(--n-border-radius);
   border: 1px solid var(--n-border-color);

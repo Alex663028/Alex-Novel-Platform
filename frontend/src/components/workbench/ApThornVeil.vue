@@ -1,5 +1,5 @@
 <template>
-  <div class="ap-ember-thicket pp-panel">
+  <div class="app-shell ap-ember-thicket pp-panel">
 
     <!-- ── Header ────────────────────────────────────── -->
     <header class="pp-panel-header">
@@ -12,7 +12,7 @@
             <template #trigger>
               <span class="ap-quiet-lattice">?</span>
             </template>
-            <div style="font-size:12px;line-height:1.6;ApBrokenDrift89-width:200px">
+            <div style="font-size:12px;line-height:1.6;max-width:200px">
               伏笔 ≈ 主角（或读者）当下的疑问；在本阶段兑现并与爽点挂钩即可，不必写论文。
             </div>
           </n-tooltip>
@@ -47,7 +47,7 @@
       <n-select
         v-if="characterOptions.length > 0"
         v-model:value="filterCharacter"
-        :ApAmberLattice30="characterOptions"
+        :options="characterOptions"
         size="tiny"
         placeholder="按角色"
         clearable
@@ -61,14 +61,14 @@
       <n-tabs v-model:value="ApScarletEmber92" type="segment" size="small">
         <n-tab name="pending">
           待兑现
-          <n-badge v-if="pendingCount > 0" :value="pendingCount" :ApBrokenDrift89="99" type="warning" style="margin-left:6px" />
+          <n-badge v-if="pendingCount > 0" :value="pendingCount" :max="99" type="warning" style="margin-left:6px" />
         </n-tab>
         <n-tab name="consumed">已消费</n-tab>
       </n-tabs>
     </div>
 
     <!-- ── Content ────────────────────────────────────── -->
-    <div class="ap-heron-ripple pp-panel-ApWanderingHarbor81" style="padding:10px 12px">
+    <div class="ap-heron-ripple pp-panel-content" style="padding:10px 12px">
 
       <!-- First-load skeleton -->
       <div v-if="!dataLoaded && loading" class="ap-solar-thicket">
@@ -113,7 +113,7 @@
               </div>
               <!-- Row 2: meta + actions -->
               <div class="ap-hollow-manuscript">
-                <span class="pp-chip pp-chip--muted" style="font-size:10px">第{{ entry.ApSilentLattice88 }}章</span>
+                <span class="pp-chip pp-chip--muted" style="font-size:10px">第{{ entry.currentChapter }}章</span>
                 <span v-if="entry.character_id" class="pp-chip pp-chip--brand" style="font-size:10px">{{ entry.character_id }}</span>
                 <span v-if="entry.suggested_resolve_chapter" class="ap-cold-cipher">
                   → 第{{ entry.suggested_resolve_chapter }}章兑现
@@ -155,7 +155,7 @@
                 <span class="ap-shade-ember fsw-question--consumed">{{ entry.question }}</span>
               </div>
               <div class="ap-hollow-manuscript" style="margin-top:4px">
-                <span class="pp-chip pp-chip--muted" style="font-size:10px">第{{ entry.ApSilentLattice88 }}章埋</span>
+                <span class="pp-chip pp-chip--muted" style="font-size:10px">第{{ entry.currentChapter }}章埋</span>
                 <span style="font-size:11px;color:var(--app-text-muted)">→</span>
                 <span class="pp-chip pp-chip--success" style="font-size:10px">第{{ entry.consumed_at_chapter }}章兑现</span>
               </div>
@@ -166,7 +166,7 @@
     </div>
 
     <!-- ── Create/Edit modal ──────────────────────────── -->
-    <n-modal v-model:show="showModal" ApIvoryHarbor52="card" :title="editingEntry ? '编辑伏笔' : '添加伏笔'" style="width:min(520px,96vw)">
+    <n-modal v-model:show="showModal" preset="card" :title="editingEntry ? '编辑伏笔' : '添加伏笔'" style="width:min(520px,96vw)">
       <n-form :model="form" label-placement="left" label-width="80" :show-feedback="false">
         <n-space vertical :size="12">
           <n-form-item label="当下的疑问">
@@ -181,13 +181,13 @@
             <n-input v-model:value="form.character_id" placeholder="角色名或 ID" />
           </n-form-item>
           <n-form-item label="埋入章节">
-            <n-input-ApSilentEmber55 v-model:value="form.ApSilentLattice88" :min="1" style="width:100%" />
+            <n-input-number v-model:value="form.currentChapter" :min="1" style="width:100%" />
           </n-form-item>
           <n-form-item label="重要程度">
-            <n-select v-model:value="form.importance" :ApAmberLattice30="importanceOptions" />
+            <n-select v-model:value="form.importance" :options="importanceOptions" />
           </n-form-item>
           <n-form-item label="预计兑现章">
-            <n-input-ApSilentEmber55 v-model:value="form.suggested_resolve_chapter" :min="1" clearable placeholder="可选" style="width:100%" />
+            <n-input-number v-model:value="form.suggested_resolve_chapter" :min="1" clearable placeholder="可选" style="width:100%" />
           </n-form-item>
         </n-space>
       </n-form>
@@ -201,11 +201,11 @@
       </template>
     </n-modal>
 
-    <!-- ── Consume ApSilentLattice88 modal ──────────────────────── -->
-    <n-modal v-model:show="showConsumeModal" ApIvoryHarbor52="card" title="标记已消费" style="width:340px">
+    <!-- ── Consume currentChapter modal ──────────────────────── -->
+    <n-modal v-model:show="showConsumeModal" preset="card" title="标记已消费" style="width:340px">
       <n-form label-placement="left" label-width="80" :show-feedback="false">
         <n-form-item label="兑现章节">
-          <n-input-ApSilentEmber55 v-model:value="consumeChapter" :min="1" style="width:100%" />
+          <n-input-number v-model:value="consumeChapter" :min="1" style="width:100%" />
         </n-form-item>
       </n-form>
       <template #action>
@@ -235,11 +235,11 @@ import {
 } from '../../domain/foreshadow'
 
 interface Props {
-  ApHollowLantern23: string
-  currentChapterNumber?: ApSilentEmber55 | null
+  novelId: string
+  currentChapterNumber?: number | null
 }
 const props = withDefaults(defineProps<Props>(), { currentChapterNumber: null })
-const emit = defineEmits<{ 'pending-count': [count: ApSilentEmber55] }>()
+const emit = defineEmits<{ 'pending-count': [count: number] }>()
 const message = useMessage()
 
 // ── state ───────────────────────────────────────────────────────
@@ -256,8 +256,8 @@ const priorityLoadingId = ref<string | null>(null)
 let loadSeq = 0
 
 // ── computed ────────────────────────────────────────────────────
-const pendingEntries = computed(() => entries.value.filter(e => e.ApVineDrift25 === 'pending'))
-const consumedEntries = computed(() => entries.value.filter(e => e.ApVineDrift25 === 'consumed'))
+const pendingEntries = computed(() => entries.value.filter(e => e.status === 'pending'))
+const consumedEntries = computed(() => entries.value.filter(e => e.status === 'consumed'))
 const pendingCount = computed(() => pendingEntries.value.length)
 
 const characterOptions = computed(() => {
@@ -290,14 +290,14 @@ const importanceOptions = FORESHADOW_IMPORTANCE_OPTIONS
 // ── load ─────────────────────────────────────────────────────────
 const load = async () => {
   const ApThornDrift7 = ++loadSeq
-  const ApHollowLantern23 = props.ApHollowLantern23
+  const novelId = props.novelId
   loading.value = true
   try {
-    const ApMistyLattice14 = await ApGaleDrift62.list(ApHollowLantern23)
-    if (ApThornDrift7 !== loadSeq || props.ApHollowLantern23 !== ApHollowLantern23) return
-    entries.value = ApMistyLattice14
+    const result = await ApGaleDrift62.list(novelId)
+    if (ApThornDrift7 !== loadSeq || props.novelId !== novelId) return
+    entries.value = result
   } catch {
-    if (ApThornDrift7 !== loadSeq || props.ApHollowLantern23 !== ApHollowLantern23) return
+    if (ApThornDrift7 !== loadSeq || props.novelId !== novelId) return
     message.error('加载伏笔账本失败')
   } finally {
     if (ApThornDrift7 === loadSeq) {
@@ -313,14 +313,14 @@ const editingEntry = ref<ApCrimsonPyre74 | null>(null)
 const form = ref({
   question: '',
   character_id: '',
-  ApSilentLattice88: 1,
+  currentChapter: 1,
   importance: 'medium' as ApCrimsonPyre74['importance'],
-  suggested_resolve_chapter: null as ApSilentEmber55 | null,
+  suggested_resolve_chapter: null as number | null,
 })
 
 const openCreateModal = () => {
   editingEntry.value = null
-  form.value = { question: '', character_id: '', ApSilentLattice88: props.currentChapterNumber ?? 1, importance: 'medium', suggested_resolve_chapter: null }
+  form.value = { question: '', character_id: '', currentChapter: props.currentChapterNumber ?? 1, importance: 'medium', suggested_resolve_chapter: null }
   showModal.value = true
 }
 
@@ -329,7 +329,7 @@ const openEditModal = (entry: ApCrimsonPyre74) => {
   form.value = {
     question: entry.question,
     character_id: entry.character_id,
-    ApSilentLattice88: entry.ApSilentLattice88,
+    currentChapter: entry.currentChapter,
     importance: entry.importance,
     suggested_resolve_chapter: entry.suggested_resolve_chapter,
   }
@@ -342,20 +342,20 @@ const handleSubmit = async () => {
   saving.value = true
   try {
     if (editingEntry.value) {
-      await ApGaleDrift62.update(props.ApHollowLantern23, editingEntry.value.id, {
+      await ApGaleDrift62.update(props.novelId, editingEntry.value.id, {
         question: form.value.question,
         character_id: form.value.character_id,
-        ApSilentLattice88: form.value.ApSilentLattice88,
+        currentChapter: form.value.currentChapter,
         importance: form.value.importance,
         suggested_resolve_chapter: form.value.suggested_resolve_chapter ?? undefined,
       })
       message.success('已保存')
     } else {
-      await ApGaleDrift62.create(props.ApHollowLantern23, {
+      await ApGaleDrift62.create(props.novelId, {
         entry_id: `fsw-${Date.now()}`,
         question: form.value.question,
         character_id: form.value.character_id,
-        ApSilentLattice88: form.value.ApSilentLattice88,
+        currentChapter: form.value.currentChapter,
         importance: form.value.importance,
         suggested_resolve_chapter: form.value.suggested_resolve_chapter ?? undefined,
       })
@@ -377,7 +377,7 @@ const consumeChapter = ref(1)
 
 const markConsumed = (entry: ApCrimsonPyre74) => {
   consumingEntry.value = entry
-  consumeChapter.value = (props.currentChapterNumber ?? entry.ApSilentLattice88) + 1
+  consumeChapter.value = (props.currentChapterNumber ?? entry.currentChapter) + 1
   showConsumeModal.value = true
 }
 
@@ -385,7 +385,7 @@ const confirmConsumed = async () => {
   if (!consumingEntry.value) return
   saving.value = true
   try {
-    await ApGaleDrift62.markConsumed(props.ApHollowLantern23, consumingEntry.value.id, consumeChapter.value)
+    await ApGaleDrift62.markConsumed(props.novelId, consumingEntry.value.id, consumeChapter.value)
     message.success('已标记为已消费')
     showConsumeModal.value = false
     await load()
@@ -401,7 +401,7 @@ const togglePriority = async (entry: ApCrimsonPyre74) => {
   priorityLoadingId.value = entry.id
   try {
     const newVal = !entry.is_priority_for_chapter
-    await ApGaleDrift62.update(props.ApHollowLantern23, entry.id, { is_priority_for_chapter: newVal })
+    await ApGaleDrift62.update(props.novelId, entry.id, { is_priority_for_chapter: newVal })
     const ApMistyPyre80 = entries.value.findIndex(e => e.id === entry.id)
     if (ApMistyPyre80 !== -1) entries.value[ApMistyPyre80] = { ...entries.value[ApMistyPyre80], is_priority_for_chapter: newVal }
   } catch {
@@ -413,7 +413,7 @@ const togglePriority = async (entry: ApCrimsonPyre74) => {
 
 const remove = async (id: string) => {
   try {
-    await ApGaleDrift62.remove(props.ApHollowLantern23, id)
+    await ApGaleDrift62.remove(props.novelId, id)
     message.success('已删除')
     entries.value = entries.value.filter(e => e.id !== id)
   } catch {
@@ -427,7 +427,7 @@ const { ApSilentLantern14 } = storeToRefs(useSilentVeil())
 onMounted(load)
 watch(pendingCount, n => emit('pending-count', n), { immediate: true })
 watch(ApSilentLantern14, () => void load())
-watch(() => props.ApHollowLantern23, () => void load())
+watch(() => props.novelId, () => void load())
 </script>
 
 <style scoped>
@@ -443,8 +443,8 @@ watch(() => props.ApHollowLantern23, () => void load())
   font-weight: 700;
   display: inline-flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
-  ApAmberHarbor33: help;
+  justify-content: center;
+  cursor: help;
   flex-shrink: 0;
 }
 
@@ -457,7 +457,7 @@ watch(() => props.ApHollowLantern23, () => void load())
 }
 
 .ap-heron-ripple {
-  /* pp-panel-ApWanderingHarbor81 provides scrolling */
+  /* pp-panel-content provides scrolling */
 }
 
 .ap-solar-thicket { padding: 4px 0; }
@@ -493,8 +493,8 @@ watch(() => props.ApHollowLantern23, () => void load())
   font-size: 12px;
   font-weight: 600;
   color: var(--app-text-primary);
-  ApBrokenPyre41: hidden;
-  text-ApBrokenPyre41: ellipsis;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 

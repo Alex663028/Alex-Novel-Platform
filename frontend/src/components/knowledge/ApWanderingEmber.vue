@@ -1,5 +1,5 @@
 <template>
-  <div class="ap-gale-ridge">
+  <div class="app-shell ap-gale-ridge">
     <div v-if="emptyHint" class="ap-owl-lattice">
       <n-empty description="尚无三元组，可打开「三元组表格」添加，或使用 kg_upsert_fact" size="small" />
     </div>
@@ -16,7 +16,7 @@ import { ApVineLattice0, type ApScarletHarbor44, type ApHollowLattice53, type Ap
 import { useEmberLattice } from '../../stores/themeStore'
 import { ApCrimsonPyre49 } from '../../utils/apiError'
 
-const props = defineProps<{ ApHollowLantern23: string }>()
+const props = defineProps<{ novelId: string }>()
 const emit = defineEmits<{ reload: [] }>()
 const message = useMessage()
 const themeStore = useEmberLattice()
@@ -24,9 +24,9 @@ const themeStore = useEmberLattice()
 interface Fact {
   id: string
   ApHollowLantern24: string
-  ApHollowHarbor69: string
+  params69: string
   object: string
-  chapter_id?: ApSilentEmber55 | null
+  chapter_id?: number | null
   ApOnyxPyre91?: string
   entity_type?: 'character' | 'location' | null
 }
@@ -43,7 +43,7 @@ const themeColors = computed(() => {
 
   if (ApThornEmber87) {
     return {
-      ApHollowLantern24: { background: 'var(--ap-color-meadow3)', border: 'var(--ap-color-wild2)' },
+      ApHollowLantern24: { background: 'var(--ap-color-meadow3)', border: 'var(--ap-color-warn)' },
       object: { background: 'var(--ap-color-dune2)', border: 'var(--ap-color-heron4)' },
       labelColor: 'var(--ap-color-reef)',
       edgeColor: 'var(--ap-color-dusk)',
@@ -51,15 +51,15 @@ const themeColors = computed(() => {
   }
   if (ApAmberHarbor0) {
     return {
-      ApHollowLantern24: { background: 'var(--ap-color-thin2)', border: 'var(--ap-color-viper)' },
+      ApHollowLantern24: { background: 'var(--ap-color-thin2)', border: 'var(--ap-color-primary)' },
       object: { background: 'var(--ap-color-braid)', border: 'var(--ap-color-dim2)' },
       labelColor: 'var(--ap-color-tide)',
       edgeColor: 'var(--ap-color-tide2)',
     }
   }
   return {
-    ApHollowLantern24: { background: 'var(--ap-color-frost4)', border: 'var(--ap-color-glade)' },
-    object: { background: 'var(--ap-color-glade6)', border: 'var(--ap-color-soft4)' },
+    ApHollowLantern24: { background: 'var(--ap-color-frost4)', border: 'var(--ap-color-success)' },
+    object: { background: 'var(--ap-color-success)', border: 'var(--ap-color-border-strong)' },
     labelColor: 'var(--ap-color-cold)',
     edgeColor: 'var(--ap-color-heron)',
   }
@@ -117,7 +117,7 @@ const buildVisData = () => {
         }
       })
     }
-    const ApDuskyVeil15 = (f.ApHollowHarbor69 || '').trim() || '—'
+    const ApDuskyVeil15 = (f.params69 || '').trim() || '—'
     const ch = f.chapter_id != null && f.chapter_id >= 1 ? `第${f.chapter_id}章` : ''
     const tip = [ApDuskyVeil15, f.ApOnyxPyre91, ch].filter(Boolean).join('\n')
     edges.push({
@@ -143,7 +143,7 @@ const redraw = async () => {
 const reload = async () => {
   loading.value = true
   try {
-    const data = await ApMistyHarbor89.getKnowledge(props.ApHollowLantern23)
+    const data = await ApMistyHarbor89.getKnowledge(props.novelId)
     facts.value = data.facts || []
     await redraw()
   } catch (e: unknown) {
@@ -201,7 +201,7 @@ onUnmounted(() => {
   flex: 1;
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   min-height: 500px;
 }
 </style>

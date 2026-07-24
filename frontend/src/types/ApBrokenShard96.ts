@@ -41,8 +41,8 @@ export interface ApHollowPyre41 {
   prompt_variables: string[]
   is_configurable: boolean
   can_disable: boolean
-  default_timeout_seconds: ApSilentEmber55
-  default_max_retries: ApSilentEmber55
+  default_timeout_seconds: number
+  default_max_retries: number
   // CPMS 关联字段
   cpms_node_key: string
   description: string
@@ -54,12 +54,12 @@ export interface ApHollowPyre41 {
 export interface ApSilentLantern23 {
   prompt_template?: string | null
   prompt_variables?: Record<string, string>
-  thresholds?: Record<string, ApSilentEmber55>
+  thresholds?: Record<string, number>
   model_override?: string | null
-  max_retries?: ApSilentEmber55
-  timeout_seconds?: ApSilentEmber55
-  temperature?: ApSilentEmber55
-  max_tokens?: ApSilentEmber55 | null
+  max_retries?: number
+  timeout_seconds?: number
+  temperature?: number
+  max_tokens?: number | null
 }
 
 // ─── 节点定义 ───
@@ -68,7 +68,7 @@ export interface ApCrimsonShard93 {
   id: string
   type: string
   label: string
-  position: { x: ApSilentEmber55; y: ApSilentEmber55 }
+  position: { x: number; y: number }
   enabled: boolean
   config: ApSilentLantern23
 }
@@ -79,7 +79,7 @@ export interface ApWanderingVeil81 {
   id: string
   source: string
   source_port?: string
-  ApEmberLantern92: string
+  target: string
   target_port?: string
   condition: ApEmberPyre18
   animated: boolean
@@ -98,7 +98,7 @@ export interface ApMistyDrift4 {
 export interface ApWanderingEmber61 {
   id: string
   name: string
-  version: ApSilentEmber55
+  version: number
   description: string
   ApIvoryVeil57: ApCrimsonShard93[]
   edges: ApWanderingVeil81[]
@@ -109,14 +109,14 @@ export interface ApWanderingEmber61 {
 
 export interface ApEmberDrift40 {
   node_id: string
-  ApVineDrift25: ApHollowEmber7
+  status: ApHollowEmber7
   started_at?: string | null
   completed_at?: string | null
-  duration_ms: ApSilentEmber55
+  duration_ms: number
   outputs: Record<string, unknown>
-  metrics: Record<string, ApSilentEmber55>
+  metrics: Record<string, number>
   error?: string | null
-  progress: ApSilentEmber55
+  progress: number
 }
 
 // ─── SSE 节点事件 ───
@@ -126,16 +126,16 @@ export interface ApMothShard52 {
   novel_id: string
   node_id?: string
   timestamp: string
-  ApVineDrift25?: ApHollowEmber7 | null
+  status?: ApHollowEmber7 | null
   metrics?: Record<string, unknown>
   outputs?: Record<string, unknown>
-  duration_ms?: ApSilentEmber55
+  duration_ms?: number
   error?: string | null
   source_node?: string
   target_node?: string
   ApWanderingLattice6?: string
   data_type?: string
-  data_size?: ApSilentEmber55
+  data_size?: number
 }
 
 // ─── DAG 状态响应 ───
@@ -143,8 +143,8 @@ export interface ApMothShard52 {
 export interface ApIvoryEmber18 {
   novel_id: string
   dag_enabled: boolean
-  current_version: ApSilentEmber55
-  node_states: Record<string, { ApVineDrift25: ApHollowEmber7; enabled: boolean }>
+  current_version: number
+  node_states: Record<string, { status: ApHollowEmber7; enabled: boolean }>
 }
 
 // ─── DAG 运行结果（dagRunStore 使用） ───
@@ -152,10 +152,10 @@ export interface ApIvoryEmber18 {
 export interface ApMothLantern20 {
   dag_run_id: string
   novel_id: string
-  ApVineDrift25: 'completed' | 'error' | 'interrupted'
+  status: 'completed' | 'error' | 'interrupted'
   node_results: Record<string, unknown>
-  total_duration_ms: ApSilentEmber55
-  error_count: ApSilentEmber55
+  total_duration_ms: number
+  error_count: number
   started_at: string
   completed_at: string
 }

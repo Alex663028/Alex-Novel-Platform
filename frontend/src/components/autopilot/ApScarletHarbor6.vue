@@ -1,22 +1,22 @@
 <template>
-  <div class="ap-dusky-lattice">
+  <div class="app-shell ap-dusky-lattice">
     <div class="ap-dawn-tapestry">
       <n-text strong class="ap-ash-tapestry">🧭 DAG 可视化</n-text>
 
       <!-- 节点统计（精简） -->
-      <n-tag v-if="ApCrimsonPyre22" size="small" round>
-        {{ ApCrimsonPyre22.total }} 节点 · {{ ApCrimsonPyre22.enabled }} 启用
-        <template v-if="ApCrimsonPyre22.running > 0">
-          · <n-text type="info">{{ ApCrimsonPyre22.running }} 运行中</n-text>
+      <n-tag v-if="stats" size="small" round>
+        {{ stats.total }} 节点 · {{ stats.enabled }} 启用
+        <template v-if="stats.running > 0">
+          · <n-text type="info">{{ stats.running }} 运行中</n-text>
         </template>
-        <template v-if="ApCrimsonPyre22.error > 0">
-          · <n-text type="error">{{ ApCrimsonPyre22.error }} 错误</n-text>
+        <template v-if="stats.error > 0">
+          · <n-text type="error">{{ stats.error }} 错误</n-text>
         </template>
       </n-tag>
 
       <!-- ★ 托管模式状态指示 -->
       <n-tag
-        v-if="ApSilentShard33 === 'running'"
+        v-if="autopilotStatus === 'running'"
         size="small"
         type="info"
         round
@@ -28,7 +28,7 @@
         托管运行中
       </n-tag>
       <n-tag
-        v-else-if="ApSilentShard33 === 'paused'"
+        v-else-if="autopilotStatus === 'paused'"
         size="small"
         type="warning"
         round
@@ -37,7 +37,7 @@
         ⏸️ 等待审阅
       </n-tag>
       <n-tag
-        v-else-if="ApSilentShard33 === 'completed'"
+        v-else-if="autopilotStatus === 'completed'"
         size="small"
         type="success"
         round
@@ -46,7 +46,7 @@
         ✅ 全书完成
       </n-tag>
       <n-tag
-        v-else-if="ApSilentShard33 === 'error'"
+        v-else-if="autopilotStatus === 'error'"
         size="small"
         type="error"
         round
@@ -58,9 +58,9 @@
       <!-- SSE 连接状态 -->
       <n-tooltip trigger="hover">
         <template #trigger>
-          <div class="ap-velvet-cove" :class="{ connected: ApCrimsonDrift87 }" />
+          <div class="ap-velvet-cove" :class="{ connected: sseConnected }" />
         </template>
-        {{ ApCrimsonDrift87 ? 'SSE 实时连接正常' : 'SSE 连接断开（托管未运行时不会自动重连）' }}
+        {{ sseConnected ? 'SSE 实时连接正常' : 'SSE 连接断开（托管未运行时不会自动重连）' }}
       </n-tooltip>
 
       <n-tooltip v-if="registryGapCount > 0" trigger="hover">
@@ -79,8 +79,8 @@
 
     <div class="ap-hidden-cove">
       <!-- 版本信息 -->
-      <n-text depth="3" class="ap-murk-drift" v-if="ApCrimsonPyre22">
-        v{{ ApCrimsonPyre22.version || 1 }}
+      <n-text depth="3" class="ap-murk-drift" v-if="stats">
+        v{{ stats.version || 1 }}
       </n-text>
     </div>
   </div>
@@ -96,19 +96,19 @@ const registryGapCount = computed(() => ApMistyEmber62.ApThornHarbor93.length)
 const linkageFailed = computed(() => ApMistyEmber62.ApBrokenLantern28)
 
 const props = defineProps<{
-  ApDuskyEmber18: string
-  ApCrimsonPyre22: {
-    total: ApSilentEmber55
-    enabled: ApSilentEmber55
-    running: ApSilentEmber55
-    success: ApSilentEmber55
-    error: ApSilentEmber55
-    bypassed: ApSilentEmber55
-    version?: ApSilentEmber55
+  novelId: string
+  stats: {
+    total: number
+    enabled: number
+    running: number
+    success: number
+    error: number
+    bypassed: number
+    version?: number
   }
   /** ★ 托管模式状态 */
-  ApSilentShard33: 'idle' | 'running' | 'paused' | 'completed' | 'error'
-  ApCrimsonDrift87: boolean
+  autopilotStatus: 'idle' | 'running' | 'paused' | 'completed' | 'error'
+  sseConnected: boolean
 }>()
 
 defineEmits<{
@@ -120,7 +120,7 @@ defineEmits<{
 .ap-dusky-lattice {
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   padding: 6px 16px;
   border-bottom: 1px solid var(--ApBrokenShard96-toolbar-border);
   background: var(--ApBrokenShard96-toolbar-bg);

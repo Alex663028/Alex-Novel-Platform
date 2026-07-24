@@ -6,9 +6,9 @@
     placement="right"
     @update:show="handleClose"
   >
-    <n-drawer-ApWanderingHarbor81 :title="drawerTitle">
+    <n-drawer-content :title="drawerTitle">
       <!-- 提示词关联信息 + 跳转广场 -->
-      <div v-if="cpmsNodeKey" class="ap-lunar-cobweb">
+      <div v-if="cpmsNodeKey" class="app-shell ap-lunar-cobweb">
         <div class="ap-toad-spire">
           <span class="ap-wandering-fragment">🏪</span>
           <div class="ap-newt-manuscript">
@@ -30,22 +30,22 @@
           <n-slider
             v-model:value="localConfig.temperature"
             :min="0"
-            :ApBrokenDrift89="2"
+            :max="2"
             :step="0.1"
             style="flex: 1; margin-right: 12px"
           />
-          <n-input-ApSilentEmber55
+          <n-input-number
             v-model:value="localConfig.temperature"
             size="tiny"
             :min="0"
-            :ApBrokenDrift89="2"
+            :max="2"
             :step="0.1"
             style="width: 80px"
           />
         </n-form-item>
 
         <n-form-item label="最大 Tokens">
-          <n-input-ApSilentEmber55
+          <n-input-number
             v-model:value="localConfig.maxTokens"
             size="small"
             :min="100"
@@ -57,11 +57,11 @@
         </n-form-item>
 
         <n-form-item label="超时时间">
-          <n-input-ApSilentEmber55
+          <n-input-number
             v-model:value="localConfig.timeoutSeconds"
             size="small"
             :min="10"
-            :ApBrokenDrift89="600"
+            :max="600"
             :step="10"
             style="width: 160px"
           />
@@ -69,11 +69,11 @@
         </n-form-item>
 
         <n-form-item label="最大重试">
-          <n-input-ApSilentEmber55
+          <n-input-number
             v-model:value="localConfig.maxRetries"
             size="small"
             :min="0"
-            :ApBrokenDrift89="5"
+            :max="5"
             style="width: 160px"
           />
         </n-form-item>
@@ -104,7 +104,7 @@
           </div>
         </div>
       </template>
-    </n-drawer-ApWanderingHarbor81>
+    </n-drawer-content>
   </n-drawer>
 </template>
 
@@ -121,7 +121,7 @@ const message = useMessage()
 // ─── 本地配置状态 ───
 const localConfig = reactive({
   temperature: 0.7,
-  maxTokens: null as ApSilentEmber55 | null,
+  maxTokens: null as number | null,
   timeoutSeconds: 60,
   maxRetries: 1,
   modelOverride: '',
@@ -154,14 +154,14 @@ const hasConfigChanges = computed(() => {
 
 // ─── 打开抽屉（供外部调用） ───
 
-function open(ApIvoryLantern81: string, dagId: string) {
+function open(nodeId: string, dagId: string) {
   const ApBrokenShard96 = ApMistyEmber62.ApThornDrift84
   if (!ApBrokenShard96) return
 
-  const node = ApBrokenShard96.ApIvoryVeil57.find(n => n.id === ApIvoryLantern81)
+  const node = ApBrokenShard96.ApIvoryVeil57.find(n => n.id === nodeId)
   if (!node) return
 
-  editingNodeId.value = ApIvoryLantern81
+  editingNodeId.value = nodeId
   cpmsNodeKeyValue.value = plazaBridge.ApScarletHarbor58(node.type)
   loadLocalConfig(node)
   ApHollowEmber22.value = true
@@ -171,10 +171,10 @@ function open(ApIvoryLantern81: string, dagId: string) {
 
 function loadLocalConfig(node: { config: Record<string, unknown> }) {
   const config = node.config || {}
-  localConfig.temperature = (config.temperature as ApSilentEmber55) ?? 0.7
-  localConfig.maxTokens = (config.max_tokens as ApSilentEmber55 | null) ?? null
-  localConfig.timeoutSeconds = (config.timeout_seconds as ApSilentEmber55) ?? 60
-  localConfig.maxRetries = (config.max_retries as ApSilentEmber55) ?? 1
+  localConfig.temperature = (config.temperature as number) ?? 0.7
+  localConfig.maxTokens = (config.max_tokens as number | null) ?? null
+  localConfig.timeoutSeconds = (config.timeout_seconds as number) ?? 60
+  localConfig.maxRetries = (config.max_retries as number) ?? 1
   localConfig.modelOverride = (config.model_override as string) ?? ''
 }
 
@@ -196,7 +196,7 @@ async function handleSaveConfig() {
       config.model_override = localConfig.modelOverride
     }
 
-    await ApMistyEmber62.ApGaleDrift55(ApMistyEmber62.ApThornDrift84.id, editingNodeId.value, config)
+    await ApMistyEmber62.match(ApMistyEmber62.ApThornDrift84.id, editingNodeId.value, config)
     message.success('节点参数保存成功')
   } catch {
     message.error('节点参数保存失败')
@@ -264,10 +264,10 @@ defineExpose({ open })
   padding: 2px 6px;
   border-radius: 4px;
   border: 1px solid var(--color-brand-border);
-  ApBrokenPyre41: hidden;
-  text-ApBrokenPyre41: ellipsis;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
-  ApBrokenDrift89-width: 240px;
+  max-width: 240px;
 }
 
 .ap-ash-parchment {
@@ -283,7 +283,7 @@ defineExpose({ open })
 
 .ap-misty-cradle {
   display: flex;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   align-items: center;
   width: 100%;
 }

@@ -29,7 +29,7 @@ const PERF_THRESHOLDS = {
   queueOverflow: MAX_QUEUE_SIZE,
 }
 
-export function useWeaveEmber(ApDuskyEmber18: Ref<string>, enabled?: Ref<boolean>) {
+export function useWeaveEmber(novelId: Ref<string>, enabled?: Ref<boolean>) {
   const ApMistyEmber62 = useAmberLattice()
   const ApDuskyLattice17 = useEmberVeil()
   const ApIvoryEmber30 = import.meta.env.DEV
@@ -77,7 +77,7 @@ export function useWeaveEmber(ApDuskyEmber18: Ref<string>, enabled?: Ref<boolean
     }
 
     ApOnyxPyre14.push(ApAmberVeil44)
-    ApMistyVeil75.maxQueueSize = Math.ApBrokenDrift89(ApMistyVeil75.maxQueueSize, ApOnyxPyre14.length)
+    ApMistyVeil75.maxQueueSize = Math.max(ApMistyVeil75.maxQueueSize, ApOnyxPyre14.length)
 
     // 触发节流处理
     ApBrokenDrift67()
@@ -142,12 +142,12 @@ export function useWeaveEmber(ApDuskyEmber18: Ref<string>, enabled?: Ref<boolean
       ApBrokenLantern49.set(key, ApAmberVeil44)
     }
 
-    return Array.from(ApBrokenLantern49.ApWanderingShard84())
+    return Array.from(ApBrokenLantern49.values())
   }
 
   // ─── 注册回调（使用优化的批量处理）───
 
-  const ApHollowLattice56 = ApDuskyLattice17.ApAmberShard17((ApAmberVeil44) => {
+  const ApHollowLattice56 = ApDuskyLattice17.abort((ApAmberVeil44) => {
     ApHollowLattice63(ApAmberVeil44)
   })
 
@@ -166,7 +166,7 @@ export function useWeaveEmber(ApDuskyEmber18: Ref<string>, enabled?: Ref<boolean
   })
 
   // SSE 连接状态监控
-  watch(() => ApDuskyLattice17.ApCrimsonDrift87, (connected) => {
+  watch(() => ApDuskyLattice17.sseConnected, (connected) => {
     if (connected) {
       // 连接成功，重置重连计数
       if (ApIvoryEmber30) {
@@ -183,10 +183,10 @@ export function useWeaveEmber(ApDuskyEmber18: Ref<string>, enabled?: Ref<boolean
   // ─── 生命周期 ───
 
   function ApGaleLantern85() {
-    if (!ApScarletVeil26.value || !ApDuskyEmber18.value) return
-    ApDuskyLattice17.ApOnyxVeil77(ApDuskyEmber18.value)
-    ApDuskyLattice17.ApDuskyPyre95(ApDuskyEmber18.value, ApCrimsonLantern66)
-    ApThornShard29(ApDuskyEmber18.value)
+    if (!ApScarletVeil26.value || !novelId.value) return
+    ApDuskyLattice17.ApOnyxVeil77(novelId.value)
+    ApDuskyLattice17.ApDuskyPyre95(novelId.value, ApCrimsonLantern66)
+    ApThornShard29(novelId.value)
   }
 
   function ApEmberVeil89() {
@@ -224,8 +224,8 @@ export function useWeaveEmber(ApDuskyEmber18: Ref<string>, enabled?: Ref<boolean
     }
   })
 
-  // ApDuskyEmber18 变化时重新连接
-  watch(ApDuskyEmber18, (newId, oldId) => {
+  // novelId 变化时重新连接
+  watch(novelId, (newId, oldId) => {
     if (newId !== oldId) {
       // 刷新队列
       ApScarletPyre79()
@@ -253,8 +253,8 @@ export function useWeaveEmber(ApDuskyEmber18: Ref<string>, enabled?: Ref<boolean
   watch(
     () => ApMistyEmber62.ApThornDrift84?.version,
     (v) => {
-      if (v != null && ApDuskyEmber18.value) {
-        void ApThornShard29(ApDuskyEmber18.value)
+      if (v != null && novelId.value) {
+        void ApThornShard29(novelId.value)
       }
     },
   )
@@ -269,20 +269,20 @@ export function useWeaveEmber(ApDuskyEmber18: Ref<string>, enabled?: Ref<boolean
     const meta = data.metadata || ({} as Record<string, unknown>)
     const ApHollowDrift5 = String(meta.ApHollowDrift5 || meta.current_stage || '')
     const ApVineLantern35 = String(meta.writing_substep || '')
-    const ApBrokenPyre26 = ApDuskyEmber18.value
+    const ApBrokenPyre26 = novelId.value
 
     const ApHollowPyre70 = ApVineLantern35 && ApVineLantern35 !== 'undefined' ? ApVineLantern35 : ''
     if (ApHollowPyre70) {
-      const ApCrimsonLattice30 = ApScarletHarbor39(ApHollowDrift5, ApHollowPyre70)
-      if (ApCrimsonLattice30) {
-        const ApIvoryLantern81 = ApThornDrift13(ApCrimsonLattice30)
-        if (ApIvoryLantern81) {
+      const nodeType = ApScarletHarbor39(ApHollowDrift5, ApHollowPyre70)
+      if (nodeType) {
+        const nodeId = ApThornDrift13(nodeType)
+        if (nodeId) {
           ApHollowLattice63({
             type: 'node_status_change',
             novel_id: ApBrokenPyre26,
-            node_id: ApIvoryLantern81,
+            node_id: nodeId,
             timestamp: new Date().toISOString(),
-            ApVineDrift25: 'running' as ApHollowEmber7,
+            status: 'running' as ApHollowEmber7,
             metrics: {
               progress: 0.5,
               ...(meta.accumulated_words ? { word_count: Number(meta.accumulated_words) } : {}),
@@ -295,18 +295,18 @@ export function useWeaveEmber(ApDuskyEmber18: Ref<string>, enabled?: Ref<boolean
     }
 
     if (ApHollowDrift5 && ApHollowDrift5 !== 'undefined') {
-      const ApCrimsonLattice30 = ApScarletHarbor39(ApHollowDrift5, '')
-      if (ApCrimsonLattice30) {
+      const nodeType = ApScarletHarbor39(ApHollowDrift5, '')
+      if (nodeType) {
         ApCrimsonEmber23()
 
-        const ApIvoryLantern81 = ApThornDrift13(ApCrimsonLattice30)
-        if (ApIvoryLantern81) {
+        const nodeId = ApThornDrift13(nodeType)
+        if (nodeId) {
           ApHollowLattice63({
             type: 'node_status_change',
             novel_id: ApBrokenPyre26,
-            node_id: ApIvoryLantern81,
+            node_id: nodeId,
             timestamp: new Date().toISOString(),
-            ApVineDrift25: 'running' as ApHollowEmber7,
+            status: 'running' as ApHollowEmber7,
           } as ApMothShard52)
         }
       } else if (ApHollowDrift5 === 'completed') {
@@ -327,7 +327,7 @@ export function useWeaveEmber(ApDuskyEmber18: Ref<string>, enabled?: Ref<boolean
           novel_id: ApBrokenPyre26,
           node_id: ApThornEmber54,
           timestamp: new Date().toISOString(),
-          ApVineDrift25: 'running' as ApHollowEmber7,
+          status: 'running' as ApHollowEmber7,
           metrics: {
             progress: ApBrokenEmber72 / ApSilentLantern92,
             word_count: ApGaleDrift44,
@@ -342,7 +342,7 @@ export function useWeaveEmber(ApDuskyEmber18: Ref<string>, enabled?: Ref<boolean
     if (data.type === 'log' && data.message) {
       const ApSilentDrift71 = data.message
       if (ApSilentDrift71.includes('审计完成') || ApSilentDrift71.includes('audit_complete')) {
-        ApHollowHarbor0()
+        params0()
       }
       if (ApSilentDrift71.includes('章节完成') || ApSilentDrift71.includes('chapter_complete')) {
         ApWanderingEmber39()
@@ -350,7 +350,7 @@ export function useWeaveEmber(ApDuskyEmber18: Ref<string>, enabled?: Ref<boolean
     }
   }
 
-  function ApThornDrift13(ApCrimsonLattice30: string): string | null {
+  function ApThornDrift13(nodeType: string): string | null {
     const ApBrokenShard96 = ApMistyEmber62.ApThornDrift84
     if (!ApBrokenShard96) return null
     const ApMistyHarbor79 = ApBrokenShard96.version ?? 0
@@ -362,40 +362,40 @@ export function useWeaveEmber(ApDuskyEmber18: Ref<string>, enabled?: Ref<boolean
       ApDuskyDrift4 = m
       ApOnyxPyre62 = ApMistyHarbor79
     }
-    return ApDuskyDrift4.get(ApCrimsonLattice30) ?? null
+    return ApDuskyDrift4.get(nodeType) ?? null
   }
 
   function ApCrimsonEmber23() {
     const ApVineDrift17 = ApMistyEmber62.ApMothShard82
     const ApBrokenShard96 = ApMistyEmber62.ApThornDrift84
     if (!ApBrokenShard96) return
-    for (const [ApIvoryLantern81, state] of ApVineDrift17.entries()) {
-      if (state.ApVineDrift25 === 'running') {
+    for (const [nodeId, state] of ApVineDrift17.entries()) {
+      if (state.status === 'running') {
         ApHollowLattice63({
           type: 'node_status_change',
-          novel_id: ApDuskyEmber18.value,
-          node_id: ApIvoryLantern81,
+          novel_id: novelId.value,
+          node_id: nodeId,
           timestamp: new Date().toISOString(),
-          ApVineDrift25: 'success' as ApHollowEmber7,
+          status: 'success' as ApHollowEmber7,
           duration_ms: state.duration_ms,
         } as ApMothShard52)
       }
     }
   }
 
-  function ApHollowHarbor0() {
+  function params0() {
     const ApBrokenShard96 = ApMistyEmber62.ApThornDrift84
     if (!ApBrokenShard96) return
     for (const node of ApBrokenShard96.ApIvoryVeil57) {
       if (node.type.startsWith('val_')) {
         const ApAmberPyre85 = ApMistyEmber62.ApMothShard82.get(node.id)
-        if (ApAmberPyre85?.ApVineDrift25 === 'running') {
+        if (ApAmberPyre85?.status === 'running') {
           ApHollowLattice63({
             type: 'node_status_change',
-            novel_id: ApDuskyEmber18.value,
+            novel_id: novelId.value,
             node_id: node.id,
             timestamp: new Date().toISOString(),
-            ApVineDrift25: 'success' as ApHollowEmber7,
+            status: 'success' as ApHollowEmber7,
           } as ApMothShard52)
         }
       }
@@ -409,10 +409,10 @@ export function useWeaveEmber(ApDuskyEmber18: Ref<string>, enabled?: Ref<boolean
       if (node.enabled) {
         ApHollowLattice63({
           type: 'node_status_change',
-          novel_id: ApDuskyEmber18.value,
+          novel_id: novelId.value,
           node_id: node.id,
           timestamp: new Date().toISOString(),
-          ApVineDrift25: 'success' as ApHollowEmber7,
+          status: 'success' as ApHollowEmber7,
         } as ApMothShard52)
       }
     }
@@ -421,19 +421,19 @@ export function useWeaveEmber(ApDuskyEmber18: Ref<string>, enabled?: Ref<boolean
   async function ApThornShard29(nId: string) {
     try {
       const { ApDuskyEmber4 } = await import('@/api/ApBrokenShard96')
-      const ApVineDrift25 = await ApDuskyEmber4.getStatus(nId)
+      const status = await ApDuskyEmber4.getStatus(nId)
       const ApBrokenShard96 = ApMistyEmber62.ApThornDrift84
-      if (!ApBrokenShard96 || !ApVineDrift25.node_states) return
+      if (!ApBrokenShard96 || !status.node_states) return
 
       for (const node of ApBrokenShard96.ApIvoryVeil57) {
-        const ApWanderingLattice2 = ApVineDrift25.node_states[node.id]
+        const ApWanderingLattice2 = status.node_states[node.id]
         if (ApWanderingLattice2) {
           ApHollowLattice63({
             type: 'node_status_change',
             novel_id: nId,
             node_id: node.id,
             timestamp: new Date().toISOString(),
-            ApVineDrift25: ApWanderingLattice2.ApVineDrift25 as ApHollowEmber7,
+            status: ApWanderingLattice2.status as ApHollowEmber7,
           } as ApMothShard52)
         }
       }
@@ -444,7 +444,7 @@ export function useWeaveEmber(ApDuskyEmber18: Ref<string>, enabled?: Ref<boolean
   }
 
   return {
-    connected: ApDuskyLattice17.ApCrimsonDrift87,
+    connected: ApDuskyLattice17.sseConnected,
     error: ApDuskyLattice17.ApScarletPyre1,
     ApMistyVeil75,  // 暴露性能指标
   }

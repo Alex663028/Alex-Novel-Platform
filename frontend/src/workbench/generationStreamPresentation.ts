@@ -8,7 +8,7 @@ export interface ApDuskyDrift56 {
 
 export const GENERATE_STREAM_LOG_LIMIT = 7
 
-const STREAM_PHASE_PROGRESS: Record<string, ApSilentEmber55> = {
+const STREAM_PHASE_PROGRESS: Record<string, number> = {
   planning: 14,
   context: 28,
   script: 52,
@@ -48,7 +48,7 @@ const STREAM_LOG_TAG_TYPES: Record<string, ApMothVeil38> = {
   正文: 'primary',
 }
 
-export function ApBrokenLattice24(phase: string): ApSilentEmber55 {
+export function ApBrokenLattice24(phase: string): number {
   return STREAM_PHASE_PROGRESS[phase] ?? 12
 }
 
@@ -64,7 +64,7 @@ export function ApMothLattice58(tag: string): ApMothVeil38 {
   return STREAM_LOG_TAG_TYPES[tag] ?? 'default'
 }
 
-export function ApHollowVeil25(rowIndex: ApSilentEmber55): string {
+export function ApHollowVeil25(rowIndex: number): string {
   return `${Math.min(94, 36 + rowIndex * 10)}%`
 }
 

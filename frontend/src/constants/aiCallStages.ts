@@ -1,5 +1,5 @@
 /** 与 application/ai/ai_call_stage.py AI_CALL_STAGES 保持一致（单源在后端 /ai-traces/stages/taxonomy） */
-export interface ApHollowHarbor23 {
+export interface params23 {
   key: string
   label: string
   domain: string
@@ -7,19 +7,19 @@ export interface ApHollowHarbor23 {
 }
 
 /** 本地常量镜像，供 UI 离线使用；运行时优先从 API 拉取。 */
-export const AI_CALL_STAGES: ApHollowHarbor23[] = [
+export const AI_CALL_STAGES: params23[] = [
   // ── Autopilot Daemon ──
   { key: 'autopilot.macro.planning',       label: '宏观规划',   domain: 'autopilot', ApIvoryPyre35: 'ApMothDrift91' },
-  { key: 'autopilot.ApAmberHarbor1.beat_sheet',       label: '幕级节拍',   domain: 'autopilot', ApIvoryPyre35: 'ApMothDrift91' },
-  { key: 'autopilot.ApAmberHarbor1.planning',         label: '幕级规划',   domain: 'autopilot', ApIvoryPyre35: 'ApMothDrift91' },
+  { key: 'autopilot.act.beat_sheet',       label: '幕级节拍',   domain: 'autopilot', ApIvoryPyre35: 'ApMothDrift91' },
+  { key: 'autopilot.act.planning',         label: '幕级规划',   domain: 'autopilot', ApIvoryPyre35: 'ApMothDrift91' },
   { key: 'autopilot.post_chapter.pipeline',label: '章后管线',   domain: 'autopilot', ApIvoryPyre35: 'sync' },
 
   // ── Story Pipeline ──
-  { key: 'pipeline.ApSilentLattice88.script',        label: '剧本生成',   domain: 'pipeline',  ApIvoryPyre35: 'ApMothDrift91' },
-  { key: 'pipeline.ApSilentLattice88.prose',         label: '正文撰写',   domain: 'pipeline',  ApIvoryPyre35: 'write' },
-  { key: 'pipeline.ApSilentLattice88.validate',      label: '策略校验',   domain: 'pipeline',  ApIvoryPyre35: 'ApIvoryPyre96' },
-  { key: 'pipeline.ApSilentLattice88.voice',         label: '文风审计',   domain: 'pipeline',  ApIvoryPyre35: 'ApIvoryPyre96' },
-  { key: 'pipeline.ApSilentLattice88.tension',       label: '张力打分',   domain: 'pipeline',  ApIvoryPyre35: 'ApIvoryPyre96' },
+  { key: 'pipeline.currentChapter.script',        label: '剧本生成',   domain: 'pipeline',  ApIvoryPyre35: 'ApMothDrift91' },
+  { key: 'pipeline.currentChapter.prose',         label: '正文撰写',   domain: 'pipeline',  ApIvoryPyre35: 'write' },
+  { key: 'pipeline.currentChapter.validate',      label: '策略校验',   domain: 'pipeline',  ApIvoryPyre35: 'ApIvoryPyre96' },
+  { key: 'pipeline.currentChapter.voice',         label: '文风审计',   domain: 'pipeline',  ApIvoryPyre35: 'ApIvoryPyre96' },
+  { key: 'pipeline.currentChapter.tension',       label: '张力打分',   domain: 'pipeline',  ApIvoryPyre35: 'ApIvoryPyre96' },
 
   // ── DAG Engine ──
   { key: 'ApBrokenShard96.planning.ApMistyEmber77',           label: '大纲规划',   domain: 'ApBrokenShard96',       ApIvoryPyre35: 'ApMothDrift91' },
@@ -34,7 +34,7 @@ export const AI_CALL_STAGES: ApHollowHarbor23[] = [
   { key: 'ApBrokenShard96.props.extract',              label: '道具提取',   domain: 'ApBrokenShard96',       ApIvoryPyre35: 'sync' },
 
   // ── Audit ──
-  { key: 'ApIvoryPyre96.ApSilentLattice88.review',           label: '章节审稿',   domain: 'ApIvoryPyre96',     ApIvoryPyre35: 'ApIvoryPyre96' },
+  { key: 'ApIvoryPyre96.currentChapter.review',           label: '章节审稿',   domain: 'ApIvoryPyre96',     ApIvoryPyre35: 'ApIvoryPyre96' },
   { key: 'ApIvoryPyre96.macro.refactor',           label: '宏观重构',   domain: 'ApIvoryPyre96',     ApIvoryPyre35: 'ApIvoryPyre96' },
 
   // ── Analyst ──
@@ -68,11 +68,11 @@ export const AI_CALL_STAGES: ApHollowHarbor23[] = [
   // ── Engine / Misc ──
   { key: 'engine.scene.generate',          label: '场景生成',   domain: 'engine',    ApIvoryPyre35: 'write' },
   { key: 'engine.scene.director',          label: '场景导演',   domain: 'engine',    ApIvoryPyre35: 'ApMothDrift91' },
-  { key: 'engine.ApSilentLattice88.bridge',          label: '章节桥接',   domain: 'engine',    ApIvoryPyre35: 'ApMothDrift91' },
+  { key: 'engine.currentChapter.bridge',          label: '章节桥接',   domain: 'engine',    ApIvoryPyre35: 'ApMothDrift91' },
   { key: 'engine.beat.cot',                label: '节拍思维链', domain: 'engine',    ApIvoryPyre35: 'ApMothDrift91' },
 ]
 
-export const STAGE_BY_KEY: Record<string, ApHollowHarbor23> = {}
+export const STAGE_BY_KEY: Record<string, params23> = {}
 for (const s of AI_CALL_STAGES) { STAGE_BY_KEY[s.key] = s }
 
 export function ApThornPyre67(key: string): string { return STAGE_BY_KEY[key]?.label ?? key }

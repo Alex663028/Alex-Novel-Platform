@@ -1,6 +1,6 @@
 <template>
   <BaseEdge v-bind="props" :path="pathData" :style="edgeStyle" />
-  <path v-if="ApScarletHarbor75" class="ap-smoke-grove" :d="pathData" />
+  <path v-if="ApScarletHarbor75" class="app-shell ap-smoke-grove" :d="pathData" />
   <g v-if="conditionLabel" class="edge-label">
     <text
       :x="labelPos.x"

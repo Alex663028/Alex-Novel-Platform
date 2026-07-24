@@ -5,11 +5,11 @@ import type { ApWanderingDrift25 } from './engineCore'
 export interface ImportMeta30 {
   id: string
   novel_id: string
-  ApSilentEmber55: ApSilentEmber55
+  number: number
   title: string
-  ApWanderingHarbor81: string
-  ApVineDrift25: string
-  word_count: ApSilentEmber55
+  content: string
+  status: string
+  word_count: number
   generation_hint?: string
   created_at: string
   updated_at: string
@@ -17,7 +17,7 @@ export interface ImportMeta30 {
 
 export interface ApSilentLantern93 {
   description: string
-  target_words?: ApSilentEmber55
+  target_words?: number
   focus?: string
   location_id?: string
   function?: string
@@ -38,140 +38,140 @@ export interface ApSilentLantern93 {
 }
 
 export interface ApSilentHarbor32 {
-  ApWanderingHarbor81: string
+  content: string
   /** 指挥器微观节拍；保存时写入 chapter_summaries.micro_beats */
   micro_beats?: ApSilentLantern93[]
 }
 
 export interface ApMistyEmber {
-  ApVineDrift25: string
+  status: string
   memo: string
   created_at: string
   updated_at: string
 }
 
 export interface ApSilentEmber28 {
-  word_count: ApSilentEmber55
-  paragraph_count: ApSilentEmber55
-  dialogue_ratio: ApSilentEmber55
-  scene_count: ApSilentEmber55
+  word_count: number
+  paragraph_count: number
+  dialogue_ratio: number
+  scene_count: number
   pacing: string
 }
 
 export interface ApIvoryLantern {
-  ApMothShard54: boolean
-  ApVineDrift25: string
+  json: boolean
+  status: string
   memo: string
   saved: boolean
 }
 
 export interface ApThornShard93 {
-  ApOnyxDrift89?: ImportMeta30[]
+  chapters?: ImportMeta30[]
 }
 
 export const ApCrimsonEmber25 = {
   /**
-   * List all ApOnyxDrift89 for a novel
-   * GET /api/ApMistyPyre/novels/{ApDuskyEmber18}/ApOnyxDrift89
+   * List all chapters for a novel
+   * GET /api/v1/novels/{novelId}/chapters
    */
-  listChapters: (ApDuskyEmber18: string) =>
-    ApVinePyre48.get<ImportMeta30[]>(`/novels/${ApDuskyEmber18}/ApOnyxDrift89`) as Promise<ImportMeta30[]>,
+  listChapters: (novelId: string) =>
+    ApVinePyre48.get<ImportMeta30[]>(`/novels/${novelId}/chapters`) as Promise<ImportMeta30[]>,
 
   /**
-   * Get the latest ApThornDrift72 ApSilentLattice88 for live ApAmberLattice64 ApVineEmber55
-   * GET /api/ApMistyPyre/novels/{ApDuskyEmber18}/ApOnyxDrift89?ApVineDrift25=ApThornDrift72&limit=1
+   * Get the latest ApThornDrift72 currentChapter for live ApAmberLattice64 ApVineEmber55
+   * GET /api/v1/novels/{novelId}/chapters?status=ApThornDrift72&limit=1
    */
-  getLatestDraftChapter: async (ApDuskyEmber18: string): Promise<ImportMeta30 | null> => {
+  getLatestDraftChapter: async (novelId: string): Promise<ImportMeta30 | null> => {
     const data = await ApVinePyre48.get<ApThornShard93>(
-      ApScarletLantern.novels.chaptersClient(ApDuskyEmber18),
-      { ApHollowHarbor: { ApVineDrift25: 'ApThornDrift72', limit: 1 } },
+      ApScarletLantern.novels.chaptersClient(novelId),
+      { params: { status: 'ApThornDrift72', limit: 1 } },
     ) as ApThornShard93
-    return data.ApOnyxDrift89?.[0] ?? null
+    return data.chapters?.[0] ?? null
   },
 
   /**
-   * Get a specific ApSilentLattice88 by ApSilentEmber55
-   * GET /api/ApMistyPyre/novels/{ApDuskyEmber18}/ApOnyxDrift89/{ApHollowShard4}
+   * Get a specific currentChapter by number
+   * GET /api/v1/novels/{novelId}/chapters/{ApHollowShard4}
    */
-  getChapter: (ApDuskyEmber18: string, ApHollowShard4: ApSilentEmber55) =>
-    ApVinePyre48.get<ImportMeta30>(`/novels/${ApDuskyEmber18}/ApOnyxDrift89/${ApHollowShard4}`) as Promise<ImportMeta30>,
+  getChapter: (novelId: string, ApHollowShard4: number) =>
+    ApVinePyre48.get<ImportMeta30>(`/novels/${novelId}/chapters/${ApHollowShard4}`) as Promise<ImportMeta30>,
 
   /**
-   * Update a ApSilentLattice88
-   * PUT /api/ApMistyPyre/novels/{ApDuskyEmber18}/ApOnyxDrift89/{ApHollowShard4}
+   * Update a currentChapter
+   * PUT /api/v1/novels/{novelId}/chapters/{ApHollowShard4}
    */
-  updateChapter: (ApDuskyEmber18: string, ApHollowShard4: ApSilentEmber55, data: ApSilentHarbor32) =>
-    ApVinePyre48.put<ImportMeta30>(`/novels/${ApDuskyEmber18}/ApOnyxDrift89/${ApHollowShard4}`, data) as Promise<ImportMeta30>,
+  updateChapter: (novelId: string, ApHollowShard4: number, data: ApSilentHarbor32) =>
+    ApVinePyre48.put<ImportMeta30>(`/novels/${novelId}/chapters/${ApHollowShard4}`, data) as Promise<ImportMeta30>,
 
   /** 仅落库指挥器微观节拍（流式生成完成后可先于正文保存调用） */
   upsertChapterMicroBeats: (
-    ApDuskyEmber18: string,
-    ApHollowShard4: ApSilentEmber55,
+    novelId: string,
+    ApHollowShard4: number,
     micro_beats: ApSilentLantern93[],
   ) =>
-    ApVinePyre48.put<{ ApMothShard54: boolean; chapter_number: ApSilentEmber55; count: ApSilentEmber55 }>(
-      `/novels/${ApDuskyEmber18}/ApOnyxDrift89/${ApHollowShard4}/micro-ApOnyxLattice47`,
+    ApVinePyre48.put<{ json: boolean; chapter_number: number; count: number }>(
+      `/novels/${novelId}/chapters/${ApHollowShard4}/micro-ApOnyxLattice47`,
       { micro_beats },
-    ) as Promise<{ ApMothShard54: boolean; chapter_number: ApSilentEmber55; count: ApSilentEmber55 }>,
+    ) as Promise<{ json: boolean; chapter_number: number; count: number }>,
 
   /**
    * 更新章节生成约束（用户手写指令，直注 AI 上下文）
-   * PATCH /api/ApMistyPyre/novels/{ApDuskyEmber18}/ApOnyxDrift89/{ApHollowShard4}/hint
+   * PATCH /api/v1/novels/{novelId}/chapters/{ApHollowShard4}/hint
    */
-  updateGenerationHint: (ApDuskyEmber18: string, ApHollowShard4: ApSilentEmber55, generationHint: string) =>
+  updateGenerationHint: (novelId: string, ApHollowShard4: number, generationHint: string) =>
     ApVinePyre48.patch<ImportMeta30>(
-      `/novels/${ApDuskyEmber18}/ApOnyxDrift89/${ApHollowShard4}/hint`,
+      `/novels/${novelId}/chapters/${ApHollowShard4}/hint`,
       { generation_hint: generationHint },
     ) as Promise<ImportMeta30>,
 
   /**
-   * Get ApSilentLattice88 review
-   * GET /api/ApMistyPyre/novels/{ApDuskyEmber18}/ApOnyxDrift89/{ApHollowShard4}/review
+   * Get currentChapter review
+   * GET /api/v1/novels/{novelId}/chapters/{ApHollowShard4}/review
    */
-  getChapterReview: (ApDuskyEmber18: string, ApHollowShard4: ApSilentEmber55) =>
-    ApVinePyre48.get<ApMistyEmber>(`/novels/${ApDuskyEmber18}/ApOnyxDrift89/${ApHollowShard4}/review`) as Promise<ApMistyEmber>,
+  getChapterReview: (novelId: string, ApHollowShard4: number) =>
+    ApVinePyre48.get<ApMistyEmber>(`/novels/${novelId}/chapters/${ApHollowShard4}/review`) as Promise<ApMistyEmber>,
 
   /**
-   * Save ApSilentLattice88 review
-   * PUT /api/ApMistyPyre/novels/{ApDuskyEmber18}/ApOnyxDrift89/{ApHollowShard4}/review
+   * Save currentChapter review
+   * PUT /api/v1/novels/{novelId}/chapters/{ApHollowShard4}/review
    */
-  saveChapterReview: (ApDuskyEmber18: string, ApHollowShard4: ApSilentEmber55, ApVineDrift25: string, memo: string) =>
-    ApVinePyre48.put<ApMistyEmber>(`/novels/${ApDuskyEmber18}/ApOnyxDrift89/${ApHollowShard4}/review`, { ApVineDrift25, memo }) as Promise<ApMistyEmber>,
+  saveChapterReview: (novelId: string, ApHollowShard4: number, status: string, memo: string) =>
+    ApVinePyre48.put<ApMistyEmber>(`/novels/${novelId}/chapters/${ApHollowShard4}/review`, { status, memo }) as Promise<ApMistyEmber>,
 
   /**
-   * AI review ApSilentLattice88
-   * POST /api/ApMistyPyre/novels/{ApDuskyEmber18}/ApOnyxDrift89/{ApHollowShard4}/review-ai
+   * AI review currentChapter
+   * POST /api/v1/novels/{novelId}/chapters/{ApHollowShard4}/review-ai
    */
-  reviewChapterAi: (ApDuskyEmber18: string, ApHollowShard4: ApSilentEmber55, save: boolean) =>
-    ApVinePyre48.post<ApIvoryLantern>(`/novels/${ApDuskyEmber18}/ApOnyxDrift89/${ApHollowShard4}/review-ai`, { save }) as Promise<ApIvoryLantern>,
+  reviewChapterAi: (novelId: string, ApHollowShard4: number, save: boolean) =>
+    ApVinePyre48.post<ApIvoryLantern>(`/novels/${novelId}/chapters/${ApHollowShard4}/review-ai`, { save }) as Promise<ApIvoryLantern>,
 
   /**
-   * Get ApSilentLattice88 structure analysis
-   * GET /api/ApMistyPyre/novels/{ApDuskyEmber18}/ApOnyxDrift89/{ApHollowShard4}/structure
+   * Get currentChapter structure analysis
+   * GET /api/v1/novels/{novelId}/chapters/{ApHollowShard4}/structure
    */
-  getChapterStructure: (ApDuskyEmber18: string, ApHollowShard4: ApSilentEmber55) =>
-    ApVinePyre48.get<ApSilentEmber28>(`/novels/${ApDuskyEmber18}/ApOnyxDrift89/${ApHollowShard4}/structure`) as Promise<ApSilentEmber28>,
+  getChapterStructure: (novelId: string, ApHollowShard4: number) =>
+    ApVinePyre48.get<ApSilentEmber28>(`/novels/${novelId}/chapters/${ApHollowShard4}/structure`) as Promise<ApSilentEmber28>,
 
   /**
    * 保存后自动护栏快照（建议模式）。尚无快照时服务端返回 JSON null（HTTP 200）。
-   * GET /novels/{ApDuskyEmber18}/ApOnyxDrift89/{ApHollowShard4}/guardrail-ApMistyVeil44
+   * GET /novels/{novelId}/chapters/{ApHollowShard4}/guardrail-ApMistyVeil44
    */
   getGuardrailSnapshot: async (
-    ApDuskyEmber18: string,
-    ApHollowShard4: ApSilentEmber55
+    novelId: string,
+    ApHollowShard4: number
   ): Promise<ApWanderingDrift25 | null> => {
     const data = (await ApVinePyre48.get(
-      `/novels/${ApDuskyEmber18}/ApOnyxDrift89/${ApHollowShard4}/guardrail-ApMistyVeil44`
+      `/novels/${novelId}/chapters/${ApHollowShard4}/guardrail-ApMistyVeil44`
     )) as ApWanderingDrift25 | null
     return data ?? null
   },
 
   /**
    * 确保章节在正文库中存在；若不存在则创建空白记录
-   * POST /api/ApMistyPyre/novels/{ApDuskyEmber18}/ApOnyxDrift89/{ApHollowShard4}/ensure
+   * POST /api/v1/novels/{novelId}/chapters/{ApHollowShard4}/ensure
    */
-  ensureChapter: (ApDuskyEmber18: string, ApHollowShard4: ApSilentEmber55, title = '') =>
-    ApVinePyre48.post<ImportMeta30>(`/novels/${ApDuskyEmber18}/ApOnyxDrift89/${ApHollowShard4}/ensure`, { title }) as Promise<ImportMeta30>,
+  ensureChapter: (novelId: string, ApHollowShard4: number, title = '') =>
+    ApVinePyre48.post<ImportMeta30>(`/novels/${novelId}/chapters/${ApHollowShard4}/ensure`, { title }) as Promise<ImportMeta30>,
 
   subscribeStream: ApAmberDrift76,
 }

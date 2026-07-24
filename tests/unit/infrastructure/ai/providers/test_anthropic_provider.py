@@ -62,7 +62,7 @@ class TestAnthropicProvider:
         call_kwargs = mock_create.call_args[1]
         assert call_kwargs["model"] == "claude-3-5-sonnet-20241022"
         assert call_kwargs['temperature'] == 0.7
-        assert call_kwargs['max_tokens'] == DEFAULT_MAX_OUTPUT_TOKENS
+        assert call_kwargs['max_tokens'] == 4096  # 保持传入值
 
     @pytest.mark.asyncio
     async def test_generate_with_custom_config(self, provider):
@@ -85,7 +85,7 @@ class TestAnthropicProvider:
         call_kwargs = mock_create.call_args[1]
         assert call_kwargs['model'] == "claude-3-opus-20240229"
         assert call_kwargs['temperature'] == 0.5
-        assert call_kwargs['max_tokens'] == DEFAULT_MAX_OUTPUT_TOKENS
+        assert call_kwargs['max_tokens'] == 2048  # 保持传入值
 
     @pytest.mark.asyncio
     async def test_generate_accepts_text_blocks_without_type(self, provider):

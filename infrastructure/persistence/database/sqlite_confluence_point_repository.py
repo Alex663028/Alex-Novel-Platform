@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Optional
 
 from domain.novel.entities.confluence_point import ConfluencePoint
@@ -44,7 +44,7 @@ class SqliteConfluencePointRepository(ConfluencePointRepository):
         conn.commit()
 
     def _now(self) -> str:
-        return datetime.utcnow().isoformat()
+        return datetime.now(timezone.utc).replace(tzinfo=None).isoformat()
 
     def save(self, cp: ConfluencePoint) -> None:
         now = self._now()

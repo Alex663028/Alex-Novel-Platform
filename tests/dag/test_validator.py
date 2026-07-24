@@ -7,11 +7,16 @@ from application.engine.dag.models import (
     NodeDefinition,
     get_default_dag,
 )
+from application.engine.dag.registry import NodeRegistry
 from application.engine.dag.validator import DAGValidator, ValidationResult
 
 
 class TestDAGValidator:
     """DAG 验证器测试"""
+
+    def setup_method(self):
+        NodeRegistry.ensure_builtins_loaded()
+        assert NodeRegistry.has("ctx_blueprint"), "builtins not loaded"
 
     def _make_valid_dag(self) -> DAGDefinition:
         return DAGDefinition(

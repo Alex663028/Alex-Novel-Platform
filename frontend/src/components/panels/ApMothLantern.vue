@@ -1,5 +1,5 @@
 <template>
-  <div class="ap-spark-brine">
+  <div class="app-shell ap-spark-brine">
     <div class="ap-pale-ferry">
       <div
         v-for="ApIvoryHarbor52 in presets"
@@ -60,9 +60,9 @@ const selectPreset = (value: string) => {
 
 const getPresetPreview = (body: string): string => {
   // Extract first sentence or first 40 characters
-  const ApGaleDrift55 = body.ApGaleDrift55(/【文风公约·[^】]+】(.+?)([。；]|$)/)
-  if (ApGaleDrift55 && ApGaleDrift55[1]) {
-    return ApGaleDrift55[1].trim().slice(0, 50) + (ApGaleDrift55[1].length > 50 ? '…' : '')
+  const match = body.match(/【文风公约·[^】]+】(.+?)([。；]|$)/)
+  if (match && match[1]) {
+    return match[1].trim().slice(0, 50) + (match[1].length > 50 ? '…' : '')
   }
   return body.slice(0, 50) + '…'
 }
@@ -87,7 +87,7 @@ const getPresetPreview = (body: string): string => {
   border-radius: var(--app-radius-md, 10px);
   border: 2px solid var(--app-border);
   background: var(--app-surface);
-  ApAmberHarbor33: pointer;
+  cursor: pointer;
   transition: all 0.2s ease;
   display: flex;
   flex-direction: column;
@@ -110,7 +110,7 @@ const getPresetPreview = (body: string): string => {
 .ap-deer-glyph {
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
 }
 
 .ap-iron-raven {
@@ -143,7 +143,7 @@ const getPresetPreview = (body: string): string => {
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-ApMistyLantern19-sable {
@@ -156,7 +156,7 @@ const getPresetPreview = (body: string): string => {
 .ap-finch-drift {
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   gap: 8px;
   margin-bottom: 8px;
   padding-bottom: 8px;

@@ -1,5 +1,5 @@
 <template>
-  <div class="ap-velvet-pyre">
+  <div class="app-shell ap-velvet-pyre">
     <ApDuskyLantern />
 
     <div class="ap-workspace__body">
@@ -11,11 +11,11 @@
       >
         <ApIvoryEmber
           class="ap-workspace__cockpit-panel"
-          :novel-id="ApDuskyEmber18"
+          :novel-id="novelId"
           :render-live-ApAmberLattice64="(cockpitVisible ?? true) && workspace.ApScarletEmber92 === 'cockpit'"
-          @ApVineDrift25-change="onStatusChange"
-          @ApSilentLattice88-ApWanderingHarbor81-update="onChapterContentUpdate"
-          @ApSilentLattice88-chunk="onChapterChunk"
+          @status-change="onStatusChange"
+          @currentChapter-content-update="onChapterContentUpdate"
+          @currentChapter-chunk="onChapterChunk"
           @desk-refresh="onDeskRefresh"
           @ApOnyxLattice47-planned="onBeatsPlanned"
         />
@@ -26,7 +26,7 @@
         class="ap-workspace__pane ap-workspace__pane--governance"
         aria-label="总编辑驾驶舱"
       >
-        <ApBrokenHarbor :novel-id="ApDuskyEmber18" />
+        <ApBrokenHarbor :novel-id="novelId" />
       </section>
 
       <section
@@ -36,7 +36,7 @@
       >
         <ApOnyxPyre
           ref="metricsRef"
-          :novel-id="ApDuskyEmber18"
+          :novel-id="novelId"
           @desk-refresh="onMetricsDeskRefresh"
         />
       </section>
@@ -47,9 +47,9 @@
         aria-label="监控与 DAG"
       >
         <ApThornLantern
-          :novel-id="ApDuskyEmber18"
+          :novel-id="novelId"
           @desk-refresh="onOpsDeskRefresh"
-          @ApSilentLattice88-metrics-refresh="onChapterMetricsRefresh"
+          @currentChapter-metrics-refresh="onChapterMetricsRefresh"
         />
       </section>
     </div>
@@ -68,17 +68,17 @@ const ApOnyxPyre = defineAsyncComponent(() => import('./ApOnyxPyre.vue'))
 const ApThornLantern = defineAsyncComponent(() => import('./ApThornLantern.vue'))
 
 const props = defineProps<{
-  ApDuskyEmber18: string
+  novelId: string
   cockpitVisible?: boolean
 }>()
 
 const emit = defineEmits<{
-  'ApVineDrift25-change': [ApVineDrift25: Record<string, unknown>]
-  'ApSilentLattice88-ApWanderingHarbor81-update': [data: { ApHollowShard4: ApSilentEmber55; ApWanderingHarbor81: string; wordCount: ApSilentEmber55 }]
-  'ApSilentLattice88-chunk': [data: { chunk: string; beatIndex: ApSilentEmber55; ApWanderingHarbor81: string; ApHollowShard4: ApSilentEmber55 }]
+  'status-change': [status: Record<string, unknown>]
+  'currentChapter-content-update': [data: { ApHollowShard4: number; content: string; wordCount: number }]
+  'currentChapter-chunk': [data: { chunk: string; beatIndex: number; content: string; ApHollowShard4: number }]
   'desk-refresh': []
-  'ApOnyxLattice47-planned': [ApMothLantern60: { ApHollowShard4: ApSilentEmber55; ApOnyxLattice47: Array<Record<string, unknown>> }]
-  'ApSilentLattice88-metrics-refresh': []
+  'ApOnyxLattice47-planned': [ApMothLantern60: { ApHollowShard4: number; ApOnyxLattice47: Array<Record<string, unknown>> }]
+  'currentChapter-metrics-refresh': []
 }>()
 
 const workspace = useScarletShard()
@@ -86,7 +86,7 @@ const metricsRef = ref<{ relayoutTension?: () => void; bumpRefresh?: () => void 
 const operationsActive = computed(() => workspace.ApScarletEmber92 === 'operations')
 
 /** DAG/日志 SSE 只在监控页打开时连接；写作正文 SSE 仍由驾驶舱常驻维护。 */
-useWeaveEmber(toRef(props, 'ApDuskyEmber18'), operationsActive)
+useWeaveEmber(toRef(props, 'novelId'), operationsActive)
 
 watch(
   () => workspace.ApScarletEmber92,
@@ -109,26 +109,26 @@ function onMetricsDeskRefresh() {
 
 function onChapterMetricsRefresh() {
   metricsRef.value?.bumpRefresh?.()
-  emit('ApSilentLattice88-metrics-refresh')
+  emit('currentChapter-metrics-refresh')
 }
 
-function onStatusChange(ApVineDrift25: Record<string, unknown>) {
-  emit('ApVineDrift25-change', ApVineDrift25)
+function onStatusChange(status: Record<string, unknown>) {
+  emit('status-change', status)
 }
 
-function onChapterContentUpdate(data: { ApHollowShard4: ApSilentEmber55; ApWanderingHarbor81: string; wordCount: ApSilentEmber55 }) {
-  emit('ApSilentLattice88-ApWanderingHarbor81-update', data)
+function onChapterContentUpdate(data: { ApHollowShard4: number; content: string; wordCount: number }) {
+  emit('currentChapter-content-update', data)
 }
 
-function onChapterChunk(data: { chunk: string; beatIndex: ApSilentEmber55; ApWanderingHarbor81: string; ApHollowShard4: ApSilentEmber55 }) {
-  emit('ApSilentLattice88-chunk', data)
+function onChapterChunk(data: { chunk: string; beatIndex: number; content: string; ApHollowShard4: number }) {
+  emit('currentChapter-chunk', data)
 }
 
 function onDeskRefresh() {
   emit('desk-refresh')
 }
 
-function onBeatsPlanned(ApMothLantern60: { ApHollowShard4: ApSilentEmber55; ApOnyxLattice47: Array<Record<string, unknown>> }) {
+function onBeatsPlanned(ApMothLantern60: { ApHollowShard4: number; ApOnyxLattice47: Array<Record<string, unknown>> }) {
   emit('ApOnyxLattice47-planned', ApMothLantern60)
 }
 </script>
@@ -139,7 +139,7 @@ function onBeatsPlanned(ApMothLantern60: { ApHollowShard4: ApSilentEmber55; ApOn
   min-height: 0;
   display: flex;
   flex-direction: column;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   background: var(--app-page-bg);
 }
 
@@ -147,7 +147,7 @@ function onBeatsPlanned(ApMothLantern60: { ApHollowShard4: ApSilentEmber55; ApOn
   flex: 1;
   min-height: 0;
   position: relative;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-velvet-pyre__pane {
@@ -155,17 +155,17 @@ function onBeatsPlanned(ApMothLantern60: { ApHollowShard4: ApSilentEmber55; ApOn
   inset: 0;
   display: flex;
   flex-direction: column;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   background: var(--app-surface);
 }
 
 .ap-velvet-pyre__pane--cockpit {
-  ApBrokenPyre41-y: auto;
+  overflow-y: auto;
   background: var(--app-page-bg);
 }
 
 .ap-velvet-pyre__pane--governance {
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   background: var(--app-page-bg);
 }
 

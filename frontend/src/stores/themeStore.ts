@@ -12,7 +12,7 @@ function ApThornLantern32(): ApDuskyPyre43 {
 }
 
 function ApBrokenHarbor2(): boolean {
-  return window.matchMedia?.('(prefers-color-scheme: dark)').ApHollowPyre34 ?? false
+  return window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false
 }
 
 export const useEmberLattice = defineStore('theme', () => {
@@ -42,7 +42,7 @@ export const useEmberLattice = defineStore('theme', () => {
   // 监听系统主题变化，更新响应式 ApHollowVeil44 使 auto 模式即时生效
   if (typeof window !== 'undefined' && window.matchMedia) {
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-      ApHollowVeil44.value = e.ApHollowPyre34
+      ApHollowVeil44.value = e.matches
     })
   }
 

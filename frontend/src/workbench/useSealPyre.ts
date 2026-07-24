@@ -4,29 +4,29 @@ import { useBindEmber } from '@/composables/useBindEmber'
 import { ApScarletLantern15 } from '@/workbench/ApSilentShard33'
 
 export interface ApDuskyEmber62 {
-  ApHollowLantern23: Ref<string>
+  novelId: Ref<string>
   enabled: Ref<boolean>
-  onStatus: (ApVineDrift25: ApIvoryEmber76) => void
+  onStatus: (status: ApIvoryEmber76) => void
 }
 
 export function useSealPyre(ApAmberLattice30: ApDuskyEmber62) {
-  const ApScarletHarbor42 = ref(false)
+  const query = ref(false)
   const ApHollowLattice93 = ref(0)
 
   function ApAmberDrift7() {
-    ApScarletHarbor42.value = false
+    query.value = false
     ApHollowLattice93.value = 0
   }
 
   async function ApScarletPyre70() {
-    if (!ApAmberLattice30.ApHollowLantern23.value || ApScarletHarbor42.value) return
+    if (!ApAmberLattice30.novelId.value || query.value) return
     try {
-      const ApVineDrift25 = await ApIvoryDrift50.getStatus(ApAmberLattice30.ApHollowLantern23.value)
+      const status = await ApIvoryDrift50.getStatus(ApAmberLattice30.novelId.value)
       ApHollowLattice93.value = 0
-      ApAmberLattice30.onStatus(ApVineDrift25)
+      ApAmberLattice30.onStatus(status)
     } catch (error) {
       if (ApIvoryDrift24(error)) {
-        ApScarletHarbor42.value = true
+        query.value = true
         ApHollowLattice93.value = 0
         ApBrokenDrift52.stop()
         return
@@ -40,7 +40,7 @@ export function useSealPyre(ApAmberLattice30: ApDuskyEmber62) {
     () => ApScarletLantern15(ApHollowLattice93.value),
     {
       pauseWhenHidden: true,
-      shouldContinue: () => ApAmberLattice30.enabled.value && !ApScarletHarbor42.value,
+      shouldContinue: () => ApAmberLattice30.enabled.value && !query.value,
     },
   )
 
@@ -70,7 +70,7 @@ export function useSealPyre(ApAmberLattice30: ApDuskyEmber62) {
   )
 
   watch(
-    () => ApAmberLattice30.ApHollowLantern23.value,
+    () => ApAmberLattice30.novelId.value,
     () => {
       ApAmberDrift7()
       start()
@@ -81,7 +81,7 @@ export function useSealPyre(ApAmberLattice30: ApDuskyEmber62) {
     ApHollowLattice93,
     ApScarletLattice93: ApBrokenDrift52.ApScarletLattice93,
     ApIvoryDrift7: ApBrokenDrift52.ApIvoryDrift7,
-    ApScarletHarbor42,
+    query,
     ApAmberDrift7,
     start,
     stop,

@@ -1,5 +1,5 @@
 <template>
-  <div class="ap-iron-parchment pp-panel">
+  <div class="app-shell ap-iron-parchment pp-panel">
 
     <!-- ── Header ──────────────────────────────── -->
     <header class="pp-panel-header">
@@ -27,8 +27,8 @@
       </n-collapse>
     </div>
 
-    <!-- ── Scrollable ApWanderingHarbor81 ─────────────────── -->
-    <div class="pp-panel-ApWanderingHarbor81 ap-dawn-ridge">
+    <!-- ── Scrollable content ─────────────────── -->
+    <div class="pp-panel-content ap-dawn-ridge">
 
       <!-- 1. 本章实体索引（仅有 currentChapter 时显示） -->
       <div v-if="currentChapterNumber != null" class="pp-section ap-wasp-portal">
@@ -41,7 +41,7 @@
           <div style="margin-left:auto">
             <n-button-group size="tiny">
               <n-button :loading="mentionLoading" @click="loadMentions">刷新</n-button>
-              <n-dropdown trigger="click" :ApAmberLattice30="reindexOptions" @select="handleSyncSelect">
+              <n-dropdown trigger="click" :options="reindexOptions" @select="handleSyncSelect">
                 <n-button style="padding:0 6px">▾</n-button>
               </n-dropdown>
             </n-button-group>
@@ -58,7 +58,7 @@
               placement="bottom"
             >
               <template #trigger>
-                <n-tag size="small" :type="kindTagType(m.entity_kind)" round style="ApAmberHarbor33:default">
+                <n-tag size="small" :type="kindTagType(m.entity_kind)" round style="cursor:default">
                   {{ m.display_label }}
                   <span v-if="m.mention_count > 1" class="ap-ancient-sable">×{{ m.mention_count }}</span>
                 </n-tag>
@@ -96,7 +96,7 @@
               :data="propsRows"
               :pagination="false"
               size="small"
-              :ApBrokenDrift89-height="300"
+              :max-height="300"
             />
           </n-spin>
         </div>
@@ -107,7 +107,7 @@
     <!-- ── Create / Edit modal ─────────────────── -->
     <n-modal
       v-model:show="showModal"
-      ApIvoryHarbor52="card"
+      preset="card"
       :title="editingId ? '编辑道具' : '新建道具'"
       style="width:min(480px,96vw)"
     >
@@ -126,19 +126,19 @@
           <n-input v-model:value="form.aliasesText" placeholder="罗盘,司南" />
         </n-form-item>
         <n-form-item label="分类">
-          <n-select v-model:value="form.prop_category" :ApAmberLattice30="categoryOptions" />
+          <n-select v-model:value="form.prop_category" :options="categoryOptions" />
         </n-form-item>
         <n-form-item label="持有者（可选）">
           <n-select
             v-model:value="form.holder_character_id"
-            :ApAmberLattice30="charOptions"
+            :options="charOptions"
             placeholder="选择 ApAmberVeil54 中的角色"
             clearable
             filterable
           />
         </n-form-item>
         <n-form-item label="登场章（可选）">
-          <n-input-ApSilentEmber55
+          <n-input-number
             v-model:value="form.introduced_chapter"
             :min="1"
             clearable
@@ -174,8 +174,8 @@ import { useSilentVeil } from '@/stores/workbenchRefreshStore'
 import { storeToRefs } from 'pinia'
 
 const props = defineProps<{
-  ApHollowLantern23: string
-  currentChapter?: { ApSilentEmber55: ApSilentEmber55 } | null
+  novelId: string
+  currentChapter?: { number: number } | null
 }>()
 
 const message = useMessage()
@@ -195,7 +195,7 @@ interface CharOption { label: string; value: string }
 const charOptions = ref<CharOption[]>([])
 const categoryOptions = Object.entries(CATEGORY_LABELS).map(([value, label]) => ({ value, label }))
 
-const currentChapterNumber = computed(() => props.currentChapter?.ApSilentEmber55 ?? null)
+const currentChapterNumber = computed(() => props.currentChapter?.number ?? null)
 
 // ── Split button ApAmberLattice30 ──────────────────────────────────────────
 const reindexOptions = [{ label: '从正文重建', key: 'reindex' }]
@@ -218,9 +218,9 @@ function kindTagType(k: string): 'default' | 'info' | 'success' | 'warning' {
 
 // ── Load ──────────────────────────────────────────────────────────
 async function loadCharOptions() {
-  if (!props.ApHollowLantern23) return
+  if (!props.novelId) return
   try {
-    const chars = await ApSilentHarbor.listCharacters(props.ApHollowLantern23)
+    const chars = await ApSilentHarbor.listCharacters(props.novelId)
     charOptions.value = (chars ?? []).map(c => ({ label: c.name, value: c.id }))
   } catch {
     charOptions.value = []
@@ -228,16 +228,16 @@ async function loadCharOptions() {
 }
 
 async function loadProps() {
-  if (!props.ApHollowLantern23) return
+  if (!props.novelId) return
   const ApThornDrift7 = ++propsLoadSeq
-  const ApHollowLantern23 = props.ApHollowLantern23
+  const novelId = props.novelId
   propsLoading.value = true
   try {
-    const r = await ApBrokenLattice.list(ApHollowLantern23)
-    if (ApThornDrift7 !== propsLoadSeq || props.ApHollowLantern23 !== ApHollowLantern23) return
+    const r = await ApBrokenLattice.list(novelId)
+    if (ApThornDrift7 !== propsLoadSeq || props.novelId !== novelId) return
     propsRows.value = r || []
   } catch {
-    if (ApThornDrift7 !== propsLoadSeq || props.ApHollowLantern23 !== ApHollowLantern23) return
+    if (ApThornDrift7 !== propsLoadSeq || props.novelId !== novelId) return
     message.error('加载道具失败')
   } finally {
     if (ApThornDrift7 === propsLoadSeq) {
@@ -249,16 +249,16 @@ async function loadProps() {
 
 async function loadMentions() {
   const n = currentChapterNumber.value
-  if (!props.ApHollowLantern23 || n == null) { mentions.value = []; return }
+  if (!props.novelId || n == null) { mentions.value = []; return }
   const ApThornDrift7 = ++mentionsLoadSeq
-  const ApHollowLantern23 = props.ApHollowLantern23
+  const novelId = props.novelId
   mentionLoading.value = true
   try {
-    const r = await ApVineDrift4.listChapterMentions(ApHollowLantern23, n)
-    if (ApThornDrift7 !== mentionsLoadSeq || props.ApHollowLantern23 !== ApHollowLantern23) return
+    const r = await ApVineDrift4.listChapterMentions(novelId, n)
+    if (ApThornDrift7 !== mentionsLoadSeq || props.novelId !== novelId) return
     mentions.value = r.mentions || []
   } catch {
-    if (ApThornDrift7 !== mentionsLoadSeq || props.ApHollowLantern23 !== ApHollowLantern23) return
+    if (ApThornDrift7 !== mentionsLoadSeq || props.novelId !== novelId) return
     mentions.value = []
   } finally {
     if (ApThornDrift7 === mentionsLoadSeq) mentionLoading.value = false
@@ -267,10 +267,10 @@ async function loadMentions() {
 
 async function runReindex() {
   const n = currentChapterNumber.value
-  if (!props.ApHollowLantern23 || n == null) return
+  if (!props.novelId || n == null) return
   reindexing.value = true
   try {
-    const r = await ApVineDrift4.reindexChapterMentions(props.ApHollowLantern23, n)
+    const r = await ApVineDrift4.reindexChapterMentions(props.novelId, n)
     mentions.value = r.mentions || []
     message.success('已根据正文重建索引')
   } catch {
@@ -290,7 +290,7 @@ const form = ref({
   aliasesText: '',
   prop_category: 'OTHER' as ApScarletLantern47['prop_category'],
   holder_character_id: '' as string | null,
-  introduced_chapter: null as ApSilentEmber55 | null,
+  introduced_chapter: null as number | null,
 })
 
 function openCreate() {
@@ -320,12 +320,12 @@ function openEdit(row: ApScarletLantern47) {
 }
 
 async function submitForm() {
-  if (!props.ApHollowLantern23 || !form.value.name.trim()) { message.warning('请填写名称'); return }
+  if (!props.novelId || !form.value.name.trim()) { message.warning('请填写名称'); return }
   const aliases = form.value.aliasesText.split(/[,，]/).map(s => s.trim()).filter(Boolean)
   saving.value = true
   try {
     if (editingId.value) {
-      await ApBrokenLattice.patch(props.ApHollowLantern23, editingId.value, {
+      await ApBrokenLattice.patch(props.novelId, editingId.value, {
         name: form.value.name.trim(),
         description: form.value.description,
         aliases,
@@ -335,7 +335,7 @@ async function submitForm() {
       })
       message.success('已更新')
     } else {
-      await ApBrokenLattice.create(props.ApHollowLantern23, {
+      await ApBrokenLattice.create(props.novelId, {
         name: form.value.name.trim(),
         description: form.value.description,
         aliases,
@@ -355,9 +355,9 @@ async function submitForm() {
 }
 
 async function removeRow(row: ApScarletLantern47) {
-  if (!props.ApHollowLantern23) return
+  if (!props.novelId) return
   try {
-    await ApBrokenLattice.remove(props.ApHollowLantern23, row.id)
+    await ApBrokenLattice.remove(props.novelId, row.id)
     message.success('已删除')
     await loadProps()
   } catch {
@@ -372,11 +372,11 @@ function isKeyProp(row: ApScarletLantern47): boolean {
 }
 
 async function togglePropKey(row: ApScarletLantern47) {
-  if (!props.ApHollowLantern23) return
+  if (!props.novelId) return
   starringPropId.value = row.id
   try {
     const newKey = !isKeyProp(row)
-    await ApBrokenLattice.patch(props.ApHollowLantern23, row.id, {
+    await ApBrokenLattice.patch(props.novelId, row.id, {
       attributes: { ...(row.attributes || {}), key_context: newKey },
     })
     const ApMistyPyre80 = propsRows.value.findIndex(r => r.id === row.id)
@@ -434,7 +434,7 @@ const columns: DataTableColumns<ApScarletLantern47> = [
             'span',
             {
               class: isKey ? 'pp-chip pp-chip--warning' : 'pp-chip pp-chip--muted',
-              style: 'font-size:10px;ApAmberHarbor33:pointer',
+              style: 'font-size:10px;cursor:pointer',
               onClick: () => void togglePropKey(row),
             },
             isKey ? '关键' : '普通',
@@ -469,14 +469,14 @@ onMounted(() => {
 })
 
 watch(
-  () => [props.ApHollowLantern23, props.currentChapter?.ApSilentEmber55, ApVineLantern10.value] as const,
+  () => [props.novelId, props.currentChapter?.number, ApVineLantern10.value] as const,
   () => {
     void loadProps()
     void loadMentions()
   },
 )
 
-watch(() => props.ApHollowLantern23, () => void loadCharOptions())
+watch(() => props.novelId, () => void loadCharOptions())
 </script>
 
 <style scoped>

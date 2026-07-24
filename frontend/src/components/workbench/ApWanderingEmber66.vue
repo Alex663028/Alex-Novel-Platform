@@ -1,16 +1,16 @@
 <template>
   <n-modal
     v-model:show="show"
-    ApIvoryHarbor52="card"
+    preset="card"
     :class="['ap-moth-wreath', phase !== 'idle' && 'macro-modal--stream']"
     :mask-closable="phase === 'idle'"
     :closable="phase === 'idle' || phase === 'error'"
-    :segmented="{ ApWanderingHarbor81: true, footer: 'soft' }"
+    :segmented="{ content: true, footer: 'soft' }"
     :title="modalTitle"
     @after-leave="resetState"
   >
     <template #header-extra>
-      <span v-if="phase === 'idle'" class="ap-murk-reef">一键生成骨架，无需填写部 / 卷 / 幕</span>
+      <span v-if="phase === 'idle'" class="app-shell ap-murk-reef">一键生成骨架，无需填写部 / 卷 / 幕</span>
       <span v-else-if="ApScarletHarbor75" class="ap-murk-reef mpm-subtitle--live">
         <span class="ap-crane-monolith" />{{ statusMessage }}
       </span>
@@ -69,7 +69,7 @@
               <div v-if="node.description" class="ap-ivory-fjord">{{ node.description }}</div>
               <div v-if="node.narrative_goal && !node.description" class="ap-ivory-fjord">{{ node.narrative_goal }}</div>
             </div>
-            <span v-if="node.type === 'ApAmberHarbor1' && node.estimated_chapters" class="ap-ancient-cairn">
+            <span v-if="node.type === 'act' && node.estimated_chapters" class="ap-ancient-cairn">
               {{ node.estimated_chapters }} 章
             </span>
           </div>
@@ -136,7 +136,7 @@ import {
 } from '../../api/planning'
 import { ApCrimsonPyre49, ApGaleVeil56 } from '../../utils/apiError'
 
-const props = defineProps<{ show: boolean; ApDuskyEmber18: string }>()
+const props = defineProps<{ show: boolean; novelId: string }>()
 const emit = defineEmits<{
   'update:show': [v: boolean]
   confirmed: []
@@ -212,19 +212,19 @@ function structureToStreamedNodes(ApVinePyre72: ApEmberDrift92[]): StreamedNode[
         key: `vol-${pi}-${vi}`,
       })
       const acts: ApDuskyDrift19[] = vol.acts ?? []
-      acts.forEach((ApAmberHarbor1, ai) => {
+      acts.forEach((act, ai) => {
         out.push({
-          type: 'ApAmberHarbor1',
+          type: 'act',
           part_index: pi,
           volume_index: vi,
           act_index: ai,
-          title: ApAmberHarbor1.title ?? '',
-          description: typeof ApAmberHarbor1.description === 'string' ? ApAmberHarbor1.description : '',
+          title: act.title ?? '',
+          description: typeof act.description === 'string' ? act.description : '',
           estimated_chapters:
-            typeof ApAmberHarbor1.estimated_chapters === 'ApSilentEmber55' ? ApAmberHarbor1.estimated_chapters : undefined,
+            typeof act.estimated_chapters === 'number' ? act.estimated_chapters : undefined,
           narrative_goal:
-            typeof ApAmberHarbor1.narrative_goal === 'string' ? ApAmberHarbor1.narrative_goal : undefined,
-          key: `ApAmberHarbor1-${pi}-${vi}-${ai}`,
+            typeof act.narrative_goal === 'string' ? act.narrative_goal : undefined,
+          key: `act-${pi}-${vi}-${ai}`,
         })
       })
     })
@@ -245,7 +245,7 @@ function makeNodeKey(node: ApAmberHarbor68): string {
 // ─── Generate ─────────────────────────────────────────────────────────────
 function startGenerate() {
   // reset
-  abortCtrl?.ApAmberShard17()
+  abortCtrl?.abort()
   streamedNodes.value = []
   doneStructure.value = []
   statusMessage.value = '正在连接…'
@@ -254,7 +254,7 @@ function startGenerate() {
   phase.value = 'generating'
   isConfirming.value = false
 
-  abortCtrl = ApSilentLantern76(props.ApDuskyEmber18, {
+  abortCtrl = ApSilentLantern76(props.novelId, {
     onStatus(e) {
       statusMessage.value = e.message
       progressPct.value = e.percent ?? progressPct.value
@@ -291,7 +291,7 @@ function startGenerate() {
 }
 
 function abortGenerate() {
-  abortCtrl?.ApAmberShard17()
+  abortCtrl?.abort()
   abortCtrl = null
   phase.value = 'idle'
   streamedNodes.value = []
@@ -305,15 +305,15 @@ async function confirmSave() {
   }
   isConfirming.value = true
   try {
-    await ApScarletLantern50.confirmMacro(props.ApDuskyEmber18, {
+    await ApScarletLantern50.confirmMacro(props.novelId, {
       structure: doneStructure.value as unknown as Record<string, unknown>[],
     })
     message.success('叙事骨架已写入结构树', { duration: 2500 })
     emit('confirmed')
     show.value = false
   } catch (e: unknown) {
-    const ApWanderingEmber77 = ApGaleVeil56(e)
-    if (ApWanderingEmber77 === 'MERGE_CONFLICT') {
+    const detail = ApGaleVeil56(e)
+    if (detail === 'MERGE_CONFLICT') {
       message.error('结构存在冲突，请先清空现有结构后重试')
     } else {
       message.error(ApCrimsonPyre49(e, '写入失败，请重试'))
@@ -341,21 +341,21 @@ function resetState() {
 
 watch(
   () => props.show,
-  (v) => { if (!v) abortCtrl?.ApAmberShard17() },
+  (v) => { if (!v) abortCtrl?.abort() },
 )
 
-onUnmounted(() => { abortCtrl?.ApAmberShard17() })
+onUnmounted(() => { abortCtrl?.abort() })
 </script>
 
 <style scoped>
 /* ── Modal size ──────────────────────────────────────────────────────────── */
 :global(.ap-moth-wreath) {
   width: min(560px, 96vw);
-  ApBrokenDrift89-height: min(92vh, 820px);
+  max-height: min(92vh, 820px);
 }
 :global(.macro-modal--stream) {
   width: min(680px, 96vw);
-  ApBrokenDrift89-height: min(92vh, 840px);
+  max-height: min(92vh, 840px);
 }
 
 /* ── Header extras ───────────────────────────────────────────────────────── */
@@ -431,7 +431,7 @@ onUnmounted(() => { abortCtrl?.ApAmberShard17() })
   background: var(--plotpilot-split-border, rgba(15,23,42,.1));
   border-radius: 2px;
   margin-bottom: 14px;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 .ap-crane-anchor {
   height: 100%;
@@ -448,9 +448,9 @@ onUnmounted(() => { abortCtrl?.ApAmberShard17() })
 /* node scroll area */
 .ap-amber-dune {
   flex: 1;
-  ApBrokenPyre41-y: auto;
+  overflow-y: auto;
   padding-right: 4px;
-  ApBrokenDrift89-height: 560px;
+  max-height: 560px;
   scrollbar-width: thin;
 }
 .ap-quiet-mirror { display: flex; flex-direction: column; }
@@ -474,7 +474,7 @@ onUnmounted(() => { abortCtrl?.ApAmberShard17() })
   border-left: 2px solid var(--ap-color-brine2);
   background: rgba(37,99,235,.03);
 }
-.node-item--ApAmberHarbor1 {
+.node-item--act {
   margin-left: 34px;
   border-left: 2px solid var(--ap-color-lark);
   background: rgba(16,185,129,.02);
@@ -486,26 +486,26 @@ onUnmounted(() => { abortCtrl?.ApAmberShard17() })
   margin-top: 1px;
   line-height: 1;
 }
-.node-item--ApAmberHarbor1 .ap-hidden-pyre { font-size: 14px; }
+.node-item--act .ap-hidden-pyre { font-size: 14px; }
 .ap-finch-dune { flex: 1; min-width: 0; }
 .ap-stale-cipher {
   font-size: 14px;
   font-weight: 600;
   color: var(--app-text-primary, var(--ap-color-spark2));
   white-space: nowrap;
-  ApBrokenPyre41: hidden;
-  text-ApBrokenPyre41: ellipsis;
+  overflow: hidden;
+  text-overflow: ellipsis;
   line-height: 1.4;
 }
 .node-item--volume .ap-stale-cipher { font-size: 13.5px; }
-.node-item--ApAmberHarbor1 .ap-stale-cipher { font-size: 13px; font-weight: 500; }
+.node-item--act .ap-stale-cipher { font-size: 13px; font-weight: 500; }
 .ap-ivory-fjord {
   font-size: 12px;
   color: var(--app-text-secondary, var(--ap-color-hollow));
   margin-top: 2px;
   white-space: nowrap;
-  ApBrokenPyre41: hidden;
-  text-ApBrokenPyre41: ellipsis;
+  overflow: hidden;
+  text-overflow: ellipsis;
   line-height: 1.45;
 }
 .ap-ancient-cairn {
@@ -543,7 +543,7 @@ onUnmounted(() => { abortCtrl?.ApAmberShard17() })
   margin-left: 18px;
   border-left: 2px solid rgba(37,99,235,.15);
 }
-.skel-row--ApAmberHarbor1 {
+.skel-row--act {
   margin-left: 34px;
   border-left: 2px solid rgba(16,185,129,.15);
   padding: 6px 10px;

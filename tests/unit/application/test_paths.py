@@ -27,7 +27,7 @@ def test_frozen_fallback_data_dir_delegates_to_environment_settings():
 
     assert (
         paths._frozen_fallback_data_dir(settings)
-        == Path("C:/Users/me/AppData/Roaming") / "com.plotpilot.desktop" / "data"
+        == Path("C:/Users/me/AppData/Roaming") / "com.alex.desktop" / "data"
     )
 
 

@@ -1,8 +1,7 @@
 """DaemonHostMixin — 守护进程基础设施 (Phase 7)
 
-持久化、共享内存、停止信号、审计/写作 helper。
-AutopilotDaemon 通过继承获得这些方法；runtime delegates 通过 host 协议调用。
-"""
+持久化、共享内存、停信号、写作 helper。
+AutopilotDaemon 通过继承获得这些方法；runtime delegates 通过 host 协议调用。"""
 from __future__ import annotations
 
 import time
@@ -32,83 +31,14 @@ from domain.novel.value_objects.chapter_id import ChapterId
 from domain.novel.value_objects.word_count import WordCount
 from domain.novel.value_objects.generation_preferences import GenerationPreferences
 from domain.structure.story_node import StoryNode
+from engine.runtime.daemon_helpers import coerce_word_count_to_int, write_daemon_heartbeat, init_daemon_dependencies
 
 logger = logging.getLogger(__name__)
-
-
-def _coerce_word_count_to_int(wc: Any) -> int:
-    """章节 word_count 可能为 int 或 WordCount 值对象。"""
-    if wc is None:
-        return 0
-    if isinstance(wc, WordCount):
-        return wc.value
-    return int(wc)
 
 
 VOICE_REWRITE_MAX_ATTEMPTS = LLM_MAX_TOTAL_ATTEMPTS
 VOICE_REWRITE_THRESHOLD = 0.68
 VOICE_WARNING_DEFAULT_THRESHOLD = 0.75
-
-
-def init_daemon_dependencies(
-    host: Any,
-    *,
-    novel_repository,
-    llm_service,
-    context_builder,
-    background_task_service,
-    planning_service,
-    story_node_repo,
-    chapter_repository,
-    poll_interval: int = 5,
-    voice_drift_service=None,
-    circuit_breaker=None,
-    chapter_workflow=None,
-    aftermath_pipeline=None,
-    volume_summary_service=None,
-    foreshadowing_repository=None,
-    knowledge_service=None,
-    use_story_pipeline_for_writing: bool | None = None,
-) -> None:
-    """注入守护进程依赖 — AutopilotDaemon / StoryPipelineRunner 共用（Phase 8）"""
-    if use_story_pipeline_for_writing is None:
-        from engine.runtime.writing_delegate import is_story_pipeline_writing_enabled
-
-        use_story_pipeline_for_writing = is_story_pipeline_writing_enabled()
-    host.novel_repository = novel_repository
-    host.llm_service = llm_service
-    host.context_builder = context_builder
-    host.background_task_service = background_task_service
-    host.planning_service = planning_service
-    host.story_node_repo = story_node_repo
-    host.chapter_repository = chapter_repository
-    host.poll_interval = poll_interval
-    host.voice_drift_service = voice_drift_service
-    host.circuit_breaker = circuit_breaker
-    host.chapter_workflow = chapter_workflow
-    host.aftermath_pipeline = aftermath_pipeline
-    host.volume_summary_service = volume_summary_service
-    host.foreshadowing_repository = foreshadowing_repository
-    host.knowledge_service = knowledge_service
-    host.use_story_pipeline_for_writing = use_story_pipeline_for_writing
-
-    host._beat_exhausted_rewrite_count = {}
-    host._pending_chapter_micro_beats = {}
-    host._pending_story_pipeline_aftermath = {}
-
-    if not host.volume_summary_service and llm_service and story_node_repo:
-        try:
-            from application.blueprint.services.volume_summary_service import VolumeSummaryService
-
-            host.volume_summary_service = VolumeSummaryService(
-                llm_service=llm_service,
-                story_node_repository=story_node_repo,
-                chapter_repository=chapter_repository,
-                foreshadowing_repository=foreshadowing_repository,
-            )
-        except ImportError:
-            host.volume_summary_service = None
-
 
 class DaemonHostMixin:
     """守护进程基础设施 — 供 AutopilotDaemon 继承"""
@@ -161,47 +91,6 @@ class DaemonHostMixin:
             logger.debug("合并共享内存 running 小说失败（可忽略）: %s", e)
 
         return running
-
-
-    def _write_daemon_heartbeat(self) -> None:
-        """写入守护进程心跳到共享内存，让前端判断后端是否存活。
-
-        成熟方案做法：
-        - 守护进程每轮循环写入时间戳（~5s 一次）
-        - API 进程的 /status 读取心跳时间戳
-        - 前端若连续 60s 未看到心跳更新，可显示"后端忙碌或网络延迟"
-
-        🔥 改进：同时更新所有活跃小说的共享内存 _updated_at，
-        避免 LLM 调用期间共享状态过期导致前端显示"后端处理中"。
-        """
-        now = time.time()
-        try:
-            import sys
-            shared = sys.modules.get("__shared_state")
-            if shared is not None:
-                shared["_daemon_heartbeat"] = now
-                # 🔥 同时刷新所有活跃小说的 _updated_at，防止共享状态过期
-                for key in list(shared.keys()):
-                    if key.startswith("novel:") and isinstance(shared[key], dict):
-                        shared[key]["_updated_at"] = now
-                return
-        except Exception:
-            pass
-        try:
-            import multiprocessing
-            if multiprocessing.current_process().daemon:
-                return
-        except Exception:
-            return
-        # 降级：通过主进程模块
-        try:
-            from interfaces.runtime_state import update_shared_novel_state
-            # 用特殊 key 写入心跳（非小说级别，而是全局级别）
-            from interfaces.runtime_state import _get_shared_state
-            state = _get_shared_state()
-            state["_daemon_heartbeat"] = now
-        except Exception:
-            pass
 
 
     def _save_novel_ephemeral(self, novel: Novel) -> bool:
@@ -1456,7 +1345,7 @@ class DaemonHostMixin:
         for c in chapters:
             st = getattr(c.status, "value", c.status)
             if st == "completed":
-                total += _coerce_word_count_to_int(getattr(c, "word_count", None))
+                total += coerce_word_count_to_int(getattr(c, "word_count", None))
         return total
 
 
@@ -1924,7 +1813,7 @@ class DaemonHostMixin:
                     from application.engine.services.streaming_bus import streaming_bus
 
                     streaming_bus.publish(str(novel_id), "", content=_live_snapshot())
-                    self._write_daemon_heartbeat()
+                    write_daemon_heartbeat()
                 except Exception:
                     pass
                 last_push_time = now
@@ -1953,7 +1842,7 @@ class DaemonHostMixin:
         from application.engine.services.streaming_bus import streaming_bus
         streaming_bus.publish(novel_id, chunk, content=content)
         # 🔥 流式生成期间更新心跳，避免前端误判"后端无响应"
-        self._write_daemon_heartbeat()
+        write_daemon_heartbeat()
 
 
     def _update_stream_metadata(self, novel_id: str, beat_index: int, word_count: int):

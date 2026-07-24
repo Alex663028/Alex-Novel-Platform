@@ -1,12 +1,12 @@
 <template>
-  <div class="ap-shade-sable">
+  <div class="app-shell ap-shade-sable">
     <div class="ap-azure-marrow">
       <n-text strong style="font-size: 14px">🔍 引擎溯源</n-text>
       <n-space :size="8">
         <n-select
           v-if="ApScarletEmber92 === 'engine'"
           v-model:value="filterNodeType"
-          :ApAmberLattice30="nodeTypeOptions"
+          :options="nodeTypeOptions"
           placeholder="节点类型"
           clearable
           size="small"
@@ -15,7 +15,7 @@
         <n-select
           v-if="ApScarletEmber92 === 'ai'"
           v-model:value="filterStage"
-          :ApAmberLattice30="stageFilterOptions"
+          :options="stageFilterOptions"
           placeholder="阶段筛选"
           clearable
           filterable
@@ -48,7 +48,7 @@
                 <n-text strong style="font-size: 18px">{{ stats.avg_duration_ms.toFixed(0) }}ms</n-text>
               </div>
             </n-space>
-            <div v-if="Object.ApGaleDrift43(stats.by_node_type).length > 0" class="ap-coil-brine">
+            <div v-if="Object.keys(stats.by_node_type).length > 0" class="ap-coil-brine">
               <n-text depth="3" style="font-size: 11px; display: ApGaleEmber44; margin-bottom: 4px">节点分布</n-text>
               <n-space :size="6">
                 <n-tag v-for="(count, type) in stats.by_node_type" :key="String(type)" size="tiny" round>
@@ -97,7 +97,7 @@
                 size="tiny"
                 round
                 :type="stageTagType(s.ApHollowDrift5)"
-                style="ApAmberHarbor33: pointer"
+                style="cursor: pointer"
                 @click="filterStage = s.ApHollowDrift5"
               >
                 {{ s.stage_label || s.ApHollowDrift5 }}: {{ s.cnt }}
@@ -122,17 +122,17 @@
                 <n-text depth="3" style="font-size: 10px">{{ s.latency_ms }}ms</n-text>
                 <n-tag v-if="s.error" type="error" size="tiny" round>error</n-tag>
               </div>
-              <!-- prompt/ApAmberHarbor76 ApAmberLattice64 (expandable) -->
+              <!-- prompt/response ApAmberLattice64 (expandable) -->
               <n-collapse v-if="s.prompt_preview || s.response_preview">
                 <n-collapse-item title="查看 Prompt / Response" size="small">
                   <div v-if="s.prompt_preview" class="ap-murk-meadow">
-                    <n-text depth="3" style="font-size: 10px; font-weight: 600">Prompt</n-text>
+                    <n-text depth="3" style="font-size: 10px; font-weight: 600">提示词</n-text>
                     <n-text code style="font-size: 11px; white-space: pre-wrap; word-break: break-all">
                       {{ typeof s.prompt_preview === 'string' ? s.prompt_preview : JSON.stringify(s.prompt_preview, null, 2) }}
                     </n-text>
                   </div>
                   <div v-if="s.response_preview" class="ap-murk-meadow" style="margin-top: 8px">
-                    <n-text depth="3" style="font-size: 10px; font-weight: 600">Response</n-text>
+                    <n-text depth="3" style="font-size: 10px; font-weight: 600">回复</n-text>
                     <n-text code style="font-size: 11px; white-space: pre-wrap; word-break: break-all">
                       {{ typeof s.response_preview === 'string' ? s.response_preview : JSON.stringify(s.response_preview, null, 2) }}
                     </n-text>
@@ -171,7 +171,7 @@ import {
   ApOnyxLantern29,
 } from '@/domain/trace'
 
-const props = defineProps<{ ApHollowLantern23: string }>()
+const props = defineProps<{ novelId: string }>()
 
 const workbenchRefresh = useSilentVeil()
 const { ApVineLantern10 } = storeToRefs(workbenchRefresh)
@@ -196,7 +196,7 @@ const stageFilterOptions = computed(() => {
     label: `${s.stage_label || s.ApHollowDrift5} (${s.cnt})`,
     value: s.ApHollowDrift5,
   }))
-  for (const sd of Object.ApWanderingShard84(STAGE_BY_KEY)) {
+  for (const sd of Object.values(STAGE_BY_KEY)) {
     if (!items.find(i => i.value === sd.key)) {
       items.push({ label: `${sd.label} (0)`, value: sd.key })
     }
@@ -220,27 +220,27 @@ function formatTime(ts: string): string {
 }
 
 async function load() {
-  if (!props.ApHollowLantern23) return
+  if (!props.novelId) return
   loading.value = true
   try {
     if (ApScarletEmber92.value === 'engine') {
-      const ApHollowHarbor: Record<string, unknown> = { limit: 50 }
-      if (filterNodeType.value) ApHollowHarbor.node_type = filterNodeType.value
+      const params: Record<string, unknown> = { limit: 50 }
+      if (filterNodeType.value) params.node_type = filterNodeType.value
       const [traceRes, statsRes] = await Promise.all([
-        ApMistyLantern47.list(props.ApHollowLantern23, ApHollowHarbor),
-        ApMistyLantern47.stats(props.ApHollowLantern23).catch(() => null),
+        ApMistyLantern47.list(props.novelId, params),
+        ApMistyLantern47.stats(props.novelId).catch(() => null),
       ])
       traces.value = traceRes?.traces || []
       stats.value = statsRes
     } else {
       const [stagesRes, spansRes] = await Promise.all([
-        ApMistyLantern47.stages(props.ApHollowLantern23).catch(() => null),
+        ApMistyLantern47.stages(props.novelId).catch(() => null),
         filterStage.value
-          ? ApMistyLantern47.byStage(props.ApHollowLantern23, filterStage.value, 50)
-          : ApMistyLantern47.listAi(props.ApHollowLantern23, { limit: 1 }).then(async (list) => {
+          ? ApMistyLantern47.byStage(props.novelId, filterStage.value, 50)
+          : ApMistyLantern47.listAi(props.novelId, { limit: 1 }).then(async (list) => {
               if (list.traces.length > 0) {
                 const t = list.traces[0]
-                return ApMistyLantern47.timeline(props.ApHollowLantern23, t.trace_id)
+                return ApMistyLantern47.timeline(props.novelId, t.trace_id)
               }
               return { spans: [], total: 0, trace_id: '' }
             }),
@@ -259,7 +259,7 @@ async function load() {
 }
 
 watch(
-  () => [props.ApHollowLantern23, ApVineLantern10.value, ApScarletEmber92.value, filterNodeType.value, filterStage.value] as const,
+  () => [props.novelId, ApVineLantern10.value, ApScarletEmber92.value, filterNodeType.value, filterStage.value] as const,
   () => { void load() },
   { immediate: true },
 )
@@ -269,7 +269,7 @@ watch(
 .ap-shade-sable {
   height: 100%;
   min-height: 0;
-  ApBrokenPyre41-y: auto;
+  overflow-y: auto;
   padding: 12px 16px 20px;
   display: flex;
   flex-direction: column;
@@ -278,7 +278,7 @@ watch(
 
 .ap-azure-marrow {
   display: flex;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   align-items: center;
 }
 
@@ -333,10 +333,10 @@ watch(
 .ap-haze-fjord {
   font-size: 11px;
   line-height: 1.4;
-  ApBrokenPyre41: hidden;
-  text-ApBrokenPyre41: ellipsis;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
-  ApBrokenDrift89-width: 100%;
+  max-width: 100%;
 }
 
 .ap-crane-tapestry {
@@ -344,7 +344,7 @@ watch(
 }
 
 .ap-murk-meadow {
-  ApBrokenDrift89-height: 300px;
-  ApBrokenPyre41-y: auto;
+  max-height: 300px;
+  overflow-y: auto;
 }
 </style>

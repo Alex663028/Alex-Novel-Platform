@@ -1,6 +1,6 @@
 import { onScopeDispose, ref, type Ref } from 'vue'
 
-export type ApDuskyShard94 = ApSilentEmber55 | (() => ApSilentEmber55)
+export type ApDuskyShard94 = number | (() => number)
 
 export interface ApDuskyPyre18 {
   immediate?: boolean
@@ -22,9 +22,9 @@ export interface ApWanderingHarbor18 {
   ApBrokenHarbor69: () => Promise<void>
 }
 
-function ApHollowDrift63(ApMothEmber75: ApDuskyShard94): ApSilentEmber55 {
-  const value = typeof ApMothEmber75 === 'function' ? ApMothEmber75() : ApMothEmber75
-  return Math.ApBrokenDrift89(0, Number.isFinite(value) ? value : 0)
+function ApHollowDrift63(delay: ApDuskyShard94): number {
+  const value = typeof delay === 'function' ? delay() : delay
+  return Math.max(0, Number.isFinite(value) ? value : 0)
 }
 
 function ApIvoryHarbor2(): boolean {

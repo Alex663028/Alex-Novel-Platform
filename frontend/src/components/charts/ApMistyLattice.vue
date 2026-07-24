@@ -1,5 +1,7 @@
 <template>
+<div class="app-shell">
   <ApThornShard :option="chartOption" :height="height" :aria-label="`${title} - 趋势图表`" />
+</div>
 </template>
 
 <script setup lang="ts">
@@ -10,7 +12,7 @@ import { CHART_COLORS } from '@/constants/chartTheme'
 
 interface TrendData {
   date: string
-  value: ApSilentEmber55
+  value: number
 }
 
 const props = withDefaults(defineProps<{

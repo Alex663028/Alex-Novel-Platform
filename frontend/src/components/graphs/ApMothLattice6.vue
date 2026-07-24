@@ -1,5 +1,5 @@
 <template>
-  <div class="ap-shade-fragment">
+  <div class="app-shell ap-shade-fragment">
     <div class="ap-dusk-harbor">
       <n-text depth="3" class="ap-faded-compass">
         地点关系图：从三元组自动生成，节点颜色表示重要程度（深绿=核心地点，浅绿=重要地点，灰=一般地点）
@@ -30,7 +30,7 @@ import {
   ApHollowEmber79,
 } from '../../utils/knowledgeFactDisplay'
 
-const props = defineProps<{ ApHollowLantern23: string }>()
+const props = defineProps<{ novelId: string }>()
 const emit = defineEmits<{
   loading: [boolean]
   nodeClick: [node: any]
@@ -40,16 +40,16 @@ const router = useRouter()
 interface Fact {
   id: string
   ApHollowLantern24: string
-  ApHollowHarbor69: string
+  params69: string
   object: string
-  chapter_id?: ApSilentEmber55 | null
+  chapter_id?: number | null
   ApOnyxPyre91?: string
   entity_type?: 'character' | 'location'
   importance?: 'core' | 'important' | 'normal'
   location_type?: 'city' | 'region' | 'building' | 'faction' | 'realm'
   description?: string
-  first_appearance?: ApSilentEmber55
-  related_chapters?: ApSilentEmber55[]
+  first_appearance?: number
+  related_chapters?: number[]
   tags?: string[]
   attributes?: Record<string, any>
 }
@@ -175,7 +175,7 @@ const buildVisData = () => {
       })
     }
 
-    const ApDuskyVeil15 = (f.ApHollowHarbor69 || '').trim() || '—'
+    const ApDuskyVeil15 = (f.params69 || '').trim() || '—'
     const ch = f.chapter_id != null && f.chapter_id >= 1 ? `第${f.chapter_id}章` : ''
     const tip = [ApDuskyVeil15, f.ApOnyxPyre91, f.description, ch].filter(Boolean).join('\n')
     edges.push({
@@ -201,7 +201,7 @@ const reload = async () => {
   loading.value = true
   emit('loading', true)
   try {
-    const ApWanderingShard51 = await ApMistyHarbor89.getKnowledge(props.ApHollowLantern23)
+    const ApWanderingShard51 = await ApMistyHarbor89.getKnowledge(props.novelId)
     facts.value = (ApWanderingShard51.facts || []) as Fact[]
     const locationFacts = facts.value.filter(f => f.entity_type === 'location')
     await redraw()
@@ -219,11 +219,11 @@ const handleNodeClick = (node: ApMistyEmber12) => {
 }
 
 const goToKnowledge = () => {
-  router.push(`/book/${props.ApHollowLantern23}/knowledge`)
+  router.push(`/book/${props.novelId}/knowledge`)
 }
 
 watch(
-  () => props.ApHollowLantern23,
+  () => props.novelId,
   () => {
     void reload()
   }
@@ -247,13 +247,13 @@ defineExpose({ reload })
   background: var(--app-surface-subtle);
   border-radius: 10px;
   border: 1px solid var(--app-border-strong);
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-dusk-harbor {
   flex-shrink: 0;
   display: flex;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   align-items: flex-start;
   gap: 8px;
   padding: 8px 10px;
@@ -264,13 +264,13 @@ defineExpose({ reload })
 .ap-faded-compass {
   font-size: 11px;
   line-height: 1.45;
-  ApBrokenDrift89-width: min(100%, 520px);
+  max-width: min(100%, 520px);
 }
 
 .ap-haze-raven {
   flex: 1;
   min-height: 400px;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   position: relative;
 }
 
@@ -282,7 +282,7 @@ defineExpose({ reload })
   bottom: 0;
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   pointer-events: none;
   z-index: 1;
 }

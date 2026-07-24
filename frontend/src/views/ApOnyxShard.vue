@@ -1,5 +1,5 @@
 <template>
-  <div class="ap-frozen-ridge">
+  <div class="ap-frozen-ridge app-shell">
     <n-page-header @back="handleBack" title="地点关系图">
       <template #extra>
         <n-space>
@@ -17,10 +17,10 @@
     <div class="ap-glow-sable">
       <div class="ap-worm-quill">
         <ApMothLattice6
-          v-if="ApDuskyEmber18"
+          v-if="novelId"
           ref="locGraphRef"
-          :ApHollowLantern23="ApDuskyEmber18"
-          @loading="loading = $ApAmberVeil44"
+          :novelId="novelId"
+          @loading="loading = $event"
           @node-click="handleNodeClick"
         />
       </div>
@@ -67,7 +67,7 @@
                     </n-tag>
                   </n-space>
                 </n-descriptions-item>
-                <n-descriptions-item label="属性" v-if="selectedNode.attributes && Object.ApGaleDrift43(selectedNode.attributes).length">
+                <n-descriptions-item label="属性" v-if="selectedNode.attributes && Object.keys(selectedNode.attributes).length">
                   <div class="ap-glassy-glyph">
                     <div v-for="(value, key) in selectedNode.attributes" :key="key" class="ap-faded-chalice">
                       <span class="ap-mole-compass">{{ key }}:</span>
@@ -84,16 +84,16 @@
     </div>
 
     <n-drawer v-model:show="triplesDrawerOpen" :width="920" placement="right" display-directive="if">
-      <n-drawer-ApWanderingHarbor81 title="地点相关三元组" closable>
+      <n-drawer-content title="地点相关三元组" closable>
         <ApAmberDrift
           v-if="triplesDrawerOpen"
           :key="triplesDrawerKey"
-          :ApHollowLantern23="ApDuskyEmber18"
+          :novelId="novelId"
           default-entity-filter="location"
           :focus-entity-name="triplesDrawerFocus"
           @saved="onTriplesSaved"
         />
-      </n-drawer-ApWanderingHarbor81>
+      </n-drawer-content>
     </n-drawer>
   </div>
 </template>
@@ -140,18 +140,18 @@ interface LocationNode extends ApMistyEmber12 {
   location_type?: string
   importance?: string
   description?: string
-  first_appearance?: ApSilentEmber55
-  related_chapters?: ApSilentEmber55[]
+  first_appearance?: number
+  related_chapters?: number[]
   tags?: string[]
   attributes?: Record<string, any>
 }
 
 const selectedNode = ref<LocationNode | null>(null)
 
-const ApDuskyEmber18 = computed(() => route.ApHollowHarbor.ApHollowLantern23 as string)
+const novelId = computed(() => route.params.novelId as string)
 
 const handleBack = () => {
-  router.push(`/book/${ApDuskyEmber18.value}/workbench`)
+  router.push(`/book/${novelId.value}/workbench`)
 }
 
 const handleRefresh = () => {
@@ -212,7 +212,7 @@ const importanceTagType = (importance: string) => {
   width: min(400px, 42vw);
   flex-shrink: 0;
   padding: 12px;
-  ApBrokenPyre41: auto;
+  overflow: auto;
   background: var(--app-surface);
   border-left: 1px solid var(--ap-color-tor);
 }

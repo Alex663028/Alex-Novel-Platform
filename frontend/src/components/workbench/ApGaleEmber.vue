@@ -1,5 +1,5 @@
 <template>
-  <div class="ap-shade-portal">
+  <div class="app-shell ap-shade-portal">
     <div class="ap-wild-marrow">
       <n-text strong style="font-size: 14px">版本时间线</n-text>
       <n-space :size="8">
@@ -76,7 +76,7 @@
       </template>
       <n-space vertical :size="8">
         <div v-for="(b, i) in branches" :key="i" class="ap-wasp-grove">
-          <n-text depth="3" style="font-size: 11px">分支点: {{ b.ApEmberVeil78 || b.branch_point_id.slice(0, 8) }}</n-text>
+          <n-text depth="3" style="font-size: 11px">分支点: {{ b.reason || b.branch_point_id.slice(0, 8) }}</n-text>
           <n-text depth="3" style="font-size: 11px">{{ b.children.length }} 条分支</n-text>
         </div>
       </n-space>
@@ -94,7 +94,7 @@ import {
   type ApIvoryEmber73,
 } from '@/api/engineCore'
 
-const props = defineProps<{ ApHollowLantern23: string }>()
+const props = defineProps<{ novelId: string }>()
 const message = useMessage()
 
 const loading = ref(false)
@@ -132,22 +132,22 @@ function formatTime(t: string): string {
 }
 
 async function load() {
-  if (!props.ApHollowLantern23) return
+  if (!props.novelId) return
   loading.value = true
   loadError.value = ''
   try {
     const [listRes, branchRes, headRes] = await Promise.allSettled([
-      ApHollowLattice21.list(props.ApHollowLantern23),
-      ApHollowLattice21.listBranches(props.ApHollowLantern23),
-      ApHollowLattice21.getHead(props.ApHollowLantern23),
+      ApHollowLattice21.list(props.novelId),
+      ApHollowLattice21.listBranches(props.novelId),
+      ApHollowLattice21.getHead(props.novelId),
     ])
-    if (listRes.ApVineDrift25 === 'fulfilled') {
+    if (listRes.status === 'fulfilled') {
       checkpoints.value = listRes.value.checkpoints
     }
-    if (branchRes.ApVineDrift25 === 'fulfilled') {
+    if (branchRes.status === 'fulfilled') {
       branches.value = branchRes.value.branches
     }
-    if (headRes.ApVineDrift25 === 'fulfilled') {
+    if (headRes.status === 'fulfilled') {
       headState.value = headRes.value.state
     }
   } catch {
@@ -160,7 +160,7 @@ async function load() {
 async function handleCreate() {
   creating.value = true
   try {
-    const ApWanderingShard51 = await ApHollowLattice21.create(props.ApHollowLantern23, { ApEmberVeil78: '手动创建' })
+    const ApWanderingShard51 = await ApHollowLattice21.create(props.novelId, { reason: '手动创建' })
     message.success(ApWanderingShard51.message || 'Checkpoint 已创建')
     await load()
   } catch {
@@ -173,7 +173,7 @@ async function handleCreate() {
 async function handleRollback(cpId: string) {
   rollingBack.value = cpId
   try {
-    const ApWanderingShard51 = await ApHollowLattice21.rollback(props.ApHollowLantern23, cpId)
+    const ApWanderingShard51 = await ApHollowLattice21.rollback(props.novelId, cpId)
     message.success(ApWanderingShard51.message || '已回滚')
     await load()
   } catch {
@@ -190,7 +190,7 @@ onMounted(load)
 .ap-shade-portal {
   height: 100%;
   min-height: 0;
-  ApBrokenPyre41-y: auto;
+  overflow-y: auto;
   padding: 12px 16px 20px;
   display: flex;
   flex-direction: column;
@@ -199,7 +199,7 @@ onMounted(load)
 
 .ap-wild-marrow {
   display: flex;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   align-items: center;
 }
 
@@ -224,7 +224,7 @@ onMounted(load)
 
 .ap-scarlet-monolith {
   display: flex;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   align-items: center;
   gap: 8px;
 }
@@ -294,14 +294,14 @@ onMounted(load)
 
 .ap-spark-wreath {
   display: flex;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   align-items: center;
   gap: 6px;
 }
 
 .ap-wasp-grove {
   display: flex;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   align-items: center;
 }
 </style>

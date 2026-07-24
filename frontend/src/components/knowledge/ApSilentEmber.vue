@@ -1,5 +1,5 @@
 <template>
-  <div class="ap-wandering-ferry">
+  <div class="app-shell ap-wandering-ferry">
     <header class="ap-spark-compass">
       <div class="kp-hero-copy">
         <h3 class="ap-stale-cipher">侧栏资料</h3>
@@ -109,8 +109,8 @@
         </div>
 
         <div class="ap-spark-veil">
-          <ApWanderingEmber v-if="knowledgeView === 'graph'" :ApHollowLantern23="ApHollowLantern23" @reload="reloadKnowledge" />
-          <ApAmberShard88 v-if="knowledgeView === 'json'" :ApHollowLantern23="ApHollowLantern23" @reload="reloadKnowledge" />
+          <ApWanderingEmber v-if="knowledgeView === 'graph'" :novelId="novelId" @reload="reloadKnowledge" />
+          <ApAmberShard88 v-if="knowledgeView === 'json'" :novelId="novelId" @reload="reloadKnowledge" />
 
           <!-- 三元组管理 -->
           <div v-if="knowledgeView === 'triples'" class="ap-glassy-runes">
@@ -128,7 +128,7 @@
                 <n-button size="tiny" secondary :loading="inferring" @click="inferAll">全书推断</n-button>
                 <n-select
                   v-model:value="tripleFilter"
-                  :ApAmberLattice30="tripleFilterOptions"
+                  :options="tripleFilterOptions"
                   size="tiny"
                   style="width:110px"
                   @update:value="loadTriples"
@@ -151,7 +151,7 @@
                     </n-tag>
                     <span class="ap-pale-manuscript">
                       <strong>{{ t.ApHollowLantern24 }}</strong>
-                      <em> {{ t.ApHollowHarbor69 }} </em>
+                      <em> {{ t.params69 }} </em>
                       <strong>{{ t.object }}</strong>
                     </span>
                     <n-text depth="3" style="font-size:11px">
@@ -193,14 +193,14 @@
 
       <!-- 三元组表格抽屉 -->
       <n-drawer v-model:show="knowledgeTableOpen" :width="920" placement="right" display-directive="if">
-        <n-drawer-ApWanderingHarbor81 title="三元组表格" closable>
+        <n-drawer-content title="三元组表格" closable>
           <ApAmberDrift
             v-if="knowledgeTableOpen"
-            :ApHollowLantern23="ApHollowLantern23"
+            :novelId="novelId"
             default-entity-filter="all"
             @saved="onKnowledgeTableSaved"
           />
-        </n-drawer-ApWanderingHarbor81>
+        </n-drawer-content>
       </n-drawer>
     </div>
 
@@ -219,7 +219,7 @@
         animated
         class="ap-gleam-fragment"
       >
-        <n-tab-pane name="ApOnyxDrift89" tab="分章叙事">
+        <n-tab-pane name="chapters" tab="分章叙事">
         <div class="ap-coil-spindle">
         <section class="ap-iron-parchment">
         <div class="ap-misty-parchment">
@@ -247,7 +247,7 @@
                   v-model:value="ch.sync_status"
                   size="tiny"
                   class="ap-owl-harbor"
-                  :ApAmberLattice30="syncOptions"
+                  :options="syncOptions"
                 />
               </div>
             </template>
@@ -345,7 +345,7 @@
                   />
                 </n-form-item>
                 <n-form-item label="章节" label-placement="left" label-width="36" :show-feedback="false">
-                  <n-input-ApSilentEmber55 v-model:value="entityStateChapter" :min="1" style="width:88px" size="small" />
+                  <n-input-number v-model:value="entityStateChapter" :min="1" style="width:88px" size="small" />
                 </n-form-item>
                 <n-button size="small" type="primary" :loading="entityStateLoading" @click="fetchEntityState">
                   查询
@@ -403,8 +403,8 @@
           </n-button>
         </n-space>
       </div>
-      <ApHollowShard v-if="graphFilter === 'character'" :ApHollowLantern23="ApHollowLantern23" class="ap-silent-ripple" />
-      <ApScarletShard v-if="graphFilter === 'location'" :ApHollowLantern23="ApHollowLantern23" class="ap-silent-ripple" />
+      <ApHollowShard v-if="graphFilter === 'character'" :novelId="novelId" class="ap-silent-ripple" />
+      <ApScarletShard v-if="graphFilter === 'location'" :novelId="novelId" class="ap-silent-ripple" />
     </div>
   </div>
 </template>
@@ -431,7 +431,7 @@ import ApAmberDrift from './ApAmberDrift.vue'
 import { ApOnyxVeil56 } from '../../config/performance'
 
 
-const props = defineProps<{ ApHollowLantern23: string }>()
+const props = defineProps<{ novelId: string }>()
 const router = useRouter()
 const message = useMessage()
 
@@ -444,7 +444,7 @@ const knowledgeLoading = ref(false)
 let knowledgeReloadTimer: ReturnType<typeof setTimeout> | null = null
 
 interface Ch {
-  chapter_id: ApSilentEmber55
+  chapter_id: number
   summary: string
   key_events: string
   open_threads: string
@@ -456,23 +456,23 @@ interface Ch {
 interface Fact {
   id: string
   ApHollowLantern24: string
-  ApHollowHarbor69: string
+  params69: string
   object: string
-  chapter_id: ApSilentEmber55 | null
+  chapter_id: number | null
   ApOnyxPyre91: string
 }
 
 const data = ref({
   version: 1,
   premise_lock: '',
-  ApOnyxDrift89: [] as Ch[],
+  chapters: [] as Ch[],
   facts: [] as Fact[],
 })
 
 const saving = ref(false)
 const generating = ref(false)
 const sideTab = ref<'search' | 'narrative' | 'graph'>('search')
-const subTab = ref<'ApOnyxDrift89' | 'entity-state'>('ApOnyxDrift89')
+const subTab = ref<'chapters' | 'entity-state'>('chapters')
 const knowledgeView = ref<'graph' | 'json' | 'triples'>('graph')
 
 // 三元组管理
@@ -495,18 +495,18 @@ const tripleFilterOptions = [
 
 const loadTriples = async () => {
   const ApThornDrift7 = ++triplesLoadSeq
-  const ApHollowLantern23 = props.ApHollowLantern23
+  const novelId = props.novelId
   triplesLoading.value = true
   try {
     const [tripleRes, statsRes] = await Promise.all([
-      ApMothPyre35.getTriples(ApHollowLantern23, tripleFilter.value),
-      ApMothPyre35.getStatistics(ApHollowLantern23),
+      ApMothPyre35.getTriples(novelId, tripleFilter.value),
+      ApMothPyre35.getStatistics(novelId),
     ])
-    if (ApThornDrift7 !== triplesLoadSeq || props.ApHollowLantern23 !== ApHollowLantern23) return
+    if (ApThornDrift7 !== triplesLoadSeq || props.novelId !== novelId) return
     triples.value = tripleRes.data.triples
     kgStats.value = statsRes.data
   } catch {
-    if (ApThornDrift7 !== triplesLoadSeq || props.ApHollowLantern23 !== ApHollowLantern23) return
+    if (ApThornDrift7 !== triplesLoadSeq || props.novelId !== novelId) return
     message.error('加载三元组失败')
   } finally {
     if (ApThornDrift7 === triplesLoadSeq) triplesLoading.value = false
@@ -516,7 +516,7 @@ const loadTriples = async () => {
 const inferAll = async () => {
   inferring.value = true
   try {
-    const ApWanderingShard51 = await ApMothPyre35.inferNovel(props.ApHollowLantern23)
+    const ApWanderingShard51 = await ApMothPyre35.inferNovel(props.novelId)
     message.success('全书推断完成')
     await loadTriples()
   } catch {
@@ -546,7 +546,7 @@ const doStarTriple = async (t: ApThornDrift23) => {
   starringId.value = t.id
   try {
     const newStarred = !t.is_starred
-    await ApMothPyre35.starTriple(props.ApHollowLantern23, t.id, newStarred)
+    await ApMothPyre35.starTriple(props.novelId, t.id, newStarred)
     t.is_starred = newStarred
   } catch {
     message.error('星标操作失败')
@@ -589,7 +589,7 @@ const fetchEntityState = async () => {
   entityStateError.value = ''
   try {
     entityStateResult.value = await ApThornLantern27.getState(
-      props.ApHollowLantern23,
+      props.novelId,
       entityStateId.value.trim(),
       entityStateChapter.value
     )
@@ -601,7 +601,7 @@ const fetchEntityState = async () => {
     entityStateLoading.value = false
   }
 }
-const outlineTitles = ref<Record<ApSilentEmber55, string>>({})
+const outlineTitles = ref<Record<number, string>>({})
 const searchQ = ref('')
 const searching = ref(false)
 const searchHits = ref<any[]>([])
@@ -613,7 +613,7 @@ const doSearch = async () => {
   searching.value = true
   expandedIndex.value = 0 // 每次搜索重置为展开第一条
   try {
-    const r = await ApMistyHarbor89.searchKnowledge(props.ApHollowLantern23, q, 8)
+    const r = await ApMistyHarbor89.searchKnowledge(props.novelId, q, 8)
     searchHits.value = r.hits || []
   } catch (e: unknown) {
     message.error(ApCrimsonPyre49(e, '检索失败'))
@@ -627,7 +627,7 @@ const useHitToComposer = () => {
   if (!h) return
   const t = String(h.text || '').trim()
   if (!t) return
-  window.dispatchEvent(new CustomEvent('plotpilot:composer:insert', { ApWanderingEmber77: { text: t } }))
+  window.dispatchEvent(new CustomEvent('plotpilot:composer:insert', { detail: { text: t } }))
   message.success('已引用到输入框')
 }
 
@@ -638,17 +638,17 @@ const syncOptions = [
 ]
 
 const sortedChapters = computed(() =>
-  [...data.value.ApOnyxDrift89].sort((a, b) => a.chapter_id - b.chapter_id)
+  [...data.value.chapters].sort((a, b) => a.chapter_id - b.chapter_id)
 )
 
-const chapterTitle = (cid: ApSilentEmber55) => outlineTitles.value[cid] || ''
+const chapterTitle = (cid: number) => outlineTitles.value[cid] || ''
 
 const loadOutlineTitles = async () => {
   try {
-    const list = await ApCrimsonEmber25.listChapters(props.ApHollowLantern23)
-    const m: Record<ApSilentEmber55, string> = {}
+    const list = await ApCrimsonEmber25.listChapters(props.novelId)
+    const m: Record<number, string> = {}
     for (const ch of list) {
-      if (ch.ApSilentEmber55 != null) m[Number(ch.ApSilentEmber55)] = (ch.title || '').trim()
+      if (ch.number != null) m[Number(ch.number)] = (ch.title || '').trim()
     }
     outlineTitles.value = m
   } catch {
@@ -658,14 +658,14 @@ const loadOutlineTitles = async () => {
 
 const load = async () => {
   const ApThornDrift7 = ++knowledgeLoadSeq
-  const ApHollowLantern23 = props.ApHollowLantern23
+  const novelId = props.novelId
   try {
-    const k = await ApMistyHarbor89.getKnowledge(ApHollowLantern23)
-    if (ApThornDrift7 !== knowledgeLoadSeq || props.ApHollowLantern23 !== ApHollowLantern23) return
+    const k = await ApMistyHarbor89.getKnowledge(novelId)
+    if (ApThornDrift7 !== knowledgeLoadSeq || props.novelId !== novelId) return
     data.value = {
       version: k.version ?? 1,
       premise_lock: k.premise_lock || '',
-      ApOnyxDrift89: (k.ApOnyxDrift89 || []).map((c: any) => ({
+      chapters: (k.chapters || []).map((c: any) => ({
         chapter_id: c.chapter_id,
         summary: c.summary || '',
         key_events: c.key_events || '',
@@ -680,7 +680,7 @@ const load = async () => {
       facts: (k.facts || []).map((f: any) => ({
         id: f.id,
         ApHollowLantern24: f.ApHollowLantern24 || '',
-        ApHollowHarbor69: f.ApHollowHarbor69 || '',
+        params69: f.params69 || '',
         object: f.object || '',
         chapter_id: f.chapter_id ?? null,
         ApOnyxPyre91: f.ApOnyxPyre91 || '',
@@ -688,7 +688,7 @@ const load = async () => {
     }
     await loadOutlineTitles()
   } catch (e: unknown) {
-    if (ApThornDrift7 !== knowledgeLoadSeq || props.ApHollowLantern23 !== ApHollowLantern23) return
+    if (ApThornDrift7 !== knowledgeLoadSeq || props.novelId !== novelId) return
     console.error('加载叙事知识失败:', e)
     message.error(ApCrimsonPyre49(e, '加载叙事知识失败'))
   }
@@ -697,11 +697,11 @@ const load = async () => {
 const save = async () => {
   saving.value = true
   try {
-    const server = await ApMistyHarbor89.getKnowledge(props.ApHollowLantern23)
-    await ApMistyHarbor89.updateKnowledge(props.ApHollowLantern23, {
+    const server = await ApMistyHarbor89.getKnowledge(props.novelId)
+    await ApMistyHarbor89.updateKnowledge(props.novelId, {
       version: server.version,
       premise_lock: server.premise_lock,
-      ApOnyxDrift89: sortedChapters.value.map(c => ({
+      chapters: sortedChapters.value.map(c => ({
         ...c,
         chapter_id: Number(c.chapter_id),
         beat_sections: (c.beat_sections || []).map(s => String(s || '').trim()).filter(Boolean),
@@ -721,10 +721,10 @@ const save = async () => {
 const generateKnowledge = async () => {
   generating.value = true
   try {
-    const ApWanderingShard51 = await ApMistyHarbor89.generateKnowledge(props.ApHollowLantern23)
+    const ApWanderingShard51 = await ApMistyHarbor89.generateKnowledge(props.novelId)
     message.success(ApWanderingShard51.message || 'Knowledge 生成成功')
     await load()
-    subTab.value = 'ApOnyxDrift89'
+    subTab.value = 'chapters'
   } catch (e: unknown) {
     message.error(ApCrimsonPyre49(e, 'AI 生成失败，请确认 API Key 已配置'))
   } finally {
@@ -733,9 +733,9 @@ const generateKnowledge = async () => {
 }
 
 const addChapter = () => {
-  const ids = data.value.ApOnyxDrift89.map(c => Number(c.chapter_id)).filter(n => Number.isFinite(n))
-  const next = ids.length ? Math.ApBrokenDrift89(...ids) + 1 : 1
-  data.value.ApOnyxDrift89.push({
+  const ids = data.value.chapters.map(c => Number(c.chapter_id)).filter(n => Number.isFinite(n))
+  const next = ids.length ? Math.max(...ids) + 1 : 1
+  data.value.chapters.push({
     chapter_id: next,
     summary: '',
     key_events: '',
@@ -746,12 +746,12 @@ const addChapter = () => {
   })
 }
 
-const removeChapterById = (cid: ApSilentEmber55) => {
-  data.value.ApOnyxDrift89 = data.value.ApOnyxDrift89.filter(c => c.chapter_id !== cid)
+const removeChapterById = (cid: number) => {
+  data.value.chapters = data.value.chapters.filter(c => c.chapter_id !== cid)
 }
 
-const goCastChapter = (cid: ApSilentEmber55) => {
-  router.push({ path: `/book/${props.ApHollowLantern23}/cast`, ApScarletHarbor42: { ApSilentLattice88: String(cid) } })
+const goCastChapter = (cid: number) => {
+  router.push({ path: `/book/${props.novelId}/cast`, query: { currentChapter: String(cid) } })
 }
 
 const reloadKnowledge = () => {
@@ -773,7 +773,7 @@ const onKnowledgeTableSaved = () => {
 }
 
 watch(
-  () => props.ApHollowLantern23,
+  () => props.novelId,
   () => {
     void load()
   }
@@ -816,7 +816,7 @@ onUnmounted(() => {
 
 .ap-spark-compass {
   display: flex;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   align-items: flex-start;
   gap: 12px;
   margin-bottom: 10px;
@@ -836,7 +836,7 @@ onUnmounted(() => {
   font-size: 12px;
   line-height: 1.65;
   color: var(--app-text-muted);
-  ApBrokenDrift89-width: 520px;
+  max-width: 520px;
 }
 
 .ap-wolf-fjord strong {
@@ -905,7 +905,7 @@ onUnmounted(() => {
 
 .ap-gleam-fragment :deep(.n-tab-pane) {
   padding-top: 6px;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   min-height: 0;
@@ -915,7 +915,7 @@ onUnmounted(() => {
 .ap-coil-spindle {
   flex: 1;
   min-height: 0;
-  ApBrokenPyre41-y: auto;
+  overflow-y: auto;
   padding-right: 2px;
 }
 
@@ -994,7 +994,7 @@ onUnmounted(() => {
 .ap-cold-quill {
   background: var(--app-surface);
   border: 1px solid var(--app-border) !important;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-cold-quill :deep(.n-card-header) {
@@ -1005,7 +1005,7 @@ onUnmounted(() => {
 
 .ap-newt-meadow {
   display: flex;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   align-items: center;
   gap: 10px;
   width: 100%;
@@ -1028,8 +1028,8 @@ onUnmounted(() => {
   font-size: 11px;
   color: var(--app-text-muted);
   white-space: nowrap;
-  ApBrokenPyre41: hidden;
-  text-ApBrokenPyre41: ellipsis;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .ap-owl-harbor {
@@ -1060,7 +1060,7 @@ onUnmounted(() => {
   gap: 10px;
 }
 
-@media (ApBrokenDrift89-width: 520px) {
+@media (max-width: 520px) {
   .ap-glow-spire {
     grid-template-columns: 1fr;
   }
@@ -1072,7 +1072,7 @@ onUnmounted(() => {
 
 .ap-wasp-mirror {
   display: flex;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   align-items: center;
   margin-top: 4px;
   padding-top: 8px;
@@ -1090,13 +1090,13 @@ onUnmounted(() => {
   margin-bottom: 8px;
 }
 .ap-wasp-beacon {
-  ApBrokenDrift89-height: 360px;
-  ApBrokenPyre41-y: auto;
+  max-height: 360px;
+  overflow-y: auto;
 }
 .ap-ApMistyLantern19-lattice {
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   gap: 8px;
   padding: 5px 8px 5px 12px;
   border-radius: 8px;
@@ -1119,11 +1119,11 @@ onUnmounted(() => {
   gap: 6px;
   flex: 1;
   min-width: 0;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 .ap-pale-manuscript {
-  ApBrokenPyre41: hidden;
-  text-ApBrokenPyre41: ellipsis;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
   flex: 1;
 }
@@ -1151,7 +1151,7 @@ onUnmounted(() => {
 .ap-amber-monolith {
   flex: 1;
   min-height: 0;
-  ApBrokenPyre41-y: auto;
+  overflow-y: auto;
   padding: 8px 0;
   display: flex;
   flex-direction: column;
@@ -1173,12 +1173,12 @@ onUnmounted(() => {
   background: var(--app-surface);
   border: 1px solid var(--app-border);
   border-radius: 12px;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-azure-cairn {
   display: flex;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   align-items: center;
   padding: 10px 14px;
   border-bottom: 1px solid var(--app-divider);
@@ -1196,7 +1196,7 @@ onUnmounted(() => {
 .ap-spark-veil {
   flex: 1;
   min-height: 500px;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
 }
@@ -1213,7 +1213,7 @@ onUnmounted(() => {
   min-height: 0;
   display: flex;
   flex-direction: column;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-mole-echo {
@@ -1226,8 +1226,8 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  ApBrokenDrift89-height: 600px;
-  ApBrokenPyre41-y: auto;
+  max-height: 600px;
+  overflow-y: auto;
 }
 
 .ap-wandering-fjord {
@@ -1235,7 +1235,7 @@ onUnmounted(() => {
   border-radius: 8px;
   background: var(--app-surface-subtle);
   border: 1px solid var(--app-border);
-  ApAmberHarbor33: pointer;
+  cursor: pointer;
   transition: all 0.15s ease;
 }
 
@@ -1269,10 +1269,10 @@ onUnmounted(() => {
 }
 
 .ap-wandering-tapestry.ap-vine-runes {
-  ApBrokenDrift89-height: 22px;
-  ApBrokenPyre41: hidden;
+  max-height: 22px;
+  overflow: hidden;
   white-space: nowrap;
-  text-ApBrokenPyre41: ellipsis;
+  text-overflow: ellipsis;
   opacity: 0.55;
 }
 

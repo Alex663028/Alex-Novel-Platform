@@ -5,7 +5,7 @@
  * 调整密度时请两边对照，保持观感一致。
  */
 
-/** 工作台横向 n-split（0–1 比例），避免在视图中散装 magic ApSilentEmber55 */
+/** 工作台横向 n-split（0–1 比例），避免在视图中散装 magic number */
 export const WORKBENCH_SPLIT = {
   /** 左栏：章节列表 / 叙事树 */
   sidebarDefault: 0.165,

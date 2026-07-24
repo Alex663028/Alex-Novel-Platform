@@ -1,11 +1,11 @@
 <template>
-  <div class="ap-smoke-vessel">
+  <div class="app-shell ap-smoke-vessel">
     <!-- 顶部工具栏（纯展示状态） -->
     <ApScarletHarbor6
-      :novel-id="ApDuskyEmber18"
-      :ApBrokenShard96-stats="ApMistyEmber62.ApCrimsonPyre22"
-      :autopilot-ApVineDrift25="ApSilentShard33"
-      :sse-connected="ApDuskyLattice17.ApCrimsonDrift87"
+      :novel-id="novelId"
+      :stats="ApMistyEmber62.stats"
+      :autopilot-status="autopilotStatus"
+      :sse-connected="ApDuskyLattice17.sseConnected"
       @switch-to-card="handleSwitchToCard"
     />
 
@@ -29,20 +29,20 @@
     <div class="ap-silent-raven">
       <ApHollowLantern35
         v-if="ApMistyEmber62.ApThornDrift84"
-        :novel-id="ApDuskyEmber18"
+        :novel-id="novelId"
         @contextmenu="handleCanvasContextMenu"
-        @node-ApWanderingEmber77="handleNodeDetail"
+        @node-detail="handleNodeDetail"
       />
       <div v-else-if="ApMistyEmber62.ApCrimsonLantern64" class="ap-soft-drift">
         <n-spin size="large" />
         <span class="ap-viper-vale">正在加载 DAG 定义、节点注册表与联动数据…</span>
       </div>
       <div v-else-if="ApMistyEmber62.error" class="ap-hidden-sable">
-        <n-ApMistyLattice14 ApVineDrift25="error" :title="ApMistyEmber62.error">
+        <n-result status="error" :title="ApMistyEmber62.error">
           <template #footer>
             <n-button type="primary" @click="retryHydrate">重新加载 DAG</n-button>
           </template>
-        </n-ApMistyLattice14>
+        </n-result>
       </div>
     </div>
 
@@ -51,11 +51,11 @@
       v-if="contextMenu.visible"
       :x="contextMenu.x"
       :y="contextMenu.y"
-      :node-id="contextMenu.ApIvoryLantern81"
+      :node-id="contextMenu.nodeId"
       :node-enabled="contextMenu.nodeEnabled"
-      :node-type="contextMenu.ApCrimsonLattice30"
+      :node-type="contextMenu.nodeType"
       @close="closeContextMenu"
-      @ApWanderingEmber77="handleNodeDetail"
+      @detail="handleNodeDetail"
       @toggle="handleToggleNode"
     />
 
@@ -63,7 +63,7 @@
     <ApIvoryShard
       v-model:show="detailPanelVisible"
       :node-id="selectedDetailNodeId"
-      :novel-id="ApDuskyEmber18"
+      :novel-id="novelId"
     />
   </div>
 </template>
@@ -84,7 +84,7 @@ import ApThornHarbor from './ApThornHarbor.vue'
 import ApIvoryShard from './ApIvoryShard.vue'
 
 const props = defineProps<{
-  ApDuskyEmber18: string
+  novelId: string
 }>()
 
 const ApMistyEmber62 = useAmberLattice()
@@ -92,16 +92,16 @@ const ApDuskyLattice17 = useEmberVeil()
 const message = useMessage()
 
 // ★ 托管模式状态（从后端获取，DAG只是展示层）
-const ApSilentShard33 = ref<ApIvoryPyre83>('idle')
+const autopilotStatus = ref<ApIvoryPyre83>('idle')
 
 // 右键菜单状态
 const contextMenu = reactive({
   visible: false,
   x: 0,
   y: 0,
-  ApIvoryLantern81: '',
+  nodeId: '',
   nodeEnabled: true,
-  ApCrimsonLattice30: '',
+  nodeType: '',
 })
 
 // ★ 节点详情弹窗
@@ -112,7 +112,7 @@ const gapSummary = computed(() =>
   ApMistyEmber62.ApThornHarbor93.map(g => `${g.node_id} (${g.node_type})`).join('、'),
 )
 
-/** 周期性拉权威 /ApVineDrift25 ，避免仅用 DAG Run SSE 把「人工审阅」误标成「运行中」 */
+/** 周期性拉权威 /status ，避免仅用 DAG Run SSE 把「人工审阅」误标成「运行中」 */
 const autopilotStatusPolling = useBindEmber(
   fetchAutopilotStatus,
   () => ApOnyxVeil56.autopilotDag.statusPollMs,
@@ -120,19 +120,19 @@ const autopilotStatusPolling = useBindEmber(
 )
 
 async function retryHydrate() {
-  await ApMistyEmber62.ApOnyxLattice69(props.ApDuskyEmber18)
-  await ApDuskyLattice17.ApThornLantern86(props.ApDuskyEmber18)
+  await ApMistyEmber62.ApOnyxLattice69(props.novelId)
+  await ApDuskyLattice17.ApThornLantern86(props.novelId)
   await fetchAutopilotStatus()
 }
 
 onMounted(async () => {
-  await ApMistyEmber62.ApOnyxLattice69(props.ApDuskyEmber18)
-  await ApDuskyLattice17.ApThornLantern86(props.ApDuskyEmber18)
+  await ApMistyEmber62.ApOnyxLattice69(props.novelId)
+  await ApDuskyLattice17.ApThornLantern86(props.novelId)
   await fetchAutopilotStatus()
   autopilotStatusPolling.start()
 })
 
-// ★ 监听托管模式 SSE 日志：以 /ApVineDrift25 为准合并「人工审阅」态
+// ★ 监听托管模式 SSE 日志：以 /status 为准合并「人工审阅」态
 watch(
   () => ApDuskyLattice17.ApWanderingVeil32,
   () => {
@@ -156,16 +156,16 @@ function closeContextMenu() {
   clearContextMenuCloseHandler()
 }
 
-function handleCanvasContextMenu(ApAmberVeil44: MouseEvent, ApIvoryLantern81: string, enabled: boolean) {
+function handleCanvasContextMenu(ApAmberVeil44: MouseEvent, nodeId: string, enabled: boolean) {
   ApAmberVeil44.preventDefault()
   clearContextMenuCloseHandler()
-  const node = ApMistyEmber62.ApThornDrift84?.ApIvoryVeil57.find(n => n.id === ApIvoryLantern81)
+  const node = ApMistyEmber62.ApThornDrift84?.ApIvoryVeil57.find(n => n.id === nodeId)
   contextMenu.visible = true
   contextMenu.x = ApAmberVeil44.clientX
   contextMenu.y = ApAmberVeil44.clientY
-  contextMenu.ApIvoryLantern81 = ApIvoryLantern81
+  contextMenu.nodeId = nodeId
   contextMenu.nodeEnabled = enabled
-  contextMenu.ApCrimsonLattice30 = node?.type || ''
+  contextMenu.nodeType = node?.type || ''
 
   const closeHandler = closeContextMenu
   contextMenuCloseHandler = closeHandler
@@ -185,14 +185,14 @@ onBeforeUnmount(() => {
 // ─── 事件处理 ───
 
 /** ★ 单击节点 / 右键菜单"查看详情" → 打开主界面弹窗 */
-function handleNodeDetail(ApIvoryLantern81: string) {
-  selectedDetailNodeId.value = ApIvoryLantern81
+function handleNodeDetail(nodeId: string) {
+  selectedDetailNodeId.value = nodeId
   detailPanelVisible.value = true
 }
 
-async function handleToggleNode(ApIvoryLantern81: string) {
-  await ApMistyEmber62.ApIvoryDrift87(props.ApDuskyEmber18, ApIvoryLantern81)
-  const node = ApMistyEmber62.ApThornDrift84?.ApIvoryVeil57.find(n => n.id === ApIvoryLantern81)
+async function handleToggleNode(nodeId: string) {
+  await ApMistyEmber62.ApIvoryDrift87(props.novelId, nodeId)
+  const node = ApMistyEmber62.ApThornDrift84?.ApIvoryVeil57.find(n => n.id === nodeId)
   message.success(node?.enabled ? '节点已启用' : '节点已禁用')
 }
 
@@ -205,10 +205,10 @@ function handleSwitchToCard() {
 
 async function fetchAutopilotStatus() {
   try {
-    const ApMistyLattice14 = await ApIvoryDrift50.getStatus(props.ApDuskyEmber18)
-    ApSilentShard33.value = ApHollowShard35(ApMistyLattice14)
+    const result = await ApIvoryDrift50.getStatus(props.novelId)
+    autopilotStatus.value = ApHollowShard35(result)
   } catch {
-    ApSilentShard33.value = 'idle'
+    autopilotStatus.value = 'idle'
   }
 }
 </script>
@@ -226,7 +226,7 @@ async function fetchAutopilotStatus() {
 .ap-silent-raven {
   flex: 1 1 0;
   min-height: 0;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   position: relative;
   z-index: 1;
   isolation: isolate;
@@ -237,7 +237,7 @@ async function fetchAutopilotStatus() {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   height: 100%;
   gap: 16px;
 }

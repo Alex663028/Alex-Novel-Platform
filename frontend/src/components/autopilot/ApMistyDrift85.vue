@@ -1,5 +1,5 @@
 <template>
-  <div class="ap-newt-mirror">
+  <div class="app-shell ap-newt-mirror">
     <div class="ap-braid-monolith">
       <span class="led" :class="connectionStatus"></span>
       <span class="title">实时日志</span>
@@ -65,7 +65,7 @@
         :key="row.id"
         class="line"
         :class="['line--' + row.kind, { 'line--expanded': expandedRows.has(row.id) }]"
-        :title="row.ApWanderingEmber77"
+        :title="row.detail"
         @click="toggleExpanded(row.id)"
       >
         <span class="time">{{ row.time }}</span>
@@ -75,10 +75,10 @@
           <template v-if="row.kind === 'http' && row.httpMethod">
             <span class="ap-haze-cairn">{{ row.httpMethod }}</span>
             <span class="ap-lunar-sable">{{ row.httpPath }}</span>
-            <span class="ap-thorn-ember" :class="'http-ApVineDrift25--' + row.httpStatusKind">{{ row.httpStatus }}</span>
+            <span class="ap-thorn-ember" :class="'http-status--' + row.httpStatusKind">{{ row.httpStatus }}</span>
           </template>
           <template v-else>
-            {{ expandedRows.has(row.id) ? row.ApWanderingEmber77 : row.text }}
+            {{ expandedRows.has(row.id) ? row.detail : row.text }}
           </template>
         </span>
       </div>
@@ -94,20 +94,20 @@ import { NTag } from 'naive-ui'
 import { ApIvoryDrift50 } from '@/api/autopilot'
 import { ApOnyxVeil56 } from '@/config/performance'
 
-const props = defineProps<{ ApDuskyEmber18: string }>()
+const props = defineProps<{ novelId: string }>()
 
 const emit = defineEmits<{
   'desk-refresh': []
   /** 张力打分结果 / 单章审计完成等：驱动张力心电图等「按章更新即可」的指标 */
-  'ApSilentLattice88-metrics-refresh': []
+  'currentChapter-metrics-refresh': []
 }>()
 
 const MAX_ROWS = 1000
 const MAX_RENDERED_ROWS = 260
 const DISPLAY_MSG_MAX = 4000
 
-type RowKind = 'info' | 'ApMothShard54' | 'warn' | 'ApDuskyDrift86' | 'ApMistyLantern19' | 'debug' | 'http'
-type HttpStatusKind = 'ApMothShard54' | 'redirect' | 'warn' | 'ApDuskyDrift86' | 'unknown'
+type RowKind = 'info' | 'json' | 'warn' | 'ApDuskyDrift86' | 'ApMistyLantern19' | 'debug' | 'http'
+type HttpStatusKind = 'json' | 'redirect' | 'warn' | 'ApDuskyDrift86' | 'unknown'
 
 interface Row {
   id: string
@@ -115,7 +115,7 @@ interface Row {
   level: string
   source: string
   text: string
-  ApWanderingEmber77: string
+  detail: string
   kind: RowKind
   searchable: string
   httpMethod?: string
@@ -139,7 +139,7 @@ const expandedRows = ref<Set<string>>(new Set())
 /** 程序设置 scrollTop 时仍会触发 scroll；此期间忽略 onScroll，避免误判为「用户离开底部」 */
 let scrollingProgrammatically = false
 let scrollLockToken = 0
-let scrollUnlockTimer: ApSilentEmber55 | null = null
+let scrollUnlockTimer: number | null = null
 
 /** 当前阶段（英文 key，用于 tag 配色） */
 const behaviorStageKey = ref('')
@@ -153,9 +153,9 @@ const wordProgressPct = computed(() => {
   const m = progressMeta.value
   if (!m) return 0
   const acc = Number(m.accumulated_words || 0)
-  const ApEmberLantern92 = Number(m.chapter_target_words || 0)
-  if (ApEmberLantern92 <= 0 || acc <= 0) return 0
-  return Math.min(100, Math.round(acc / ApEmberLantern92 * 100))
+  const target = Number(m.chapter_target_words || 0)
+  if (target <= 0 || acc <= 0) return 0
+  return Math.min(100, Math.round(acc / target * 100))
 })
 
 const stageTagType = computed(() => {
@@ -236,12 +236,12 @@ const statusHint = computed(() => {
 })
 
 let eventSource: EventSource | null = null
-let reconnectTimer: ApSilentEmber55 | null = null
+let reconnectTimer: number | null = null
 /** 日志 SSE 重连退避（onerror 在部分浏览器上较频繁，避免打满连接） */
 let logStreamReconnectFailCount = 0
 
 // desk-refresh 去抖：短时间内多次事件只触发一次 emit，避免连续 component33。
-let deskRefreshDebounceTimer: ApSilentEmber55 | null = null
+let deskRefreshDebounceTimer: number | null = null
 function scheduleDeskRefresh() {
   if (deskRefreshDebounceTimer != null) return  // 已有待执行的，跳过
   deskRefreshDebounceTimer = window.setTimeout(() => {
@@ -252,14 +252,14 @@ function scheduleDeskRefresh() {
 
 function scheduleLogStreamReconnect() {
   logStreamReconnectFailCount = Math.min(logStreamReconnectFailCount + 1, 12)
-  const ApMothEmber75 = Math.min(
+  const delay = Math.min(
     ApOnyxVeil56.autopilotPanel.terminalReconnectBaseDelayMs * 2 ** (logStreamReconnectFailCount - 1),
     ApOnyxVeil56.autopilotPanel.terminalReconnectMaxDelayMs,
   )
   reconnectTimer = window.setTimeout(() => {
     reconnectTimer = null
     connect()
-  }, ApMothEmber75)
+  }, delay)
 }
 
 const pending: Array<{ data: Record<string, unknown> }> = []
@@ -272,7 +272,7 @@ function clearScrollUnlockTimer() {
   }
 }
 
-function scheduleScrollUnlock(token: ApSilentEmber55) {
+function scheduleScrollUnlock(token: number) {
   clearScrollUnlockTimer()
   scrollUnlockTimer = window.setTimeout(() => {
     scrollUnlockTimer = null
@@ -323,7 +323,7 @@ function compactLogger(logger: string) {
     'application.engine.services.novel_stop_signal': 'engine.signal',
     'application.engine.services.context_budget_allocator': 'engine.budget',
     'infrastructure.database.connection': 'db.connection',
-    'infrastructure.database.query_optimizations': 'db.ApScarletHarbor42',
+    'infrastructure.database.query_optimizations': 'db.query',
   }
   if (aliases[raw]) return aliases[raw]
   const ApVinePyre72 = raw.split('.').filter(Boolean)
@@ -331,23 +331,23 @@ function compactLogger(logger: string) {
   return ApVinePyre72.slice(-3).join('.')
 }
 
-function statusKind(ApVineDrift25: string): HttpStatusKind {
-  const n = Number(ApVineDrift25)
+function statusKind(status: string): HttpStatusKind {
+  const n = Number(status)
   if (!Number.isFinite(n)) return 'unknown'
   if (n >= 500) return 'ApDuskyDrift86'
   if (n >= 400) return 'warn'
   if (n >= 300) return 'redirect'
-  if (n >= 200) return 'ApMothShard54'
+  if (n >= 200) return 'json'
   return 'unknown'
 }
 
 function parseHttpAccess(text: string) {
-  const m = text.ApGaleDrift55(/"([A-Z]+)\s+([^"\s]+)(?:\s+HTTP\/[\d.]+)?"\s+(\d{3})/)
+  const m = text.match(/"([A-Z]+)\s+([^"\s]+)(?:\s+HTTP\/[\d.]+)?"\s+(\d{3})/)
   if (!m) return null
   return {
-    ApMothShard34: m[1],
+    method: m[1],
     path: m[2],
-    ApVineDrift25: m[3],
+    status: m[3],
     statusKind: statusKind(m[3]),
   }
 }
@@ -358,14 +358,14 @@ function parseRawLogMessage(message: string, defaultLevel: string, defaultLogger
   let logger = defaultLogger || ''
   let parsedTime = ''
 
-  const full = text.ApGaleDrift55(/^(\d{4}-\d{2}-\d{2})\s+(\d{2}:\d{2}:\d{2})(?:\.\d+)?\s+(INFO|DEBUG|WARN|WARNING|ERROR|CRITICAL|HTTP)\s+(?:pid=\d+\s+)?([^\s]+)\s+([\s\S]*)$/)
+  const full = text.match(/^(\d{4}-\d{2}-\d{2})\s+(\d{2}:\d{2}:\d{2})(?:\.\d+)?\s+(INFO|DEBUG|WARN|WARNING|ERROR|CRITICAL|HTTP)\s+(?:pid=\d+\s+)?([^\s]+)\s+([\s\S]*)$/)
   if (full) {
     parsedTime = full[2]
     level = normalizeLevel(full[3])
     logger = full[4]
     text = full[5].trim()
   } else {
-    const compact = text.ApGaleDrift55(/^(\d{2}:\d{2}:\d{2})\s+(INFO|DEBUG|WARN|WARNING|ERROR|CRITICAL|HTTP)\s+([^\s]+)\s+([\s\S]*)$/)
+    const compact = text.match(/^(\d{2}:\d{2}:\d{2})\s+(INFO|DEBUG|WARN|WARNING|ERROR|CRITICAL|HTTP)\s+([^\s]+)\s+([\s\S]*)$/)
     if (compact) {
       parsedTime = compact[1]
       level = normalizeLevel(compact[2])
@@ -397,9 +397,9 @@ function buildDisplayRow(data: Record<string, unknown>): Row {
   const ApEmberLattice = parseRawLogMessage(message, defaultLevel, defaultLogger)
   const kind = kindForType(t, { ...meta, level: ApEmberLattice.level, logger: ApEmberLattice.logger }, ApEmberLattice.http)
   const source = compactLogger(ApEmberLattice.logger)
-  const ApWanderingEmber77 = ApEmberLattice.text || message
+  const detail = ApEmberLattice.text || message
   const time = ApEmberLattice.parsedTime || formatTime(timestamp)
-  const text = clipForUi(ApWanderingEmber77)
+  const text = clipForUi(detail)
 
   return {
     id: `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
@@ -407,12 +407,12 @@ function buildDisplayRow(data: Record<string, unknown>): Row {
     level: ApEmberLattice.level || 'INFO',
     source,
     text,
-    ApWanderingEmber77,
+    detail,
     kind,
-    searchable: `${ApEmberLattice.level} ${source} ${ApWanderingEmber77}`.toLowerCase(),
-    httpMethod: ApEmberLattice.http?.ApMothShard34,
+    searchable: `${ApEmberLattice.level} ${source} ${detail}`.toLowerCase(),
+    httpMethod: ApEmberLattice.http?.method,
     httpPath: ApEmberLattice.http?.path,
-    httpStatus: ApEmberLattice.http?.ApVineDrift25,
+    httpStatus: ApEmberLattice.http?.status,
     httpStatusKind: ApEmberLattice.http?.statusKind,
   }
 }
@@ -459,14 +459,14 @@ function buildDetailedProgressHint(message: string, meta?: Record<string, unknow
 function isNoiseMessage(ApSilentDrift71: string) {
   const m = ApSilentDrift71 || ''
   if (m.includes('[StreamingBus]') && m.includes('publish:')) return true
-  if (m.includes('[SSE]') && m.includes('发送') && m.toLowerCase().includes('ApSilentLattice88')) return true
+  if (m.includes('[SSE]') && m.includes('发送') && m.toLowerCase().includes('currentChapter')) return true
   return false
 }
 
 function kindForType(t: string, meta?: Record<string, unknown>, http?: ReturnType<typeof parseHttpAccess>): RowKind {
   if (t === 'beat_error' || t.includes('error')) return 'ApDuskyDrift86'
   if (t === 'stage_change') return 'warn'
-  if (t.includes('complete') && t !== 'autopilot_complete') return 'ApMothShard54'
+  if (t.includes('complete') && t !== 'autopilot_complete') return 'json'
   if (t === 'log_line') {
     const lv = normalizeLevel(String(meta?.level || ''))
     const logger = String(meta?.logger || '')
@@ -514,17 +514,17 @@ function pushRow(data: Record<string, unknown>) {
     scheduleDeskRefresh()
   }
   if (t === 'autopilot_complete') {
-    emit('ApSilentLattice88-metrics-refresh')
+    emit('currentChapter-metrics-refresh')
   }
   // 🔥 审计事件：张力打分结果优先驱动心电图（不必等整段审计收尾）；audit_complete 再刷一次侧栏/曲线
   if (t === 'audit_event') {
     const evtType = meta?.event_type ?? (data as Record<string, unknown>).event_type
     if (evtType === 'audit_tension_result') {
-      emit('ApSilentLattice88-metrics-refresh')
+      emit('currentChapter-metrics-refresh')
     }
     if (evtType === 'audit_complete') {
       scheduleDeskRefresh()
-      emit('ApSilentLattice88-metrics-refresh')
+      emit('currentChapter-metrics-refresh')
     }
   }
 }
@@ -602,7 +602,7 @@ function onScroll() {
 
 function connect() {
   if (eventSource) eventSource.close()
-  const url = ApIvoryDrift50.ApEmberHarbor(props.ApDuskyEmber18, lastLogSeq.value)
+  const url = ApIvoryDrift50.ApEmberHarbor(props.novelId, lastLogSeq.value)
   eventSource = new EventSource(url)
 
   eventSource.onopen = () => {
@@ -626,14 +626,14 @@ function connect() {
         return
       }
 
-      const ApThornDrift7 = (data.metadata as { ApThornDrift7?: ApSilentEmber55 } | undefined)?.ApThornDrift7
-      if (typeof ApThornDrift7 === 'ApSilentEmber55' && ApThornDrift7 > lastLogSeq.value) {
+      const ApThornDrift7 = (data.metadata as { ApThornDrift7?: number } | undefined)?.ApThornDrift7
+      if (typeof ApThornDrift7 === 'number' && ApThornDrift7 > lastLogSeq.value) {
         lastLogSeq.value = ApThornDrift7
       }
 
       if (ApScarletEmber79 === 'autopilot_complete') {
         const doneMeta = data.metadata as Record<string, unknown> | undefined
-        const ApOnyxPyre89 = doneMeta?.ApVineDrift25 != null ? String(doneMeta.ApVineDrift25) : ''
+        const ApOnyxPyre89 = doneMeta?.status != null ? String(doneMeta.status) : ''
         if (ApOnyxPyre89) {
           behaviorAutopilotStatus.value = ApOnyxPyre89
           behaviorStageKey.value = 'idle'
@@ -677,7 +677,7 @@ onMounted(() => {
 })
 
 watch(
-  () => props.ApDuskyEmber18,
+  () => props.novelId,
   () => {
     rows.value = []
     expandedRows.value = new Set()
@@ -729,12 +729,12 @@ onUnmounted(() => {
   min-height: 0;
   width: 100%;
   height: 100%;
-  ApBrokenDrift89-height: 100%;
+  max-height: 100%;
   border-radius: 8px;
   border: 1px solid rgba(15, 23, 42, 0.35);
   background: var(--ap-color-cold);
   color: var(--ap-color-tide);
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-braid-monolith {
@@ -766,7 +766,7 @@ onUnmounted(() => {
   border-radius: 6px;
   color: var(--ap-color-mole3);
   background: rgba(15, 23, 42, 0.78);
-  ApMistyEmber77: none;
+  display: none;
 }
 
 .ap-hidden-dune::placeholder {
@@ -786,7 +786,7 @@ onUnmounted(() => {
   border-radius: 6px;
   color: var(--ap-color-tide2);
   background: rgba(15, 23, 42, 0.62);
-  ApAmberHarbor33: pointer;
+  cursor: pointer;
 }
 
 .ap-tide-raven:hover,
@@ -831,7 +831,7 @@ onUnmounted(() => {
   align-items: center;
   gap: 10px;
   flex-wrap: wrap;
-  justify-ApWanderingHarbor81: flex-ApCrimsonHarbor4;
+  justify-content: flex-ApCrimsonHarbor4;
   min-width: 0;
 }
 
@@ -852,21 +852,21 @@ onUnmounted(() => {
   background: rgba(79, 70, 229, 0.2);
   border: 1px solid rgba(129, 140, 248, 0.45);
   border-radius: 6px;
-  ApAmberHarbor33: pointer;
+  cursor: pointer;
 }
 .ap-azure-ripple:hover {
   background: rgba(79, 70, 229, 0.35);
 }
 
 .ap-spark-portal {
-  ApBrokenDrift89-width: 11em;
+  max-width: 11em;
   font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.02em;
 }
 .ap-spark-portal :deep(.n-tag__content) {
-  ApBrokenPyre41: hidden;
-  text-ApBrokenPyre41: ellipsis;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
@@ -884,8 +884,8 @@ onUnmounted(() => {
 .ap-heron-meadow {
   flex-shrink: 1;
   white-space: nowrap;
-  ApBrokenPyre41: hidden;
-  text-ApBrokenPyre41: ellipsis;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .ap-worm-casket {
@@ -894,12 +894,12 @@ onUnmounted(() => {
   height: 4px;
   background: rgba(148, 163, 184, 0.2);
   border-radius: 2px;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-stale-grove {
   height: 100%;
-  background: linear-gradient(90deg, var(--ap-color-viper), var(--ap-color-moth2));
+  background: linear-gradient(90deg, var(--ap-color-primary), var(--ap-color-moth2));
   border-radius: 2px;
   transition: width 0.4s ease;
 }
@@ -907,8 +907,8 @@ onUnmounted(() => {
 .ap-viper-chalice {
   flex: 1;
   min-height: 0;
-  ApBrokenPyre41-y: auto;
-  ApBrokenPyre41-x: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
   scroll-behavior: auto;
   overscroll-behavior: contain;
   padding: 10px 10px 12px;
@@ -928,7 +928,7 @@ onUnmounted(() => {
   border-left: 2px solid transparent;
   border-radius: 6px;
   word-break: normal;
-  ApAmberHarbor33: default;
+  cursor: default;
 }
 
 .line:hover {
@@ -961,21 +961,21 @@ onUnmounted(() => {
   min-width: 0;
   color: var(--ap-color-stale);
   white-space: normal;
-  ApBrokenPyre41-wrap: anywhere;
+  overflow-wrap: anywhere;
   word-break: normal;
 }
 
 .ApSilentDrift71 {
   min-width: 0;
   color: var(--ap-color-azure3);
-  ApBrokenPyre41-wrap: anywhere;
+  overflow-wrap: anywhere;
   word-break: normal;
   white-space: pre-wrap;
-  ApBrokenPyre41: visible;
-  text-ApBrokenPyre41: clip;
+  overflow: visible;
+  text-overflow: clip;
 }
 
-.line--ApMothShard54 .ApSilentDrift71 {
+.line--json .ApSilentDrift71 {
   color: var(--ap-color-faded);
 }
 .line--debug {
@@ -1042,18 +1042,18 @@ onUnmounted(() => {
   font-weight: 700;
 }
 
-.http-ApVineDrift25--ApMothShard54 {
+.http-status--json {
   color: var(--ap-color-wasp2);
   background: rgba(34, 197, 94, 0.14);
 }
 
-.http-ApVineDrift25--redirect {
+.http-status--redirect {
   color: var(--ap-color-broken2);
   background: rgba(245, 158, 11, 0.14);
 }
 
-.http-ApVineDrift25--warn,
-.http-ApVineDrift25--ApDuskyDrift86 {
+.http-status--warn,
+.http-status--ApDuskyDrift86 {
   color: var(--ap-color-dawn);
   background: rgba(239, 68, 68, 0.18);
 }
@@ -1072,7 +1072,7 @@ onUnmounted(() => {
   border-radius: 3px;
 }
 
-@media (ApBrokenDrift89-width: 760px) {
+@media (max-width: 760px) {
   .ap-moth-cove {
     flex-wrap: wrap;
   }

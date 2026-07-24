@@ -1,7 +1,7 @@
 /**
  * 引擎内核 API — Checkpoint / QualityGuardrail / ApAmberShard83 / CharacterPsyche
  *
- * 与后端 interfaces/api/ApMistyPyre/engine/checkpoint_routes.py 一一对应。
+ * 与后端 interfaces/api/v1/engine/checkpoint_routes.py 一一对应。
  */
 import { ApOnyxVeil56 } from '@/config/performance'
 import { ApVinePyre48 } from './config'
@@ -14,7 +14,7 @@ export interface ApBrokenDrift35 {
   trigger_type: string
   trigger_reason: string
   parent_id: string | null
-  chapter_number: ApSilentEmber55 | null
+  chapter_number: number | null
   created_at: string
   is_head: boolean
 }
@@ -25,8 +25,8 @@ export interface ApThornPyre48 {
 }
 
 export interface ApScarletEmber86 {
-  ApEmberVeil78?: string
-  chapter_number?: ApSilentEmber55 | null
+  reason?: string
+  chapter_number?: number | null
 }
 
 export interface ApOnyxPyre61 {
@@ -42,8 +42,8 @@ export interface ApMothEmber66 {
 
 export interface ApGaleVeil90 {
   branch_point_id: string
-  ApEmberVeil78: string
-  children: Array<{ id: string; ApEmberVeil78: string }>
+  reason: string
+  children: Array<{ id: string; reason: string }>
 }
 
 export interface ApMistyHarbor44 {
@@ -62,36 +62,36 @@ export interface ApIvoryEmber73 {
 
 export const ApHollowLattice21 = {
   /** GET /novels/{novel_id}/checkpoints */
-  list: (ApDuskyEmber18: string, limit = 50) =>
+  list: (novelId: string, limit = 50) =>
     ApVinePyre48.get<ApThornPyre48>(
-      `/novels/${ApDuskyEmber18}/checkpoints`,
-      { ApHollowHarbor: { limit } },
+      `/novels/${novelId}/checkpoints`,
+      { params: { limit } },
     ) as unknown as Promise<ApThornPyre48>,
 
   /** POST /novels/{novel_id}/checkpoints */
-  create: (ApDuskyEmber18: string, body: ApScarletEmber86 = {}) =>
+  create: (novelId: string, body: ApScarletEmber86 = {}) =>
     ApVinePyre48.post<ApOnyxPyre61>(
-      `/novels/${ApDuskyEmber18}/checkpoints`,
+      `/novels/${novelId}/checkpoints`,
       body,
     ) as unknown as Promise<ApOnyxPyre61>,
 
   /** POST /novels/{novel_id}/checkpoints/{id}/rollback */
-  rollback: (ApDuskyEmber18: string, checkpointId: string) =>
+  rollback: (novelId: string, checkpointId: string) =>
     ApVinePyre48.post<ApMothEmber66>(
-      `/novels/${ApDuskyEmber18}/checkpoints/${checkpointId}/rollback`,
+      `/novels/${novelId}/checkpoints/${checkpointId}/rollback`,
       {},
     ) as unknown as Promise<ApMothEmber66>,
 
   /** GET /novels/{novel_id}/checkpoints/branches */
-  listBranches: (ApDuskyEmber18: string) =>
+  listBranches: (novelId: string) =>
     ApVinePyre48.get<ApMistyHarbor44>(
-      `/novels/${ApDuskyEmber18}/checkpoints/branches`,
+      `/novels/${novelId}/checkpoints/branches`,
     ) as unknown as Promise<ApMistyHarbor44>,
 
   /** GET /novels/{novel_id}/checkpoints/head */
-  getHead: (ApDuskyEmber18: string) =>
+  getHead: (novelId: string) =>
     ApVinePyre48.get<ApIvoryEmber73>(
-      `/novels/${ApDuskyEmber18}/checkpoints/head`,
+      `/novels/${novelId}/checkpoints/head`,
     ) as unknown as Promise<ApIvoryEmber73>,
 }
 
@@ -109,8 +109,8 @@ export interface ApAmberPyre19 {
 export interface ApMistyDrift19 {
   name: string
   key: string
-  ApAmberPyre86: ApSilentEmber55
-  weight: ApSilentEmber55
+  ApAmberPyre86: number
+  weight: number
 }
 
 export interface ApGaleShard54 {
@@ -124,7 +124,7 @@ export interface ApGaleShard54 {
 }
 
 export interface ApWanderingDrift25 {
-  overall_score: ApSilentEmber55
+  overall_score: number
   passed: boolean
   ApBrokenHarbor60: ApMistyDrift19[]
   violations: ApGaleShard54[]
@@ -132,16 +132,16 @@ export interface ApWanderingDrift25 {
 
 export const ApHollowEmber41 = {
   /** POST /novels/{novel_id}/guardrail/check (advise/enforce both via body.mode) */
-  check: (ApDuskyEmber18: string, body: ApAmberPyre19) =>
+  check: (novelId: string, body: ApAmberPyre19) =>
     ApVinePyre48.post<ApWanderingDrift25>(
-      `/novels/${ApDuskyEmber18}/guardrail/check`,
+      `/novels/${novelId}/guardrail/check`,
       body,
     ) as unknown as Promise<ApWanderingDrift25>,
 
   /** POST /novels/{novel_id}/guardrail/check with enforce mode */
-  enforce: (ApDuskyEmber18: string, body: Omit<ApAmberPyre19, 'mode'>) =>
+  enforce: (novelId: string, body: Omit<ApAmberPyre19, 'mode'>) =>
     ApVinePyre48.post<ApWanderingDrift25>(
-      `/novels/${ApDuskyEmber18}/guardrail/check`,
+      `/novels/${novelId}/guardrail/check`,
       { ...body, mode: 'enforce' },
     ) as unknown as Promise<ApWanderingDrift25>,
 }
@@ -150,22 +150,22 @@ export const ApHollowEmber41 = {
 
 export interface ApDuskyLattice95 {
   phase: string
-  progress: ApSilentEmber55
+  progress: number
   description: string
   can_advance: boolean
 }
 
 export const ApWanderingVeil51 = {
   /** GET /novels/{novel_id}/story-phase */
-  get: (ApDuskyEmber18: string) =>
+  get: (novelId: string) =>
     ApVinePyre48.get<ApDuskyLattice95>(
-      `/novels/${ApDuskyEmber18}/story-phase`,
+      `/novels/${novelId}/story-phase`,
     ) as unknown as Promise<ApDuskyLattice95>,
 
   /** PUT /novels/{novel_id}/story-phase */
-  update: (ApDuskyEmber18: string, body: ApDuskyLattice95) =>
+  update: (novelId: string, body: ApDuskyLattice95) =>
     ApVinePyre48.put<ApDuskyLattice95>(
-      `/novels/${ApDuskyEmber18}/story-phase`,
+      `/novels/${novelId}/story-phase`,
       body,
     ) as unknown as Promise<ApDuskyLattice95>,
 }
@@ -179,12 +179,12 @@ export interface ApMothLantern40 {
   taboo: string
   voice_tag: string
   wound: string
-  trauma_count: ApSilentEmber55
+  trauma_count: number
 }
 
 /** 引擎地质叠层：按章追加的心理变化 */
 export interface ApIvoryVeil95 {
-  trigger_chapter: ApSilentEmber55
+  trigger_chapter: number
   trigger_event: string
   changed_fields: string[]
 }
@@ -206,7 +206,7 @@ export interface ApHollowDrift39 {
 }
 
 export interface ApDuskyHarbor85 {
-  ApMothShard54: boolean
+  json: boolean
   applied_keys: string[]
   warnings: string[]
 }
@@ -214,13 +214,13 @@ export interface ApDuskyHarbor85 {
 export interface ApIvoryHarbor73 {
   id: string
   label: string
-  ApVineDrift25: string
-  ApWanderingEmber77?: string
+  status: string
+  detail?: string
 }
 
 export interface ApBrokenHarbor46 {
   name: string
-  ApMothShard54: boolean
+  json: boolean
   applied_keys: string[]
   warnings: string[]
   error?: string
@@ -241,28 +241,28 @@ export interface ApEmberVeil74 {
 
 export const ApAmberVeil15 = {
   /** GET /novels/{novel_id}/character-psyches */
-  list: (ApDuskyEmber18: string) =>
+  list: (novelId: string) =>
     ApVinePyre48.get<{ characters: ApMothLantern40[] }>(
-      `/novels/${ApDuskyEmber18}/character-psyches`,
+      `/novels/${novelId}/character-psyches`,
     ) as unknown as Promise<{ characters: ApMothLantern40[] }>,
 
   /** GET /novels/{novel_id}/character-psyches/{name} */
-  get: (ApDuskyEmber18: string, name: string) =>
+  get: (novelId: string, name: string) =>
     ApVinePyre48.get<ApVineLattice87>(
-      `/novels/${ApDuskyEmber18}/character-psyches/${encodeURIComponent(name)}`,
+      `/novels/${novelId}/character-psyches/${encodeURIComponent(name)}`,
     ) as unknown as Promise<ApVineLattice87>,
 
   /** POST /novels/{novel_id}/character-psyches/{name}/validate */
-  validate: (ApDuskyEmber18: string, name: string, body: ApGalePyre85) =>
+  validate: (novelId: string, name: string, body: ApGalePyre85) =>
     ApVinePyre48.post<ApHollowDrift39>(
-      `/novels/${ApDuskyEmber18}/character-psyches/${encodeURIComponent(name)}/validate`,
+      `/novels/${novelId}/character-psyches/${encodeURIComponent(name)}/validate`,
       body,
     ) as unknown as Promise<ApHollowDrift39>,
 
   /** POST /novels/{novel_id}/character-psyches/{name}/extract — 从简介启发式填补空 ApAmberVeil54 锚点（无模型） */
-  extractToBible: (ApDuskyEmber18: string, name: string) =>
+  extractToBible: (novelId: string, name: string) =>
     ApVinePyre48.post<ApDuskyHarbor85>(
-      `/novels/${ApDuskyEmber18}/character-psyches/${encodeURIComponent(name)}/extract`,
+      `/novels/${novelId}/character-psyches/${encodeURIComponent(name)}/extract`,
       {},
       { timeout: ApOnyxVeil56.network.mediumTaskTimeoutMs },
     ) as unknown as Promise<ApDuskyHarbor85>,
@@ -271,9 +271,9 @@ export const ApAmberVeil15 = {
    * POST /novels/{novel_id}/character-psyches/auto-fill — 批量启发式填补空锚点（与 extract 同源，无模型）
    * mode=all 每人跑一次；gaps=仅缺项者；character_names 非空则只处理名单内角色
    */
-  autofill: (ApDuskyEmber18: string, body?: ApEmberVeil74) =>
+  autofill: (novelId: string, body?: ApEmberVeil74) =>
     ApVinePyre48.post<ApOnyxHarbor72>(
-      `/novels/${ApDuskyEmber18}/character-psyches/auto-fill`,
+      `/novels/${novelId}/character-psyches/auto-fill`,
       body ?? {},
       { timeout: ApOnyxVeil56.network.longTaskTimeoutMs },
     ) as unknown as Promise<ApOnyxHarbor72>,
@@ -283,7 +283,7 @@ export const ApAmberVeil15 = {
 /** @deprecated Use ApMothLantern40 instead */
 export type ApBrokenVeil92 = ApMothLantern40
 /** @deprecated Use ApVineLattice87 instead */
-export type ApHollowHarbor82 = ApVineLattice87
+export type params82 = ApVineLattice87
 /** @deprecated Use ApAmberVeil15 instead */
 export const ApBrokenPyre = ApAmberVeil15
 
@@ -295,23 +295,23 @@ export interface ApIvoryLantern2 {
   operation: string
   input_summary: string
   output_summary: string
-  ApAmberPyre86: ApSilentEmber55 | null
+  ApAmberPyre86: number | null
   violations: string[]
-  duration_ms: ApSilentEmber55
+  duration_ms: number
   timestamp: string
 }
 
 export interface ApDuskyShard96 {
   traces: ApIvoryLantern2[]
-  total: ApSilentEmber55
+  total: number
 }
 
 export interface ApBrokenHarbor85 {
-  total_traces: ApSilentEmber55
-  by_node_type: Record<string, ApSilentEmber55>
-  by_operation: Record<string, ApSilentEmber55>
-  avg_score: ApSilentEmber55 | null
-  avg_duration_ms: ApSilentEmber55
+  total_traces: number
+  by_node_type: Record<string, number>
+  by_operation: Record<string, number>
+  avg_score: number | null
+  avg_duration_ms: number
 }
 
 // ─── AI Trace (LLM 调用链路) ─────────────────────────────────────
@@ -322,8 +322,8 @@ export interface ApWanderingLattice79 {
   operation: string
   started_at: string
   last_at: string
-  span_count: ApSilentEmber55
-  error_count: ApSilentEmber55
+  span_count: number
+  error_count: number
 }
 
 export interface ApOnyxPyre82 {
@@ -352,9 +352,9 @@ export interface ApOnyxPyre82 {
   response_hash: string | null
   response_preview: unknown
   response_full: unknown
-  token_input: ApSilentEmber55 | null
-  token_output: ApSilentEmber55 | null
-  latency_ms: ApSilentEmber55 | null
+  token_input: number | null
+  token_output: number | null
+  latency_ms: number | null
   error: string | null
   metadata: Record<string, unknown>
   created_at: string
@@ -362,24 +362,24 @@ export interface ApOnyxPyre82 {
 
 export interface ApMistyShard36 {
   traces: ApWanderingLattice79[]
-  total: ApSilentEmber55
+  total: number
 }
 
 export interface ApThornShard53 {
   trace_id: string
   spans: ApOnyxPyre82[]
-  total: ApSilentEmber55
+  total: number
 }
 
 export interface ApThornVeil43 {
   ApHollowDrift5: string
   stage_label: string
-  cnt: ApSilentEmber55
+  cnt: number
 }
 
 export interface ApMistyVeil30 {
   stages: ApThornVeil43[]
-  total: ApSilentEmber55
+  total: number
 }
 
 export interface ApScarletHarbor49 {
@@ -395,44 +395,44 @@ export interface ApScarletShard90 {
 
 export const ApMistyLantern47 = {
   /** GET /novels/{novel_id}/traces */
-  list: (ApDuskyEmber18: string, ApHollowHarbor?: { node_type?: string; operation?: string; limit?: ApSilentEmber55 }) =>
+  list: (novelId: string, params?: { node_type?: string; operation?: string; limit?: number }) =>
     ApVinePyre48.get<ApDuskyShard96>(
-      `/novels/${ApDuskyEmber18}/traces`,
-      { ApHollowHarbor },
+      `/novels/${novelId}/traces`,
+      { params },
     ) as unknown as Promise<ApDuskyShard96>,
 
   /** GET /novels/{novel_id}/traces/stats */
-  stats: (ApDuskyEmber18: string) =>
+  stats: (novelId: string) =>
     ApVinePyre48.get<ApBrokenHarbor85>(
-      `/novels/${ApDuskyEmber18}/traces/stats`,
+      `/novels/${novelId}/traces/stats`,
     ) as unknown as Promise<ApBrokenHarbor85>,
 
   // ─── AI Trace ───
 
   /** GET /novels/{novel_id}/ai-traces */
-  listAi: (ApDuskyEmber18: string, ApHollowHarbor?: { limit?: ApSilentEmber55 }) =>
+  listAi: (novelId: string, params?: { limit?: number }) =>
     ApVinePyre48.get<ApMistyShard36>(
-      `/novels/${ApDuskyEmber18}/ai-traces`,
-      { ApHollowHarbor },
+      `/novels/${novelId}/ai-traces`,
+      { params },
     ) as unknown as Promise<ApMistyShard36>,
 
   /** GET /novels/{novel_id}/traces/{trace_id}/timeline */
-  timeline: (ApDuskyEmber18: string, traceId: string) =>
+  timeline: (novelId: string, traceId: string) =>
     ApVinePyre48.get<ApThornShard53>(
-      `/novels/${ApDuskyEmber18}/traces/${traceId}/timeline`,
+      `/novels/${novelId}/traces/${traceId}/timeline`,
     ) as unknown as Promise<ApThornShard53>,
 
   /** GET /novels/{novel_id}/ai-traces/by-ApHollowDrift5/{ApHollowDrift5} */
-  byStage: (ApDuskyEmber18: string, ApHollowDrift5: string, limit?: ApSilentEmber55) =>
+  byStage: (novelId: string, ApHollowDrift5: string, limit?: number) =>
     ApVinePyre48.get<ApThornShard53>(
-      `/novels/${ApDuskyEmber18}/ai-traces/by-ApHollowDrift5/${encodeURIComponent(ApHollowDrift5)}`,
-      { ApHollowHarbor: { limit } },
+      `/novels/${novelId}/ai-traces/by-ApHollowDrift5/${encodeURIComponent(ApHollowDrift5)}`,
+      { params: { limit } },
     ) as unknown as Promise<ApThornShard53>,
 
   /** GET /novels/{novel_id}/ai-traces/stages */
-  stages: (ApDuskyEmber18: string) =>
+  stages: (novelId: string) =>
     ApVinePyre48.get<ApMistyVeil30>(
-      `/novels/${ApDuskyEmber18}/ai-traces/stages`,
+      `/novels/${novelId}/ai-traces/stages`,
     ) as unknown as Promise<ApMistyVeil30>,
 
   /** GET /ai-traces/stages/taxonomy */

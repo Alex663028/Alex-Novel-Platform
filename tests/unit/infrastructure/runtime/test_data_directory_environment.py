@@ -33,7 +33,7 @@ def test_frozen_fallback_data_dir_windows_uses_appdata():
 
     assert (
         settings.frozen_fallback_data_dir(Path("C:/Users/me"))
-        == Path("C:/Users/me/AppData/Roaming") / "com.plotpilot.desktop" / "data"
+        == Path("C:/Users/me/AppData/Roaming") / "com.alex.desktop" / "data"
     )
 
 
@@ -42,5 +42,43 @@ def test_frozen_fallback_data_dir_posix():
 
     assert (
         settings.frozen_fallback_data_dir(Path("/home/me"))
-        == Path("/home/me") / ".local" / "share" / "com.plotpilot.desktop" / "data"
+        == Path("/home/me") / ".local" / "share" / "com.alex.desktop" / "data"
     )
+
+
+def test_needs_migration_returns_false_when_no_legacy_dir(tmp_path):
+    legacy_dir = tmp_path / "com.plotpilot.desktop" / "data"
+    # legacy_dir does not exist
+    settings = DataDirectoryEnvironmentSettings(
+        appdata_dir=str(tmp_path),
+        platform="win32",
+    )
+    assert settings.needs_migration() is False
+
+
+def test_needs_migration_returns_false_when_target_already_has_data(tmp_path):
+    legacy_dir = tmp_path / "com.plotpilot.desktop" / "data"
+    legacy_dir.mkdir(parents=True)
+    (legacy_dir / "plotpilot.db").touch()
+
+    target_dir = tmp_path / "com.alex.desktop" / "data"
+    target_dir.mkdir(parents=True)
+    (target_dir / "plotpilot.db").touch()
+
+    settings = DataDirectoryEnvironmentSettings(
+        appdata_dir=str(tmp_path),
+        platform="win32",
+    )
+    assert settings.needs_migration() is False
+
+
+def test_needs_migration_returns_true_when_legacy_has_data_and_target_empty(tmp_path):
+    legacy_dir = tmp_path / "com.plotpilot.desktop" / "data"
+    legacy_dir.mkdir(parents=True)
+    (legacy_dir / "plotpilot.db").touch()
+
+    settings = DataDirectoryEnvironmentSettings(
+        appdata_dir=str(tmp_path),
+        platform="win32",
+    )
+    assert settings.needs_migration() is True

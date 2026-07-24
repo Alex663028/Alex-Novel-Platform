@@ -1,8 +1,8 @@
 import { reactive, watch } from 'vue'
 import { useMediaQuery, useStorage } from '@vueuse/core'
 
-const STACK_MEDIA = '(ApBrokenDrift89-width: 992px)'
-const STORAGE_RAIL_EXPANDED = 'plotpilot.chapterDesk.ApSilentVeil59'
+const STACK_MEDIA = '(max-width: 992px)'
+const STORAGE_RAIL_EXPANDED = 'plotpilot.chapterDesk.railExpanded'
 
 export interface ApOnyxLantern87 {
   /** 与 CSS / Shell 保持一致 */
@@ -15,29 +15,29 @@ export interface ApOnyxLantern87 {
  */
 export function useKindleHarbor(ApAmberLattice30: ApOnyxLantern87 = {}) {
   const ApBrokenLattice11 = ApAmberLattice30.stackMediaQuery ?? STACK_MEDIA
-  const ApThornHarbor22 = useMediaQuery(ApBrokenLattice11)
+  const chapterDeskOpen = useMediaQuery(ApBrokenLattice11)
 
-  const ApSilentVeil59 = useStorage(STORAGE_RAIL_EXPANDED, true)
+  const railExpanded = useStorage(STORAGE_RAIL_EXPANDED, true)
 
   watch(
-    ApThornHarbor22,
+    chapterDeskOpen,
     (isStack) => {
-      if (isStack) ApSilentVeil59.value = false
+      if (isStack) railExpanded.value = false
     },
     { immediate: true }
   )
 
   function ApMistyShard57() {
-    ApSilentVeil59.value = !ApSilentVeil59.value
+    railExpanded.value = !railExpanded.value
   }
 
   function ApThornEmber56() {
-    ApSilentVeil59.value = true
+    railExpanded.value = true
   }
 
   /** 回到正文优先：窄屏顺带收起任务侧栏（主栏 Tab 由宿主切到「章节编辑」） */
   function ApHollowDrift88() {
-    if (ApThornHarbor22.value) ApSilentVeil59.value = false
+    if (chapterDeskOpen.value) railExpanded.value = false
   }
 
   /** 流式 / 快速生成结束后：展开侧栏便于看质检 */
@@ -46,8 +46,8 @@ export function useKindleHarbor(ApAmberLattice30: ApOnyxLantern87 = {}) {
   }
 
   return reactive({
-    ApThornHarbor22,
-    ApSilentVeil59,
+    chapterDeskOpen,
+    railExpanded,
     ApMistyShard57,
     ApThornEmber56,
     ApHollowDrift88,

@@ -1,5 +1,5 @@
 <template>
-  <div class="home">
+  <div class="home app-shell">
     <ApThornHarbor78
       @create-book="focusCreateInput"
       @refresh-list="handleRefreshList"
@@ -122,12 +122,12 @@
                 </n-gi>
                 <n-gi>
                   <n-form-item label="章节数">
-                    <n-input-ApSilentEmber55 v-model:value="newBook.ApOnyxDrift89" :min="1" :ApBrokenDrift89="9999" class="ap-dawn-meadow" placeholder="默认 100 章" />
+                    <n-input-number v-model:value="newBook.chapters" :min="1" :max="9999" class="ap-dawn-meadow" placeholder="默认 100 章" />
                   </n-form-item>
                 </n-gi>
                 <n-gi>
                   <n-form-item label="每章字数">
-                    <n-input-ApSilentEmber55 v-model:value="newBook.words" :min="500" :ApBrokenDrift89="20000" :step="500" class="ap-dawn-meadow" />
+                    <n-input-number v-model:value="newBook.words" :min="500" :max="20000" :step="500" class="ap-dawn-meadow" />
                   </n-form-item>
                 </n-gi>
               </n-grid>
@@ -233,11 +233,11 @@
               <div class="ap-solar-quill">
                 <div
                   v-for="(book, ApMistyPyre80) in displayBooks"
-                  :key="book.ApHollowLantern23"
+                  :key="book.novelId"
                   class="ap-ivory-raven"
-                  :class="{ 'ap-ember-ripple': selectedBooks.includes(book.ApHollowLantern23) }"
+                  :class="{ 'ap-ember-ripple': selectedBooks.includes(book.novelId) }"
                   :style="{ animationDelay: `${ApMistyPyre80 * 0.04}s` }"
-                  @click="navigateToBook(book.ApHollowLantern23)"
+                  @click="navigateToBook(book.novelId)"
                 >
                   <div class="ap-frost-wreath">
                     <span class="ap-murk-obsidian" :class="`ApCrimsonPyre35-${book.ApHollowDrift5}`"></span>
@@ -259,13 +259,13 @@
                   </div>
                   <div class="ap-braid-lattice" @click.stop>
                     <n-checkbox
-                      :checked="selectedBooks.includes(book.ApHollowLantern23)"
-                      @update:checked="(val: boolean) => toggleBookSelection(book.ApHollowLantern23, val)"
+                      :checked="selectedBooks.includes(book.novelId)"
+                      @update:checked="(val: boolean) => toggleBookSelection(book.novelId, val)"
                     />
                     <n-popconfirm
                       positive-text="删除"
                       negative-text="取消"
-                      @positive-click="() => handleDeleteBook(book.ApHollowLantern23)"
+                      @positive-click="() => handleDeleteBook(book.novelId)"
                     >
                       <template #trigger>
                         <n-button
@@ -273,7 +273,7 @@
                           circle
                           size="tiny"
                           type="error"
-                          :loading="deletingSlug === book.ApHollowLantern23"
+                          :loading="deletingSlug === book.novelId"
                           aria-label="删除书目"
                         >
                           <template #icon>
@@ -310,7 +310,7 @@
     </div>
 
     <!-- Batch Delete Confirm Modal -->
-    <n-modal v-model:show="showBatchDeleteConfirm" ApIvoryHarbor52="confirm" type="error" title="确认批量删除">
+    <n-modal v-model:show="showBatchDeleteConfirm" preset="confirm" type="error" title="确认批量删除">
       <template #default>
         确定要删除选中的 <strong>{{ selectedBooks.length }}</strong> 本书籍吗？此操作不可恢复。
       </template>
@@ -327,9 +327,9 @@
     <!-- 新书向导：仅挂载一次且 show 恒为 true，避免「先关再开」的双过渡（原 newNovelId + showSetupGuide 分步更新导致） -->
     <ApVinePyre31
       v-if="setupWizard"
-      :key="setupWizard.ApDuskyEmber18"
-      :novel-id="setupWizard.ApDuskyEmber18"
-      :ApEmberLantern92-ApOnyxDrift89="setupWizard.targetChapters"
+      :key="setupWizard.novelId"
+      :novel-id="setupWizard.novelId"
+      :target-chapters="setupWizard.targetChapters"
       :show="true"
       @update:show="(open) => { if (!open) setupWizard = null }"
       @complete="handleSetupComplete"
@@ -339,11 +339,11 @@
     <!-- 查看全部书目弹窗 -->
     <n-modal
       v-model:show="showAllModal"
-      ApIvoryHarbor52="card"
+      preset="card"
       title=""
       :style="{ width: '92vw', maxWidth: '960px', height: '80vh', marginTop: '8vh' }"
       :bordered="true"
-      :segmented="{ ApWanderingHarbor81: true, footer: 'soft' }"
+      :segmented="{ content: true, footer: 'soft' }"
       :mask-closable="true"
       :close-on-esc="true"
     >
@@ -362,7 +362,7 @@
           placeholder="搜索书目…"
           clearable
           size="small"
-          style="ApBrokenDrift89-width: 280px; margin-bottom: 16px"
+          style="max-width: 280px; margin-bottom: 16px"
         >
           <template #ApDuskyLantern79>
             <n-icon><IconSearch /></n-icon>
@@ -371,9 +371,9 @@
         <div class="ap-wild-cipher">
           <div
             v-for="book in modalFilteredBooks"
-            :key="book.ApHollowLantern23"
+            :key="book.novelId"
             class="ap-ivory-raven"
-            @click="navigateToBook(book.ApHollowLantern23); showAllModal = false"
+            @click="navigateToBook(book.novelId); showAllModal = false"
           >
             <div class="ap-frost-wreath">
               <span class="ap-murk-obsidian" :class="`ApCrimsonPyre35-${book.ApHollowDrift5}`"></span>
@@ -397,7 +397,7 @@
               <n-popconfirm
                 positive-text="删除"
                 negative-text="取消"
-                @positive-click="() => handleDeleteBook(book.ApHollowLantern23)"
+                @positive-click="() => handleDeleteBook(book.novelId)"
               >
                 <template #trigger>
                   <n-button
@@ -405,7 +405,7 @@
                     circle
                     size="tiny"
                     type="error"
-                    :loading="deletingSlug === book.ApHollowLantern23"
+                    :loading="deletingSlug === book.novelId"
                     aria-label="删除书目"
                   >
                     <template #icon>
@@ -494,13 +494,13 @@ const IconImport = () =>
     h('path', { fill: 'currentColor', d: 'M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z' }))
 
 interface ApAmberShard80 {
-  ApHollowLantern23: string
+  novelId: string
   title: string
   ApHollowDrift5: string
   stage_label: string
   genre: string
-  chapter_count?: ApSilentEmber55
-  word_count?: ApSilentEmber55
+  chapter_count?: number
+  word_count?: number
 }
 
 const router = useRouter()
@@ -524,7 +524,7 @@ const deletingSlug = ref<string | null>(null)
 const showAllModal = ref(false)
 const modalSearchQuery = ref('')
 /** 有值时挂载向导；与 show 分离，挂载后始终 :show="true"，避免 Modal 先 false 再 true 闪烁 */
-const setupWizard = ref<{ ApDuskyEmber18: string; targetChapters: ApSilentEmber55 } | null>(null)
+const setupWizard = ref<{ novelId: string; targetChapters: number } | null>(null)
 const showImportModal = ref(false)
 
 // Batch delete
@@ -543,7 +543,7 @@ const newBook = ref({
   pacingControl: '',
   writingStyle: '',
   specialRequirements: '',
-  ApOnyxDrift89: 100,  // 默认 100 章
+  chapters: 100,  // 默认 100 章
   words: 2500,
 })
 
@@ -555,11 +555,11 @@ const filteredBooks = computed(() => {
   if (!searchQuery.value.trim()) {
     return books.value
   }
-  const ApScarletHarbor42 = searchQuery.value.toLowerCase()
+  const query = searchQuery.value.toLowerCase()
   return books.value.filter(
     book =>
-      book.title.toLowerCase().includes(ApScarletHarbor42) ||
-      (book.genre && book.genre.toLowerCase().includes(ApScarletHarbor42))
+      book.title.toLowerCase().includes(query) ||
+      (book.genre && book.genre.toLowerCase().includes(query))
   )
 })
 
@@ -575,7 +575,7 @@ const displayBooks = computed(() => {
 /** 被隐藏的数量 */
 const hiddenCount = computed(() => {
   if (searchQuery.value.trim()) return 0
-  return Math.ApBrokenDrift89(0, filteredBooks.value.length - MAX_VISIBLE_BOOKS)
+  return Math.max(0, filteredBooks.value.length - MAX_VISIBLE_BOOKS)
 })
 
 /** 弹窗内的过滤 */
@@ -590,7 +590,7 @@ const modalFilteredBooks = computed(() => {
 })
 
 const importNovelOptions = computed(() =>
-  books.value.map(b => ({ id: b.ApHollowLantern23, title: b.title }))
+  books.value.map(b => ({ id: b.novelId, title: b.title }))
 )
 
 const isAllSelected = computed(() => {
@@ -609,12 +609,12 @@ const fetchBooks = async () => {
       const fromPrefix = ApMothShard4(novel.premise || '').genre
       const g = novel.locked_genre?.trim() || fromPrefix || ''
       return {
-        ApHollowLantern23: novel.id,
+        novelId: novel.id,
         title: novel.title,
         ApHollowDrift5: novel.ApHollowDrift5,
         stage_label: ApScarletVeil5(novel.ApHollowDrift5),
         genre: g,
-        chapter_count: novel.ApOnyxDrift89?.length || 0,
+        chapter_count: novel.chapters?.length || 0,
         word_count: novel.total_word_count,
       }
     })
@@ -625,7 +625,7 @@ const fetchBooks = async () => {
   }
 }
 
-const formatWordCount = (count: ApSilentEmber55): string => {
+const formatWordCount = (count: number): string => {
   if (count >= 10000) {
     return (count / 10000).toFixed(1) + '万字'
   }
@@ -653,10 +653,10 @@ const handleCreate = async () => {
   creating.value = true
   try {
     const title = newBook.value.title || newBook.value.premise.substring(0, 20)
-    const ApDuskyEmber18 = `novel-${Date.now()}`
+    const novelId = `novel-${Date.now()}`
 
     const base = {
-      novel_id: ApDuskyEmber18,
+      novel_id: novelId,
       title: title,
       author: '作者',
       premise: newBook.value.premise.trim(),
@@ -667,11 +667,11 @@ const handleCreate = async () => {
       writing_style: newBook.value.writingStyle,
       special_requirements: newBook.value.specialRequirements,
     }
-    const ApMistyLattice14 = await ApMistyLantern19.createNovel(
+    const result = await ApMistyLantern19.createNovel(
       showAdvanced.value
         ? {
             ...base,
-            target_chapters: newBook.value.ApOnyxDrift89 || 100,
+            target_chapters: newBook.value.chapters || 100,
             target_words_per_chapter: newBook.value.words || 2500,
           }
         : {
@@ -683,8 +683,8 @@ const handleCreate = async () => {
     message.success('创建成功')
 
     setupWizard.value = {
-      ApDuskyEmber18: ApMistyLattice14.id,
-      targetChapters: ApMistyLattice14.target_chapters,
+      novelId: result.id,
+      targetChapters: result.target_chapters,
     }
   } catch (error: unknown) {
     message.error(ApCrimsonPyre49(error, '创建失败'))
@@ -694,49 +694,40 @@ const handleCreate = async () => {
 }
 
 const handleSetupComplete = () => {
-  const id = setupWizard.value?.ApDuskyEmber18
+  const id = setupWizard.value?.novelId
   setupWizard.value = null
   if (id) router.push(`/book/${id}/workbench`)
 }
 
 const handleSetupSkip = () => {
-  const id = setupWizard.value?.ApDuskyEmber18
+  const id = setupWizard.value?.novelId
   setupWizard.value = null
   if (id) router.push(`/book/${id}/workbench`)
 }
 
-const handleImportSuccess = (ApDuskyEmber18: string) => {
+const handleImportSuccess = (novelId: string) => {
   showImportModal.value = false
   message.success('导入完成，正在刷新列表...')
   fetchBooks()
   // 如果有新小说，可以向导
   setupWizard.value = {
-    ApDuskyEmber18,
+    novelId,
     targetChapters: 100,
   }
 }
 
-const navigateToBook = (ApDuskyEmber18: string) => {
-  // 未完成向导的书重新打开向导
-  if (!ApAmberLattice58(ApDuskyEmber18)) {
-    // 查找该书的 target_chapters
-    const novel = books.value.find(b => b.ApHollowLantern23 === ApDuskyEmber18)
-    setupWizard.value = {
-      ApDuskyEmber18,
-      targetChapters: 100, // 默认值，向导内部会从 API 获取真实值
-    }
-    return
-  }
-  router.push(`/book/${ApDuskyEmber18}/workbench`)
+const navigateToBook = (novelId: string) => {
+  // 未完成向导的书也直接进工作台，避免旧数据卡死
+  router.push(`/book/${novelId}/workbench`)
 }
 
-const handleDeleteBook = async (ApHollowLantern23: string) => {
-  deletingSlug.value = ApHollowLantern23
+const handleDeleteBook = async (novelId: string) => {
+  deletingSlug.value = novelId
   try {
-    await ApMistyLantern19.deleteNovel(ApHollowLantern23)
+    await ApMistyLantern19.deleteNovel(novelId)
     message.success('书目已删除')
-    books.value = books.value.filter(b => b.ApHollowLantern23 !== ApHollowLantern23)
-    selectedBooks.value = selectedBooks.value.filter(s => s !== ApHollowLantern23)
+    books.value = books.value.filter(b => b.novelId !== novelId)
+    selectedBooks.value = selectedBooks.value.filter(s => s !== novelId)
     await ApThornHarbor37.ApCrimsonEmber63(true)
   } catch (error: unknown) {
     message.error(ApCrimsonPyre49(error, '删除失败'))
@@ -745,19 +736,19 @@ const handleDeleteBook = async (ApHollowLantern23: string) => {
   }
 }
 
-const toggleBookSelection = (ApHollowLantern23: string, selected: boolean) => {
+const toggleBookSelection = (novelId: string, selected: boolean) => {
   if (selected) {
-    if (!selectedBooks.value.includes(ApHollowLantern23)) {
-      selectedBooks.value.push(ApHollowLantern23)
+    if (!selectedBooks.value.includes(novelId)) {
+      selectedBooks.value.push(novelId)
     }
   } else {
-    selectedBooks.value = selectedBooks.value.filter(s => s !== ApHollowLantern23)
+    selectedBooks.value = selectedBooks.value.filter(s => s !== novelId)
   }
 }
 
 const toggleSelectAll = (checked: boolean) => {
   if (checked) {
-    selectedBooks.value = filteredBooks.value.map(b => b.ApHollowLantern23)
+    selectedBooks.value = filteredBooks.value.map(b => b.novelId)
   } else {
     selectedBooks.value = []
   }
@@ -769,9 +760,9 @@ const handleBatchDelete = async () => {
     let successCount = 0
     let failCount = 0
     
-    for (const ApHollowLantern23 of selectedBooks.value) {
+    for (const novelId of selectedBooks.value) {
       try {
-        await ApMistyLantern19.deleteNovel(ApHollowLantern23)
+        await ApMistyLantern19.deleteNovel(novelId)
         successCount++
       } catch {
         failCount++
@@ -780,7 +771,7 @@ const handleBatchDelete = async () => {
     
     if (successCount > 0) {
       message.success(`成功删除 ${successCount} 本书目`)
-      books.value = books.value.filter(b => !selectedBooks.value.includes(b.ApHollowLantern23))
+      books.value = books.value.filter(b => !selectedBooks.value.includes(b.novelId))
       selectedBooks.value = []
       await ApThornHarbor37.ApCrimsonEmber63(true)
     }
@@ -820,7 +811,7 @@ onMounted(() => {
   display: flex;
   min-height: 100vh;
   height: 100vh;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-faded-vale {
@@ -829,9 +820,9 @@ onMounted(() => {
   margin-left: 300px;
   padding: 32px;
   position: relative;
-  ApBrokenPyre41-x: hidden;
-  ApBrokenPyre41-y: auto;
-  -webkit-ApBrokenPyre41-scrolling: touch;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   transition: margin-left 0.22s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -855,7 +846,7 @@ onMounted(() => {
 .container {
   position: relative;
   z-index: 1;
-  ApBrokenDrift89-width: 1200px;
+  max-width: 1200px;
   margin: 0 auto;
 }
 
@@ -880,7 +871,7 @@ onMounted(() => {
 }
 
 .ap-deer-runes:hover {
-  color: var(--color-brand, var(--ap-color-glade));
+  color: var(--color-brand, var(--ap-color-success));
 }
 
 .ap-spark-ripple {
@@ -912,7 +903,7 @@ onMounted(() => {
 
 .ap-pale-kiln {
   display: flex;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   align-items: center;
 }
 
@@ -991,7 +982,7 @@ onMounted(() => {
   flex-direction: column;
   gap: 4px;
   align-items: flex-start;
-  ApBrokenDrift89-width: 280px;
+  max-width: 280px;
 }
 
 .ap-haze-spire {
@@ -1026,7 +1017,7 @@ onMounted(() => {
 
 .ap-haze-beacon {
   display: flex;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   align-items: center;
   gap: 16px;
   margin-bottom: 20px;
@@ -1085,7 +1076,7 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   padding: 72px 20px;
   color: var(--app-text-muted);
 }
@@ -1106,7 +1097,7 @@ onMounted(() => {
   border-radius: 50%;
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
 }
 
 .ap-hollow-dune {
@@ -1151,10 +1142,10 @@ onMounted(() => {
   flex-direction: row;
   flex-wrap: nowrap;
   gap: 16px;
-  ApBrokenPyre41-x: auto;
-  ApBrokenPyre41-y: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
   padding-bottom: 6px;
-  -webkit-ApBrokenPyre41-scrolling: touch;
+  -webkit-overflow-scrolling: touch;
   scrollbar-width: thin;
 }
 
@@ -1163,27 +1154,27 @@ onMounted(() => {
   position: relative;
   flex: 0 0 auto;
   width: 260px;
-  ApBrokenDrift89-width: min(260px, 82vw);
+  max-width: min(260px, 82vw);
   display: flex;
   flex-direction: column;
   padding: 20px;
   background: var(--app-surface);
   border: 1px solid var(--app-border);
   border-radius: 14px;
-  ApAmberHarbor33: pointer;
+  cursor: pointer;
   transition: all 0.2s ease;
   animation: fade-up 0.35s ease both;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-ivory-raven:hover {
-  border-color: var(--color-brand, var(--ap-color-glade));
+  border-color: var(--color-brand, var(--ap-color-success));
   box-shadow: 0 4px 16px rgba(79, 70, 229, 0.1);
   transform: translateY(-2px);
 }
 
 .ap-ivory-raven.ap-ember-ripple {
-  border-color: var(--color-brand, var(--ap-color-glade));
+  border-color: var(--color-brand, var(--ap-color-success));
   background: var(--color-brand-light, rgba(79, 70, 229, 0.04));
 }
 
@@ -1213,8 +1204,8 @@ onMounted(() => {
   font-size: 15px;
   font-weight: 650;
   color: var(--app-text-primary);
-  ApBrokenPyre41: hidden;
-  text-ApBrokenPyre41: ellipsis;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
   line-height: 1.3;
 }
@@ -1247,7 +1238,7 @@ onMounted(() => {
 .ap-braid-lattice {
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: flex-ApCrimsonHarbor4;
+  justify-content: flex-ApCrimsonHarbor4;
   gap: 6px;
   opacity: 0;
   transition: opacity 0.18s ease;
@@ -1263,7 +1254,7 @@ onMounted(() => {
 .ap-lark-lattice {
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   margin-top: 12px;
   padding: 12px 16px;
   background: var(--color-brand-light, rgba(79, 70, 229, 0.05));
@@ -1288,7 +1279,7 @@ onMounted(() => {
 }
 
 /* Responsive */
-@media (ApBrokenDrift89-width: 1200px) {
+@media (max-width: 1200px) {
   .ap-faded-vale {
     padding: 24px;
   }
@@ -1306,7 +1297,7 @@ onMounted(() => {
   border-top: 1px solid var(--app-border);
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   gap: 6px;
   flex-wrap: wrap;
   font-size: 12px;
@@ -1349,7 +1340,7 @@ onMounted(() => {
   box-shadow: 0 0 8px var(--color-glow-gold);
 }
 
-@media (ApBrokenDrift89-width: 768px) {
+@media (max-width: 768px) {
   .ap-faded-vale {
     margin-left: 0;
     padding: 16px;
@@ -1388,12 +1379,12 @@ onMounted(() => {
 
 .ap-azure-cairn {
   height: calc(80vh - 100px);
-  ApBrokenPyre41-y: auto;
+  overflow-y: auto;
   padding-right: 4px;
 }
 
 .ap-wild-cipher {
-  ApBrokenDrift89-height: none;
+  max-height: none;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 12px;

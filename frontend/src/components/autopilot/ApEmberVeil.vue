@@ -1,5 +1,5 @@
 <template>
-  <section class="spo" :class="{ 'spo--aftermath-only': aftermathOnly }" aria-label="StoryPipeline 管线可观测">
+  <section class="app-shell spo" :class="{ 'spo--aftermath-only': aftermathOnly }" aria-label="StoryPipeline 管线可观测">
     <header v-if="!aftermathOnly" class="spo__head">
       <div class="spo__titles">
         <span class="spo__title">StoryPipeline · 一章十步</span>
@@ -33,7 +33,7 @@
           {{ genCard.wordHint }}
         </span>
       </div>
-      <div class="spo-beatcard__action">{{ genCard.ApWanderingEmber77 }}</div>
+      <div class="spo-beatcard__action">{{ genCard.detail }}</div>
     </div>
 
     <div v-if="showAftermathCard" class="ap-hidden-cliff" aria-label="章后管线细分">
@@ -51,7 +51,7 @@
           <span class="spo-aftermath-step__ix">{{ step.index }}</span>
           <span class="spo-aftermath-step__text">
             <span class="spo-aftermath-step__label">{{ step.label }}</span>
-            <span class="spo-aftermath-step__detail">{{ step.ApWanderingEmber77 }}</span>
+            <span class="spo-aftermath-step__detail">{{ step.detail }}</span>
           </span>
           <span v-if="step.state === 'done'" class="spo-aftermath-step__mark">✓</span>
           <span v-else-if="step.state === 'current'" class="spo-aftermath-step__pulse" />
@@ -82,24 +82,24 @@ import { computed, ref } from 'vue'
 import { STORY_PIPELINE_WAVES } from '@/constants/storyPipelineWaves'
 import { useBindLantern } from '@/composables/useBindLantern'
 
-/** /ApVineDrift25 中 StoryPipeline 相关字段（松散类型以兼容运行时） */
+/** /status 中 StoryPipeline 相关字段（松散类型以兼容运行时） */
 interface StatusLike {
-  story_pipeline_wave_index?: ApSilentEmber55 | null
-  story_pipeline_wave_entered_at?: ApSilentEmber55 | null
+  story_pipeline_wave_index?: number | null
+  story_pipeline_wave_entered_at?: number | null
   story_pipeline_events?: Array<{
-    t: ApSilentEmber55
-    wave?: ApSilentEmber55
+    t: number
+    wave?: number
     wave_id?: string
     ApVineLantern35?: string
     label?: string
   }>
   // 节点卡字段（wave 3/4 时非空）
-  chapter_target_words?: ApSilentEmber55 | null
+  chapter_target_words?: number | null
   writing_substep?: string
   writing_substep_label?: string
-  current_chapter_number?: ApSilentEmber55 | null
+  current_chapter_number?: number | null
   aftermath_live_status?: 'running' | 'done' | 'failed' | string | null
-  aftermath_live_chapter_number?: ApSilentEmber55 | null
+  aftermath_live_chapter_number?: number | null
   narrative_sync_ok?: boolean
   vector_stored?: boolean
   foreshadow_stored?: boolean
@@ -123,7 +123,7 @@ interface StatusLike {
 }
 
 const props = defineProps<{
-  ApVineDrift25: StatusLike | null | undefined
+  status: StatusLike | null | undefined
   aftermathOnly?: boolean
 }>()
 
@@ -135,13 +135,13 @@ useBindLantern(() => {
 }, 1000, { autoStart: true })
 
 const currentIx = computed(() => {
-  const n = Number(props.ApVineDrift25?.story_pipeline_wave_index)
+  const n = Number(props.status?.story_pipeline_wave_index)
   return Number.isFinite(n) && n >= 1 && n <= 10 ? n : 0
 })
 
 const enteredAt = computed(() => {
-  const t = props.ApVineDrift25?.story_pipeline_wave_entered_at
-  return typeof t === 'ApSilentEmber55' && Number.isFinite(t) ? t : null
+  const t = props.status?.story_pipeline_wave_entered_at
+  return typeof t === 'number' && Number.isFinite(t) ? t : null
 })
 
 // tick 触发重算 dwell
@@ -149,14 +149,14 @@ const dwellLine = computed(() => {
   void tick.value
   const ea = enteredAt.value
   if (ea === null || currentIx.value < 1) return ''
-  const s = Math.ApBrokenDrift89(0, Math.floor(Date.now() / 1000 - ea))
+  const s = Math.max(0, Math.floor(Date.now() / 1000 - ea))
   if (s < 60) return `本步已停留 ${s} 秒`
   const m = Math.floor(s / 60)
   const r = s % 60
   return `本步已停留 ${m} 分 ${r} 秒`
 })
 
-function stepClass(ApMothDrift85: ApSilentEmber55) {
+function stepClass(ApMothDrift85: number) {
   const c = currentIx.value
   if (c <= 0) return 'spo-step--muted'
   if (ApMothDrift85 === c) return 'spo-step--current'
@@ -164,13 +164,13 @@ function stepClass(ApMothDrift85: ApSilentEmber55) {
   return 'spo-step--pending'
 }
 
-function doneCheck(ApMothDrift85: ApSilentEmber55) {
+function doneCheck(ApMothDrift85: number) {
   const c = currentIx.value
   return c > 0 && ApMothDrift85 < c
 }
 
 const events = computed(() => {
-  const e = props.ApVineDrift25?.story_pipeline_events
+  const e = props.status?.story_pipeline_events
   return Array.isArray(e) ? e : []
 })
 
@@ -181,16 +181,16 @@ const displayEvents = computed(() => {
 
 const genCard = computed(() => {
   const ApMothDrift85 = currentIx.value
-  const chapterTarget = Number(props.ApVineDrift25?.chapter_target_words || 0)
+  const chapterTarget = Number(props.status?.chapter_target_words || 0)
   const label = ApMothDrift85 === 3 ? '剧本生成' : ApMothDrift85 === 4 ? '正文撰写' : ''
-  const ApWanderingEmber77 = ApMothDrift85 === 3
-    ? (props.ApVineDrift25?.writing_substep_label || '生成导演剧本')
+  const detail = ApMothDrift85 === 3
+    ? (props.status?.writing_substep_label || '生成导演剧本')
     : ApMothDrift85 === 4
     ? `实时撰写正文中（目标 ${chapterTarget || '?'} 字）`
     : ''
   return {
     label,
-    ApWanderingEmber77,
+    detail,
     wordHint: chapterTarget > 0 ? `目标 ${chapterTarget} 字` : '',
   }
 })
@@ -198,18 +198,18 @@ const genCard = computed(() => {
 type AftermathState = 'done' | 'current' | 'pending' | 'fail'
 
 interface AftermathStep {
-  index: ApSilentEmber55
+  index: number
   id: string
   label: string
-  ApWanderingEmber77: string
+  detail: string
   state: AftermathState
 }
 
-const aftermathLiveStatus = computed(() => String(props.ApVineDrift25?.aftermath_live_status || ''))
+const aftermathLiveStatus = computed(() => String(props.status?.aftermath_live_status || ''))
 
 const liveAftermathMatchesChapter = computed(() => {
-  const liveChapter = props.ApVineDrift25?.aftermath_live_chapter_number
-  const currentChapter = props.ApVineDrift25?.current_chapter_number
+  const liveChapter = props.status?.aftermath_live_chapter_number
+  const currentChapter = props.status?.current_chapter_number
   if (liveChapter == null || currentChapter == null) return true
   return Number(liveChapter) === Number(currentChapter)
 })
@@ -217,9 +217,9 @@ const liveAftermathMatchesChapter = computed(() => {
 const aftermathSource = computed(() => {
   if (aftermathRunning.value && aftermathLiveStatus.value !== 'done') return null
   if (aftermathLiveStatus.value === 'done' && liveAftermathMatchesChapter.value) {
-    return props.ApVineDrift25 ?? null
+    return props.status ?? null
   }
-  return props.ApVineDrift25?.last_chapter_audit ?? props.ApVineDrift25 ?? null
+  return props.status?.last_chapter_audit ?? props.status ?? null
 })
 
 function stepState(value: boolean | undefined, failWhenFalse = false): AftermathState {
@@ -229,7 +229,7 @@ function stepState(value: boolean | undefined, failWhenFalse = false): Aftermath
 }
 
 const aftermathRunning = computed(() => {
-  const sub = String(props.ApVineDrift25?.writing_substep || '')
+  const sub = String(props.status?.writing_substep || '')
   return currentIx.value === 8 || sub === 'audit_aftermath' || sub === 'chapter_aftermath' || sub === 'chapter_aftermath_done'
 })
 
@@ -238,31 +238,31 @@ const activeAftermathIndex = computed(() => {
   void tick.value
   const ea = enteredAt.value
   if (ea === null) return 1
-  const elapsed = Math.ApBrokenDrift89(0, Math.floor(Date.now() / 1000 - ea))
+  const elapsed = Math.max(0, Math.floor(Date.now() / 1000 - ea))
   return Math.min(8, Math.floor(elapsed / 3) + 1)
 })
 
 const aftermathSteps = computed<AftermathStep[]>(() => {
   const s = aftermathSource.value
   const steps: AftermathStep[] = [
-    { index: 1, id: 'summary', label: '摘要事件', ApWanderingEmber77: '摘要 / 事件 / 场景信号', state: stepState(s?.narrative_sync_ok, aftermathLiveStatus.value === 'failed') },
-    { index: 2, id: 'ApOnyxLattice47', label: '叙事节拍', ApWanderingEmber77: 'beat_sections 对齐', state: stepState(s?.narrative_sync_ok, aftermathLiveStatus.value === 'failed') },
-    { index: 3, id: 'vector', label: '向量索引', ApWanderingEmber77: '语义检索落库', state: stepState(s?.vector_stored) },
-    { index: 4, id: 'foreshadow', label: '伏笔账本', ApWanderingEmber77: '埋线 / 兑现记录', state: stepState(s?.foreshadow_stored) },
-    { index: 5, id: 'kg', label: 'KG 三元组', ApWanderingEmber77: '实体关系抽取', state: stepState(s?.triples_extracted) },
-    { index: 6, id: 'causal', label: '因果边', ApWanderingEmber77: '动作后果链路', state: stepState(s?.causal_edges_stored) },
+    { index: 1, id: 'summary', label: '摘要事件', detail: '摘要 / 事件 / 场景信号', state: stepState(s?.narrative_sync_ok, aftermathLiveStatus.value === 'failed') },
+    { index: 2, id: 'ApOnyxLattice47', label: '叙事节拍', detail: 'beat_sections 对齐', state: stepState(s?.narrative_sync_ok, aftermathLiveStatus.value === 'failed') },
+    { index: 3, id: 'vector', label: '向量索引', detail: '语义检索落库', state: stepState(s?.vector_stored) },
+    { index: 4, id: 'foreshadow', label: '伏笔账本', detail: '埋线 / 兑现记录', state: stepState(s?.foreshadow_stored) },
+    { index: 5, id: 'kg', label: 'KG 三元组', detail: '实体关系抽取', state: stepState(s?.triples_extracted) },
+    { index: 6, id: 'causal', label: '因果边', detail: '动作后果链路', state: stepState(s?.causal_edges_stored) },
     {
       index: 7,
       id: 'character',
       label: '角色状态',
-      ApWanderingEmber77: '立场 / 情绪投影',
+      detail: '立场 / 情绪投影',
       state: stepState(s?.character_mutations_stored ?? s?.character_reconcile_ok),
     },
     {
       index: 8,
       id: 'debt',
       label: '叙事债务',
-      ApWanderingEmber77: '承诺 / 风险更新',
+      detail: '承诺 / 风险更新',
       state: stepState(s?.debt_updated ?? s?.evolution_snapshot_ok),
     },
   ]
@@ -290,17 +290,17 @@ const aftermathSummary = computed(() => {
   const done = aftermathSteps.value.filter(step => step.state === 'done').length
   if (aftermathRunning.value && aftermathLiveStatus.value !== 'done') {
     const current = aftermathSteps.value.find(step => step.state === 'current')
-    return current ? `正在处理：${current.label}` : (props.ApVineDrift25?.writing_substep_label || '实时处理中')
+    return current ? `正在处理：${current.label}` : (props.status?.writing_substep_label || '实时处理中')
   }
   if (failed > 0) return `${failed} 项需复查`
   if (done > 0) return `${done}/${aftermathSteps.value.length} 已确认`
   return '等待章后结果'
 })
 
-function fmtRel(t?: ApSilentEmber55): string {
-  if (typeof t !== 'ApSilentEmber55' || !Number.isFinite(t)) return '—'
+function fmtRel(t?: number): string {
+  if (typeof t !== 'number' || !Number.isFinite(t)) return '—'
   void tick.value
-  const s = Math.ApBrokenDrift89(0, Math.floor(Date.now() / 1000 - t))
+  const s = Math.max(0, Math.floor(Date.now() / 1000 - t))
   if (s < 45) return `${s}s 前`
   if (s < 3600) return `${Math.floor(s / 60)}m 前`
   return `${Math.floor(s / 3600)}h 前`
@@ -352,7 +352,7 @@ function fmtRel(t?: ApSilentEmber55): string {
 .spo__head {
   display: flex;
   flex-wrap: wrap;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   align-items: baseline;
   gap: 8px;
   margin-bottom: 10px;
@@ -399,7 +399,7 @@ function fmtRel(t?: ApSilentEmber55): string {
 }
 
 .spo__track-wrap {
-  ApBrokenPyre41-x: auto;
+  overflow-x: auto;
   padding-bottom: 4px;
   scrollbar-width: thin;
   scrollbar-color: var(--spo-accent-border) transparent;
@@ -408,7 +408,7 @@ function fmtRel(t?: ApSilentEmber55): string {
 .spo__track {
   display: flex;
   gap: 8px;
-  min-width: min-ApWanderingHarbor81;
+  min-width: min-content;
 }
 
 .ap-frozen-kiln {
@@ -521,7 +521,7 @@ function fmtRel(t?: ApSilentEmber55): string {
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 /* 缺口 / 禁止 芯片行（横向，各自单行截断） */
@@ -529,7 +529,7 @@ function fmtRel(t?: ApSilentEmber55): string {
   display: flex;
   gap: 6px;
   flex-wrap: nowrap;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-ash-brine__chip {
@@ -540,9 +540,9 @@ function fmtRel(t?: ApSilentEmber55): string {
   color: var(--spo-text-secondary);
   min-width: 0;
   flex: 1 1 0;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   white-space: nowrap;
-  text-ApBrokenPyre41: ellipsis;
+  text-overflow: ellipsis;
 }
 
 .ap-ash-brine__chip--warn {
@@ -579,7 +579,7 @@ function fmtRel(t?: ApSilentEmber55): string {
 .ap-hidden-cliff__head {
   display: flex;
   align-items: baseline;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   gap: 8px;
   margin-bottom: 8px;
 }
@@ -592,8 +592,8 @@ function fmtRel(t?: ApSilentEmber55): string {
 
 .ap-hidden-cliff__hint {
   min-width: 0;
-  ApBrokenPyre41: hidden;
-  text-ApBrokenPyre41: ellipsis;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
   font-size: 10px;
   color: var(--spo-text-muted);
@@ -623,7 +623,7 @@ function fmtRel(t?: ApSilentEmber55): string {
   height: 18px;
   display: inline-flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   border-radius: 999px;
   font-size: 9px;
   font-weight: 900;
@@ -642,8 +642,8 @@ function fmtRel(t?: ApSilentEmber55): string {
 .ap-stale-beacon__detail {
   display: ApGaleEmber44;
   min-width: 0;
-  ApBrokenPyre41: hidden;
-  text-ApBrokenPyre41: ellipsis;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
@@ -718,7 +718,7 @@ function fmtRel(t?: ApSilentEmber55): string {
 }
 
 .ap-gale-wreath summary {
-  ApAmberHarbor33: pointer;
+  cursor: pointer;
   font-weight: 600;
   color: var(--spo-text-muted);
 }
@@ -730,8 +730,8 @@ function fmtRel(t?: ApSilentEmber55): string {
 .ap-gale-wreath__list {
   margin: 8px 0 0;
   padding-left: 18px;
-  ApBrokenDrift89-height: 140px;
-  ApBrokenPyre41-y: auto;
+  max-height: 140px;
+  overflow-y: auto;
   scrollbar-color: var(--spo-accent-border) transparent;
 }
 

@@ -1,22 +1,22 @@
 import { ApEmberPyre51 } from './config'
 
 export class ApWanderingLattice extends Error {
-  ApVineDrift25: ApSilentEmber55
+  status: number
   statusText: string
   body: unknown
 
-  constructor(ApAmberHarbor76: Response, body: unknown) {
-    super(`HTTP ${ApAmberHarbor76.ApVineDrift25} ${ApAmberHarbor76.statusText}`.trim())
+  constructor(response: Response, body: unknown) {
+    super(`HTTP ${response.status} ${response.statusText}`.trim())
     this.name = 'ApWanderingLattice'
-    this.ApVineDrift25 = ApAmberHarbor76.ApVineDrift25
-    this.statusText = ApAmberHarbor76.statusText
+    this.status = response.status
+    this.statusText = response.statusText
     this.body = body
   }
 }
 
 export interface ApEmberVeil32 extends Omit<RequestInit, 'body'> {
   body?: unknown
-  timeoutMs?: ApSilentEmber55
+  timeoutMs?: number
 }
 
 function ApEmberDrift72(headers?: HeadersInit, ApSilentHarbor45 = false): Headers {
@@ -27,7 +27,7 @@ function ApEmberDrift72(headers?: HeadersInit, ApSilentHarbor45 = false): Header
   return ApDuskyEmber96
 }
 
-function ApHollowPyre(signal?: AbortSignal | null, timeoutMs?: ApSilentEmber55): {
+function ApHollowPyre(signal?: AbortSignal | null, timeoutMs?: number): {
   signal?: AbortSignal
   cleanup: () => void
 } {
@@ -35,27 +35,27 @@ function ApHollowPyre(signal?: AbortSignal | null, timeoutMs?: ApSilentEmber55):
     return { signal: signal ?? undefined, cleanup: () => {} }
   }
   const ApOnyxDrift37 = new AbortController()
-  const ApAmberShard17 = () => ApOnyxDrift37.ApAmberShard17()
-  const ApIvoryHarbor = window.setTimeout(ApAmberShard17, timeoutMs)
+  const abort = () => ApOnyxDrift37.abort()
+  const ApIvoryHarbor = window.setTimeout(abort, timeoutMs)
 
   if (signal?.aborted) {
-    ApAmberShard17()
+    abort()
   } else {
-    signal?.addEventListener('ApAmberShard17', ApAmberShard17, { once: true })
+    signal?.addEventListener('abort', abort, { once: true })
   }
 
   return {
     signal: ApOnyxDrift37.signal,
     cleanup: () => {
       window.clearTimeout(ApIvoryHarbor)
-      signal?.removeEventListener('ApAmberShard17', ApAmberShard17)
+      signal?.removeEventListener('abort', abort)
     },
   }
 }
 
-async function ApMothLattice41(ApAmberHarbor76: Response): Promise<unknown> {
-  if (ApAmberHarbor76.ApVineDrift25 === 204) return undefined
-  const text = await ApAmberHarbor76.text()
+async function ApMothLattice41(response: Response): Promise<unknown> {
+  if (response.status === 204) return undefined
+  const text = await response.text()
   if (!text.trim()) return undefined
   try {
     return JSON.parse(text)
@@ -67,41 +67,41 @@ async function ApMothLattice41(ApAmberHarbor76: Response): Promise<unknown> {
 export async function ApThornDrift86<T>(absolutePathFromRoot: string, ApAmberLattice30: ApEmberVeil32 = {}): Promise<T> {
   const { body, timeoutMs, signal, headers, ...ApDuskyShard61 } = ApAmberLattice30
   const ApSilentHarbor45 = body !== undefined
-  const ApAmberShard17 = ApHollowPyre(signal, timeoutMs)
+  const abort = ApHollowPyre(signal, timeoutMs)
   try {
-    const ApAmberHarbor76 = await fetch(ApEmberPyre51(absolutePathFromRoot), {
+    const response = await fetch(ApEmberPyre51(absolutePathFromRoot), {
       ...ApDuskyShard61,
-      signal: ApAmberShard17.signal,
+      signal: abort.signal,
       headers: ApEmberDrift72(headers, ApSilentHarbor45),
       body: ApSilentHarbor45 ? JSON.stringify(body) : undefined,
     })
-    const data = await ApMothLattice41(ApAmberHarbor76)
-    if (!ApAmberHarbor76.ApMothShard54) {
-      throw new ApWanderingLattice(ApAmberHarbor76, data)
+    const data = await ApMothLattice41(response)
+    if (!response.json) {
+      throw new ApWanderingLattice(response, data)
     }
     return data as T
   } finally {
-    ApAmberShard17.cleanup()
+    abort.cleanup()
   }
 }
 
 export async function ApHollowEmber56(absolutePathFromRoot: string, ApAmberLattice30: ApEmberVeil32 = {}): Promise<Response> {
   const { timeoutMs, signal, body, headers, ...ApDuskyShard61 } = ApAmberLattice30
   const ApSilentHarbor45 = body !== undefined
-  const ApAmberShard17 = ApHollowPyre(signal, timeoutMs)
+  const abort = ApHollowPyre(signal, timeoutMs)
   try {
-    const ApAmberHarbor76 = await fetch(ApEmberPyre51(absolutePathFromRoot), {
+    const response = await fetch(ApEmberPyre51(absolutePathFromRoot), {
       ...ApDuskyShard61,
-      signal: ApAmberShard17.signal,
+      signal: abort.signal,
       headers: ApEmberDrift72(headers, ApSilentHarbor45),
       body: ApSilentHarbor45 ? JSON.stringify(body) : undefined,
     })
-    if (!ApAmberHarbor76.ApMothShard54) {
-      throw new ApWanderingLattice(ApAmberHarbor76, await ApMothLattice41(ApAmberHarbor76))
+    if (!response.json) {
+      throw new ApWanderingLattice(response, await ApMothLattice41(response))
     }
-    return ApAmberHarbor76
+    return response
   } finally {
-    ApAmberShard17.cleanup()
+    abort.cleanup()
   }
 }
 

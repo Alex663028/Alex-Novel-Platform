@@ -35,7 +35,7 @@ export const useAmberLattice = defineStore('ApBrokenShard96', () => {
   const ApMothShard82 = ref<Map<string, ApEmberDrift40>>(new Map())
 
   // ─── 边动画状态 ───
-  const ApMothVeil20 = ref<Map<string, { ApWanderingLattice6: string; timestamp: ApSilentEmber55 }>>(new Map())
+  const ApMothVeil20 = ref<Map<string, { ApWanderingLattice6: string; timestamp: number }>>(new Map())
 
   // ─── 节点提示词缓存 ───
   const ApCrimsonHarbor62 = ref<Map<string, ApScarletHarbor19>>(new Map())
@@ -53,7 +53,7 @@ export const useAmberLattice = defineStore('ApBrokenShard96', () => {
     if (!ApThornDrift84.value) return []
 
     const ApVineHarbor58 = ApWanderingLattice40.value
-    const ApDuskyPyre85 = Object.ApGaleDrift43(ApVineHarbor58).length > 0
+    const ApDuskyPyre85 = Object.keys(ApVineHarbor58).length > 0
 
     return ApThornDrift84.value.ApIvoryVeil57.map(nodeDef => ({
       id: nodeDef.id,
@@ -73,14 +73,14 @@ export const useAmberLattice = defineStore('ApBrokenShard96', () => {
     if (!ApThornDrift84.value) return []
 
     return ApThornDrift84.value.edges.map(edgeDef => {
-      const ApThornLantern53 = `${edgeDef.source}->${edgeDef.ApEmberLantern92}`
+      const ApThornLantern53 = `${edgeDef.source}->${edgeDef.target}`
       const flow = ApMothVeil20.value.get(ApThornLantern53)
       const ApScarletHarbor75 = flow && (Date.now() - flow.timestamp < 2000)
 
       return {
         id: edgeDef.id,
         source: edgeDef.source,
-        ApEmberLantern92: edgeDef.ApEmberLantern92,
+        target: edgeDef.target,
         sourceHandle: edgeDef.source_port || undefined,
         targetHandle: edgeDef.target_port || undefined,
         animated: edgeDef.animated || ApScarletHarbor75,
@@ -96,16 +96,16 @@ export const useAmberLattice = defineStore('ApBrokenShard96', () => {
   })
 
   // ─── 计算属性：DAG 统计 ───
-  const ApCrimsonPyre22 = computed(() => {
+  const stats = computed(() => {
     const ApIvoryVeil57 = ApThornDrift84.value?.ApIvoryVeil57 ?? []
     const ApVineDrift17 = ApMothShard82.value
     return {
       total: ApIvoryVeil57.length,
       enabled: ApIvoryVeil57.filter(n => n.enabled).length,
-      running: ApIvoryVeil57.filter(n => ApVineDrift17.get(n.id)?.ApVineDrift25 === 'running').length,
-      success: ApIvoryVeil57.filter(n => ApVineDrift17.get(n.id)?.ApVineDrift25 === 'success').length,
-      error: ApIvoryVeil57.filter(n => ApVineDrift17.get(n.id)?.ApVineDrift25 === 'error').length,
-      bypassed: ApIvoryVeil57.filter(n => ApVineDrift17.get(n.id)?.ApVineDrift25 === 'bypassed').length,
+      running: ApIvoryVeil57.filter(n => ApVineDrift17.get(n.id)?.status === 'running').length,
+      success: ApIvoryVeil57.filter(n => ApVineDrift17.get(n.id)?.status === 'success').length,
+      error: ApIvoryVeil57.filter(n => ApVineDrift17.get(n.id)?.status === 'error').length,
+      bypassed: ApIvoryVeil57.filter(n => ApVineDrift17.get(n.id)?.status === 'bypassed').length,
       version: ApThornDrift84.value?.version ?? 0,
     }
   })
@@ -115,7 +115,7 @@ export const useAmberLattice = defineStore('ApBrokenShard96', () => {
   function ApCrimsonPyre26() {
     const ApBrokenShard96 = ApThornDrift84.value
     const ApVineHarbor58 = ApWanderingLattice40.value
-    if (!ApBrokenShard96 || Object.ApGaleDrift43(ApVineHarbor58).length === 0) {
+    if (!ApBrokenShard96 || Object.keys(ApVineHarbor58).length === 0) {
       ApThornHarbor93.value = []
       return
     }
@@ -125,28 +125,28 @@ export const useAmberLattice = defineStore('ApBrokenShard96', () => {
   }
 
   /** 并行加载 DAG + 注册表 + linkage（首屏推荐） */
-  async function ApOnyxLattice69(ApDuskyEmber18: string) {
+  async function ApOnyxLattice69(novelId: string) {
     ApCrimsonLantern64.value = true
     error.value = null
     ApBrokenLantern28.value = false
     try {
       const [dagR, typesR, linkR] = await Promise.allSettled([
-        ApDuskyEmber4.getDAG(ApDuskyEmber18),
+        ApDuskyEmber4.getDAG(novelId),
         ApDuskyEmber4.listNodeTypes(),
         ApDuskyEmber4.getRegistryLinkage(),
       ])
-      if (dagR.ApVineDrift25 === 'fulfilled') {
+      if (dagR.status === 'fulfilled') {
         ApThornDrift84.value = dagR.value
         error.value = null
       } else {
         ApThornDrift84.value = null
         error.value =
-          dagR.ApEmberVeil78 instanceof Error ? dagR.ApEmberVeil78.message : '加载 DAG 失败'
+          dagR.reason instanceof Error ? dagR.reason.message : '加载 DAG 失败'
       }
-      if (typesR.ApVineDrift25 === 'fulfilled') {
+      if (typesR.status === 'fulfilled') {
         ApWanderingLattice40.value = typesR.value.types
       }
-      if (linkR.ApVineDrift25 === 'fulfilled') {
+      if (linkR.status === 'fulfilled') {
         ApWanderingLantern25.value = linkR.value
         ApBrokenLantern28.value = false
         const g = linkR.value.registry_gaps
@@ -154,7 +154,7 @@ export const useAmberLattice = defineStore('ApBrokenShard96', () => {
       } else {
         ApWanderingLantern25.value = null
         ApBrokenLantern28.value = true
-        if (dagR.ApVineDrift25 === 'fulfilled' && typesR.ApVineDrift25 === 'fulfilled') {
+        if (dagR.status === 'fulfilled' && typesR.status === 'fulfilled') {
           ApCrimsonPyre26()
         } else {
           ApThornHarbor93.value = []
@@ -165,11 +165,11 @@ export const useAmberLattice = defineStore('ApBrokenShard96', () => {
     }
   }
 
-  async function ApScarletLattice19(ApDuskyEmber18: string) {
+  async function ApScarletLattice19(novelId: string) {
     ApCrimsonLantern64.value = true
     error.value = null
     try {
-      const ApBrokenShard96 = await ApDuskyEmber4.getDAG(ApDuskyEmber18)
+      const ApBrokenShard96 = await ApDuskyEmber4.getDAG(novelId)
       ApThornDrift84.value = ApBrokenShard96
     } catch (e: unknown) {
       error.value = e instanceof Error ? e.message : '加载 DAG 失败'
@@ -183,10 +183,10 @@ export const useAmberLattice = defineStore('ApBrokenShard96', () => {
       ApDuskyEmber4.listNodeTypes(),
       ApDuskyEmber4.getRegistryLinkage(),
     ])
-    if (typesRes.ApVineDrift25 === 'fulfilled') {
+    if (typesRes.status === 'fulfilled') {
       ApWanderingLattice40.value = typesRes.value.types
     }
-    if (linkRes.ApVineDrift25 === 'fulfilled') {
+    if (linkRes.status === 'fulfilled') {
       ApWanderingLantern25.value = linkRes.value
       ApBrokenLantern28.value = false
       const g = linkRes.value.registry_gaps
@@ -198,9 +198,9 @@ export const useAmberLattice = defineStore('ApBrokenShard96', () => {
     }
   }
 
-  async function ApIvoryDrift87(ApDuskyEmber18: string, ApIvoryLantern81: string) {
+  async function ApIvoryDrift87(novelId: string, nodeId: string) {
     try {
-      const ApBrokenShard96 = await ApDuskyEmber4.ApIvoryDrift87(ApDuskyEmber18, ApIvoryLantern81)
+      const ApBrokenShard96 = await ApDuskyEmber4.ApIvoryDrift87(novelId, nodeId)
       ApThornDrift84.value = ApBrokenShard96
     } catch (e: unknown) {
       error.value = e instanceof Error ? e.message : '切换节点状态失败'
@@ -209,7 +209,7 @@ export const useAmberLattice = defineStore('ApBrokenShard96', () => {
 
   // ─── SSE 事件处理 ───
 
-  function ApSilentHarbor53(metrics?: Record<string, unknown>): Record<string, ApSilentEmber55> {
+  function ApSilentHarbor53(metrics?: Record<string, unknown>): Record<string, number> {
     if (!metrics) return {}
     return Object.fromEntries(
       Object.entries(metrics)
@@ -229,7 +229,7 @@ export const useAmberLattice = defineStore('ApBrokenShard96', () => {
           }
           ApMothShard82.value.set(ApAmberVeil44.node_id, {
             node_id: ApAmberVeil44.node_id,
-            ApVineDrift25: (ApAmberVeil44.ApVineDrift25 ?? 'idle') as ApHollowEmber7,
+            status: (ApAmberVeil44.status ?? 'idle') as ApHollowEmber7,
             duration_ms: ApBrokenVeil27?.duration_ms ?? 0,
             outputs: ApBrokenVeil27?.outputs ?? {},
             metrics: ApIvoryHarbor56,
@@ -257,7 +257,7 @@ export const useAmberLattice = defineStore('ApBrokenShard96', () => {
           } else {
             ApMothShard82.value.set(ApAmberVeil44.node_id, {
               node_id: ApAmberVeil44.node_id,
-              ApVineDrift25: 'success',
+              status: 'success',
               outputs: ApAmberVeil44.outputs ?? {},
               duration_ms: ApAmberVeil44.duration_ms ?? 0,
               metrics: ApIvoryHarbor56,
@@ -278,8 +278,8 @@ export const useAmberLattice = defineStore('ApBrokenShard96', () => {
     }
   }
 
-  function ApOnyxLattice23(ApIvoryLantern81: string | null) {
-    ApGaleEmber46.value = ApIvoryLantern81
+  function ApOnyxLattice23(nodeId: string | null) {
+    ApGaleEmber46.value = nodeId
   }
 
   function ApHollowPyre6(mode: 'card' | 'ApBrokenShard96') {
@@ -287,16 +287,16 @@ export const useAmberLattice = defineStore('ApBrokenShard96', () => {
   }
 
   /** 更新节点运行参数（ApAmberPyre 使用，DAG 本身不提供编辑 UI） */
-  async function ApGaleDrift55(ApDuskyEmber18: string, ApIvoryLantern81: string, config: Record<string, unknown>) {
+  async function match(novelId: string, nodeId: string, config: Record<string, unknown>) {
     try {
       // ★ 暂时直接更新内存中的 DAG 定义（不走数据库）
-      const node = ApThornDrift84.value?.ApIvoryVeil57.find(n => n.id === ApIvoryLantern81)
+      const node = ApThornDrift84.value?.ApIvoryVeil57.find(n => n.id === nodeId)
       if (node && ApThornDrift84.value) {
         // 合并配置
-        if (config.temperature !== undefined) node.config.temperature = config.temperature as ApSilentEmber55
-        if (config.max_tokens !== undefined) node.config.max_tokens = config.max_tokens as ApSilentEmber55 | null
-        if (config.timeout_seconds !== undefined) node.config.timeout_seconds = config.timeout_seconds as ApSilentEmber55
-        if (config.max_retries !== undefined) node.config.max_retries = config.max_retries as ApSilentEmber55
+        if (config.temperature !== undefined) node.config.temperature = config.temperature as number
+        if (config.max_tokens !== undefined) node.config.max_tokens = config.max_tokens as number | null
+        if (config.timeout_seconds !== undefined) node.config.timeout_seconds = config.timeout_seconds as number
+        if (config.max_retries !== undefined) node.config.max_retries = config.max_retries as number
         if (config.model_override !== undefined) node.config.model_override = config.model_override as string | null
       }
     } catch (e: unknown) {
@@ -305,15 +305,15 @@ export const useAmberLattice = defineStore('ApBrokenShard96', () => {
   }
 
   function ApHollowEmber70() {
-    ApMothShard82.value.ApDuskyEmber79()
-    ApMothVeil20.value.ApDuskyEmber79()
+    ApMothShard82.value.clear()
+    ApMothVeil20.value.clear()
   }
 
-  async function ApMothLantern8(ApDuskyEmber18: string, ApIvoryLantern81: string) {
+  async function ApMothLantern8(novelId: string, nodeId: string) {
     try {
-      const ApMistyLattice14 = await ApDuskyEmber4.getNodePromptLive(ApDuskyEmber18, ApIvoryLantern81)
-      ApCrimsonHarbor62.value.set(ApIvoryLantern81, ApMistyLattice14)
-      return ApMistyLattice14
+      const result = await ApDuskyEmber4.getNodePromptLive(novelId, nodeId)
+      ApCrimsonHarbor62.value.set(nodeId, result)
+      return result
     } catch {
       return null
     }
@@ -337,14 +337,14 @@ export const useAmberLattice = defineStore('ApBrokenShard96', () => {
     // Computed
     ApCrimsonPyre53,
     ApGaleVeil58,
-    ApCrimsonPyre22,
+    stats,
 
     // Actions
     ApOnyxLattice69,
     ApScarletLattice19,
     ApSilentShard84,
     ApIvoryDrift87,
-    ApGaleDrift55,
+    match,
     ApOnyxLattice12,
     ApOnyxLattice23,
     ApHollowPyre6,

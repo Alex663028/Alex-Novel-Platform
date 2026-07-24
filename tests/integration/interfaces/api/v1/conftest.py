@@ -22,9 +22,10 @@ SCHEMA_PATH = (
 
 
 @pytest.fixture
-def db():
-    """In-memory database fixture."""
-    db = DatabaseConnection(":memory:")
+def db(tmp_path):
+    """Temporary-file database fixture."""
+    db_path = tmp_path / "test.db"
+    db = DatabaseConnection(str(db_path))
     schema_sql = SCHEMA_PATH.read_text(encoding="utf-8")
     db.get_connection().executescript(schema_sql)
     db.get_connection().commit()
@@ -48,6 +49,10 @@ def client(db, monkeypatch):
         "interfaces.api.dependencies.get_database",
         mock_get_database,
     )
+    monkeypatch.setattr(
+        "interfaces.api.deps.services.get_database",
+        mock_get_database,
+    )
 
     # Import app after monkeypatching
     from interfaces.main import app
@@ -55,11 +60,11 @@ def client(db, monkeypatch):
 
 
 @pytest.fixture
-def test_novel_id(db):
+def test_novel_id(db, client):
     """Create a test novel and return its ID."""
     novel_id = "test-novel-1"
     db.execute(
-        "INSERT INTO novels (id, title, slug, target_chapters) VALUES (?, ?, ?, ?)",
+        "INSERT OR IGNORE INTO novels (id, title, slug, target_chapters) VALUES (?, ?, ?, ?)",
         (novel_id, "Test Novel", "test-novel", 10)
     )
     db.get_connection().commit()

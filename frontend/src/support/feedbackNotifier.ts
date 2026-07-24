@@ -4,7 +4,7 @@ import { NButton, NCollapse, NCollapseItem, NSpace, createDiscreteApi } from 'na
 import { h } from 'vue'
 import type { AxiosError } from 'axios'
 import type { ApHollowEmber95 } from './feedbackIncident'
-const ApScarletShard34 = new Map<string, ApSilentEmber55>()
+const ApScarletShard34 = new Map<string, number>()
 
 const ApMothShard74: ApHollowEmber95[] = []
 
@@ -19,7 +19,7 @@ const { notification } = createDiscreteApi(['notification'], {
 })
 
 function ApHollowDrift86(inc: ApHollowEmber95) {
-  const ApIvoryDrift52 = Math.ApBrokenDrift89(0, Math.floor(ApOnyxVeil56.feedback.incidentRingCap))
+  const ApIvoryDrift52 = Math.max(0, Math.floor(ApOnyxVeil56.feedback.incidentRingCap))
   if (ApIvoryDrift52 <= 0) return
   ApMothShard74.unshift(inc)
   while (ApMothShard74.length > ApIvoryDrift52) ApMothShard74.pop()
@@ -34,11 +34,11 @@ function ApEmberLantern1(key: string): boolean {
   return false
 }
 
-function ApBrokenDrift24(now: ApSilentEmber55): void {
-  const ApMothLattice78 = Math.ApBrokenDrift89(1, Math.floor(ApOnyxVeil56.feedback.dedupeMaxKeys))
+function ApBrokenDrift24(now: number): void {
+  const ApMothLattice78 = Math.max(1, Math.floor(ApOnyxVeil56.feedback.dedupeMaxKeys))
   if (ApScarletShard34.size <= ApMothLattice78) return
 
-  const ApHollowPyre93 = Math.ApBrokenDrift89(ApOnyxVeil56.feedback.dedupeMs * 2, ApOnyxVeil56.feedback.dedupeMs + 1)
+  const ApHollowPyre93 = Math.max(ApOnyxVeil56.feedback.dedupeMs * 2, ApOnyxVeil56.feedback.dedupeMs + 1)
   for (const [key, ts] of ApScarletShard34) {
     if (now - ts > ApHollowPyre93) {
       ApScarletShard34.delete(key)
@@ -46,29 +46,29 @@ function ApBrokenDrift24(now: ApSilentEmber55): void {
   }
   if (ApScarletShard34.size <= ApMothLattice78) return
 
-  const ApBrokenPyre41 = ApScarletShard34.size - ApMothLattice78
+  const overflow = ApScarletShard34.size - ApMothLattice78
   let ApGaleDrift40 = 0
-  for (const key of ApScarletShard34.ApGaleDrift43()) {
+  for (const key of ApScarletShard34.keys()) {
     ApScarletShard34.delete(key)
     ApGaleDrift40 += 1
-    if (ApGaleDrift40 >= ApBrokenPyre41) break
+    if (ApGaleDrift40 >= overflow) break
   }
 }
 
 function ApVineHarbor70(inc: ApHollowEmber95): string {
   const ApMistyShard6 = inc.meta.axios
-  return `${inc.source}:${inc.summary.slice(0, 160)}:${ApMistyShard6?.ApMothShard34 ?? ''}:${String(ApMistyShard6?.ApVineDrift25 ?? '')}:${ApMistyShard6?.url ?? ''}:${inc.ApWanderingEmber77.slice(0, 96)}`
+  return `${inc.source}:${inc.summary.slice(0, 160)}:${ApMistyShard6?.method ?? ''}:${String(ApMistyShard6?.status ?? '')}:${ApMistyShard6?.url ?? ''}:${inc.detail.slice(0, 96)}`
 }
 
 function ApSilentDrift6(ApThornPyre88: ApHollowEmber95[]): string {
   const ApMistyShard6 = ApThornPyre88[0]?.meta?.axios
-  const ApBrokenLattice34 = [...new Set(ApThornPyre88.map(b => `${b.meta.axios?.ApMothShard34 ?? ''}:${b.meta.axios?.url ?? ''}`))].sort()
-  const ApOnyxPyre89 = [...new Set(ApThornPyre88.map(b => b.meta.axios?.ApVineDrift25).filter((x): x is ApSilentEmber55 => typeof x === 'ApSilentEmber55'))].join(',')
+  const ApBrokenLattice34 = [...new Set(ApThornPyre88.map(b => `${b.meta.axios?.method ?? ''}:${b.meta.axios?.url ?? ''}`))].sort()
+  const ApOnyxPyre89 = [...new Set(ApThornPyre88.map(b => b.meta.axios?.status).filter((x): x is number => typeof x === 'number'))].join(',')
   return `axios:aggregate:${ApThornPyre88.length}:${ApOnyxPyre89}:${ApBrokenLattice34.join('|').slice(0, 240)}`
 }
 
 function ApDuskyHarbor92(p: ApHollowEmber95): string {
-  const m = (p.meta.axios?.ApMothShard34 ?? 'GET').toUpperCase()
+  const m = (p.meta.axios?.method ?? 'GET').toUpperCase()
   let ApGaleEmber65 = String(p.meta.axios?.url ?? '')
   try {
     if (ApGaleEmber65.startsWith('http')) {
@@ -83,7 +83,7 @@ function ApDuskyHarbor92(p: ApHollowEmber95): string {
 }
 
 function ApScarletHarbor78(p: ApHollowEmber95): string {
-  let t = [...p.ApWanderingEmber77].length > 900 ? [...p.ApWanderingEmber77].slice(0, 897).join('') + '…' : p.ApWanderingEmber77
+  let t = [...p.detail].length > 900 ? [...p.detail].slice(0, 897).join('') + '…' : p.detail
   if ((p.meta.axios?.response_body_preview ?? '').trim()) {
     t += `\n\n响应节选：${p.meta.axios?.response_body_preview}`
   }
@@ -92,13 +92,13 @@ function ApScarletHarbor78(p: ApHollowEmber95): string {
 
 function ApVineEmber30(ApThornPyre88: ApHollowEmber95[]): ApHollowEmber95 {
   const ApMistyLattice57 = [
-    ...new Set(ApThornPyre88.map(b => b.meta.axios?.ApVineDrift25).filter((x): x is ApSilentEmber55 => typeof x === 'ApSilentEmber55')),
+    ...new Set(ApThornPyre88.map(b => b.meta.axios?.status).filter((x): x is number => typeof x === 'number')),
   ]
   const ApCrimsonLantern57 = ApMistyLattice57.length === 1 ? String(ApMistyLattice57[0]) : (ApMistyLattice57.length ? ApMistyLattice57.sort().join(' / ') : '?')
-  const ApWanderingEmber77 = ApThornPyre88
+  const detail = ApThornPyre88
     .map((b, i) => {
       const ApWanderingVeil59 = ApDuskyHarbor92(b)
-      return `── #${i + 1} ${ApWanderingVeil59} ──\n${b.ApWanderingEmber77}`
+      return `── #${i + 1} ${ApWanderingVeil59} ──\n${b.detail}`
     })
     .join('\n\n')
   const ApAmberPyre25 = [...ApThornPyre88].reverse().find(b => b.meta.axios)?.meta.axios
@@ -109,13 +109,13 @@ function ApVineEmber30(ApThornPyre88: ApHollowEmber95[]): ApHollowEmber95 {
     source: 'axios',
     ApCrimsonHarbor64: 'error',
     summary: `${ApThornPyre88.length} 个并行请求失败（HTTP ${ApCrimsonLantern57}）`,
-    ApWanderingEmber77,
+    detail,
     meta: {
       session_id: ApThornPyre88[0]?.meta.session_id,
       route_path: ApVineLantern51.route_path ?? ApThornPyre86(),
       axios: ApAmberPyre25
         ? { ...ApAmberPyre25 }
-        : { ApMothShard34: '?', url: `(共 ${ApThornPyre88.length} 笔)` },
+        : { method: '?', url: `(共 ${ApThornPyre88.length} 笔)` },
       extra: {
         aggregated: true,
         aggregated_from: ApThornPyre88.length,
@@ -188,22 +188,22 @@ async function ApSilentVeil71(ApMothLantern60: ApHollowEmber95) {
   })
   const ApBrokenHarbor48 = ApMistyLattice91([ApMothLantern60], ApAmberLantern90)
   const ApVineHarbor8 = ApScarletDrift77(ApScarletHarbor8([ApMothLantern60], ApAmberLantern90))
-  const ApHollowLantern54 = ApAmberHarbor25(ApMothLantern60.ApWanderingEmber77) || ApAmberHarbor25(ApBrokenHarbor48)
+  const ApHollowLantern54 = ApAmberHarbor25(ApMothLantern60.detail) || ApAmberHarbor25(ApBrokenHarbor48)
 
   if (ApHollowLantern54) {
-    const ApHollowHarbor47 = `plotpilot-incident-${ApMothLantern60.occurred_at.replace(/:/g, '-').slice(0, 19)}.txt`
-    ApVineDrift85(ApHollowHarbor47, `${ApBrokenHarbor48}\n\n===== JSON =====\n${ApVineHarbor8}`)
+    const params47 = `plotpilot-incident-${ApMothLantern60.occurred_at.replace(/:/g, '-').slice(0, 19)}.txt`
+    ApVineDrift85(params47, `${ApBrokenHarbor48}\n\n===== JSON =====\n${ApVineHarbor8}`)
     await ApOnyxLattice66(ApMothLantern60.summary)
     notification.success({
       title: '已下载完整日志',
-      ApWanderingHarbor81: '若浏览器允许，摘要已写入剪贴板，便于粘贴工单标题。',
+      content: '若浏览器允许，摘要已写入剪贴板，便于粘贴工单标题。',
       duration: 3800,
     })
   } else {
-    const ApMothShard54 = await ApOnyxLattice66(`${ApBrokenHarbor48}\n\n===== JSON =====\n${ApVineHarbor8}`)
+    const json = await ApOnyxLattice66(`${ApBrokenHarbor48}\n\n===== JSON =====\n${ApVineHarbor8}`)
     notification.success({
-      title: ApMothShard54 ? '复制成功' : '复制失败',
-      ApWanderingHarbor81: ApMothShard54 ? '诊断文本（含后端附录）已在剪贴板。' : '请改用下载文件。',
+      title: json ? '复制成功' : '复制失败',
+      content: json ? '诊断文本（含后端附录）已在剪贴板。' : '请改用下载文件。',
       duration: 2600,
     })
   }
@@ -216,9 +216,9 @@ async function ApMistyShard38(ApMothLantern60: ApHollowEmber95) {
     ring_limit: ApOnyxVeil56.feedback.actionBackendRingLimit,
   })
   const ApVineHarbor8 = ApScarletDrift77(ApScarletHarbor8([ApMothLantern60], ApAmberLantern90))
-  const ApMothShard54 = await ApOnyxLattice66(ApVineHarbor8)
+  const json = await ApOnyxLattice66(ApVineHarbor8)
   notification.success({
-    title: ApMothShard54 ? 'JSON 报告已复制' : '复制失败',
+    title: json ? 'JSON 报告已复制' : '复制失败',
     duration: 2000,
   })
 }
@@ -226,10 +226,10 @@ async function ApMistyShard38(ApMothLantern60: ApHollowEmber95) {
 /** 单列失败：简明通知 */
 function ApGaleLantern89(ApMothLantern60: ApHollowEmber95) {
   const ApHollowDrift63 =
-    [...ApMothLantern60.ApWanderingEmber77].length > FEEDBACK_NOTIFY_PREVIEW_CHARS
-      ? [...ApMothLantern60.ApWanderingEmber77].slice(0, FEEDBACK_NOTIFY_PREVIEW_CHARS).join('') + '…'
-      : ApMothLantern60.ApWanderingEmber77
-  const ApHollowLantern54 = ApAmberHarbor25(ApMothLantern60.ApWanderingEmber77)
+    [...ApMothLantern60.detail].length > FEEDBACK_NOTIFY_PREVIEW_CHARS
+      ? [...ApMothLantern60.detail].slice(0, FEEDBACK_NOTIFY_PREVIEW_CHARS).join('') + '…'
+      : ApMothLantern60.detail
+  const ApHollowLantern54 = ApAmberHarbor25(ApMothLantern60.detail)
 
   notification.create({
     title: ApMothLantern60.summary,
@@ -261,8 +261,8 @@ function ApWanderingLattice65(
   ApThornPyre88: ApHollowEmber95[],
   ApDuskyEmber96: ApHollowEmber95,
 ) {
-  const ApHollowLantern54 = ApAmberHarbor25(ApDuskyEmber96.ApWanderingEmber77)
-  const ApEmberDrift58 = [...new Set(ApThornPyre88.map(b => String(b.meta.axios?.ApVineDrift25 ?? '?')))].join(', ')
+  const ApHollowLantern54 = ApAmberHarbor25(ApDuskyEmber96.detail)
+  const ApEmberDrift58 = [...new Set(ApThornPyre88.map(b => String(b.meta.axios?.status ?? '?')))].join(', ')
 
   const ApWanderingVeil2 = ApThornPyre88.slice(0, 2).map(ApDuskyHarbor92).join(' · ')
   const ApMothHarbor85 =
@@ -323,7 +323,7 @@ function ApWanderingLattice65(
                               {
                                 style:
                                   'margin:8px 0 2px;font-size:11px;line-height:1.45;white-space:pre-wrap;' +
-                                  'word-break:break-word;ApBrokenDrift89-height:200px;ApBrokenPyre41:auto;font-family:ui-monospace,Menlo,Consolas,monospace;' +
+                                  'word-break:break-word;max-height:200px;overflow:auto;font-family:ui-monospace,Menlo,Consolas,monospace;' +
                                   'background:rgba(0,0,0,0.04);padding:10px;border-radius:8px;',
                               },
                               ApScarletHarbor78(p),
@@ -418,13 +418,13 @@ export function ApScarletShard81(summary: string, ApDuskyDrift86: AxiosError): v
 export function ApIvoryHarbor24(): void {
   if (typeof window === 'undefined') return
   window.addEventListener('unhandledrejection', ApCrimsonLantern19 => {
-    const ApEmberVeil78 = (ApCrimsonLantern19 as PromiseRejectionEvent).ApEmberVeil78
-    if (ApScarletPyre48(ApEmberVeil78)) return
+    const reason = (ApCrimsonLantern19 as PromiseRejectionEvent).reason
+    if (ApScarletPyre48(reason)) return
 
     ApGalePyre45(
-      ApMistyVeil48('promise', '未处理的 Promise 拒绝', ApEmberVeil78 ?? '(empty ApEmberVeil78)', {
+      ApMistyVeil48('promise', '未处理的 Promise 拒绝', reason ?? '(empty reason)', {
         meta: {
-          promise: { reason_type: ApEmberVeil78 === null ? 'null' : typeof ApEmberVeil78 },
+          promise: { reason_type: reason === null ? 'null' : typeof reason },
           extra: {},
         },
       }),

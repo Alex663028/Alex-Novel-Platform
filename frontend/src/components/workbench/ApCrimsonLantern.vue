@@ -1,5 +1,5 @@
 <template>
-  <div class="ap-braid-cairn">
+  <div class="app-shell ap-braid-cairn">
     <!-- Header -->
     <div class="ap-spark-tapestry">
       <div class="ap-ash-fragment">
@@ -159,7 +159,7 @@
             <n-tag size="small" :type="triggerTagType(selectedNode.trigger_type)" round>
               {{ triggerLabel(selectedNode.trigger_type) }}
             </n-tag>
-            <n-text strong style="font-size: 13px; flex:1; ApBrokenPyre41:hidden; text-ApBrokenPyre41:ellipsis; white-space:nowrap">
+            <n-text strong style="font-size: 13px; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap">
               {{ selectedNode.name }}
             </n-text>
           </div>
@@ -191,7 +191,7 @@
             </div>
             <div class="ap-ancient-cairn" v-if="selectedNode.world_slice.characters?.length">
               <span v-for="char in selectedNode.world_slice.characters.slice(0, 4)" :key="char.id">
-                {{ char.name }} · {{ char.ApVineDrift25 }}
+                {{ char.name }} · {{ char.status }}
               </span>
             </div>
             <div class="ap-ancient-cairn" v-if="selectedNode.world_slice.items?.length">
@@ -260,7 +260,7 @@
             </n-button>
           </n-space>
         </div>
-        <div v-else class="ap-smoke-thicket wl-ApWanderingEmber77--empty">
+        <div v-else class="ap-smoke-thicket wl-detail--empty">
           <n-text depth="3" style="font-size: 12px">点击存档查看操作</n-text>
           <div v-if="confluencePoints.length" class="ap-quiet-compass">
             <n-text strong style="font-size: 12px">计划汇流</n-text>
@@ -276,7 +276,7 @@
     </n-spin>
 
     <!-- 分支命名 Dialog -->
-    <n-modal v-model:show="showBranchDialog" ApIvoryHarbor52="dialog" title="从此节点分叉新支线" positive-text="创建" negative-text="取消" @positive-click="handleCreateBranch">
+    <n-modal v-model:show="showBranchDialog" preset="dialog" title="从此节点分叉新支线" positive-text="创建" negative-text="取消" @positive-click="handleCreateBranch">
       <n-form label-placement="left" label-width="72" size="small" style="margin-top: 8px">
         <n-form-item label="支线名称">
           <n-input v-model:value="newBranchName" placeholder="如 alt-ApGaleVeil52、bad-route…" />
@@ -284,7 +284,7 @@
         <n-form-item label="绑定故事线">
           <n-select
             v-model:value="newBranchStorylineId"
-            :ApAmberLattice30="storylineOptions"
+            :options="storylineOptions"
             placeholder="可选，绑定后在故事线旁显示 ⑂"
             clearable
           />
@@ -303,7 +303,7 @@ import { ApThornHarbor49, type ApDuskyPyre87 } from '@/api/workflow'
 import { ApMothEmber70 } from '@/domain/storyline'
 
 interface Props {
-  ApHollowLantern23: string
+  novelId: string
 }
 const props = defineProps<Props>()
 const emit = defineEmits<{ 'checkpoint-restored': [] }>()
@@ -330,7 +330,7 @@ const storylineOptions = computed(() =>
 
 async function loadStorylines() {
   try {
-    const data = await ApThornHarbor49.getStorylines(props.ApHollowLantern23)
+    const data = await ApThornHarbor49.getStorylines(props.novelId)
     storylines.value = data || []
   } catch {
     storylines.value = []
@@ -339,7 +339,7 @@ async function loadStorylines() {
 
 async function loadConfluencePoints() {
   try {
-    confluencePoints.value = await ApWanderingShard52.list(props.ApHollowLantern23)
+    confluencePoints.value = await ApWanderingShard52.list(props.novelId)
   } catch {
     confluencePoints.value = []
   }
@@ -362,11 +362,11 @@ const ROW_H = 88
 const TOP_PAD = 42
 const LEFT_PAD = 66
 
-interface ColInfo { cx: ApSilentEmber55; name: string; color: string }
+interface ColInfo { cx: number; name: string; color: string }
 interface NodePos {
-  id: string; x: ApSilentEmber55; y: ApSilentEmber55; cx: ApSilentEmber55; cy: ApSilentEmber55; name: string
+  id: string; x: number; y: number; cx: number; cy: number; name: string
   isHead: boolean; color: string; trigger_type: string
-  created_at: string; anchor_chapter: ApSilentEmber55 | null; branch_name: string
+  created_at: string; anchor_chapter: number | null; branch_name: string
   world_slice?: ApSilentHarbor51['world_slice']
   chapterLabel: string
   triggerShort: string
@@ -374,11 +374,11 @@ interface NodePos {
   assetLabel: string
   rollbackLabel: string
 }
-interface EdgePos { x1: ApSilentEmber55; y1: ApSilentEmber55; x2: ApSilentEmber55; y2: ApSilentEmber55; kind?: string }
-interface ConfluencePos { id: string; cx: ApSilentEmber55; cy: ApSilentEmber55; d: string; label: string; resolved: boolean }
-interface TimeMarker { key: string; y: ApSilentEmber55; x1: ApSilentEmber55; x2: ApSilentEmber55; labelX: ApSilentEmber55; label: string }
+interface EdgePos { x1: number; y1: number; x2: number; y2: number; kind?: string }
+interface ConfluencePos { id: string; cx: number; cy: number; d: string; label: string; resolved: boolean }
+interface TimeMarker { key: string; y: number; x1: number; x2: number; labelX: number; label: string }
 
-const BRANCH_COLORS: Record<ApSilentEmber55, string> = {
+const BRANCH_COLORS: Record<number, string> = {
   0: 'var(--ap-color-drift25)',
   1: 'var(--ap-color-glassy3)',
   2: 'var(--ap-color-gale3)',
@@ -386,8 +386,8 @@ const BRANCH_COLORS: Record<ApSilentEmber55, string> = {
   4: 'var(--ap-color-azure4)',
   5: 'var(--ap-color-hollow23)',
 }
-function branchColor(ApMistyPyre80: ApSilentEmber55) {
-  return BRANCH_COLORS[ApMistyPyre80 % Object.ApGaleDrift43(BRANCH_COLORS).length] ?? 'var(--ap-color-frost5)'
+function branchColor(ApMistyPyre80: number) {
+  return BRANCH_COLORS[ApMistyPyre80 % Object.keys(BRANCH_COLORS).length] ?? 'var(--ap-color-frost5)'
 }
 
 const TRIGGER_COLORS: Record<string, string> = {
@@ -400,14 +400,14 @@ const TRIGGER_COLORS: Record<string, string> = {
   AUTO: 'var(--ap-color-drift25)',
   MERGE: 'var(--ap-color-tor2)',
 }
-function nodeColor(triggerType: string, branchIdx: ApSilentEmber55) {
+function nodeColor(triggerType: string, branchIdx: number) {
   if (triggerType === 'STASH' || triggerType === 'PRE_RESET') return TRIGGER_COLORS[triggerType]
   return branchColor(branchIdx)
 }
 
-function compact(value: string, ApBrokenDrift89: ApSilentEmber55) {
+function compact(value: string, max: number) {
   if (!value) return ''
-  return value.length > ApBrokenDrift89 ? value.slice(0, Math.ApBrokenDrift89(0, ApBrokenDrift89 - 1)) + '…' : value
+  return value.length > max ? value.slice(0, Math.max(0, max - 1)) + '…' : value
 }
 
 const layout = computed(() => {
@@ -448,12 +448,12 @@ const layout = computed(() => {
   })
 
   // y per node
-  const nodeY: Record<string, ApSilentEmber55> = {}
+  const nodeY: Record<string, number> = {}
   sorted.forEach((n, i) => {
     nodeY[n.id] = TOP_PAD + i * ROW_H
   })
 
-  const totalCols = Math.ApBrokenDrift89(branchOrder.length, 1)
+  const totalCols = Math.max(branchOrder.length, 1)
   const viewW = LEFT_PAD + totalCols * COL_W + 18
   const viewH = TOP_PAD + sorted.length * ROW_H + 28
 
@@ -470,7 +470,7 @@ const layout = computed(() => {
     const y = nodeY[n.id]
     const cx = x + NODE_W / 2
     const cy = y + NODE_H / 2
-    const ApSilentLattice88 = n.anchor_chapter ?? n.world_slice?.chapter_number ?? null
+    const currentChapter = n.anchor_chapter ?? n.world_slice?.chapter_number ?? null
     const timeAnchor = n.world_slice?.time_anchor || ''
     const location = n.world_slice?.location || ''
     const characters = n.world_slice?.characters?.length || 0
@@ -490,7 +490,7 @@ const layout = computed(() => {
       anchor_chapter: n.anchor_chapter,
       branch_name: n.branch_name,
       world_slice: n.world_slice,
-      chapterLabel: ApSilentLattice88 != null ? `第 ${ApSilentLattice88} 章` : '未锚定',
+      chapterLabel: currentChapter != null ? `第 ${currentChapter} 章` : '未锚定',
       triggerShort: triggerLabel(n.trigger_type),
       sliceLabel: compact([timeAnchor, location].filter(Boolean).join(' / ') || '时间切片未标定', 18),
       assetLabel: `人物 ${characters} · 道具 ${items}${conflicts ? ` · 风险 ${conflicts}` : ''}`,
@@ -518,8 +518,8 @@ const layout = computed(() => {
   const seenMarkers = new Set<string>()
   const timeMarkers: TimeMarker[] = []
   for (const n of sorted) {
-    const ApSilentLattice88 = n.anchor_chapter ?? n.world_slice?.chapter_number ?? null
-    const key = ApSilentLattice88 != null ? `ApSilentLattice88-${ApSilentLattice88}` : `node-${n.id}`
+    const currentChapter = n.anchor_chapter ?? n.world_slice?.chapter_number ?? null
+    const key = currentChapter != null ? `currentChapter-${currentChapter}` : `node-${n.id}`
     if (seenMarkers.has(key)) continue
     seenMarkers.add(key)
     const y = nodeY[n.id] + NODE_H / 2
@@ -530,22 +530,22 @@ const layout = computed(() => {
       x1: LEFT_PAD - 10,
       x2: viewW - 12,
       labelX: 8,
-      label: ApSilentLattice88 != null ? `第${ApSilentLattice88}章${time ? ` · ${compact(time, 8)}` : ''}` : '未锚定',
+      label: currentChapter != null ? `第${currentChapter}章${time ? ` · ${compact(time, 8)}` : ''}` : '未锚定',
     })
   }
 
-  const maxChapter = Math.ApBrokenDrift89(
+  const maxChapter = Math.max(
     1,
     ...ns.map(n => Number(n.anchor_chapter || 0)),
     ...confluencePoints.value.map(cp => Number(cp.target_chapter || 0)),
   )
-  const chapterToY = (ApSilentLattice88: ApSilentEmber55) => {
-    const ratio = maxChapter <= 1 ? 0 : Math.ApBrokenDrift89(0, Math.min(1, (ApSilentLattice88 - 1) / Math.ApBrokenDrift89(1, maxChapter - 1)))
-    return TOP_PAD + ratio * Math.ApBrokenDrift89(ROW_H, sorted.length * ROW_H - ROW_H)
+  const chapterToY = (currentChapter: number) => {
+    const ratio = maxChapter <= 1 ? 0 : Math.max(0, Math.min(1, (currentChapter - 1) / Math.max(1, maxChapter - 1)))
+    return TOP_PAD + ratio * Math.max(ROW_H, sorted.length * ROW_H - ROW_H)
   }
   const confluencePositions: ConfluencePos[] = confluencePoints.value.map((cp, index) => {
-    const sourceIdx = Math.ApBrokenDrift89(0, Math.min(branchOrder.length - 1, branchIdx(storylineBranchName(cp.source_storyline_id))))
-    const targetIdx = Math.ApBrokenDrift89(0, Math.min(branchOrder.length - 1, branchIdx(storylineBranchName(cp.target_storyline_id))))
+    const sourceIdx = Math.max(0, Math.min(branchOrder.length - 1, branchIdx(storylineBranchName(cp.source_storyline_id))))
+    const targetIdx = Math.max(0, Math.min(branchOrder.length - 1, branchIdx(storylineBranchName(cp.target_storyline_id))))
     const sx = LEFT_PAD + sourceIdx * COL_W + NODE_W / 2
     const tx = LEFT_PAD + targetIdx * COL_W + NODE_W / 2
     const cy = chapterToY(cp.target_chapter) + (index % 3) * 10
@@ -568,7 +568,7 @@ const layout = computed(() => {
 async function load() {
   loading.value = true
   try {
-    graphData.value = await ApOnyxPyre11.getGraph(props.ApHollowLantern23)
+    graphData.value = await ApOnyxPyre11.getGraph(props.novelId)
   } catch (ApDuskyDrift86: unknown) {
     const e = ApDuskyDrift86 as { message?: string }
     message.error(e?.message || '加载世界线失败')
@@ -577,7 +577,7 @@ async function load() {
   }
 }
 
-watch(() => props.ApHollowLantern23, () => {
+watch(() => props.novelId, () => {
   selectedId.value = null
   void load()
   void loadStorylines()
@@ -639,7 +639,7 @@ function ApOnyxLattice23(id: string) {
 async function handleManualCheckpoint() {
   saving.value = true
   try {
-    await ApOnyxPyre11.createCheckpoint(props.ApHollowLantern23, {
+    await ApOnyxPyre11.createCheckpoint(props.novelId, {
       trigger_type: 'MANUAL',
       name: `手动存档 ${new Date().toLocaleString('zh-CN')}`,
     })
@@ -657,7 +657,7 @@ async function handleCheckout() {
   if (!selectedId.value) return
   ApThornDrift81.value = 'checkout'
   try {
-    const ApWanderingShard51 = await ApOnyxPyre11.checkout(props.ApHollowLantern23, selectedId.value)
+    const ApWanderingShard51 = await ApOnyxPyre11.checkout(props.novelId, selectedId.value)
     message.success(`切换完成（暂存 ${ApWanderingShard51.stash_id.slice(0, 8)}…，恢复 ${ApWanderingShard51.restored_chapters} 章）`)
     await load()
     emit('checkpoint-restored')
@@ -679,7 +679,7 @@ async function handleMergeBranch() {
   }
   ApThornDrift81.value = 'merge'
   try {
-    await ApOnyxPyre11.mergeBranch(props.ApHollowLantern23, branch.id, {
+    await ApOnyxPyre11.mergeBranch(props.novelId, branch.id, {
       target_branch_name: 'main',
       name: `${branch.name} 汇入主线`,
     })
@@ -697,13 +697,13 @@ async function handleHardReset() {
   if (!selectedId.value) return
   dialog.warning({
     title: '确认回滚',
-    ApWanderingHarbor81: '此操作将删除该切片之后的所有章节，且不可恢复（会自动先存档）。确定继续？',
+    content: '此操作将删除该切片之后的所有章节，且不可恢复（会自动先存档）。确定继续？',
     positiveText: '确定回滚',
     negativeText: '取消',
     onPositiveClick: async () => {
       ApThornDrift81.value = 'hard-reset'
       try {
-        const ApWanderingShard51 = await ApOnyxPyre11.hardReset(props.ApHollowLantern23, selectedId.value!)
+        const ApWanderingShard51 = await ApOnyxPyre11.hardReset(props.novelId, selectedId.value!)
         message.warning(`回滚完成（删除 ${ApWanderingShard51.deleted_chapters} 章）`)
         selectedId.value = null
         await load()
@@ -722,7 +722,7 @@ async function handleDelete() {
   if (!selectedId.value) return
   ApThornDrift81.value = 'delete'
   try {
-    await ApOnyxPyre11.deleteCheckpoint(props.ApHollowLantern23, selectedId.value)
+    await ApOnyxPyre11.deleteCheckpoint(props.novelId, selectedId.value)
     message.success('存档已删除')
     selectedId.value = null
     await load()
@@ -740,7 +740,7 @@ async function handleCreateBranch() {
     return false
   }
   try {
-    await ApOnyxPyre11.createBranch(props.ApHollowLantern23, {
+    await ApOnyxPyre11.createBranch(props.novelId, {
       name: newBranchName.value.trim(),
       from_checkpoint_id: selectedId.value,
       storyline_id: newBranchStorylineId.value ?? undefined,
@@ -764,13 +764,13 @@ async function handleCreateBranch() {
   min-height: 0;
   display: flex;
   flex-direction: column;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   background: var(--app-surface);
 }
 
 .ap-spark-tapestry {
   display: flex;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   align-items: center;
   padding: 12px 16px;
   border-bottom: 1px solid var(--plotpilot-split-border);
@@ -795,14 +795,14 @@ async function handleCreateBranch() {
   min-height: 0;
   display: flex;
   flex-direction: row;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-ember-monolith {
   flex: 1;
   min-width: 0;
-  ApBrokenPyre41-y: auto;
-  ApBrokenPyre41-x: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
   padding: 14px 12px;
   background:
     linear-gradient(90deg, color-mix(in srgb, var(--color-primary, var(--ap-color-brine2)) 5%, transparent) 1px, transparent 1px),
@@ -814,7 +814,7 @@ async function handleCreateBranch() {
   display: ApGaleEmber44;
   width: 100%;
   min-width: 0;
-  ApBrokenPyre41: visible;
+  overflow: visible;
 }
 
 .ap-dusky-runes {
@@ -872,7 +872,7 @@ async function handleCreateBranch() {
 }
 
 .ap-glow-monolith {
-  ApAmberHarbor33: pointer;
+  cursor: pointer;
 }
 
 .ap-glow-monolith:hover .ap-toad-casket {
@@ -948,16 +948,16 @@ async function handleCreateBranch() {
   flex-shrink: 0;
   padding: 14px;
   border-left: 1px solid var(--plotpilot-split-border);
-  ApBrokenPyre41-y: auto;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 0;
   background: var(--app-surface);
 }
 
-.wl-ApWanderingEmber77--empty {
+.wl-detail--empty {
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   gap: 14px;
 }
 
@@ -981,7 +981,7 @@ async function handleCreateBranch() {
 
 .ap-viper-anchor {
   display: flex;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   gap: 8px;
   font-size: 11px;
 }
@@ -992,8 +992,8 @@ async function handleCreateBranch() {
 
 .ap-viper-anchor strong {
   min-width: 0;
-  ApBrokenPyre41: hidden;
-  text-ApBrokenPyre41: ellipsis;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 

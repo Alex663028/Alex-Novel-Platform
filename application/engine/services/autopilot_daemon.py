@@ -12,7 +12,8 @@ from application.engine.services.chapter_aftermath_pipeline import ChapterAfterm
 from application.workflows.auto_novel_generation_workflow import AutoNovelGenerationWorkflow
 from domain.novel.entities.novel import Novel
 
-from engine.runtime.daemon_host import DaemonHostMixin, init_daemon_dependencies
+from engine.runtime.daemon_helpers import init_daemon_dependencies
+from engine.runtime.daemon_host import DaemonHostMixin
 
 logger = logging.getLogger(__name__)
 

@@ -41,20 +41,20 @@ class StatsService:
         """
         logger.info("Calculating global statistics")
 
-        book_slugs = self.repository.get_all_book_slugs()
-        total_books = len(book_slugs)
+        book_novel_ids = self.repository.get_all_book_novel_ids()
+        total_books = len(book_novel_ids)
         total_chapters = 0
         total_words = 0
         total_characters = 0
         books_by_stage: Dict[str, int] = {}
 
-        for slug in book_slugs:
-            manifest = self.repository.get_book_manifest(slug)
+        for novel_id in book_novel_ids:
+            manifest = self.repository.get_book_manifest(novel_id)
             if manifest:
                 stage = manifest.get("stage", "unknown")
                 books_by_stage[stage] = books_by_stage.get(stage, 0) + 1
 
-            outline = self.repository.get_book_outline(slug)
+            outline = self.repository.get_book_outline(novel_id)
             if outline and "chapters" in outline:
                 total_chapters += len(outline["chapters"])
 
@@ -62,7 +62,7 @@ class StatsService:
                 for chapter_info in outline["chapters"]:
                     chapter_id = chapter_info.get("id")
                     if chapter_id:
-                        content = self.repository.get_chapter_content(slug, chapter_id)
+                        content = self.repository.get_chapter_content(novel_id, chapter_id)
                         if content:
                             word_count = self.repository.count_words(content)
                             total_words += word_count
@@ -79,7 +79,7 @@ class StatsService:
         logger.info(f"Global stats: {total_books} books, {total_chapters} chapters, {total_words} words")
         return stats
 
-    def get_book_stats(self, slug: str) -> Optional[BookStats]:
+    def get_book_stats(self, novel_id: str) -> Optional[BookStats]:
         """Get statistics for a specific book.
 
         Calculates:
@@ -90,23 +90,23 @@ class StatsService:
         - Completion rate (completed / total)
 
         Args:
-            slug: The book's slug (directory name)
+            novel_id: The book's novel_id (directory name)
 
         Returns:
             BookStats object if book found, None otherwise
         """
-        logger.info(f"Getting book statistics for: {slug}")
+        logger.info(f"Getting book statistics for: {novel_id}")
 
-        manifest = self.repository.get_book_manifest(slug)
+        manifest = self.repository.get_book_manifest(novel_id)
         if not manifest:
-            logger.warning(f"Book not found: {slug}")
+            logger.warning(f"Book not found: {novel_id}")
             return None
 
-        title = manifest.get("title", slug)
+        title = manifest.get("title", novel_id)
 
-        outline = self.repository.get_book_outline(slug)
+        outline = self.repository.get_book_outline(novel_id)
         if not outline or "chapters" not in outline:
-            logger.warning(f"Outline not found or invalid for book: {slug}")
+            logger.warning(f"Outline not found or invalid for book: {novel_id}")
             return None
 
         chapters_info = outline["chapters"]
@@ -117,7 +117,7 @@ class StatsService:
         for chapter_info in chapters_info:
             chapter_id = chapter_info.get("id")
             if chapter_id:
-                content = self.repository.get_chapter_content(slug, chapter_id)
+                content = self.repository.get_chapter_content(novel_id, chapter_id)
                 if content:
                     word_count = self.repository.count_words(content)
                     if word_count > 0:
@@ -128,7 +128,7 @@ class StatsService:
         completion_rate = completed_chapters / total_chapters if total_chapters > 0 else 0.0
 
         stats = BookStats(
-            slug=slug,
+            novel_id=novel_id,
             title=title,
             total_chapters=total_chapters,
             completed_chapters=completed_chapters,
@@ -138,10 +138,10 @@ class StatsService:
             last_updated=datetime.now()
         )
 
-        logger.info(f"Book stats for {slug}: {total_chapters} chapters, {completed_chapters} completed, {total_words} words")
+        logger.info(f"Book stats for {novel_id}: {total_chapters} chapters, {completed_chapters} completed, {total_words} words")
         return stats
 
-    def get_chapter_stats(self, slug: str, chapter_id: int) -> Optional[ChapterStats]:
+    def get_chapter_stats(self, novel_id: str, chapter_id: int) -> Optional[ChapterStats]:
         """Get statistics for a specific chapter.
 
         Finds the chapter title from outline and calculates:
@@ -151,17 +151,17 @@ class StatsService:
         - Whether content exists
 
         Args:
-            slug: The book's slug (directory name)
+            novel_id: The book's novel_id (directory name)
             chapter_id: The chapter's numeric ID (>= 1)
 
         Returns:
             ChapterStats object if chapter found, None otherwise
         """
-        logger.info(f"Getting chapter statistics for: {slug}, chapter {chapter_id}")
+        logger.info(f"Getting chapter statistics for: {novel_id}, chapter {chapter_id}")
 
-        outline = self.repository.get_book_outline(slug)
+        outline = self.repository.get_book_outline(novel_id)
         if not outline or "chapters" not in outline:
-            logger.warning(f"Outline not found or invalid for book: {slug}")
+            logger.warning(f"Outline not found or invalid for book: {novel_id}")
             return None
 
         # Find chapter title from outline
@@ -171,9 +171,9 @@ class StatsService:
                 chapter_title = chapter_info.get("title", chapter_title)
                 break
 
-        content = self.repository.get_chapter_content(slug, chapter_id)
+        content = self.repository.get_chapter_content(novel_id, chapter_id)
         if content is None:
-            logger.warning(f"Chapter content not found: {slug}, chapter {chapter_id}")
+            logger.warning(f"Chapter content not found: {novel_id}, chapter {chapter_id}")
             return None
 
         # Calculate statistics
@@ -195,10 +195,10 @@ class StatsService:
             has_content=has_content
         )
 
-        logger.info(f"Chapter stats for {slug}/{chapter_id}: {word_count} words, {character_count} chars, {paragraph_count} paragraphs")
+        logger.info(f"Chapter stats for {novel_id}/{chapter_id}: {word_count} words, {character_count} chars, {paragraph_count} paragraphs")
         return stats
 
-    def get_writing_progress(self, slug: str, days: int = 30) -> List[WritingProgress]:
+    def get_writing_progress(self, novel_id: str, days: int = 30) -> List[WritingProgress]:
         """Get writing progress over time.
 
         Aggregates chapter records by their latest available write timestamp.
@@ -207,21 +207,21 @@ class StatsService:
         instead of fabricating progress.
 
         Args:
-            slug: The book's slug (directory name)
+            novel_id: The book's novel_id (directory name)
             days: Number of days to look back (default 30)
 
         Returns:
             List of daily writing progress records within the lookback window
         """
         safe_days = max(1, min(int(days or 30), 365))
-        logger.info(f"Getting writing progress for: {slug}, days={safe_days}")
+        logger.info(f"Getting writing progress for: {novel_id}, days={safe_days}")
 
         provider = getattr(self.repository, "get_chapter_progress_records", None)
         if not callable(provider):
             logger.info("Repository does not expose chapter progress records: %s", type(self.repository).__name__)
             return []
 
-        records = provider(slug)
+        records = provider(novel_id)
         if not records:
             return []
 

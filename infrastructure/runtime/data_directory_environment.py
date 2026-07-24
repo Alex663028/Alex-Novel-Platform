@@ -9,7 +9,8 @@ from pathlib import Path
 
 PLOTPILOT_PROD_DATA_DIR_ENV = "PLOTPILOT_PROD_DATA_DIR"
 LEGACY_PROD_DATA_DIR_ENV = "AITEXT_PROD_DATA_DIR"
-TAURI_APP_IDENTIFIER = "com.plotpilot.desktop"
+ALEX_APP_IDENTIFIER = "com.alex.desktop"
+LEGACY_APP_IDENTIFIER = "com.plotpilot.desktop"
 
 
 @dataclass(frozen=True)
@@ -21,7 +22,8 @@ class DataDirectoryEnvironmentSettings:
     appdata_dir: str = ""
     platform: str = sys.platform
     frozen: bool = False
-    app_identifier: str = TAURI_APP_IDENTIFIER
+    app_identifier: str = ALEX_APP_IDENTIFIER
+    legacy_app_identifier: str = LEGACY_APP_IDENTIFIER
 
     @classmethod
     def from_env(cls) -> "DataDirectoryEnvironmentSettings":
@@ -32,6 +34,26 @@ class DataDirectoryEnvironmentSettings:
             platform=sys.platform,
             frozen=bool(getattr(sys, "frozen", False)),
         )
+
+    @property
+    def legacy_data_dir(self) -> Path:
+        """旧版数据目录（com.plotpilot.desktop），用于迁移检测"""
+        base_home = Path.home()
+        if self.platform == "win32":
+            base = Path(self.appdata_dir) if self.appdata_dir else base_home / "AppData" / "Roaming"
+            return base / self.legacy_app_identifier / "data"
+        if self.platform == "darwin":
+            return base_home / "Library" / "Application Support" / self.legacy_app_identifier / "data"
+        return base_home / ".local" / "share" / self.legacy_app_identifier / "data"
+
+    def needs_migration(self) -> bool:
+        """是否需要从旧版目录迁移"""
+        if not self.legacy_data_dir.exists():
+            return False
+        target = self.frozen_fallback_data_dir()
+        legacy_db = self.legacy_data_dir / "plotpilot.db"
+        target_db = target / "plotpilot.db"
+        return legacy_db.exists() and not target_db.exists()
 
     @property
     def prod_data_dir_raw(self) -> str:

@@ -8,7 +8,7 @@ export interface ApDuskyDrift76 {
 
 const FORESHADOW_IMPORTANCE_META: Record<ApDuskyLantern90, {
   label: string
-  order: ApSilentEmber55
+  order: number
   chipClass: string
   accentColor: string
   tagType: ApMistyHarbor88
@@ -62,7 +62,7 @@ export function ApIvoryShard18(importance?: string | null): string {
   return FORESHADOW_IMPORTANCE_META[ApBrokenHarbor42(importance)].label
 }
 
-export function ApWanderingEmber64(importance?: string | null): ApSilentEmber55 {
+export function ApWanderingEmber64(importance?: string | null): number {
   return FORESHADOW_IMPORTANCE_META[ApBrokenHarbor42(importance)].order
 }
 
@@ -81,6 +81,6 @@ export function ApEmberEmber9(importance?: string | null): ApMistyHarbor88 {
 export function ApScarletEmber25(
   left?: string | null,
   right?: string | null,
-): ApSilentEmber55 {
+): number {
   return ApWanderingEmber64(right) - ApWanderingEmber64(left)
 }

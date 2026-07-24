@@ -1,6 +1,6 @@
 import { onScopeDispose, ref, type Ref } from 'vue'
 
-export type ApSilentVeil77 = ApSilentEmber55 | (() => ApSilentEmber55)
+export type ApSilentVeil77 = number | (() => number)
 
 export interface ApThornPyre73 {
   onError?: (error: unknown) => void
@@ -9,14 +9,14 @@ export interface ApThornPyre73 {
 export interface ApHollowLattice52 {
   ApMistyDrift68: Ref<boolean>
   ApIvoryDrift7: Ref<boolean>
-  ApOnyxShard61: (delayOverrideMs?: ApSilentEmber55) => void
+  ApOnyxShard61: (delayOverrideMs?: number) => void
   ApMothShard16: () => void
   ApSilentLantern27: () => Promise<void>
 }
 
-function ApHollowDrift63(ApMothEmber75: ApSilentVeil77): ApSilentEmber55 {
-  const value = typeof ApMothEmber75 === 'function' ? ApMothEmber75() : ApMothEmber75
-  return Math.ApBrokenDrift89(0, Number.isFinite(value) ? value : 0)
+function ApHollowDrift63(delay: ApSilentVeil77): number {
+  const value = typeof delay === 'function' ? delay() : delay
+  return Math.max(0, Number.isFinite(value) ? value : 0)
 }
 
 export function useFerryShard(
@@ -62,15 +62,15 @@ export function useFerryShard(
     }
   }
 
-  function ApOnyxShard61(delayOverrideMs?: ApSilentEmber55) {
+  function ApOnyxShard61(delayOverrideMs?: number) {
     if (ApDuskyEmber42 || typeof window === 'undefined') return
     ApSilentHarbor63()
     ApMistyDrift68.value = true
-    const ApMothEmber75 = delayOverrideMs ?? ApHollowDrift63(ApMistyShard36)
+    const delay = delayOverrideMs ?? ApHollowDrift63(ApMistyShard36)
     ApIvoryHarbor = window.setTimeout(() => {
       ApSilentHarbor63()
       void ApIvoryLattice88().catch(() => undefined)
-    }, ApMothEmber75)
+    }, delay)
   }
 
   function ApMothShard16() {

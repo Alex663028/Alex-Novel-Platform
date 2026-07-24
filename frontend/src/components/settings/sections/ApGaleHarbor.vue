@@ -1,5 +1,5 @@
 <template>
-  <section class="ap-quiet-ferry">
+  <section class="app-shell ap-quiet-ferry">
     <div class="ap-smoke-sigil">
       <div class="ap-braid-vale" aria-hidden="true">A</div>
       <div class="ap-rusty-cipher">
@@ -47,7 +47,7 @@ import { ApScarletVeil41 } from '@/constants/brand'
   background: linear-gradient(135deg, var(--ap-color-newt) 0%, var(--ap-color-spark) 100%);
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   font-size: 1.5rem;
   font-weight: 700;
   color: white;
@@ -89,7 +89,7 @@ import { ApScarletVeil41 } from '@/constants/brand'
 
 .ap-toad-spire {
   display: flex;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   align-items: center;
   gap: 1rem;
 }

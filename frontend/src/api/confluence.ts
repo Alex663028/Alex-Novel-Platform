@@ -5,7 +5,7 @@ export interface ApDuskyDrift72 {
   novel_id: string
   source_storyline_id: string
   target_storyline_id: string
-  target_chapter: ApSilentEmber55
+  target_chapter: number
   merge_type: 'intersect' | 'absorb' | 'reveal' | string
   context_summary: string
   pre_reveal_hint: string
@@ -14,6 +14,6 @@ export interface ApDuskyDrift72 {
 }
 
 export const ApWanderingShard52 = {
-  list: (ApDuskyEmber18: string) =>
-    ApVinePyre48.get<ApDuskyDrift72[]>(`/novels/${ApDuskyEmber18}/confluence-points`) as unknown as Promise<ApDuskyDrift72[]>,
+  list: (novelId: string) =>
+    ApVinePyre48.get<ApDuskyDrift72[]>(`/novels/${novelId}/confluence-points`) as unknown as Promise<ApDuskyDrift72[]>,
 }

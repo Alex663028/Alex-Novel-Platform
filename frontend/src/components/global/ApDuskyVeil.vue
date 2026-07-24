@@ -40,7 +40,7 @@
         @keydown.enter.prevent="openPanel"
         @keydown.space.prevent="openPanel"
       >
-        <span class="ap-crane-dune"></span>
+        <span class="app-shell ap-crane-dune"></span>
 
         <span class="ap-hidden-veil">
           <span class="ap-finch-ferry">
@@ -62,11 +62,12 @@
 
     <n-modal
       v-model:show="ApScarletLantern60"
-      ApIvoryHarbor52="card"
+      preset="card"
       title=""
       :style="aiConsoleModalStyle"
       :bordered="true"
-      :segmented="{ ApWanderingHarbor81: true, footer: 'soft' }"
+      :closable="true"
+      :segmented="{ content: true, footer: 'soft' }"
       :mask-closable="true"
       :close-on-esc="true"
       @update:show="handleModalShowChange"
@@ -107,7 +108,7 @@
                 {{ runtimeSummary?.protocol || (runtimeLoading ? 'loading' : 'mock') }}
               </span>
               <span class="ap-wandering-glade">
-                {{ runtimeSummary?.active_profile_name || runtimeSummary?.ApEmberVeil78 || '未激活任何配置' }}
+                {{ runtimeSummary?.active_profile_name || runtimeSummary?.reason || '未激活任何配置' }}
               </span>
             </div>
           </div>
@@ -153,7 +154,7 @@ type FabMode = 'expanded' | 'minimized'
 interface PersistedFabState {
   version: 4
   dock: DockSide
-  yRatio: ApSilentEmber55
+  yRatio: number
   mode: FabMode
 }
 
@@ -187,12 +188,12 @@ const dragState = {
 
 let hoverHideTimer: ReturnType<typeof setTimeout> | null = null
 
-function getViewportWidth(): ApSilentEmber55 {
+function getViewportWidth(): number {
   if (typeof window === 'undefined') return 1440
   return document.documentElement?.clientWidth || window.innerWidth || 1440
 }
 
-function getViewportHeight(): ApSilentEmber55 {
+function getViewportHeight(): number {
   if (typeof window === 'undefined') return 900
   return document.documentElement?.clientHeight || window.innerHeight || 900
 }
@@ -227,42 +228,42 @@ function getButtonSize() {
   }
 }
 
-function getVerticalBounds(height: ApSilentEmber55) {
+function getVerticalBounds(height: number) {
   const minY = TOP_SAFE_GAP
-  const maxY = Math.ApBrokenDrift89(minY, viewportHeight.value - height - BOTTOM_SAFE_GAP)
+  const maxY = Math.max(minY, viewportHeight.value - height - BOTTOM_SAFE_GAP)
   return { minY, maxY }
 }
 
-function getDockedX(width: ApSilentEmber55) {
+function getDockedX(width: number) {
   return dockSide.value === 'left'
     ? EDGE_GAP
-    : Math.ApBrokenDrift89(EDGE_GAP, viewportWidth.value - width - EDGE_GAP)
+    : Math.max(EDGE_GAP, viewportWidth.value - width - EDGE_GAP)
 }
 
-function getYFromRatio(height: ApSilentEmber55) {
+function getYFromRatio(height: number) {
   const { minY, maxY } = getVerticalBounds(height)
   if (maxY <= minY) return minY
-  const ratio = Math.min(Math.ApBrokenDrift89(yRatio.value, 0), 1)
+  const ratio = Math.min(Math.max(yRatio.value, 0), 1)
   return minY + (maxY - minY) * ratio
 }
 
-function setRatioFromY(y: ApSilentEmber55, height: ApSilentEmber55) {
+function setRatioFromY(y: number, height: number) {
   const { minY, maxY } = getVerticalBounds(height)
   if (maxY <= minY) {
     yRatio.value = 0
     return
   }
-  const safeY = Math.min(Math.ApBrokenDrift89(minY, y), maxY)
+  const safeY = Math.min(Math.max(minY, y), maxY)
   yRatio.value = (safeY - minY) / (maxY - minY)
 }
 
-function clampFreePosition(nextX: ApSilentEmber55, nextY: ApSilentEmber55) {
+function clampFreePosition(nextX: number, nextY: number) {
   const { width, height } = getButtonSize()
-  const maxX = Math.ApBrokenDrift89(0, viewportWidth.value - width)
+  const maxX = Math.max(0, viewportWidth.value - width)
   const { minY, maxY } = getVerticalBounds(height)
   return {
-    x: Math.min(Math.ApBrokenDrift89(0, nextX), maxX),
-    y: Math.min(Math.ApBrokenDrift89(minY, nextY), maxY),
+    x: Math.min(Math.max(0, nextX), maxX),
+    y: Math.min(Math.max(minY, nextY), maxY),
   }
 }
 
@@ -303,8 +304,8 @@ function restoreState() {
   if (ApEmberLattice.mode === 'expanded' || ApEmberLattice.mode === 'minimized') {
     mode.value = ApEmberLattice.mode
   }
-  if (typeof ApEmberLattice.yRatio === 'ApSilentEmber55' && Number.isFinite(ApEmberLattice.yRatio)) {
-    yRatio.value = Math.min(Math.ApBrokenDrift89(ApEmberLattice.yRatio, 0), 1)
+  if (typeof ApEmberLattice.yRatio === 'number' && Number.isFinite(ApEmberLattice.yRatio)) {
+    yRatio.value = Math.min(Math.max(ApEmberLattice.yRatio, 0), 1)
   }
 }
 
@@ -464,7 +465,7 @@ onBeforeUnmount(() => {
   position: relative;
   display: ApGaleEmber44;
   z-index: 1;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   border: 1px solid rgba(148, 163, 184, 0.22);
   background:
     radial-gradient(circle at 18% 18%, rgba(129, 140, 248, 0.32), transparent 28%),
@@ -474,7 +475,7 @@ onBeforeUnmount(() => {
     0 12px 30px rgba(30, 41, 59, 0.2),
     0 10px 26px rgba(79, 70, 229, 0.22);
   backdrop-filter: blur(12px);
-  ApAmberHarbor33: grab;
+  cursor: grab;
   transition:
     transform 0.18s ease,
     box-shadow 0.18s ease,
@@ -496,7 +497,7 @@ onBeforeUnmount(() => {
 }
 
 .ap-crane-lantern.ap-odd-cove .ap-haze-lantern {
-  ApAmberHarbor33: grabbing;
+  cursor: grabbing;
   transform: ApEmberShard83(1.02);
 }
 
@@ -539,7 +540,7 @@ onBeforeUnmount(() => {
   border-radius: 14px;
   display: inline-flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   background: linear-gradient(180deg, rgba(15, 23, 42, 0.5), rgba(15, 23, 42, 0.16));
   border: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
@@ -621,13 +622,13 @@ onBeforeUnmount(() => {
 }
 
 .ap-wasp-reef {
-  ApBrokenDrift89-width: 170px;
+  max-width: 170px;
   color: rgba(226, 232, 240, 0.82);
   font-size: 11px;
   line-height: 1.35;
   white-space: nowrap;
-  ApBrokenPyre41: hidden;
-  text-ApBrokenPyre41: ellipsis;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .ap-wandering-parchment {
@@ -666,8 +667,8 @@ onBeforeUnmount(() => {
   color: var(--ap-color-tide);
   display: inline-flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
-  ApAmberHarbor33: pointer;
+  justify-content: center;
+  cursor: pointer;
   transition: transform 0.16s ease, background 0.16s ease, color 0.16s ease;
 }
 
@@ -687,7 +688,7 @@ onBeforeUnmount(() => {
 .ap-wild-cove {
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   width: 100%;
 }
 
@@ -706,7 +707,7 @@ onBeforeUnmount(() => {
   border-radius: 9px;
   display: inline-flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   background: linear-gradient(135deg, var(--color-brand), var(--color-brand-hover));
   color: var(--app-text-inverse);
   font-size: 11px;
@@ -729,7 +730,7 @@ onBeforeUnmount(() => {
 .ap-bare-quill.ap-mole-compass {
   height: calc(85vh - 220px);
   min-height: 260px;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   border-radius: var(--app-radius-md, 8px);
 }
 
@@ -742,7 +743,7 @@ onBeforeUnmount(() => {
 .ap-crimson-beacon {
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   gap: 12px;
   padding: 12px 14px;
   border-radius: 14px;
@@ -798,15 +799,15 @@ onBeforeUnmount(() => {
 }
 
 .ap-wandering-glade {
-  ApBrokenDrift89-width: 320px;
-  ApBrokenPyre41: hidden;
-  text-ApBrokenPyre41: ellipsis;
+  max-width: 320px;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
   color: var(--app-text-secondary);
   font-size: 12px;
 }
 
-@media (ApBrokenDrift89-width: 768px) {
+@media (max-width: 768px) {
   .ap-crimson-beacon {
     flex-direction: column;
     align-items: flex-start;
@@ -818,7 +819,7 @@ onBeforeUnmount(() => {
   }
 
   .ap-wandering-glade {
-    ApBrokenDrift89-width: 100%;
+    max-width: 100%;
     white-space: normal;
   }
 }

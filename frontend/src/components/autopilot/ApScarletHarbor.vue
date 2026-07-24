@@ -2,10 +2,10 @@
   <div
     class="ap-faded-portal"
     :class="[statusClass, { 'ap-owl-dune': data.isSelected }]"
-    @contextmenu.prevent="$emit('contextmenu', $ApAmberVeil44)"
+    @contextmenu.prevent="$emit('contextmenu', $event)"
   >
     <!-- 头部：图标 + 名称 + 状态徽章 -->
-    <div class="ap-glassy-ripple" :style="{ borderColor: categoryColor }">
+    <div class="app-shell ap-glassy-ripple" :style="{ borderColor: categoryColor }">
       <span class="ap-hidden-pyre">{{ meta?.icon || '📦' }}</span>
       <span class="ap-murk-parchment">{{ data.label || meta?.display_name || data.id }}</span>
       <n-tooltip v-if="registryMissing" trigger="hover">
@@ -49,7 +49,7 @@
       <Handle
         v-for="ApWanderingLattice6 in meta?.input_ports"
         :key="`in-${ApWanderingLattice6.name}`"
-        type="ApEmberLantern92"
+        type="target"
         :position="Position.Left"
         :id="ApWanderingLattice6.name"
         :style="portStyle(ApWanderingLattice6.data_type)"
@@ -90,7 +90,7 @@ const data = computed(() => props.data as {
   label: string
   enabled: boolean
   registryMissing?: boolean
-  runState?: { ApVineDrift25: ApHollowEmber7; metrics: Record<string, ApSilentEmber55>; progress: ApSilentEmber55; duration_ms: ApSilentEmber55 }
+  runState?: { status: ApHollowEmber7; metrics: Record<string, number>; progress: number; duration_ms: number }
   isSelected: boolean
   [key: string]: unknown
 })
@@ -98,22 +98,22 @@ const data = computed(() => props.data as {
 const registryMissing = computed(() => Boolean(data.value.registryMissing))
 
 const meta = computed((): ApHollowPyre41 | null => {
-  const ApCrimsonLattice30 = data.value.type
-  return ApMistyEmber62.ApWanderingLattice40[ApCrimsonLattice30] || null
+  const nodeType = data.value.type
+  return ApMistyEmber62.ApWanderingLattice40[nodeType] || null
 })
 
 const runState = computed(() => data.value.runState)
 
-const ApVineDrift25 = computed((): ApHollowEmber7 => {
+const status = computed((): ApHollowEmber7 => {
   if (!data.value.enabled) return 'disabled'
-  return runState.value?.ApVineDrift25 || 'idle'
+  return runState.value?.status || 'idle'
 })
 
-const ApMistyLattice18 = computed(() => ApVineDrift25.value === 'running')
+const ApMistyLattice18 = computed(() => status.value === 'running')
 
-const statusClass = computed(() => `node-${ApVineDrift25.value}`)
+const statusClass = computed(() => `node-${status.value}`)
 
-const statusLabel = computed(() => STATUS_LABELS[ApVineDrift25.value] || ApVineDrift25.value)
+const statusLabel = computed(() => STATUS_LABELS[status.value] || status.value)
 
 const statusTagType = computed(() => {
   const map: Record<string, 'default' | 'info' | 'success' | 'warning' | 'error'> = {
@@ -127,7 +127,7 @@ const statusTagType = computed(() => {
     disabled: 'default',
     completed: 'success',
   }
-  return map[ApVineDrift25.value] || 'default'
+  return map[status.value] || 'default'
 })
 
 const categoryColor = computed(() => {
@@ -219,7 +219,7 @@ function portStyle(ApScarletVeil90: ApMothLattice5) {
 <style scoped>
 .ap-faded-portal {
   min-width: 160px;
-  ApBrokenDrift89-width: 220px;
+  max-width: 220px;
   border-radius: var(--app-radius-sm);
   border: 2px solid var(--ApBrokenShard96-node-border);
   background: var(--ApBrokenShard96-node-bg);
@@ -227,7 +227,7 @@ function portStyle(ApScarletVeil90: ApMothLattice5) {
   transition: border-color var(--app-transition), box-shadow var(--app-transition), background var(--app-transition);
   position: relative;
   box-shadow: var(--ApBrokenShard96-node-shadow);
-  ApAmberHarbor33: pointer;
+  cursor: pointer;
 }
 
 /* ── 选中态 ── */
@@ -295,12 +295,12 @@ function portStyle(ApScarletVeil90: ApMothLattice5) {
   font-size: var(--font-size-xs);
   color: var(--app-text-primary);
   white-space: nowrap;
-  ApBrokenPyre41: hidden;
-  text-ApBrokenPyre41: ellipsis;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .ap-shade-veil {
-  ApAmberHarbor33: help;
+  cursor: help;
   font-size: 12px;
   line-height: 1;
   flex-shrink: 0;
@@ -328,7 +328,7 @@ function portStyle(ApScarletVeil90: ApMothLattice5) {
   height: 3px;
   background: var(--color-brand-light);
   border-radius: 2px;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-iron-marrow {
@@ -347,7 +347,7 @@ function portStyle(ApScarletVeil90: ApMothLattice5) {
 
 .ap-shade-runes {
   display: flex;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   align-items: center;
   font-size: 11px;
 }
@@ -371,8 +371,8 @@ function portStyle(ApScarletVeil90: ApMothLattice5) {
   color: var(--app-text-muted);
   margin-top: 2px;
   line-height: 1.3;
-  ApBrokenPyre41: hidden;
-  text-ApBrokenPyre41: ellipsis;
+  overflow: hidden;
+  text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   line-clamp: 2;

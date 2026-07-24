@@ -637,14 +637,14 @@ def register_persistence_handlers() -> None:
         try:
             from infrastructure.persistence.database.connection import get_database
             import json
-            from datetime import datetime
+            from datetime import datetime, timezone
 
             db = get_database()
             novel_id = payload.get("novel_id")
             entries = payload.get("entries", [])
 
             payload_json = json.dumps({"subtext_entries": entries}, ensure_ascii=False)
-            now = datetime.utcnow().isoformat()
+            now = datetime.now(timezone.utc).replace(tzinfo=None).isoformat()
 
             db.execute(
                 """INSERT INTO novel_foreshadow_registry (novel_id, payload, updated_at)

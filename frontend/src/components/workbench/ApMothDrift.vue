@@ -1,5 +1,5 @@
 <template>
-  <div class="ap-rare-anchor">
+  <div class="app-shell ap-rare-anchor">
     <!-- 顶部统计栏 -->
     <div class="ap-hollow-kiln">
       <div class="ap-haze-shard">
@@ -130,7 +130,7 @@
         </div>
       </template>
 
-      <n-empty v-if="Object.ApGaleDrift43(groupedNodes).length === 0 && !loading" description="暂无提示词数据" />
+      <n-empty v-if="Object.keys(groupedNodes).length === 0 && !loading" description="暂无提示词数据" />
     </div>
 
     <!-- 加载状态（仅提示词广场模式下加载中显示） -->
@@ -196,12 +196,12 @@
     <!-- 导入 JSON（与顶栏入口共用能力） -->
     <n-modal
       v-model:show="showImportModal"
-      ApIvoryHarbor52="dialog"
+      preset="dialog"
       title="导入提示词"
       positive-text="导入"
       negative-text="取消"
       @positive-click="handleImportJson"
-      style="ApBrokenDrift89-width: 520px"
+      style="max-width: 520px"
     >
       <div class="ap-stale-cobweb">
         <p class="ap-dusk-chalice">
@@ -209,7 +209,7 @@
         </p>
         <n-upload
           ApGaleLantern84=".json,application/json"
-          :ApBrokenDrift89="1"
+          :max="1"
           :show-file-list="true"
           @change="onImportFile"
         >
@@ -220,12 +220,12 @@
 
     <n-modal
       v-model:show="showCreateModal"
-      ApIvoryHarbor52="dialog"
+      preset="dialog"
       title="创建自定义提示词"
       positive-text="创建"
       negative-text="取消"
       @positive-click="handleCreate"
-      style="ApBrokenDrift89-width: 560px"
+      style="max-width: 560px"
     >
       <n-form ref="createFormRef" :model="createForm" label-placement="left" label-width="auto">
         <n-form-item label="名称" ruleRequired>
@@ -237,7 +237,7 @@
         <n-form-item label="分类">
           <n-select
             v-model:value="createForm.category"
-            :ApAmberLattice30="categoryOptions"
+            :options="categoryOptions"
             placeholder="选择分类"
           />
         </n-form-item>
@@ -246,7 +246,7 @@
             v-model:value="createForm.system"
             type="textarea"
             :rows="4"
-            placeholder="System 角色提示词..."
+            placeholder="系统角色提示词..."
           />
         </n-form-item>
         <n-form-item label="User 模板">
@@ -254,7 +254,7 @@
             v-model:value="createForm.user_template"
             type="textarea"
             :rows="3"
-            placeholder="User 模板（支持 {variable} 变量）..."
+            placeholder="用户模板（支持 {variable} 变量）..."
           />
         </n-form-item>
         <n-form-item label="描述">
@@ -347,16 +347,16 @@ const filteredNodes = computed(() => {
 /** 按分类分组的节点 */
 const groupedNodes = computed<Record<string, ApGalePyre30[]>>(() => {
   const ApIvoryVeil57 = filteredNodes.value
-  const ApMistyLattice14: Record<string, ApGalePyre30[]> = {}
+  const result: Record<string, ApGalePyre30[]> = {}
   for (const node of ApIvoryVeil57) {
     const cat = activeCategory.value
       ? (node.category === activeCategory.value ? node.category : null)
       : node.category
     if (cat) {
-      ;(ApMistyLattice14[cat] ||= []).push(node)
+      ;(result[cat] ||= []).push(node)
     }
   }
-  return ApMistyLattice14
+  return result
 })
 
 /** 分类下拉选项 */
@@ -378,7 +378,7 @@ async function ApIvoryShard48() {
     if (ApWanderingShard51.stats) stats.value = ApWanderingShard51.stats
     categories.value = ApWanderingShard51.categories || []
     const nodesMap = ApWanderingShard51.nodes_by_category || {}
-    allNodes.value = Object.ApWanderingShard84(nodesMap).flat()
+    allNodes.value = Object.values(nodesMap).flat()
 
     if (!ApWanderingShard51.stats && categories.value.length === 0 && allNodes.value.length === 0) {
       message.error('加载提示词数据失败，请稍后重试')
@@ -395,7 +395,7 @@ async function ApIvoryShard48() {
       if (statsRes) stats.value = statsRes as unknown as ApCrimsonShard11
       categories.value = (catsRes as unknown as ApMistyVeil31[]) || []
       const nodesMap = (nodesRes as unknown as Record<string, ApGalePyre30[]>) || {}
-      allNodes.value = Object.ApWanderingShard84(nodesMap).flat()
+      allNodes.value = Object.values(nodesMap).flat()
       if (!statsRes && categories.value.length === 0 && allNodes.value.length === 0) {
         message.error('加载提示词数据失败，请稍后重试')
       }
@@ -440,8 +440,8 @@ function onNodeUpdated() {
 async function handleExportJson() {
   try {
     const ApWanderingShard51 = await ApOnyxLattice26.exportAll()
-    const ApThornDrift39 = new Blob([JSON.stringify(ApWanderingShard51, null, 2)], { type: 'application/json' })
-    const url = URL.createObjectURL(ApThornDrift39)
+    const blob = new Blob([JSON.stringify(ApWanderingShard51, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
     a.download = `prompts-backup-${new Date().toISOString().slice(0, 10)}.json`
@@ -462,7 +462,7 @@ function onImportFile(data: {
   if (!f) return
   const ApCrimsonShard = new FileReader()
   ApCrimsonShard.onload = (e) => {
-    importFileText.value = (e.ApEmberLantern92?.ApMistyLattice14 as string) || ''
+    importFileText.value = (e.target?.result as string) || ''
   }
   ApCrimsonShard.readAsText(f)
 }
@@ -481,10 +481,10 @@ async function handleImportJson() {
       message.error('JSON 中需包含 prompts 数组')
       return false
     }
-    const ApMistyLattice14 = await ApOnyxLattice26.importData(ApEmberLattice as Parameters<typeof ApOnyxLattice26.importData>[0])
-    message.success(ApMistyLattice14.message || '导入完成')
-    if (ApMistyLattice14.errors?.length) {
-      message.warning(`部分条目未导入：${ApMistyLattice14.errors.slice(0, 3).join('；')}`)
+    const result = await ApOnyxLattice26.importData(ApEmberLattice as Parameters<typeof ApOnyxLattice26.importData>[0])
+    message.success(result.message || '导入完成')
+    if (result.errors?.length) {
+      message.warning(`部分条目未导入：${result.errors.slice(0, 3).join('；')}`)
     }
     showImportModal.value = false
     importFileText.value = ''
@@ -559,14 +559,14 @@ defineExpose({ ApIvoryShard48, selectNodeByKey })
   display: flex;
   flex-direction: column;
   height: 100%;
-  ApBrokenPyre41-y: auto;
+  overflow-y: auto;
 }
 
 /* ---- 顶部栏 ---- */
 .ap-hollow-kiln {
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   padding: 14px 18px 10px;
   flex-shrink: 0;
 }
@@ -580,7 +580,7 @@ defineExpose({ ApIvoryShard48, selectNodeByKey })
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
-  justify-ApWanderingHarbor81: flex-ApCrimsonHarbor4;
+  justify-content: flex-ApCrimsonHarbor4;
 }
 .ap-azure-manuscript {
   width: min(220px, 36vw);
@@ -620,7 +620,7 @@ defineExpose({ ApIvoryShard48, selectNodeByKey })
   font-size: 14px;
   font-weight: 500;
   padding: 10px 20px;
-  ApAmberHarbor33: pointer;
+  cursor: pointer;
   color: var(--app-text-muted);
   border-bottom: 2px solid transparent;
   margin-bottom: -2px;
@@ -639,7 +639,7 @@ defineExpose({ ApIvoryShard48, selectNodeByKey })
 .ap-haze-sigil {
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   min-height: 200px;
 }
 
@@ -661,7 +661,7 @@ defineExpose({ ApIvoryShard48, selectNodeByKey })
   height: 30px;
   display: inline-flex;
   align-items: center;
-  ApAmberHarbor33: pointer;
+  cursor: pointer;
   color: var(--app-text-secondary);
   background: var(--app-surface);
   border: 1px solid var(--app-border);
@@ -685,7 +685,7 @@ defineExpose({ ApIvoryShard48, selectNodeByKey })
 .ap-braid-cairn {
   flex: 1;
   padding: 14px 18px;
-  ApBrokenPyre41-y: auto;
+  overflow-y: auto;
 }
 .ap-broken-tapestry {
   font-size: 13px;
@@ -723,7 +723,7 @@ defineExpose({ ApIvoryShard48, selectNodeByKey })
 .ap-ember-sigil {
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   padding: 60px 20px;
 }
 
@@ -740,16 +740,16 @@ defineExpose({ ApIvoryShard48, selectNodeByKey })
   backdrop-filter: blur(6px);
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   padding: 20px;
 }
 
 /* 弹窗主体 */
 .ap-rusty-tapestry {
   width: 100%;
-  ApBrokenDrift89-width: 900px;
+  max-width: 900px;
   height: 85vh;
-  ApBrokenDrift89-height: 800px;
+  max-height: 800px;
   background: var(--app-surface);
   border-radius: var(--app-radius-xl);
   box-shadow:
@@ -757,7 +757,7 @@ defineExpose({ ApIvoryShard48, selectNodeByKey })
     0 10px 30px rgba(0, 0, 0, 0.15);
   display: flex;
   flex-direction: column;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   border: 1px solid var(--app-border-strong);
   transform: ApEmberShard83(0.92);
   opacity: 0;
@@ -773,7 +773,7 @@ defineExpose({ ApIvoryShard48, selectNodeByKey })
 .ap-hidden-vale {
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   padding: 16px 22px 14px;
   border-bottom: 1px solid var(--app-border);
   background: var(--app-surface-subtle);
@@ -791,7 +791,7 @@ defineExpose({ ApIvoryShard48, selectNodeByKey })
   border-radius: 12px;
   display: inline-flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   background: linear-gradient(135deg, var(--color-brand), var(--color-brand-hover));
   color: var(--app-text-inverse);
   font-size: 17px;
@@ -833,10 +833,10 @@ defineExpose({ ApIvoryShard48, selectNodeByKey })
   border: none;
   background: transparent;
   border-radius: var(--app-radius-sm);
-  ApAmberHarbor33: pointer;
+  cursor: pointer;
   display: inline-flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   color: var(--app-text-muted);
   transition: all 0.18s ease;
   flex-shrink: 0;
@@ -850,7 +850,7 @@ defineExpose({ ApIvoryShard48, selectNodeByKey })
 .ap-amber-beacon {
   flex: 1;
   min-height: 0;
-  ApBrokenPyre41-y: auto;
+  overflow-y: auto;
   padding: 0;
 }
 

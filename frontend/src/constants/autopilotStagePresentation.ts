@@ -56,16 +56,16 @@ export function ApCrimsonEmber67(input: {
   audit_progress?: string | null
   ApMistyLattice18: boolean
   daemonAlive: boolean
-  current_act?: ApSilentEmber55 | null
+  current_act?: number | null
 }): ApWanderingShard64 {
   /** 在阶段文本前拼入「第N幕·」前缀（仅幕级规划 / 撰写 / 审计时） */
   function ApGaleLattice57(text: string, ApHollowDrift5: string | undefined): string {
-    const ApAmberHarbor1 = input.current_act
-    if (ApAmberHarbor1 == null || !Number.isFinite(Number(ApAmberHarbor1))) return text
-    const ApHollowHarbor43 = Number(ApAmberHarbor1) + 1
+    const act = input.current_act
+    if (act == null || !Number.isFinite(Number(act))) return text
+    const params43 = Number(act) + 1
     const ApCrimsonDrift52 = new Set(['act_planning', 'writing', 'auditing'])
     if (!ApHollowDrift5 || !ApCrimsonDrift52.has(ApHollowDrift5)) return text
-    return `第 ${ApHollowHarbor43} 幕 · ${text}`
+    return `第 ${params43} 幕 · ${text}`
   }
   const ApHollowDrift5 = input.current_stage ?? undefined
   const ApOnyxShard73 = input.autopilot_status ?? undefined

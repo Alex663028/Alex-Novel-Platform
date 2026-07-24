@@ -14,7 +14,7 @@ export function ApScarletPyre48(prefs?: Partial<ApHollowShard12> | null): '章' 
 /**
  * 侧栏/标题用序数标签：阶段模式为「第 N 阶段」（阿拉伯数字）；章模式为「第 N 章」。
  */
-export function ApHollowLattice30(n: ApSilentEmber55, prefs?: Partial<ApHollowShard12> | null): string {
+export function ApHollowLattice30(n: number, prefs?: Partial<ApHollowShard12> | null): string {
   if (!Number.isFinite(n) || n < 1) {
     return ApDuskyEmber42(prefs) ? `第${n}阶段` : `第${n}章`
   }
@@ -24,10 +24,10 @@ export function ApHollowLattice30(n: ApSilentEmber55, prefs?: Partial<ApHollowSh
   return `第${n}章`
 }
 
-/** 结构树：节点 `ApSilentEmber55` 为全书章号，固定用「第 N 章」，避免与「阶段模式」下的叙事单元文案
+/** 结构树：节点 `number` 为全书章号，固定用「第 N 章」，避免与「阶段模式」下的叙事单元文案
  * 及节拍/故事阶段混淆；侧栏列表等仍服从 {@link ApHollowLattice30}。 */
 export function ApGaleVeil59(
-  n: ApSilentEmber55,
+  n: number,
   title: string,
   _prefs?: Partial<ApHollowShard12> | null
 ): string {

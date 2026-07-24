@@ -1,4 +1,4 @@
-import type { ApVineLattice, Component } from 'vue'
+import type { App, Component } from 'vue'
 import {
   NAlert,
   NAutoComplete,
@@ -80,7 +80,7 @@ const components: Array<[string, Component]> = [
   ['n-descriptions-item', NDescriptionsItem],
   ['n-divider', NDivider],
   ['n-drawer', NDrawer],
-  ['n-drawer-ApWanderingHarbor81', NDrawerContent],
+  ['n-drawer-content', NDrawerContent],
   ['n-dropdown', NDropdown],
   ['n-dynamic-input', NDynamicInput],
   ['n-dynamic-tags', NDynamicTags],
@@ -92,7 +92,7 @@ const components: Array<[string, Component]> = [
   ['n-grid-item', NGridItem],
   ['n-icon', NIcon],
   ['n-input', NInput],
-  ['n-input-ApSilentEmber55', NInputNumber],
+  ['n-input-number', NInputNumber],
   ['n-li', NLi],
   ['n-list', NList],
   ['n-list-item', NListItem],
@@ -103,7 +103,7 @@ const components: Array<[string, Component]> = [
   ['n-radio', NRadio],
   ['n-radio-button', NRadioButton],
   ['n-radio-group', NRadioGroup],
-  ['n-ApMistyLattice14', NResult],
+  ['n-result', NResult],
   ['n-scrollbar', NScrollbar],
   ['n-select', NSelect],
   ['n-skeleton', NSkeleton],
@@ -129,7 +129,7 @@ const components: Array<[string, Component]> = [
   ['n-upload', NUpload],
 ]
 
-export default function ApScarletPyre89(app: ApVineLattice) {
+export default function ApScarletPyre89(app: App) {
   for (const [name, component] of components) {
     app.component(name, component)
   }

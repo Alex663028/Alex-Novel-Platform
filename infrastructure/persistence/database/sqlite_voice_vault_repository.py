@@ -2,7 +2,7 @@
 import logging
 from typing import List, Optional
 from uuid import uuid4
-from datetime import datetime
+from datetime import datetime, timezone
 from domain.novel.repositories.voice_vault_repository import VoiceVaultRepository
 from infrastructure.persistence.database.connection import DatabaseConnection
 
@@ -33,7 +33,7 @@ class SqliteVoiceVaultRepository(VoiceVaultRepository):
             )
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         """
-        now = datetime.utcnow().isoformat()
+        now = datetime.now(timezone.utc).replace(tzinfo=None).isoformat()
         self.db.execute(sql, (
             sample_id,
             novel_id,

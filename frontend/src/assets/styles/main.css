@@ -81,10 +81,10 @@ body {
   --color-purple-light: var(--ap-color-onyx2);
   --color-purple-ApMistyLantern19: rgba(139, 92, 246, 0.12);
 
-  /* ── 文字色（全部使用变量，禁止硬编码）── */
-  --app-text-primary: var(--ap-color-spark2);
-  --app-text-secondary: var(--ap-color-tide3);
-  --app-text-muted: var(--ap-color-heron);
+  /* ── 文字色（亮色模式：确保 WCAG AA 对比度 ≥ 4.5:1）── */
+  --app-text-primary: #0f172a;
+  --app-text-secondary: #475569;
+  --app-text-muted: #64748b;
   --app-text-inverse: var(--ap-color-haze);
 
   /* 与 Naive UI n-text depth、旧组件对齐：统一走 app 文字色，避免暗色下仍落回 var(--ap-color-cold) */
@@ -200,10 +200,10 @@ body {
 
   /* ── 黑金主播限定色（暗模式：更温暖的金铜色调）── */
 
-  /* ── 文字色 ── */
-  --app-text-primary: var(--ap-color-azure2);
-  --app-text-secondary: var(--ap-color-smoke);
-  --app-text-muted: var(--ap-color-pale2);
+  /* ── 文字色（暗色模式：确保 WCAG AA 对比度 ≥ 4.5:1）── */
+  --app-text-primary: #e6f1ff;
+  --app-text-secondary: #b0c4de;
+  --app-text-muted: #8a9bb5;
   --app-text-inverse: var(--ap-color-cold);
 
   /* ── 组件交互态（Tab / 档案 / 运行时栏）── */

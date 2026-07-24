@@ -14,7 +14,7 @@
 from __future__ import annotations
 
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, List, Optional
 
 from application.ai.structured_json_pipeline import (
@@ -341,7 +341,7 @@ class ReaderSimulationService:
             overall_readability=payload.overall_readability,
             chapter_hook_strength=payload.chapter_hook_strength,
             pacing_verdict=payload.pacing_verdict,
-            analyzed_at=datetime.utcnow(),
+            analyzed_at=datetime.now(timezone.utc).replace(tzinfo=None),
         )
 
     @staticmethod
@@ -369,7 +369,7 @@ class ReaderSimulationService:
             chapter_number=chapter_number,
             feedbacks=feedbacks,
             pacing_verdict=reason,
-            analyzed_at=datetime.utcnow(),
+            analyzed_at=datetime.now(timezone.utc).replace(tzinfo=None),
             is_error_placeholder=True,
             error_message=reason,
         )

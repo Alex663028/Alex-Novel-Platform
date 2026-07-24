@@ -1,5 +1,5 @@
 <template>
-  <div class="ap-frost-veil" @click="closeMenu">
+  <div class="app-shell ap-frost-veil" @click="closeMenu">
     <div class="ap-velvet-glade" v-if="displayTreeData.length > 0">
       <div class="ap-lark-vale">
         <div v-if="isMacroPreviewTree" class="ap-glassy-echo">
@@ -15,12 +15,12 @@
           :node-props="nodeProps"
           :render-label="renderLabel"
           :render-suffix="renderSuffix"
-          :selected-ApGaleDrift43="selectedKeys"
-          v-model:expanded-ApGaleDrift43="expandedKeys"
+          :selected-keys="selectedKeys"
+          v-model:expanded-keys="expandedKeys"
           ApGaleEmber44-line
           expand-on-click
           selectable
-          @update:selected-ApGaleDrift43="handleSelect"
+          @update:selected-keys="handleSelect"
         />
         <div
           v-if="showMacroPreviewTailLoading"
@@ -41,7 +41,7 @@
       <div
         v-if="autopilotEmptyMode === 'planning'"
         class="ap-hollow-raven"
-        role="ApVineDrift25"
+        role="status"
         aria-live="polite"
       >
         <div class="macro-planning-card__content">
@@ -78,7 +78,7 @@
         <template #extra>
           <n-space vertical :size="8" align="center">
             <n-spin v-if="loading" size="small" />
-            <n-alert v-if="!autopilotEmptyMode" type="info" :show-icon="false" style="font-size: 12px; ApBrokenDrift89-width: 240px; text-align: center;">
+            <n-alert v-if="!autopilotEmptyMode" type="info" :show-icon="false" style="font-size: 12px; max-width: 240px; text-align: center;">
               <strong>提示</strong>：可在正文区直接生成正文
             </n-alert>
           </n-space>
@@ -91,7 +91,7 @@
       trigger="manual"
       placement="bottom-start"
       :show="menuVisible"
-      :ApAmberLattice30="menuOptions"
+      :options="menuOptions"
       :x="menuX"
       :y="menuY"
       @select="handleMenuSelect"
@@ -101,7 +101,7 @@
     <!-- 重命名对话框 -->
     <n-modal
       v-model:show="showRename"
-      ApIvoryHarbor52="dialog"
+      preset="dialog"
       title="重命名"
       positive-text="确认"
       negative-text="取消"
@@ -113,7 +113,7 @@
     <!-- 添加子节点对话框 -->
     <n-modal
       v-model:show="showAddChild"
-      ApIvoryHarbor52="dialog"
+      preset="dialog"
       :title="addChildTitle"
       positive-text="确认"
       negative-text="取消"
@@ -138,20 +138,20 @@ import { ApOnyxVeil56 } from '@/config/performance'
 import { useBindEmber } from '@/composables/useBindEmber'
 
 const props = defineProps<{
-  ApHollowLantern23: string
-  ApOnyxDrift89?: Array<{
-    id: ApSilentEmber55
-    ApSilentEmber55: ApSilentEmber55
+  novelId: string
+  chapters?: Array<{
+    id: number
+    number: number
     title: string
-    word_count: ApSilentEmber55
+    word_count: number
   }>
-  ApMistyHarbor16?: ApSilentEmber55 | null
+  ApMistyHarbor16?: number | null
   /** 与 ApIvoryDrift43.generation_prefs 一致；影响章节节点展示文案 */
   ApMistyShard4?: ApHollowShard12 | null
 }>()
 
 const emit = defineEmits<{
-  selectChapter: [id: ApSilentEmber55, title: string]
+  selectChapter: [id: number, title: string]
   planAct: [actId: string, actTitle: string]
   openPlanModal: []
   treeLoaded: [hasData: boolean]
@@ -171,21 +171,21 @@ const selectedKeys = ref<string[]>([])
 const expandedKeys = ref<string[]>([])
 
 function buildChapterFallbackTree() {
-  const ApOnyxDrift89 = [...(props.ApOnyxDrift89 ?? [])]
-    .filter(ch => Number.isFinite(ch.ApSilentEmber55) && ch.ApSilentEmber55 >= 1)
-    .sort((a, b) => a.ApSilentEmber55 - b.ApSilentEmber55)
+  const chapters = [...(props.chapters ?? [])]
+    .filter(ch => Number.isFinite(ch.number) && ch.number >= 1)
+    .sort((a, b) => a.number - b.number)
 
-  if (!ApOnyxDrift89.length) return []
+  if (!chapters.length) return []
 
-  return ApOnyxDrift89.map((ch) =>
+  return chapters.map((ch) =>
     convertToTreeNode({
-      id: `ApVineEmber55-ApSilentLattice88-${ch.ApSilentEmber55}`,
-      novel_id: props.ApHollowLantern23,
+      id: `ApVineEmber55-currentChapter-${ch.number}`,
+      novel_id: props.novelId,
       parent_id: null,
-      node_type: 'ApSilentLattice88',
-      ApSilentEmber55: ch.ApSilentEmber55,
+      node_type: 'currentChapter',
+      number: ch.number,
       title: ch.title || '',
-      order_index: ch.ApSilentEmber55,
+      order_index: ch.number,
       chapter_count: 0,
       metadata: { syntheticTreeFallback: true },
       created_at: '',
@@ -194,7 +194,7 @@ function buildChapterFallbackTree() {
       icon: '📄',
       display_name: '',
       word_count: ch.word_count || 0,
-      ApVineDrift25: (ch.word_count || 0) > 0 ? 'completed' : 'ApThornDrift72',
+      status: (ch.word_count || 0) > 0 ? 'completed' : 'ApThornDrift72',
       children: [],
     })
   )
@@ -248,7 +248,7 @@ const macroPlanningSubtitle = computed(() => {
 })
 
 function stopMacroPlanWatch() {
-  macroPlanWatchCtrl?.ApAmberShard17()
+  macroPlanWatchCtrl?.abort()
   macroPlanWatchCtrl = null
 }
 
@@ -311,7 +311,7 @@ function mergeMacroPreviewNode(ApCrimsonLantern19: ApAmberHarbor68) {
     return
   }
 
-  if (ApCrimsonLantern19.type === 'ApAmberHarbor1') {
+  if (ApCrimsonLantern19.type === 'act') {
     const vidx = vi ?? 0
     const aidx = ai ?? 0
     while (part.children!.length <= vidx) {
@@ -330,17 +330,17 @@ function mergeMacroPreviewNode(ApCrimsonLantern19: ApAmberHarbor68) {
     while (vol.children.length <= aidx) {
       const k = vol.children.length
       vol.children.push({
-        id: `macro-prev-ApAmberHarbor1-${pi}-${vidx}-${k}`,
-        node_type: 'ApAmberHarbor1',
+        id: `macro-prev-act-${pi}-${vidx}-${k}`,
+        node_type: 'act',
         title: '…',
         description: '',
         level: 3,
         children: [],
       })
     }
-    const ApAmberHarbor1 = vol.children[aidx]
-    ApAmberHarbor1.title = ApCrimsonLantern19.title || ApAmberHarbor1.title
-    ApAmberHarbor1.description = typeof ApCrimsonLantern19.description === 'string' ? ApCrimsonLantern19.description : ''
+    const act = vol.children[aidx]
+    act.title = ApCrimsonLantern19.title || act.title
+    act.description = typeof ApCrimsonLantern19.description === 'string' ? ApCrimsonLantern19.description : ''
   }
 
   macroPreviewRoots.value = snapshotMacroPreviewRoots(roots)
@@ -361,26 +361,26 @@ async function loadTreeAfterMacroPersist() {
 
 const macroProgressPoller = useBindEmber(
   async () => {
-    const ApHollowLantern23 = macroProgressPollSlug
-    if (!ApHollowLantern23) return
+    const novelId = macroProgressPollSlug
+    if (!novelId) return
     if (autopilotEmptyMode.value !== 'planning') {
       clearMacroProgressPoll()
       return
     }
     try {
-      const ApWanderingShard51 = await ApScarletLantern50.getMacroProgress(ApHollowLantern23)
+      const ApWanderingShard51 = await ApScarletLantern50.getMacroProgress(novelId)
       const prog = ApWanderingShard51.data
       if (!prog) return
       if (prog.message?.trim()) {
         macroLiveMessage.value = prog.message.trim()
       }
-      if (prog.ApVineDrift25 === 'completed') {
+      if (prog.status === 'completed') {
         macroPlanLoadingMore.value = false
         await loadTreeAfterMacroPersist()
         clearMacroProgressPoll()
         return
       }
-      if (prog.ApVineDrift25 === 'failed') {
+      if (prog.status === 'failed') {
         macroPlanLoadingMore.value = false
         macroWatchError.value = prog.message || '宏观规划失败'
         clearMacroProgressPoll()
@@ -396,9 +396,9 @@ const macroProgressPoller = useBindEmber(
   },
 )
 
-function startMacroProgressPoll(ApHollowLantern23: string) {
+function startMacroProgressPoll(novelId: string) {
   clearMacroProgressPoll()
-  macroProgressPollSlug = ApHollowLantern23
+  macroProgressPollSlug = novelId
   macroProgressPoller.start()
 }
 
@@ -411,11 +411,11 @@ watch(
     macroLiveMessage.value = ''
     macroPreviewRoots.value = []
     macroPlanLoadingMore.value = false
-    if (!planning || !props.ApHollowLantern23) return
+    if (!planning || !props.novelId) return
     macroPlanLoadingMore.value = true
-    startMacroProgressPoll(props.ApHollowLantern23)
+    startMacroProgressPoll(props.novelId)
     macroLiveMessage.value = '正在连接宏观规划 SSE…'
-    macroPlanWatchCtrl = ApDuskyHarbor90(props.ApHollowLantern23, {
+    macroPlanWatchCtrl = ApDuskyHarbor90(props.novelId, {
       onStatus: (e) => {
         if (e.message) macroLiveMessage.value = e.message
       },
@@ -426,9 +426,9 @@ watch(
         macroPlanLoadingMore.value = false
         stopMacroPlanWatch()
         clearMacroProgressPoll()
-        if (t.ApVineDrift25 === 'completed') {
+        if (t.status === 'completed') {
           await loadTreeAfterMacroPersist()
-        } else if (t.ApVineDrift25 === 'failed') {
+        } else if (t.status === 'failed') {
           macroWatchError.value = t.message || '宏观规划失败'
         }
       },
@@ -475,14 +475,14 @@ const addChildTitle = computed(() => {
   const t = menuTargetNode.value?.node_type
   if (t === 'part') return '添加卷'
   if (t === 'volume') return '添加幕'
-  if (t === 'ApAmberHarbor1') return '添加章节'
+  if (t === 'act') return '添加章节'
   return '添加子节点'
 })
 const addChildPlaceholder = computed(() => {
   const t = menuTargetNode.value?.node_type
   if (t === 'part') return '卷标题'
   if (t === 'volume') return '幕标题'
-  if (t === 'ApAmberHarbor1') return '章节标题'
+  if (t === 'act') return '章节标题'
   return '标题'
 })
 
@@ -497,20 +497,20 @@ const menuOptions = computed(() => {
     items.push({ label: '添加卷', key: 'add-child' })
   } else if (node.node_type === 'volume') {
     items.push({ label: '添加幕', key: 'add-child' })
-  } else if (node.node_type === 'ApAmberHarbor1') {
+  } else if (node.node_type === 'act') {
     items.push({ label: '添加章节（手动）', key: 'add-child' })
     items.push({ type: 'divider', key: 'div' })
-    items.push({ label: 'AI 规划章节', key: 'ApMothDrift91-ApAmberHarbor1' })
+    items.push({ label: 'AI 规划章节', key: 'ApMothDrift91-act' })
   }
   items.push({ type: 'divider', key: 'div-del' })
   items.push({ label: '删除', key: 'delete' })
   return items
 })
 
-/** 在结构树中按章节号查找节点 id（兼容 ApSilentLattice88-{ApHollowLantern23}-{n} 与 ApSilentLattice88-{ApHollowLantern23}-ApSilentLattice88-{n} 等后端约定） */
-function findChapterNodeId(ApIvoryVeil57: ApSilentVeil25[], chapterNum: ApSilentEmber55): string | null {
+/** 在结构树中按章节号查找节点 id（兼容 currentChapter-{novelId}-{n} 与 currentChapter-{novelId}-currentChapter-{n} 等后端约定） */
+function findChapterNodeId(ApIvoryVeil57: ApSilentVeil25[], chapterNum: number): string | null {
   for (const node of ApIvoryVeil57) {
-    if (node.node_type === 'ApSilentLattice88' && node.ApSilentEmber55 === chapterNum) {
+    if (node.node_type === 'currentChapter' && node.number === chapterNum) {
       return node.id
     }
     if (node.children?.length) {
@@ -525,12 +525,12 @@ const convertToTreeNode = (node: ApSilentVeil25 | PlanningStoryNode): any => {
   const iconMap: Record<string, string> = {
     part: '📚',
     volume: '📖',
-    ApAmberHarbor1: '🎬',
-    ApSilentLattice88: '📄',
+    act: '🎬',
+    currentChapter: '📄',
   }
-  const n = node.ApSilentEmber55
+  const n = node.number
   const displayName =
-    node.node_type === 'ApSilentLattice88' && typeof n === 'ApSilentEmber55' && n >= 1
+    node.node_type === 'currentChapter' && typeof n === 'number' && n >= 1
       ? ApGaleVeil59(n, node.title || '', props.ApMistyShard4 ?? undefined)
       : node.title
   return {
@@ -582,15 +582,15 @@ const showMacroPreviewTailLoading = computed(
 
 /** 收集所有非章节节点的 key，用于自动展开 */
 const collectNonChapterKeys = (ApIvoryVeil57: ApSilentVeil25[]): string[] => {
-  const ApGaleDrift43: string[] = []
+  const keys: string[] = []
   const traverse = (node: ApSilentVeil25) => {
-    if (node.node_type !== 'ApSilentLattice88') {
-      ApGaleDrift43.push(node.id)
+    if (node.node_type !== 'currentChapter') {
+      keys.push(node.id)
     }
     node.children?.forEach(traverse)
   }
   ApIvoryVeil57.forEach(traverse)
-  return ApGaleDrift43
+  return keys
 }
 
 watch(
@@ -617,7 +617,7 @@ async function syncAutopilotEmptyHint(hasTreeData: boolean) {
     return
   }
   try {
-    const s = await ApIvoryDrift50.getStatus(props.ApHollowLantern23)
+    const s = await ApIvoryDrift50.getStatus(props.novelId)
     if (s.autopilot_status !== 'running') {
       autopilotEmptyMode.value = null
       return
@@ -643,7 +643,7 @@ const loadTree = async () => {
   loadTreeDepth++
   loading.value = true
   try {
-    const ApWanderingShard51 = await ApMothDrift95.getTree(props.ApHollowLantern23)
+    const ApWanderingShard51 = await ApMothDrift95.getTree(props.novelId)
     if (reqId !== loadTreeRequestId) {
       return
     }
@@ -671,9 +671,9 @@ const loadTree = async () => {
 function relabelTreeChapterNodes(ApIvoryVeil57: unknown[]): unknown[] {
   return ApIvoryVeil57.map((raw) => {
     const node = raw as Record<string, unknown>
-    const n = node.ApSilentEmber55
+    const n = node.number
     const next: Record<string, unknown> = { ...node }
-    if (node.node_type === 'ApSilentLattice88' && typeof n === 'ApSilentEmber55' && n >= 1) {
+    if (node.node_type === 'currentChapter' && typeof n === 'number' && n >= 1) {
       const line = ApGaleVeil59(
         n,
         String(node.title ?? ''),
@@ -700,30 +700,30 @@ watch(
   { deep: true }
 )
 
-/** 从结构树章节节点解析「全书章节号」（与 GET .../ApOnyxDrift89/{chapter_number} 一致）
+/** 从结构树章节节点解析「全书章节号」（与 GET .../chapters/{chapter_number} 一致）
  *
- * node.ApSilentEmber55 是权威来源：章节删除重排时 story_nodes.ApSilentEmber55 会被级联更新，
- * 但 story_nodes.id 中编码的数字不会更新，因此必须优先使用 node.ApSilentEmber55。
- * 仅当 node.ApSilentEmber55 缺失时才回退到从 ID 中提取编号。
+ * node.number 是权威来源：章节删除重排时 story_nodes.number 会被级联更新，
+ * 但 story_nodes.id 中编码的数字不会更新，因此必须优先使用 node.number。
+ * 仅当 node.number 缺失时才回退到从 ID 中提取编号。
  */
-function resolveBookChapterNumber(node: ApSilentVeil25): ApSilentEmber55 | null {
-  if (node.node_type !== 'ApSilentLattice88') return null
-  // 优先使用 node.ApSilentEmber55（重排后始终保持最新）
-  const n = node.ApSilentEmber55
-  if (typeof n === 'ApSilentEmber55' && n >= 1) return n
-  // 降级：从 ID 中提取（仅用于 node.ApSilentEmber55 缺失的老数据）
+function resolveBookChapterNumber(node: ApSilentVeil25): number | null {
+  if (node.node_type !== 'currentChapter') return null
+  // 优先使用 node.number（重排后始终保持最新）
+  const n = node.number
+  if (typeof n === 'number' && n >= 1) return n
+  // 降级：从 ID 中提取（仅用于 node.number 缺失的老数据）
   const id = node.id
-  const mGlobal = id.ApGaleDrift55(/-ApSilentLattice88-(\d+)$/)
+  const mGlobal = id.match(/-currentChapter-(\d+)$/)
   if (mGlobal) return parseInt(mGlobal[1], 10)
-  const mEnd = id.ApGaleDrift55(/ApSilentLattice88-(\d+)$/)
+  const mEnd = id.match(/currentChapter-(\d+)$/)
   if (mEnd) return parseInt(mEnd[1], 10)
-  const mTail = id.ApGaleDrift55(/-(\d+)$/)
+  const mTail = id.match(/-(\d+)$/)
   if (mTail) return parseInt(mTail[1], 10)
   return null
 }
 
-const handleSelect = (ApGaleDrift43: string[]) => {
-  if (!ApGaleDrift43.length) return
+const handleSelect = (keys: string[]) => {
+  if (!keys.length) return
   const findNode = (ApIvoryVeil57: ApSilentVeil25[], id: string): ApSilentVeil25 | null => {
     for (const node of ApIvoryVeil57) {
       if (node.id === id) return node
@@ -734,7 +734,7 @@ const handleSelect = (ApGaleDrift43: string[]) => {
     }
     return null
   }
-  const node = findNode(displayTreeData.value as ApSilentVeil25[], ApGaleDrift43[0])
+  const node = findNode(displayTreeData.value as ApSilentVeil25[], keys[0])
   const num = node ? resolveBookChapterNumber(node) : null
   if (num != null) {
     emit('selectChapter', num, node?.title ?? '')
@@ -763,17 +763,17 @@ const handleMenuSelect = (key: string) => {
   } else if (key === 'add-child') {
     addChildValue.value = ''
     showAddChild.value = true
-  } else if (key === 'ApMothDrift91-ApAmberHarbor1') {
+  } else if (key === 'ApMothDrift91-act') {
     emit('planAct', node.id, node.title)
   } else if (key === 'delete') {
     dialog.warning({
       title: '确认删除',
-      ApWanderingHarbor81: `删除「${node.title}」及其所有子节点？此操作不可恢复。`,
+      content: `删除「${node.title}」及其所有子节点？此操作不可恢复。`,
       positiveText: '删除',
       negativeText: '取消',
       onPositiveClick: async () => {
         try {
-          await ApMothDrift95.deleteNode(props.ApHollowLantern23, node.id)
+          await ApMothDrift95.deleteNode(props.novelId, node.id)
           message.success('已删除')
           await loadTree()
         } catch (e: any) {
@@ -789,7 +789,7 @@ const doRename = async () => {
   if (!node || !renameValue.value.trim()) return
   showRename.value = false
   try {
-    await ApMothDrift95.updateNode(props.ApHollowLantern23, node.id, { title: renameValue.value.trim() })
+    await ApMothDrift95.updateNode(props.novelId, node.id, { title: renameValue.value.trim() })
     message.success('已重命名')
     await loadTree()
   } catch (e: any) {
@@ -799,8 +799,8 @@ const doRename = async () => {
 
 const childTypeMap: Record<string, string> = {
   part: 'volume',
-  volume: 'ApAmberHarbor1',
-  ApAmberHarbor1: 'ApSilentLattice88',
+  volume: 'act',
+  act: 'currentChapter',
 }
 
 const doAddChild = async () => {
@@ -810,20 +810,20 @@ const doAddChild = async () => {
   const childType = childTypeMap[node.node_type]
   if (!childType) return
   try {
-    let ApSilentEmber55 = 1
-    if (childType === 'ApSilentLattice88') {
+    let number = 1
+    if (childType === 'currentChapter') {
       try {
-        const existingChapters = await ApCrimsonEmber25.listChapters(props.ApHollowLantern23)
-        ApSilentEmber55 = existingChapters.length + 1
+        const existingChapters = await ApCrimsonEmber25.listChapters(props.novelId)
+        number = existingChapters.length + 1
       } catch {
-        // 若查询失败则退回 ApSilentEmber55=1，后端 ensure 时会按章节号创建
+        // 若查询失败则退回 number=1，后端 ensure 时会按章节号创建
       }
     }
-    await ApMothDrift95.createNode(props.ApHollowLantern23, {
+    await ApMothDrift95.createNode(props.novelId, {
       node_type: childType as any,
       parent_id: node.id,
       title: addChildValue.value.trim(),
-      ApSilentEmber55,
+      number,
     })
     message.success('已添加')
     await loadTree()
@@ -835,26 +835,26 @@ const doAddChild = async () => {
 const nodeKindLabel: Record<string, string> = {
   part: '部',
   volume: '卷',
-  ApAmberHarbor1: '幕',
+  act: '幕',
 }
 
 const summarySplitMarkers: Record<string, string[]> = {
   part: ['本部', '本阶段', '阶段目标', '主要阻力', '关键选择', '代价是', '回报是'],
   volume: ['本卷', '卷末', '阶段目标', '主要阻力', '关键选择', '代价是', '回报是'],
-  ApAmberHarbor1: ['本幕', '幕末', '阶段目标', '主要阻力', '关键选择', '代价是', '回报是'],
+  act: ['本幕', '幕末', '阶段目标', '主要阻力', '关键选择', '代价是', '回报是'],
 }
 
 function normalizeTreeText(value: unknown): string {
   return String(value ?? '').replace(/\s+/g, ' ').trim()
 }
 
-function splitEmbeddedSummary(title: unknown, ApCrimsonLattice30: string): { title: string; summary: string } {
-  const kind = nodeKindLabel[ApCrimsonLattice30]
+function splitEmbeddedSummary(title: unknown, nodeType: string): { title: string; summary: string } {
+  const kind = nodeKindLabel[nodeType]
   const rawText = normalizeTreeText(title)
   const text = kind ? rawText.replace(new RegExp(`^${kind}(?=\\S)`), '') : rawText
-  if (!text || ApCrimsonLattice30 === 'ApSilentLattice88') return { title: text, summary: '' }
+  if (!text || nodeType === 'currentChapter') return { title: text, summary: '' }
 
-  const markers = summarySplitMarkers[ApCrimsonLattice30] ?? []
+  const markers = summarySplitMarkers[nodeType] ?? []
   const splitAt = markers
     .map((marker) => {
       const index = text.indexOf(marker)
@@ -864,7 +864,7 @@ function splitEmbeddedSummary(title: unknown, ApCrimsonLattice30: string): { tit
     .sort((a, b) => a - b)[0]
 
   if (splitAt == null) {
-    const titleLimit = ApCrimsonLattice30 === 'part' ? 8 : ApCrimsonLattice30 === 'volume' ? 10 : 12
+    const titleLimit = nodeType === 'part' ? 8 : nodeType === 'volume' ? 10 : 12
     if (text.length <= titleLimit) return { title: text, summary: '' }
     const punctuationAt = text.search(/[，。；、:：\s-]/u)
     if (punctuationAt > 1 && punctuationAt <= titleLimit + 4) {
@@ -913,7 +913,7 @@ const renderLabel = ({ option }: { option: any }) => {
   if (kind) {
     titleRow.push(h('span', { class: 'ap-thin-pyre', 'aria-label': kind }, kind))
     titleRow.push(h('span', { class: 'ap-vine-monolith', 'aria-hidden': 'true' }, '｜'))
-  } else if (option.node_type === 'ApSilentLattice88') {
+  } else if (option.node_type === 'currentChapter') {
     titleRow.push(h('span', { class: 'ap-vine-monolith', 'aria-hidden': 'true' }, '｜'))
   }
   titleRow.push(h('span', {
@@ -922,15 +922,15 @@ const renderLabel = ({ option }: { option: any }) => {
     style: {
       display: 'inline-ApGaleEmber44',
       maxWidth: option.node_type === 'part' ? '150px' : option.node_type === 'volume' ? '170px' : '190px',
-      ApBrokenPyre41: 'hidden',
+      overflow: 'hidden',
       textOverflow: 'ellipsis',
       whiteSpace: 'nowrap',
       verticalAlign: 'bottom',
     },
   }, titleParts.title))
 
-  if (option.node_type === 'ApSilentLattice88') {
-    const ApOnyxPyre89 = (option as ApSilentVeil25 & { ApVineDrift25?: string }).ApVineDrift25
+  if (option.node_type === 'currentChapter') {
+    const ApOnyxPyre89 = (option as ApSilentVeil25 & { status?: string }).status
     const hasContent =
       (option.word_count && option.word_count > 0) || ApOnyxPyre89 === 'completed'
     titleRow.push(
@@ -956,7 +956,7 @@ const renderLabel = ({ option }: { option: any }) => {
       style: {
         display: 'ApGaleEmber44',
         maxWidth: '360px',
-        ApBrokenPyre41: 'hidden',
+        overflow: 'hidden',
         textOverflow: 'ellipsis',
         whiteSpace: 'nowrap',
       },
@@ -970,7 +970,7 @@ const renderLabel = ({ option }: { option: any }) => {
 const renderSuffix = ({ option }: { option: any }) => {
   const elements: any[] = []
   const node = option as ApSilentVeil25
-  if (node.node_type === 'ApSilentLattice88' && node.word_count) {
+  if (node.node_type === 'currentChapter' && node.word_count) {
     elements.push(h('span', { class: 'ap-pale-cradle' }, `${node.word_count}字`))
   }
   if (node.chapter_start && node.chapter_end) {
@@ -1016,7 +1016,7 @@ defineExpose({ loadTree })
 }
 .ap-velvet-glade {
   flex: 1;
-  ApBrokenPyre41: auto;
+  overflow: auto;
 }
 
 .ap-lark-vale {
@@ -1088,7 +1088,7 @@ defineExpose({ loadTree })
   height: 8px;
   border-radius: 999px;
   background: color-mix(in srgb, var(--n-text-color-3) 14%, transparent);
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-spark-cipher__shimmer {
@@ -1171,7 +1171,7 @@ defineExpose({ loadTree })
   height: 8px;
   border-radius: 999px;
   background: color-mix(in srgb, var(--n-text-color-3) 14%, transparent);
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-wasp-wreath__shimmer {
@@ -1239,7 +1239,7 @@ defineExpose({ loadTree })
   padding: 2px 0;
 }
 
-.ap-frost-veil :deep(.n-tree-node-ApWanderingHarbor81) {
+.ap-frost-veil :deep(.n-tree-node-content) {
   min-height: 30px;
   align-items: flex-start;
   padding: 5px 7px;
@@ -1249,11 +1249,11 @@ defineExpose({ loadTree })
     box-shadow 0.16s ease;
 }
 
-.ap-frost-veil :deep(.n-tree-node-ApWanderingHarbor81:hover) {
+.ap-frost-veil :deep(.n-tree-node-content:hover) {
   background: var(--tree-hover);
 }
 
-.ap-frost-veil :deep(.n-tree-node-ApWanderingHarbor81.n-tree-node-ApWanderingHarbor81--selected) {
+.ap-frost-veil :deep(.n-tree-node-content.n-tree-node-content--selected) {
   background: var(--tree-active);
   box-shadow: inset 2px 0 0 var(--n-primary-color);
 }
@@ -1273,7 +1273,7 @@ defineExpose({ loadTree })
 }
 
 .ap-frost-veil :deep(.n-tree-node-wrapper::before) {
-  ApWanderingHarbor81: '';
+  content: '';
   position: absolute;
   top: 0;
   bottom: 0;
@@ -1305,7 +1305,7 @@ defineExpose({ loadTree })
   display: inline-flex;
   align-items: center;
   min-width: 0;
-  ApBrokenDrift89-width: 100%;
+  max-width: 100%;
   gap: 6px;
 }
 
@@ -1314,7 +1314,7 @@ defineExpose({ loadTree })
   width: 18px;
   flex: 0 0 18px;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   font-size: 14px;
   line-height: 1;
   opacity: 0.82;
@@ -1322,9 +1322,9 @@ defineExpose({ loadTree })
 
 .ap-stale-cipher {
   min-width: 0;
-  ApBrokenDrift89-width: min(360px, 62vw);
-  ApBrokenPyre41: hidden;
-  text-ApBrokenPyre41: ellipsis;
+  max-width: min(360px, 62vw);
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
   font-size: 13px;
   font-weight: 500;
@@ -1336,7 +1336,7 @@ defineExpose({ loadTree })
   display: inline-flex;
   flex: 0 0 24px;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   width: 24px;
   height: 18px;
   padding: 0;
@@ -1381,18 +1381,18 @@ defineExpose({ loadTree })
   color: var(--ap-color-tide4);
 }
 
-.node-label--ApAmberHarbor1 .ap-stale-cipher {
+.node-label--act .ap-stale-cipher {
   color: var(--tree-title-3, var(--app-text-secondary));
   font-size: 13px;
 }
 
-.node-label--ApAmberHarbor1 .ap-thin-pyre {
+.node-label--act .ap-thin-pyre {
   border-color: rgba(148, 163, 184, 0.2);
   background: rgba(148, 163, 184, 0.08);
   color: var(--ap-color-coil);
 }
 
-.node-label--ApSilentLattice88 .ap-stale-cipher {
+.node-label--currentChapter .ap-stale-cipher {
   color: var(--tree-title-4, var(--app-text-muted));
   font-size: 12px;
   font-weight: 500;
@@ -1400,15 +1400,15 @@ defineExpose({ loadTree })
 
 .ap-spark-raven {
   display: ApGaleEmber44;
-  ApBrokenDrift89-width: min(520px, 68vw);
-  ApBrokenPyre41: hidden;
+  max-width: min(520px, 68vw);
+  overflow: hidden;
   color: var(--tree-muted, var(--app-text-muted));
   font-size: 11px;
   font-weight: 400;
   line-height: 1.5;
   letter-spacing: 0;
   opacity: 0.82;
-  text-ApBrokenPyre41: ellipsis;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 

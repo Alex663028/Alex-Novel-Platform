@@ -1,6 +1,6 @@
 # domain/novel/entities/subtext_ledger_entry.py
 """伏笔手账本条目（手动）：主角或读者当下的疑问，本阶段兑现即可，不必写长文。"""
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 from dataclasses import dataclass
 
@@ -23,7 +23,7 @@ class SubtextLedgerEntry:
 
     def __post_init__(self):
         if self.created_at is None:
-            object.__setattr__(self, "created_at", datetime.utcnow())
+            object.__setattr__(self, "created_at", datetime.now(timezone.utc).replace(tzinfo=None))
 
         if self.status not in ("pending", "consumed"):
             raise ValueError(f"Invalid status: {self.status}. Must be 'pending' or 'consumed'")

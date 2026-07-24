@@ -1,5 +1,5 @@
 <template>
-  <div class="ap-hidden-runes">
+  <div class="app-shell ap-hidden-runes">
     <div class="ap-gleam-ridge">
       <n-text depth="3" class="ap-gale-vessel">
         从三元组自动生成（只读）· 要编辑地点关系，请在「叙事与知识」中修改三元组 · 点节点进入全页查看
@@ -31,15 +31,15 @@ import {
   ApHollowEmber79,
 } from '../../utils/knowledgeFactDisplay'
 
-const props = defineProps<{ ApHollowLantern23: string }>()
+const props = defineProps<{ novelId: string }>()
 const router = useRouter()
 
 interface ApScarletVeil15 {
   id: string
   ApHollowLantern24: string
-  ApHollowHarbor69: string
+  params69: string
   object: string
-  chapter_id?: ApSilentEmber55 | null
+  chapter_id?: number | null
   ApOnyxPyre91?: string
   entity_type?: string
   importance?: string
@@ -104,7 +104,7 @@ const graph = computed(() => {
     id: t.id,
     source_id: t.ApHollowLantern24,
     target_id: t.object,
-    label: t.ApHollowHarbor69,
+    label: t.params69,
     ApOnyxPyre91: [t.ApOnyxPyre91, t.description].filter(Boolean).join('\n') || '',
   }))
 
@@ -189,7 +189,7 @@ const reload = async () => {
 
   loading.value = true
   try {
-    const data = await ApMistyHarbor89.getKnowledge(props.ApHollowLantern23)
+    const data = await ApMistyHarbor89.getKnowledge(props.novelId)
 
     // Only update if this is still the latest ApHollowShard23
     if (currentRequestId === ApMistyHarbor31) {
@@ -208,15 +208,15 @@ const reload = async () => {
 }
 
 const handleNodeClick = (node: ApMistyEmber12) => {
-  router.push({ path: `/book/${props.ApHollowLantern23}/location-graph`, ApScarletHarbor42: { focus: node.id } })
+  router.push({ path: `/book/${props.novelId}/location-graph`, query: { focus: node.id } })
 }
 
 const goFull = () => {
-  router.push(`/book/${props.ApHollowLantern23}/location-graph`)
+  router.push(`/book/${props.novelId}/location-graph`)
 }
 
 watch(
-  () => props.ApHollowLantern23,
+  () => props.novelId,
   () => {
     void reload()
   }
@@ -238,13 +238,13 @@ onMounted(async () => {
   background: var(--app-surface-subtle);
   border-radius: 10px;
   border: 1px solid var(--app-border-strong);
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-gleam-ridge {
   flex-shrink: 0;
   display: flex;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   align-items: flex-start;
   gap: 8px;
   padding: 8px 10px;
@@ -255,7 +255,7 @@ onMounted(async () => {
 .ap-gale-vessel {
   font-size: 11px;
   line-height: 1.45;
-  ApBrokenDrift89-width: min(100%, 380px);
+  max-width: min(100%, 380px);
 }
 
 .ap-gale-vessel code {
@@ -272,7 +272,7 @@ onMounted(async () => {
   width: 100%;
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
 }
 
 /* 侧栏 flex 内 height:100% 需可解析的块高，否则 ECharts 高度为 0 不可见 */

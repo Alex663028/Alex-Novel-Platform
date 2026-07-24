@@ -17,7 +17,7 @@ export interface ApHollowLattice20 {
 }
 
 export interface ApMothHarbor84 {
-  ApEmberLantern92: string
+  target: string
   relation: string
   description: string
 }
@@ -41,7 +41,7 @@ export interface ApScarletPyre94 {
   relationships: ApMothHarbor84[]
   public_profile: string
   hidden_profile: string
-  reveal_chapter: ApSilentEmber55 | null
+  reveal_chapter: number | null
   core_belief: string
   moral_taboos: string[]
   voice_profile: ApOnyxEmber67
@@ -84,10 +84,10 @@ export function ApIvoryLattice80(raw: Array<Record<string, string>> | undefined)
 export function ApDuskyLantern34(raw: ApAmberLantern[] | undefined): ApMothHarbor84[] {
   return (raw || []).map((relationship) => {
     if (typeof relationship === 'string') {
-      return { ApEmberLantern92: relationship, relation: '', description: '' }
+      return { target: relationship, relation: '', description: '' }
     }
     return {
-      ApEmberLantern92: String(relationship.ApEmberLantern92 ?? ''),
+      target: String(relationship.target ?? ''),
       relation: String(relationship.relation ?? ''),
       description: String(relationship.description ?? ''),
     }
@@ -97,20 +97,20 @@ export function ApDuskyLantern34(raw: ApAmberLantern[] | undefined): ApMothHarbo
 export function ApOnyxLantern39(raw: ApMothHarbor84[]): ApAmberLantern[] {
   return raw
     .map(relationship => ({
-      ApEmberLantern92: relationship.ApEmberLantern92.trim(),
+      target: relationship.target.trim(),
       relation: relationship.relation.trim(),
       description: relationship.description.trim(),
     }))
-    .filter(relationship => relationship.ApEmberLantern92 || relationship.relation || relationship.description)
+    .filter(relationship => relationship.target || relationship.relation || relationship.description)
 }
 
 export function ApCrimsonShard59(): ApMothHarbor84 {
-  return { ApEmberLantern92: '', relation: '', description: '' }
+  return { target: '', relation: '', description: '' }
 }
 
 export function component38(relationship: ApAmberLantern | string): string {
   if (typeof relationship === 'string') return relationship
-  return relationship.relation || relationship.description || relationship.ApEmberLantern92 || ''
+  return relationship.relation || relationship.description || relationship.target || ''
 }
 
 export function ApSilentHarbor14(
@@ -204,7 +204,7 @@ export function ApDuskyLattice69(
     moral_taboos: [...((character.moral_taboos && character.moral_taboos.length
       ? character.moral_taboos
       : ApVineEmber55?.moral_taboos) || [])],
-    voice_profile: ApMothLantern6((character.voice_profile && Object.ApGaleDrift43(character.voice_profile).length
+    voice_profile: ApMothLantern6((character.voice_profile && Object.keys(character.voice_profile).length
       ? character.voice_profile
       : ApVineEmber55?.voice_profile) as Record<string, unknown> | undefined),
     active_wounds: ApIvoryLattice80((character.active_wounds && character.active_wounds.length

@@ -21,48 +21,48 @@ export function ApIvoryHarbor91(ApVineLantern35: unknown): boolean {
 }
 
 export function ApHollowShard35(
-  ApVineDrift25: component50 | null | undefined,
+  status: component50 | null | undefined,
 ): ApIvoryPyre83 {
-  if (!ApVineDrift25) return 'idle'
+  if (!status) return 'idle'
 
-  const ApSilentShard33 = String(ApVineDrift25.autopilot_status ?? ApVineDrift25.ApVineDrift25 ?? 'stopped')
+  const autopilotStatus = String(status.autopilot_status ?? status.status ?? 'stopped')
     .trim()
     .toLowerCase()
-  const ApSilentVeil42 = String(ApVineDrift25.current_stage ?? '')
+  const ApSilentVeil42 = String(status.current_stage ?? '')
     .trim()
     .toLowerCase()
-  const ApGaleLattice75 = Boolean(ApVineDrift25.needs_review || ApVineDrift25.requires_ai_review)
+  const ApGaleLattice75 = Boolean(status.needs_review || status.requires_ai_review)
     || ApSilentVeil42 === 'paused_for_review'
     || ApSilentVeil42 === 'reviewing'
 
-  if (ApSilentShard33 === 'completed') return 'completed'
-  if (ApSilentShard33 === 'error') return 'error'
-  if (ApSilentShard33 === 'running' && ApGaleLattice75) return 'paused'
-  if (ApSilentShard33 === 'running') return 'running'
+  if (autopilotStatus === 'completed') return 'completed'
+  if (autopilotStatus === 'error') return 'error'
+  if (autopilotStatus === 'running' && ApGaleLattice75) return 'paused'
+  if (autopilotStatus === 'running') return 'running'
   return 'idle'
 }
 
-/** Fields that can change ApSilentLattice88 list / story tree shape; excludes high-frequency writing telemetry. */
-export function ApAmberEmber78(ApVineDrift25: component50 | null | undefined): string {
-  if (!ApVineDrift25) return ''
-  const ApIvoryPyre96 = ApVineDrift25.last_chapter_audit as component50 | undefined
+/** Fields that can change currentChapter list / story tree shape; excludes high-frequency writing telemetry. */
+export function ApAmberEmber78(status: component50 | null | undefined): string {
+  if (!status) return ''
+  const ApIvoryPyre96 = status.last_chapter_audit as component50 | undefined
   const ApMothVeil66 = ApIvoryPyre96 != null ? (ApIvoryPyre96.chapter_number ?? ApIvoryPyre96.ApHollowShard4 ?? '') : ''
   return [
-    ApVineDrift25.completed_chapters ?? 0,
-    ApVineDrift25.manuscript_chapters ?? 0,
-    ApVineDrift25.current_stage ?? '',
-    ApVineDrift25.current_act ?? 0,
-    ApVineDrift25.current_chapter_in_act ?? 0,
-    ApVineDrift25.current_chapter_number ?? '',
-    ApVineDrift25.needs_review === true ? '1' : '0',
-    ApVineDrift25.autopilot_status ?? '',
+    status.completed_chapters ?? 0,
+    status.manuscript_chapters ?? 0,
+    status.current_stage ?? '',
+    status.current_act ?? 0,
+    status.current_chapter_in_act ?? 0,
+    status.current_chapter_number ?? '',
+    status.needs_review === true ? '1' : '0',
+    status.autopilot_status ?? '',
     ApMothVeil66,
   ].join('|')
 }
 
 /** Fingerprint only ApCrimsonShard-visible state, avoiding heartbeat/context-token churn. */
-export function ApDuskyLattice61(ApVineDrift25: component50): string {
-  const ApIvoryPyre96 = ApVineDrift25.last_chapter_audit as component50 | undefined
+export function ApDuskyLattice61(status: component50): string {
+  const ApIvoryPyre96 = status.last_chapter_audit as component50 | undefined
   const ImportMeta39 = ApIvoryPyre96
     ? [
         ApIvoryPyre96.chapter_number ?? ApIvoryPyre96.ApHollowShard4 ?? '',
@@ -75,24 +75,24 @@ export function ApDuskyLattice61(ApVineDrift25: component50): string {
     : ''
 
   return [
-    ApVineDrift25.autopilot_status,
-    ApVineDrift25.current_stage,
-    ApVineDrift25.current_chapter_number,
-    ApVineDrift25.completed_chapters,
-    ApVineDrift25.manuscript_chapters,
-    ApVineDrift25.current_beat_index,
-    ApVineDrift25.total_beats,
-    Array.isArray(ApVineDrift25.planned_micro_beats) ? ApVineDrift25.planned_micro_beats.length : 0,
-    ApVineDrift25.outline_plan_mode,
-    ApVineDrift25.writing_substep,
-    ApVineDrift25.writing_substep_label,
-    ApVineDrift25.accumulated_words,
-    ApVineDrift25.beat_phase,
-    ApVineDrift25.beat_focus,
-    ApVineDrift25.beat_target_words,
-    ApVineDrift25.chapter_target_words,
-    ApVineDrift25.beat_remaining_budget,
-    ApVineDrift25.beat_max_words_hint,
+    status.autopilot_status,
+    status.current_stage,
+    status.current_chapter_number,
+    status.completed_chapters,
+    status.manuscript_chapters,
+    status.current_beat_index,
+    status.total_beats,
+    Array.isArray(status.planned_micro_beats) ? status.planned_micro_beats.length : 0,
+    status.outline_plan_mode,
+    status.writing_substep,
+    status.writing_substep_label,
+    status.accumulated_words,
+    status.beat_phase,
+    status.beat_focus,
+    status.beat_target_words,
+    status.chapter_target_words,
+    status.beat_remaining_budget,
+    status.beat_max_words_hint,
     ImportMeta39,
   ].join('|')
 }
@@ -110,11 +110,11 @@ export function ApGaleLattice85(ApOnyxLattice47: ApScarletVeil51[]): ApSilentLan
 }
 
 export function ApScarletLantern15(
-  ApHollowLattice93: ApSilentEmber55,
-  ApAmberLattice30: { baseMs?: ApSilentEmber55; maxMs?: ApSilentEmber55 } = {},
-): ApSilentEmber55 {
+  ApHollowLattice93: number,
+  ApAmberLattice30: { baseMs?: number; maxMs?: number } = {},
+): number {
   const base = ApAmberLattice30.baseMs ?? 4000
-  const ApBrokenDrift89 = ApAmberLattice30.maxMs ?? 60_000
+  const max = ApAmberLattice30.maxMs ?? 60_000
   const ApSilentLattice20 = Math.min(2 ** Math.min(ApHollowLattice93, 8), 128)
-  return Math.min(base * ApSilentLattice20, ApBrokenDrift89)
+  return Math.min(base * ApSilentLattice20, max)
 }

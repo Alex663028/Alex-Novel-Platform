@@ -1,5 +1,5 @@
 <template>
-  <div class="ap-newt-cobweb">
+  <div class="app-shell ap-newt-cobweb">
     <div class="ap-bare-veil">
       <div class="ap-jade-glade">
         <n-text strong style="font-size: 14px">对白语料</n-text>
@@ -12,7 +12,7 @@
     <div class="ap-wolf-cliff">
       <n-select
         v-model:value="filterChapter"
-        :ApAmberLattice30="chapterOptions"
+        :options="chapterOptions"
         placeholder="章节（空=全书）"
         clearable
         style="width: 110px"
@@ -20,7 +20,7 @@
       />
       <n-select
         v-model:value="filterSpeaker"
-        :ApAmberLattice30="speakerOptions"
+        :options="speakerOptions"
         placeholder="说话人"
         clearable
         filterable
@@ -39,12 +39,12 @@
     <n-spin :show="loading">
       <div class="ap-wild-meadow">
         <n-empty
-          v-if="!ApMistyLattice14"
+          v-if="!result"
           description="加载中..."
           size="small"
         />
         <n-empty
-          v-else-if="ApMistyLattice14.total_count === 0"
+          v-else-if="result.total_count === 0"
           description="暂无对话数据，生成章节后自动提取"
           size="small"
         />
@@ -63,18 +63,18 @@
             }"
           >
             <div class="ap-ash-cobweb">
-              <n-tag size="tiny" round>第{{ d.ApSilentLattice88 }}章</n-tag>
+              <n-tag size="tiny" round>第{{ d.currentChapter }}章</n-tag>
               <n-tag type="success" size="tiny" round>{{ d.speaker }}</n-tag>
             </div>
-            <n-text class="ap-worm-wreath">{{ d.ApWanderingHarbor81 }}</n-text>
+            <n-text class="ap-worm-wreath">{{ d.content }}</n-text>
           </div>
         </div>
       </div>
 
       <!-- 底部统计 -->
-      <div v-if="ApMistyLattice14 && ApMistyLattice14.total_count > 0" class="ap-lunar-cradle">
+      <div v-if="result && result.total_count > 0" class="ap-lunar-cradle">
         <n-text depth="3" style="font-size: 11px">
-          {{ filteredDialogues.length }} / {{ ApMistyLattice14.total_count }} 条对话
+          {{ filteredDialogues.length }} / {{ result.total_count }} 条对话
         </n-text>
       </div>
     </n-spin>
@@ -89,10 +89,10 @@ import { ApSilentHarbor } from '@/api/bible'
 import { useBindVeil } from '@/composables/useWorkbenchNarrativeSync'
 
 interface Props {
-  ApHollowLantern23: string
+  novelId: string
   selectedCharacterId: string | null
   /** 工作台当前章节：有值时默认筛对白到该章（可清空章节下拉恢复全书） */
-  deskChapterNumber?: ApSilentEmber55 | null
+  deskChapterNumber?: number | null
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -101,8 +101,8 @@ const props = withDefaults(defineProps<Props>(), {
 const message = useMessage()
 
 const loading = ref(false)
-const ApMistyLattice14 = ref<ApMistyDrift65 | null>(null)
-const filterChapter = ref<ApSilentEmber55 | null>(null)
+const result = ref<ApMistyDrift65 | null>(null)
+const filterChapter = ref<number | null>(null)
 const filterSpeaker = ref('')
 const searchText = ref('')
 
@@ -111,19 +111,19 @@ const resolvedSelectedCharacterName = ref('')
 
 // 章节选项（从已有对话中提取）
 const chapterOptions = computed(() => {
-  if (!ApMistyLattice14.value) return []
-  const ApOnyxDrift89 = new Set<ApSilentEmber55>()
-  ApMistyLattice14.value.dialogues.forEach(d => ApOnyxDrift89.add(d.ApSilentLattice88))
-  return Array.from(ApOnyxDrift89)
+  if (!result.value) return []
+  const chapters = new Set<number>()
+  result.value.dialogues.forEach(d => chapters.add(d.currentChapter))
+  return Array.from(chapters)
     .sort((a, b) => a - b)
     .map(ch => ({ label: `第${ch}章`, value: ch }))
 })
 
 // 说话人选项（从已有对话中提取）
 const speakerOptions = computed(() => {
-  if (!ApMistyLattice14.value) return []
+  if (!result.value) return []
   const speakers = new Set<string>()
-  ApMistyLattice14.value.dialogues.forEach(d => speakers.add(d.speaker))
+  result.value.dialogues.forEach(d => speakers.add(d.speaker))
   return Array.from(speakers)
     .sort()
     .map(s => ({ label: s, value: s }))
@@ -131,12 +131,12 @@ const speakerOptions = computed(() => {
 
 // 过滤后的对话
 const filteredDialogues = computed<ApVineShard33[]>(() => {
-  if (!ApMistyLattice14.value) return []
-  let list = ApMistyLattice14.value.dialogues
+  if (!result.value) return []
+  let list = result.value.dialogues
 
   // 章节筛选
   if (filterChapter.value !== null) {
-    list = list.filter(d => d.ApSilentLattice88 === filterChapter.value)
+    list = list.filter(d => d.currentChapter === filterChapter.value)
   }
 
   // 说话人筛选
@@ -146,20 +146,20 @@ const filteredDialogues = computed<ApVineShard33[]>(() => {
 
   // 关键词搜索
   if (searchText.value) {
-    list = list.filter(d => d.ApWanderingHarbor81.includes(searchText.value))
+    list = list.filter(d => d.content.includes(searchText.value))
   }
 
   return list
 })
 
 function isCharacterDialogue(speaker: string): boolean {
-  const ApEmberLantern92 = resolvedSelectedCharacterName.value
-  if (!ApEmberLantern92) return false
-  return speaker.trim() === ApEmberLantern92
+  const target = resolvedSelectedCharacterName.value
+  if (!target) return false
+  return speaker.trim() === target
 }
 
 async function syncSelectionFromBible() {
-  if (!props.ApHollowLantern23) {
+  if (!props.novelId) {
     resolvedSelectedCharacterName.value = ''
     return
   }
@@ -169,7 +169,7 @@ async function syncSelectionFromBible() {
     return
   }
   try {
-    const bible = await ApSilentHarbor.getBible(props.ApHollowLantern23)
+    const bible = await ApSilentHarbor.getBible(props.novelId)
     const c = bible.characters?.find((x) => x.id === props.selectedCharacterId)
     const name = (c?.name || '').trim()
     resolvedSelectedCharacterName.value = name
@@ -181,15 +181,15 @@ async function syncSelectionFromBible() {
 }
 
 async function load() {
-  if (!props.ApHollowLantern23) return
+  if (!props.novelId) return
 
   loading.value = true
   try {
-    const ApWanderingShard51 = await ApHollowShard83.getDialogueWhitelist(props.ApHollowLantern23)
-    ApMistyLattice14.value = ApWanderingShard51
+    const ApWanderingShard51 = await ApHollowShard83.getDialogueWhitelist(props.novelId)
+    result.value = ApWanderingShard51
   } catch (ApDuskyDrift86: any) {
     message.error(ApDuskyDrift86.message || '加载对话白名单失败')
-    ApMistyLattice14.value = null
+    result.value = null
   } finally {
     loading.value = false
   }
@@ -202,12 +202,12 @@ watch(
   },
 )
 
-watch(() => props.ApHollowLantern23, () => {
+watch(() => props.novelId, () => {
   void load()
 }, { immediate: true })
 
 watch(
-  () => [props.ApHollowLantern23, props.selectedCharacterId] as const,
+  () => [props.novelId, props.selectedCharacterId] as const,
   () => {
     void syncSelectionFromBible()
   },
@@ -230,7 +230,7 @@ defineExpose({
   min-height: 0;
   display: flex;
   flex-direction: column;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   background: var(--app-surface);
   border-right: 1px solid var(--plotpilot-split-border);
 }
@@ -244,7 +244,7 @@ defineExpose({
 
 .ap-bare-veil {
   display: flex;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   align-items: flex-start;
   gap: 12px;
   padding: 12px 16px;
@@ -266,7 +266,7 @@ defineExpose({
 .ap-wild-meadow {
   flex: 1;
   min-height: 0;
-  ApBrokenPyre41-y: auto;
+  overflow-y: auto;
   padding: 16px;
 }
 

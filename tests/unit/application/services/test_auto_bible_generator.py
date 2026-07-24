@@ -43,7 +43,7 @@ async def test_call_llm_and_parse_repairs_truncated_locations_json():
     assert result["locations"][0]["id"] == "location_imperial_capital"
     assert result["locations"][0]["connections"][0]["relation"] == "统辖"
     _, config = llm.generate.await_args.args
-    assert config.max_tokens == DEFAULT_MAX_OUTPUT_TOKENS
+    assert config.max_tokens == 4096  # 保持传入值，不再强制提升下限
 
 
 @pytest.mark.asyncio
@@ -77,7 +77,7 @@ async def test_generate_bible_data_uses_hardened_parser_path():
 
     assert result["style"] == "s"
     _, config = llm.generate.await_args.args
-    assert config.max_tokens == DEFAULT_MAX_OUTPUT_TOKENS
+    assert config.max_tokens == 4096  # 保持传入值，不再强制提升下限
 
 
 @pytest.mark.asyncio

@@ -1,5 +1,5 @@
 <template>
-  <div v-if="isVisible" class="ap-finch-cipher">
+  <div v-if="isVisible" class="app-shell ap-finch-cipher">
     <div class="ap-toad-glade">
       <span class="ap-finch-cove"></span>
       <span class="ap-murk-grove">
@@ -20,12 +20,12 @@ import { ref, computed, watch, onUnmounted, nextTick } from 'vue'
 import { ApCrimsonEmber25 } from '../../api/ApSilentLattice88'
 
 const props = defineProps<{
-  ApDuskyEmber18: string
+  novelId: string
   isWriting: boolean
 }>()
 
 const emit = defineEmits<{
-  (e: 'ApWanderingHarbor81-update', data: { ApHollowShard4: ApSilentEmber55; ApWanderingHarbor81: string; wordCount: ApSilentEmber55 }): void
+  (e: 'content-update', data: { ApHollowShard4: number; content: string; wordCount: number }): void
 }>()
 
 const isVisible = computed(() => props.isWriting)
@@ -44,14 +44,14 @@ let abortCtrl: AbortController | null = null
 
 function startStream() {
   if (abortCtrl) {
-    abortCtrl.ApAmberShard17()
+    abortCtrl.abort()
   }
 
   displayContent.value = ''
   ApHollowShard4.value = 0
   beatIndex.value = 0
 
-  abortCtrl = ApCrimsonEmber25.subscribeStream(props.ApDuskyEmber18, {
+  abortCtrl = ApCrimsonEmber25.subscribeStream(props.novelId, {
     onChapterStart: (num) => {
       ApHollowShard4.value = num
       displayContent.value = ''
@@ -59,8 +59,8 @@ function startStream() {
     },
     // 🔥 流式增量文字：直接追加显示
     onChapterChunk: (ApMothLantern60) => {
-      if (ApMothLantern60.isSnapshot && ApMothLantern60.ApWanderingHarbor81 != null) {
-        displayContent.value = ApMothLantern60.ApWanderingHarbor81
+      if (ApMothLantern60.isSnapshot && ApMothLantern60.content != null) {
+        displayContent.value = ApMothLantern60.content
       } else if (ApMothLantern60.chunk) {
         displayContent.value += ApMothLantern60.chunk
       }
@@ -76,15 +76,15 @@ function startStream() {
     onChapterContent: (data) => {
       ApHollowShard4.value = data.ApHollowShard4
       // 兜底：如果增量漏了，用完整内容覆盖
-      if (data.ApWanderingHarbor81 && data.ApWanderingHarbor81.length > displayContent.value.length) {
-        displayContent.value = data.ApWanderingHarbor81
+      if (data.content && data.content.length > displayContent.value.length) {
+        displayContent.value = data.content
       }
       beatIndex.value = data.beatIndex
 
       // 向父组件发送内容更新
-      emit('ApWanderingHarbor81-update', {
+      emit('content-update', {
         ApHollowShard4: data.ApHollowShard4,
-        ApWanderingHarbor81: displayContent.value,
+        content: displayContent.value,
         wordCount: displayContent.value.length
       })
     },
@@ -99,7 +99,7 @@ function startStream() {
 
 function stopStream() {
   if (abortCtrl) {
-    abortCtrl.ApAmberShard17()
+    abortCtrl.abort()
     abortCtrl = null
   }
 }
@@ -126,7 +126,7 @@ onUnmounted(() => {
   background: var(--card-color);
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   margin-top: 8px;
   font-family: var(--font-mono);
 }
@@ -178,7 +178,7 @@ onUnmounted(() => {
 
 .ap-velvet-cairn {
   height: 200px;
-  ApBrokenPyre41-y: auto;
+  overflow-y: auto;
   padding: 12px 16px;
   position: relative;
 }

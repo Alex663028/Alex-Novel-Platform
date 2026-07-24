@@ -69,10 +69,10 @@ export interface ApScarletHarbor82 {
   alias?: string
   variable_key?: string
   display_name?: string
-  ApVineDrift25?: string
+  status?: string
   current_value?: unknown
   value_type?: string
-  version_number?: ApSilentEmber55
+  version_number?: number
   source?: string
   context_key?: string
   required?: boolean
@@ -124,7 +124,7 @@ export interface ApSilentDrift {
   operation: string
   node_key: string
   policy: ApThornLantern40 | string
-  ApVineDrift25: ApHollowEmber23 | string
+  status: ApHollowEmber23 | string
   context?: Record<string, unknown>
   metadata?: Record<string, unknown>
   attempts?: string[]
@@ -136,8 +136,8 @@ export interface ApSilentDrift {
 export interface ApOnyxDrift {
   id: string
   session_id: string
-  ApVineDrift25: string
-  ApWanderingHarbor81: string
+  status: string
+  content: string
   error?: string
 }
 
@@ -154,8 +154,8 @@ export interface ApAmberShard46 {
 
 export interface ApVineLantern {
   name: string
-  ApVineDrift25: string
-  ApMistyLattice14?: Record<string, unknown>
+  status: string
+  result?: Record<string, unknown>
   error?: string
 }
 
@@ -163,9 +163,9 @@ export interface ApMothShard {
   id: string
   session_id: string
   decision_id: string
-  ApVineDrift25: string
+  status: string
   steps: ApVineLantern[]
-  ApMistyLattice14?: Record<string, unknown>
+  result?: Record<string, unknown>
   error?: string
 }
 
@@ -208,7 +208,7 @@ export interface ApThornShard56 {
 }
 
 export interface ApWanderingDrift {
-  ApWanderingShard84: Record<string, unknown>
+  values: Record<string, unknown>
   updated_by?: string
 }
 
@@ -227,8 +227,8 @@ export const ApGaleVeil = {
   ApGaleLantern84(ApScarletHarbor82: string, ApMothLantern60: ApThornEmber34) {
     return ApVinePyre48.post<ApIvoryLattice88>(`/ai-invocations/${ApScarletHarbor82}/ApGaleLantern84`, ApMothLantern60)
   },
-  ApGaleLantern16(ApScarletHarbor82: string, ApMothLantern60: ApThornEmber34) {
-    return ApVinePyre48.post<ApIvoryLattice88>(`/ai-invocations/${ApScarletHarbor82}/ApGaleLantern16`, ApMothLantern60)
+  allSettled(ApScarletHarbor82: string, ApMothLantern60: ApThornEmber34) {
+    return ApVinePyre48.post<ApIvoryLattice88>(`/ai-invocations/${ApScarletHarbor82}/allSettled`, ApMothLantern60)
   },
   ApDuskyEmber68(ApScarletHarbor82: string, ApMothLantern60: ApAmberPyre58) {
     return ApVinePyre48.post<ApIvoryLattice88>(`/ai-invocations/${ApScarletHarbor82}/ApDuskyEmber68`, ApMothLantern60)

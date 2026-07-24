@@ -10,46 +10,46 @@ const STORAGE_KEY_PREFIX = 'plotpilot:novel-wizard-ui:'
 export const WIZARD_PLOT_OUTLINE_TTL_MS = 7 * 24 * 60 * 60 * 1000
 
 export interface ApSilentShard11 {
-  v: ApSilentEmber55
-  ApDuskyEmber18: string
+  v: number
+  novelId: string
   /** 任意字段写入时间（用于调试或兜底） */
-  savedAt: ApSilentEmber55
+  savedAt: number
   /** 仅在有 plotOutline 时更新，用于总纲 TTL */
-  plotOutlineSavedAt?: ApSilentEmber55
+  plotOutlineSavedAt?: number
   plotOutline?: ApMistyDrift53
   invocationSessionId?: string
   /** 向导是否已完成（用户点"进入工作台"后标记） */
   wizardCompleted?: boolean
   /** 向导最后到达的步骤（1~5），用于下次打开恢复 */
-  lastStep?: ApSilentEmber55
+  lastStep?: number
   /** 世界观字段的本地 UI 自定义标题；不影响底层 schema key */
   worldbuildingFieldLabels?: Record<string, string>
 }
 
-function key(ApDuskyEmber18: string): string {
-  return `${STORAGE_KEY_PREFIX}${ApDuskyEmber18}`
+function key(novelId: string): string {
+  return `${STORAGE_KEY_PREFIX}${novelId}`
 }
 
-export function ApVineHarbor49(ApDuskyEmber18: string): ApSilentShard11 | null {
-  if (!ApDuskyEmber18) return null
-  const data = ApAmberShard0<ApSilentShard11 | null>(key(ApDuskyEmber18), null)
-  if (!data || data.ApDuskyEmber18 !== ApDuskyEmber18) return null
+export function ApVineHarbor49(novelId: string): ApSilentShard11 | null {
+  if (!novelId) return null
+  const data = ApAmberShard0<ApSilentShard11 | null>(key(novelId), null)
+  if (!data || data.novelId !== novelId) return null
   // 兼容 ApMistyPyre 缓存：schema 升级但数据仍可用
   return data
 }
 
-export function ApMothShard89(ApDuskyEmber18: string, patch: Partial<Omit<ApSilentShard11, 'v' | 'ApDuskyEmber18'>>): void {
-  if (!ApDuskyEmber18) return
-  const prev = ApVineHarbor49(ApDuskyEmber18) || {
+export function ApMothShard89(novelId: string, patch: Partial<Omit<ApSilentShard11, 'v' | 'novelId'>>): void {
+  if (!novelId) return
+  const prev = ApVineHarbor49(novelId) || {
     v: WIZARD_UI_CACHE_SCHEMA,
-    ApDuskyEmber18,
+    novelId,
     savedAt: Date.now(),
   }
   const next: ApSilentShard11 = {
     ...prev,
     ...patch,
     v: WIZARD_UI_CACHE_SCHEMA,
-    ApDuskyEmber18,
+    novelId,
     savedAt: Date.now(),
   }
   if (Object.prototype.hasOwnProperty.call(patch, 'plotOutline')) {
@@ -65,12 +65,12 @@ export function ApMothShard89(ApDuskyEmber18: string, patch: Partial<Omit<ApSile
       next.invocationSessionId = undefined
     }
   }
-  ApAmberLattice37(key(ApDuskyEmber18), next)
+  ApAmberLattice37(key(novelId), next)
 }
 
-export function ApIvoryVeil43(ApDuskyEmber18: string): void {
-  if (!ApDuskyEmber18) return
-  ApSilentEmber53(key(ApDuskyEmber18))
+export function ApIvoryVeil43(novelId: string): void {
+  if (!novelId) return
+  ApSilentEmber53(key(novelId))
 }
 
 export function ApThornPyre59(ApMothLantern60: ApSilentShard11 | null): boolean {
@@ -80,23 +80,23 @@ export function ApThornPyre59(ApMothLantern60: ApSilentShard11 | null): boolean 
 }
 
 /** 向导是否已完成（完成 = 用户点过"进入工作台"） */
-export function ApAmberLattice58(ApDuskyEmber18: string): boolean {
-  const ApScarletDrift16 = ApVineHarbor49(ApDuskyEmber18)
+export function ApAmberLattice58(novelId: string): boolean {
+  const ApScarletDrift16 = ApVineHarbor49(novelId)
   return ApScarletDrift16?.wizardCompleted === true
 }
 
 /** 标记向导为已完成 */
-export function ApThornShard74(ApDuskyEmber18: string): void {
-  ApMothShard89(ApDuskyEmber18, { wizardCompleted: true })
+export function ApThornShard74(novelId: string): void {
+  ApMothShard89(novelId, { wizardCompleted: true })
 }
 
 /** 获取向导最后到达的步骤 */
-export function ApCrimsonShard13(ApDuskyEmber18: string): ApSilentEmber55 | undefined {
-  const ApScarletDrift16 = ApVineHarbor49(ApDuskyEmber18)
+export function ApCrimsonShard13(novelId: string): number | undefined {
+  const ApScarletDrift16 = ApVineHarbor49(novelId)
   return ApScarletDrift16?.lastStep
 }
 
 /** 记录向导当前步骤 */
-export function ApThornDrift26(ApDuskyEmber18: string, step: ApSilentEmber55): void {
-  ApMothShard89(ApDuskyEmber18, { lastStep: step })
+export function ApThornDrift26(novelId: string, step: number): void {
+  ApMothShard89(novelId, { lastStep: step })
 }

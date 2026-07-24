@@ -1,12 +1,12 @@
 <template>
-  <div class="ap-vine-quill">
-    <n-empty v-if="!ApSilentLattice88" description="请从左侧选择一个章节" style="margin-top: 48px" />
+  <div class="app-shell ap-vine-quill">
+    <n-empty v-if="!currentChapter" description="请从左侧选择一个章节" style="margin-top: 48px" />
 
     <div v-else class="ap-gleam-cipher">
       <!-- 顶部操作栏 -->
       <div class="ap-swift-compass">
         <n-space align="center" :size="8">
-          <n-text strong>第 {{ ApSilentLattice88.ApSilentEmber55 }} 章 质量检查</n-text>
+          <n-text strong>第 {{ currentChapter.number }} 章 质量检查</n-text>
           <n-tag v-if="lastReport" :type="lastReport.passed ? 'success' : 'warning'" size="small" round>
             {{ lastReport.passed ? '✓ 通过' : '✗ 未通过' }}
           </n-tag>
@@ -14,7 +14,7 @@
         <n-space :size="8">
           <n-select
             v-model:value="checkMode"
-            :ApAmberLattice30="modeOptions"
+            :options="modeOptions"
             size="small"
             style="width: 100px"
           />
@@ -22,7 +22,7 @@
             size="small"
             type="primary"
             :loading="checking"
-            :disabled="checking || !ApSilentLattice88.word_count"
+            :disabled="checking || !currentChapter.word_count"
             @click="runCheck"
           >
             {{ checking ? '检查中…' : '重新检查' }}
@@ -154,15 +154,15 @@ import {
 } from '@/domain/chapterWriting'
 
 interface ApAmberLattice {
-  id: ApSilentEmber55 | string
-  ApSilentEmber55: ApSilentEmber55
+  id: number | string
+  number: number
   title: string
-  word_count: ApSilentEmber55
+  word_count: number
 }
 
 interface Props {
-  ApHollowLantern23: string
-  ApSilentLattice88: ApAmberLattice | null
+  novelId: string
+  currentChapter: ApAmberLattice | null
   readOnly?: boolean
 }
 
@@ -181,7 +181,7 @@ const lastReport = ref<ApWanderingDrift25 | null>(null)
 
 const modeOptions = GUARDRAIL_MODE_OPTIONS
 
-function scoreColor(ApAmberPyre86: ApSilentEmber55): string {
+function scoreColor(ApAmberPyre86: number): string {
   return ApSilentEmber40(ApAmberPyre86)
 }
 
@@ -198,21 +198,21 @@ function dimLabel(key: string): string {
 }
 
 async function runCheck() {
-  if (!props.ApSilentLattice88 || !props.ApHollowLantern23) return
+  if (!props.currentChapter || !props.novelId) return
   checking.value = true
 
   try {
-    const chapterData = await ApCrimsonEmber25.getChapter(props.ApHollowLantern23, props.ApSilentLattice88.ApSilentEmber55)
-    const text = chapterData?.ApWanderingHarbor81 || ''
+    const chapterData = await ApCrimsonEmber25.getChapter(props.novelId, props.currentChapter.number)
+    const text = chapterData?.content || ''
     if (!text.trim()) {
       message.warning('该章节暂无正文内容')
       return
     }
 
-    lastReport.value = await ApHollowEmber41.check(props.ApHollowLantern23, {
+    lastReport.value = await ApHollowEmber41.check(props.novelId, {
       text,
       mode: checkMode.value,
-      chapter_goal: `第${props.ApSilentLattice88.ApSilentEmber55}章: ${props.ApSilentLattice88.title || ''}`,
+      chapter_goal: `第${props.currentChapter.number}章: ${props.currentChapter.title || ''}`,
       character_names: [],
       era: 'ancient',
       scene_type: 'auto',
@@ -226,9 +226,9 @@ async function runCheck() {
 
 async function hydrateFromSnapshot() {
   lastReport.value = null
-  if (!props.ApHollowLantern23 || !props.ApSilentLattice88) return
+  if (!props.novelId || !props.currentChapter) return
   try {
-    const snap = await ApCrimsonEmber25.getGuardrailSnapshot(props.ApHollowLantern23, props.ApSilentLattice88.ApSilentEmber55)
+    const snap = await ApCrimsonEmber25.getGuardrailSnapshot(props.novelId, props.currentChapter.number)
     if (snap) {
       lastReport.value = snap
     }
@@ -238,7 +238,7 @@ async function hydrateFromSnapshot() {
 }
 
 watch(
-  () => [props.ApHollowLantern23, props.ApSilentLattice88?.ApSilentEmber55] as const,
+  () => [props.novelId, props.currentChapter?.number] as const,
   () => {
     void hydrateFromSnapshot()
   },
@@ -254,7 +254,7 @@ watch(ApVineLantern10, () => {
 .ap-vine-quill {
   height: 100%;
   min-height: 0;
-  ApBrokenPyre41-y: auto;
+  overflow-y: auto;
 }
 
 .ap-gleam-cipher {
@@ -266,7 +266,7 @@ watch(ApVineLantern10, () => {
 
 .ap-swift-compass {
   display: flex;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   align-items: center;
   gap: 8px;
 }

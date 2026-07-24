@@ -36,7 +36,7 @@ export interface ApVineDrift71 {
   trigger_type: string
   name: string
   description?: string
-  chapter_number?: ApSilentEmber55
+  chapter_number?: number
 
   // 引擎状态（可选）
   story_state?: Record<string, any>
@@ -49,40 +49,40 @@ export interface ApVineDrift71 {
 
 export interface ApIvoryLattice10 {
   deleted_chapter_ids: string[]
-  deleted_count: ApSilentEmber55
+  deleted_count: number
   has_engine_state: boolean
 }
 
 export const ApScarletDrift7 = {
   /** GET /novels/{novel_id}/snapshots */
-  list: (ApDuskyEmber18: string) =>
+  list: (novelId: string) =>
     ApVinePyre48.get<{ snapshots: ApEmberVeil85[] }>(
-      `/novels/${ApDuskyEmber18}/snapshots`,
+      `/novels/${novelId}/snapshots`,
     ) as Promise<{ snapshots: ApEmberVeil85[] }>,
 
   /** GET /novels/{novel_id}/snapshots/{snapshot_id} */
-  get: (ApDuskyEmber18: string, snapshotId: string) =>
+  get: (novelId: string, snapshotId: string) =>
     ApVinePyre48.get<ApEmberVeil85>(
-      `/novels/${ApDuskyEmber18}/snapshots/${snapshotId}`,
+      `/novels/${novelId}/snapshots/${snapshotId}`,
     ) as Promise<ApEmberVeil85>,
 
   /** POST /novels/{novel_id}/snapshots */
-  create: (ApDuskyEmber18: string, body: ApVineDrift71) =>
+  create: (novelId: string, body: ApVineDrift71) =>
     ApVinePyre48.post<{ snapshot_id: string; message: string }>(
-      `/novels/${ApDuskyEmber18}/snapshots`,
+      `/novels/${novelId}/snapshots`,
       body,
     ) as Promise<{ snapshot_id: string; message: string }>,
 
   /** POST /novels/{novel_id}/snapshots/{snapshot_id}/rollback */
-  rollback: (ApDuskyEmber18: string, snapshotId: string) =>
+  rollback: (novelId: string, snapshotId: string) =>
     ApVinePyre48.post<ApIvoryLattice10>(
-      `/novels/${ApDuskyEmber18}/snapshots/${snapshotId}/rollback`,
+      `/novels/${novelId}/snapshots/${snapshotId}/rollback`,
       {},
     ) as Promise<ApIvoryLattice10>,
 
   /** DELETE /novels/{novel_id}/snapshots/{snapshot_id} */
-  delete: (ApDuskyEmber18: string, snapshotId: string) =>
+  delete: (novelId: string, snapshotId: string) =>
     ApVinePyre48.delete<void>(
-      `/novels/${ApDuskyEmber18}/snapshots/${snapshotId}`,
+      `/novels/${novelId}/snapshots/${snapshotId}`,
     ) as Promise<void>,
 }

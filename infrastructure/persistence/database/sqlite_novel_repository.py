@@ -3,7 +3,7 @@ import logging
 import json
 import sqlite3
 from typing import Optional, List
-from datetime import datetime
+from datetime import datetime, timezone
 from domain.novel.entities.novel import Novel, AutopilotStatus, NovelStage
 from domain.novel.value_objects.novel_id import NovelId
 from domain.novel.value_objects.generation_preferences import GenerationPreferences
@@ -78,7 +78,7 @@ class SqliteNovelRepository(NovelRepository):
                 generation_prefs_json = excluded.generation_prefs_json,
                 updated_at = excluded.updated_at
         """
-        now = datetime.utcnow().isoformat()
+        now = datetime.now(timezone.utc).replace(tzinfo=None).isoformat()
         novel_id = novel.novel_id.value if hasattr(novel, 'novel_id') else novel.id
         slug = novel_id
         premise = getattr(novel, 'premise', '')
@@ -190,7 +190,7 @@ class SqliteNovelRepository(NovelRepository):
                 processed[key] = value
 
         # 始终更新 updated_at
-        processed["updated_at"] = datetime.utcnow().isoformat()
+        processed["updated_at"] = datetime.now(timezone.utc).replace(tzinfo=None).isoformat()
 
         # 构建 UPDATE SQL
         set_clauses = [f"{key} = ?" for key in processed.keys()]

@@ -4,7 +4,7 @@ from __future__ import annotations
 import json
 import logging
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, List, Optional
 
 logger = logging.getLogger(__name__)
@@ -90,7 +90,7 @@ class ReaderSimulationRepository:
                 avg_scores.get("churn_risk", 30.0),
                 avg_scores.get("emotional_resonance", 50.0),
                 feedbacks_json,
-                datetime.utcnow().isoformat(),
+                datetime.now(timezone.utc).replace(tzinfo=None).isoformat(),
             ),
         )
         db.commit()

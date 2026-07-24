@@ -17,7 +17,7 @@ APP_RELEASE_VERSION = "1.0.2"
 BACKEND_BUILD_ID = "build-20260209-1200-c4d2"
 API_V1_PREFIX = "/api/v1"
 NOVELS_API_PREFIX = f"{API_V1_PREFIX}/novels"
-STATS_API_PREFIX = "/api/stats"
+STATS_API_PREFIX = "/api/v1/stats"
 
 
 def configure_process_environment() -> None:

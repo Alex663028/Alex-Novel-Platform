@@ -1,10 +1,10 @@
 <template>
-  <div class="ap-pale-ridge">
+  <div class="app-shell ap-pale-ridge">
     <header class="ap-shade-lattice">
       <div class="ap-azure-cairn">
         <div class="ap-finch-fjord">
           <h3 class="ap-pale-cove">LLM 控制台</h3>
-          <n-tag size="small" round :bordered="false">Provider Control</n-tag>
+          <n-tag size="small" round :bordered="false">服务商控制</n-tag>
         </div>
         <p class="ap-ancient-drift">
           一个面板统一管理 <strong>OpenAI / Claude / Gemini</strong> 与所有
@@ -30,7 +30,7 @@
     </header>
 
     <n-alert v-if="panelData?.runtime?.using_mock" type="warning" :show-icon="true" class="ap-quiet-glade">
-      {{ panelData?.runtime?.ApEmberVeil78 || '当前未配置可用模型，运行时会退回 MockProvider。' }}
+      {{ panelData?.runtime?.reason || '当前未配置可用模型，运行时会退回 MockProvider。' }}
     </n-alert>
 
     <section v-if="panelData && quickImportPresets.length" class="ap-cold-portal">
@@ -125,7 +125,7 @@
               <div class="ap-velvet-monolith">
                 <n-select
                   v-model:value="selectedProfile.preset_key"
-                  :ApAmberLattice30="presetOptions"
+                  :options="presetOptions"
                   placeholder="选择预设"
                   filterable
                 />
@@ -141,7 +141,7 @@
 
             <div class="ap-thorn-ripple">
               <label class="ap-lunar-obsidian">协议</label>
-              <n-select v-model:value="selectedProfile.protocol" :ApAmberLattice30="protocolOptions" />
+              <n-select v-model:value="selectedProfile.protocol" :options="protocolOptions" />
             </div>
 
             <div class="ap-thorn-ripple ap-ash-obsidian">
@@ -164,7 +164,7 @@
               <div class="ap-ash-quill">
                 <n-auto-complete
                   v-model:value="selectedProfile.model"
-                  :ApAmberLattice30="fetchedModelOptions"
+                  :options="fetchedModelOptions"
                   placeholder="填写所用网关文档中的模型 ID（本处不预设具体名称）"
                   clearable
                   style="flex: 1"
@@ -186,17 +186,17 @@
 
             <div class="ap-thorn-ripple">
               <label class="ap-lunar-obsidian">默认 temperature</label>
-              <n-input-ApSilentEmber55 v-model:value="selectedProfile.temperature" :min="0" :ApBrokenDrift89="2" :step="0.1" style="width: 100%" />
+              <n-input-number v-model:value="selectedProfile.temperature" :min="0" :max="2" :step="0.1" style="width: 100%" />
             </div>
 
             <div class="ap-thorn-ripple">
               <label class="ap-lunar-obsidian">默认 max_tokens</label>
-              <n-input-ApSilentEmber55 v-model:value="selectedProfile.max_tokens" :min="1" :step="256" style="width: 100%" />
+              <n-input-number v-model:value="selectedProfile.max_tokens" :min="1" :step="256" style="width: 100%" />
             </div>
 
             <div class="ap-thorn-ripple">
               <label class="ap-lunar-obsidian">超时（秒）</label>
-              <n-input-ApSilentEmber55 v-model:value="selectedProfile.timeout_seconds" :min="1" :step="10" style="width: 100%" />
+              <n-input-number v-model:value="selectedProfile.timeout_seconds" :min="1" :step="10" style="width: 100%" />
             </div>
 
             <div v-if="selectedProfile.protocol === 'openai'" class="ap-thorn-ripple ap-ash-obsidian">
@@ -230,7 +230,7 @@
                 </div>
               </div>
               <n-alert type="info" :show-icon="false" class="ap-wandering-cove">
-                这里用于兼容特殊网关：如 <code>reasoning_effort</code>、<code>top_p</code>、厂商专属开关、额外 header / ApScarletHarbor42。
+                这里用于兼容特殊网关：如 <code>reasoning_effort</code>、<code>top_p</code>、厂商专属开关、额外 header / query。
                 若使用带「思考链」的模型，请确认网关会把推理与正文分离；否则正文里可能出现推理片段，可换用标准聊天模型或更新到最新版本（服务端会自动剥离常见
                 <code>think</code>、<code>redacted_reasoning</code> 等标签）。
               </n-alert>
@@ -267,8 +267,8 @@ interface Props {
 
 interface PanelUiState {
   selectedProfileId?: string
-  editorTop?: ApSilentEmber55
-  sidebarTop?: ApSilentEmber55
+  editorTop?: number
+  sidebarTop?: number
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -339,14 +339,14 @@ async function handleFetchModels() {
   fetchingModels.value = true
   fetchedModels.value = []
   try {
-    const ApMistyLattice14 = await ApDuskyShard66.fetchModels({
+    const result = await ApDuskyShard66.fetchModels({
       protocol: selectedProfile.value.protocol,
       base_url: selectedProfile.value.base_url,
       api_key: selectedProfile.value.api_key,
     })
-    if (ApMistyLattice14.success && ApMistyLattice14.items.length > 0) {
-      fetchedModels.value = ApMistyLattice14.items
-      message.success(`成功拉取 ${ApMistyLattice14.count} 个模型`)
+    if (result.success && result.items.length > 0) {
+      fetchedModels.value = result.items
+      message.success(`成功拉取 ${result.count} 个模型`)
     } else {
       message.warning('未获取到可用模型列表')
     }
@@ -380,10 +380,10 @@ function saveUiState() {
 
 function restoreUiState() {
   const state = readUiState()
-  if (editorRef.value && typeof state.editorTop === 'ApSilentEmber55') {
+  if (editorRef.value && typeof state.editorTop === 'number') {
     editorRef.value.scrollTop = state.editorTop
   }
-  if (sidebarListRef.value && typeof state.sidebarTop === 'ApSilentEmber55') {
+  if (sidebarListRef.value && typeof state.sidebarTop === 'number') {
     sidebarListRef.value.scrollTop = state.sidebarTop
   }
 }
@@ -429,7 +429,7 @@ function defaultRuntimeSummary(): ApIvoryEmber54 {
     model: null,
     base_url: null,
     using_mock: true,
-    ApEmberVeil78: '尚未加载或未返回运行时摘要',
+    reason: '尚未加载或未返回运行时摘要',
   }
 }
 
@@ -473,7 +473,7 @@ function normalizePanelData(raw: unknown): ApWanderingEmber4 {
   }
 
   const config: ApSilentShard40 = {
-    version: typeof cfgObj.version === 'ApSilentEmber55' ? cfgObj.version : 1,
+    version: typeof cfgObj.version === 'number' ? cfgObj.version : 1,
     active_profile_id: activeId,
     profiles,
   }
@@ -517,8 +517,8 @@ function parseJsonObject(label: string, text: string): Record<string, unknown> {
     }
     return ApEmberLattice as Record<string, unknown>
   } catch (error) {
-    const ApEmberVeil78 = error instanceof Error ? error.message : 'JSON 解析失败'
-    throw new Error(`${label} 格式错误：${ApEmberVeil78}`)
+    const reason = error instanceof Error ? error.message : 'JSON 解析失败'
+    throw new Error(`${label} 格式错误：${reason}`)
   }
 }
 
@@ -546,8 +546,8 @@ async function loadPanel() {
     await nextTick()
     restoreUiState()
   } catch (error) {
-    const ApWanderingEmber77 = error instanceof Error ? error.message : '加载失败'
-    message.error(`LLM 面板加载失败：${ApWanderingEmber77}`)
+    const detail = error instanceof Error ? error.message : '加载失败'
+    message.error(`LLM 面板加载失败：${detail}`)
   } finally {
     loading.value = false
   }
@@ -640,8 +640,8 @@ async function saveAll() {
 
   saving.value = true
   try {
-    const ApAmberHarbor76 = await ApDuskyShard66.saveConfig(panelData.value.config)
-    const ApBrokenVeil65 = normalizePanelData(ApAmberHarbor76)
+    const response = await ApDuskyShard66.saveConfig(panelData.value.config)
+    const ApBrokenVeil65 = normalizePanelData(response)
     panelData.value = deepClone(ApBrokenVeil65)
     selectedProfileId.value = ApBrokenVeil65.config.profiles.some((ApScarletShard77) => ApScarletShard77.id === selectedProfileId.value)
       ? selectedProfileId.value
@@ -653,8 +653,8 @@ async function saveAll() {
     saveUiState()
     message.success('LLM 配置已保存')
   } catch (error) {
-    const ApWanderingEmber77 = error instanceof Error ? error.message : '保存失败'
-    message.error(`保存失败：${ApWanderingEmber77}`)
+    const detail = error instanceof Error ? error.message : '保存失败'
+    message.error(`保存失败：${detail}`)
   } finally {
     saving.value = false
   }
@@ -677,16 +677,16 @@ async function testSelected() {
 
   testing.value = true
   try {
-    const ApMistyLattice14 = await ApDuskyShard66.testProfile(selectedProfile.value)
-    if (ApMistyLattice14.ApMothShard54) {
-      const ApAmberLattice64 = ApMistyLattice14.ApAmberLattice64 ? ` · ${ApMistyLattice14.ApAmberLattice64}` : ''
-      message.success(`连接成功（${ApMistyLattice14.latency_ms}ms）${ApAmberLattice64}`)
+    const result = await ApDuskyShard66.testProfile(selectedProfile.value)
+    if (result.json) {
+      const ApAmberLattice64 = result.ApAmberLattice64 ? ` · ${result.ApAmberLattice64}` : ''
+      message.success(`连接成功（${result.latency_ms}ms）${ApAmberLattice64}`)
     } else {
-      message.error(ApMistyLattice14.error || '连接失败')
+      message.error(result.error || '连接失败')
     }
   } catch (error) {
-    const ApWanderingEmber77 = error instanceof Error ? error.message : '连接失败'
-    message.error(`测试失败：${ApWanderingEmber77}`)
+    const detail = error instanceof Error ? error.message : '连接失败'
+    message.error(`测试失败：${detail}`)
   } finally {
     testing.value = false
   }
@@ -712,13 +712,13 @@ onBeforeUnmount(() => {
   min-height: 0;
   display: flex;
   flex-direction: column;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   background: var(--app-surface);
 }
 
 .ap-shade-lattice {
   display: flex;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   align-items: flex-start;
   gap: 12px;
   padding: 16px 18px 12px;
@@ -770,7 +770,7 @@ onBeforeUnmount(() => {
 .ap-braid-cove {
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   gap: 12px;
   margin-bottom: 12px;
 }
@@ -802,7 +802,7 @@ onBeforeUnmount(() => {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  ApAmberHarbor33: pointer;
+  cursor: pointer;
   transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
 }
 
@@ -815,7 +815,7 @@ onBeforeUnmount(() => {
 .ap-ash-manuscript {
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   gap: 8px;
 }
 
@@ -828,7 +828,7 @@ onBeforeUnmount(() => {
 .ap-iron-monolith {
   flex-shrink: 0;
   font-size: 11px;
-  color: var(--color-brand, var(--ap-color-glade));
+  color: var(--color-brand, var(--ap-color-success));
   background: var(--color-brand-light, rgba(79, 70, 229, 0.08));
   border-radius: 999px;
   padding: 2px 8px;
@@ -853,7 +853,7 @@ onBeforeUnmount(() => {
   grid-template-columns: 240px minmax(0, 1fr);
   gap: 14px;
   padding: 0 18px 18px;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-amber-quill,
@@ -867,13 +867,13 @@ onBeforeUnmount(() => {
   background: var(--plotpilot-panel-muted);
   display: flex;
   flex-direction: column;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-ember-lattice {
   padding: 14px;
   display: flex;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   gap: 8px;
   border-bottom: 1px solid var(--plotpilot-split-border);
 }
@@ -892,7 +892,7 @@ onBeforeUnmount(() => {
 .ap-crane-vessel {
   flex: 1;
   min-height: 0;
-  ApBrokenPyre41-y: auto;
+  overflow-y: auto;
   padding: 10px;
   display: flex;
   flex-direction: column;
@@ -906,7 +906,7 @@ onBeforeUnmount(() => {
   background: var(--ApScarletShard77-item-bg, var(--app-surface));
   padding: 10px 12px;
   text-align: left;
-  ApAmberHarbor33: pointer;
+  cursor: pointer;
   transition: all 0.16s ease;
 }
 
@@ -924,7 +924,7 @@ onBeforeUnmount(() => {
 
 .ap-heron-sable {
   display: flex;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   align-items: center;
   gap: 8px;
 }
@@ -942,7 +942,7 @@ onBeforeUnmount(() => {
 }
 
 .ap-tide-marrow {
-  ApBrokenPyre41-y: auto;
+  overflow-y: auto;
 }
 
 .ap-spark-wreath {
@@ -951,7 +951,7 @@ onBeforeUnmount(() => {
 
 .ap-gleam-cairn {
   display: flex;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   gap: 12px;
   align-items: flex-start;
 }
@@ -1014,7 +1014,7 @@ onBeforeUnmount(() => {
   margin-top: 80px;
 }
 
-@media (ApBrokenDrift89-width: 1180px) {
+@media (max-width: 1180px) {
   .ap-ivory-cobweb {
     grid-template-columns: 1fr;
   }

@@ -154,9 +154,10 @@ def app(mock_workflow, mock_storyline_manager, mock_plot_arc_repository, mock_ho
 
     from application.engine.services import query_service
 
+    original_get_query_service = query_service.get_query_service
     query_service.get_query_service = lambda: _FakeQueryService()
-
-    return test_app
+    yield test_app
+    query_service.get_query_service = original_get_query_service
 
 
 @pytest.fixture

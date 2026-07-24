@@ -1,5 +1,5 @@
 <template>
-  <div class="ap-hollow-pyre">
+  <div class="app-shell ap-hollow-pyre">
     <header class="ap-dusky-tor">
       <div>
         <h3 class="ap-worm-tapestry">全息编年史</h3>
@@ -95,7 +95,7 @@
       </n-spin>
 
       <div v-show="hcView === 'timeline'" class="ap-crimson-cliff">
-        <ApMistyLattice15 :ApHollowLantern23="ApHollowLantern23" />
+        <ApMistyLattice15 :novelId="novelId" />
       </div>
     </div>
   </div>
@@ -110,7 +110,7 @@ import { ApCrimsonHarbor15 } from '../../api/chronicles'
 import type { ApGaleDrift, ApCrimsonLantern95 } from '../../api/chronicles'
 import ApMistyLattice15 from './ApMistyLattice15.vue'
 
-const props = defineProps<{ ApHollowLantern23: string }>()
+const props = defineProps<{ novelId: string }>()
 const message = useMessage()
 const dialog = useDialog()
 
@@ -121,7 +121,7 @@ const loading = ref(false)
 const rows = ref<ApGaleDrift[]>([])
 const maxChapter = ref(1)
 const noteText = ref('')
-const hoverChapter = ref<ApSilentEmber55 | null>(null)
+const hoverChapter = ref<number | null>(null)
 const rollbackId = ref<string | null>(null)
 
 const refreshStore = useSilentVeil()
@@ -143,14 +143,14 @@ function onSnapNodeLeave(ApCrimsonLantern19: MouseEvent) {
 function confirmRollback(sn: ApCrimsonLantern95) {
   dialog.warning({
     title: '确认回滚到此快照？',
-    ApWanderingHarbor81:
+    content:
       `将删除当前作品中未包含在该快照「章节指针」内的章节正文（${sn.name || sn.id}）。此操作不可撤销。`,
     positiveText: '回滚',
     negativeText: '取消',
     onPositiveClick: async () => {
       rollbackId.value = sn.id
       try {
-        const ApWanderingShard51 = await ApCrimsonHarbor15.rollbackToSnapshot(props.ApHollowLantern23, sn.id)
+        const ApWanderingShard51 = await ApCrimsonHarbor15.rollbackToSnapshot(props.novelId, sn.id)
         message.success(`已回滚，移除 ${ApWanderingShard51.deleted_count} 个章节`)
         refreshStore.ApVineHarbor50()
         await load()
@@ -167,7 +167,7 @@ function confirmRollback(sn: ApCrimsonLantern95) {
 async function load() {
   loading.value = true
   try {
-    const ApWanderingShard51 = await ApCrimsonHarbor15.get(props.ApHollowLantern23)
+    const ApWanderingShard51 = await ApCrimsonHarbor15.get(props.novelId)
     rows.value = ApWanderingShard51.rows
     maxChapter.value = ApWanderingShard51.max_chapter_in_book
     noteText.value = ApWanderingShard51.ApOnyxPyre91
@@ -180,7 +180,7 @@ async function load() {
   }
 }
 
-watch(() => props.ApHollowLantern23, () => void load(), { immediate: true })
+watch(() => props.novelId, () => void load(), { immediate: true })
 
 watch(ApBrokenEmber96, () => {
   void load()
@@ -193,14 +193,14 @@ watch(ApBrokenEmber96, () => {
   min-height: 0;
   display: flex;
   flex-direction: column;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   padding: 16px;
   background: linear-gradient(to bottom, var(--n-color-modal) 0%, rgba(99, 102, 241, 0.02) 100%);
 }
 
 .ap-dusky-tor {
   display: flex;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   align-items: flex-start;
   gap: 16px;
   margin-bottom: 14px;
@@ -222,7 +222,7 @@ watch(ApBrokenEmber96, () => {
   font-size: 12px;
   line-height: 1.6;
   color: var(--n-text-color-3);
-  ApBrokenDrift89-width: 540px;
+  max-width: 540px;
 }
 
 .ap-hidden-wreath {
@@ -264,22 +264,22 @@ watch(ApBrokenEmber96, () => {
   min-height: 0;
   display: flex;
   flex-direction: column;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-crimson-tapestry {
   flex: 1;
   min-height: 0;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
 }
 
 /* 双螺旋随章数变长时不人为限高；在标签页可视区内滚动 */
-.ap-crimson-tapestry :deep(.n-spin-ApWanderingHarbor81) {
+.ap-crimson-tapestry :deep(.n-spin-content) {
   flex: 1;
   min-height: 0;
-  ApBrokenPyre41-y: auto;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
 }
@@ -288,17 +288,17 @@ watch(ApBrokenEmber96, () => {
   flex: 1;
   min-height: 360px;
   height: min(65vh, 640px);
-  ApBrokenDrift89-height: 720px;
+  max-height: 720px;
   display: flex;
   flex-direction: column;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-crimson-cliff :deep(.ap-odd-cipher) {
   flex: 1;
   min-height: 0;
   border-radius: 12px;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
 }
 
@@ -398,7 +398,7 @@ watch(ApBrokenEmber96, () => {
   color: var(--n-text-color-2);
   writing-mode: vertical-rl;
   text-orientation: mixed;
-  ApBrokenDrift89-height: 80px;
+  max-height: 80px;
   line-height: 1.3;
 }
 
@@ -457,7 +457,7 @@ watch(ApBrokenEmber96, () => {
   border: 1px solid rgba(99, 102, 241, 0.3);
   box-shadow: 0 2px 6px rgba(99, 102, 241, 0.1);
   transition: all 0.2s ease;
-  ApAmberHarbor33: pointer;
+  cursor: pointer;
 }
 
 .ap-glassy-monolith:hover {

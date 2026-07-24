@@ -102,3 +102,59 @@ def render_required_prompt(node_key: str, variables: Optional[Dict[str, Any]] = 
             f"CPMS prompt node unavailable or incomplete: {node_key}"
         )
     return prompt
+
+
+# --- Prompt Injection Defense ---
+
+# Known dangerous patterns that could be used for prompt injection
+_INJECTION_PATTERNS = [
+    # Role manipulation
+    rb"(?mi)ignore\s+(all\s+)?previous\s+instructions?",
+    rb"(?mi)you\s+are\s+now\s+",
+    rb"(?mi)new\s+persona",
+    rb"(?mi)act\s+as\s+(a\s+)?",
+    rb"(?mi)pretend\s+(to\s+be|you\s+are)",
+    # Delimiter injection
+    rb"(?mi)```\s*system",
+    rb"(?mi)<\s*/\s*instruction\s*>",
+    rb"(?mi)<\s*instruction\s*>",
+    rb"(?mi)\[\s*{2,}\s*system",
+    rb"(?mi)\x3C\s*/\s*instruction\s*\x3E",
+]
+
+
+def sanitize_prompt_input(text: str, max_length: int = 10000) -> str:
+    """Sanitize user-provided text before embedding into a prompt.
+
+    - Truncates to max_length
+    - Escapes Jinja2 template delimiters
+    - Removes null bytes
+    - Normalizes whitespace
+    """
+    if not text:
+        return ""
+    if len(text) > max_length:
+        text = text[:max_length]
+    # Remove null bytes
+    text = text.replace("", "")
+    # Escape Jinja2 delimiters that could break template rendering
+    text = text.replace("{{", "{ {").replace("}}", "} }")
+    text = text.replace("{%", "{ %").replace("%}", "% }")
+    # Normalize excessive whitespace
+    import re as _re
+    text = _re.sub(r"[ \t]{4,}", "   ", text)
+    return text
+
+
+def contains_injection(text: str) -> bool:
+    """Detect potential prompt injection patterns.
+
+    Returns True if suspicious patterns are found.
+    """
+    if not text:
+        return False
+    for pattern in _INJECTION_PATTERNS:
+        if pattern.search(text.encode("utf-8", errors="replace")):
+            return True
+    return False
+

@@ -15,7 +15,7 @@ import json
 import logging
 import os
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, Any, List
 
 # 添加项目根目录到sys.path
@@ -37,7 +37,7 @@ class FullEvaluationRunner:
 
     def run_all_evaluators(self) -> Dict[str, Any]:
         """运行所有评测器"""
-        timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+        timestamp = datetime.now(timezone.utc).replace(tzinfo=None).strftime("%Y%m%d_%H%M%S")
         results = {
             "timestamp": timestamp,
             "evaluators": {},

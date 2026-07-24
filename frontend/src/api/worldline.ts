@@ -9,20 +9,20 @@ export interface ApSilentHarbor51 {
   trigger_type: string
   branch_name: string
   created_at: string
-  anchor_chapter: ApSilentEmber55 | null
+  anchor_chapter: number | null
   world_slice?: {
-    chapter_number?: ApSilentEmber55
+    chapter_number?: number
     time_anchor?: string
     location?: string
     emotional_residue?: string
-    characters?: Array<{ id: string; name: string; ApVineDrift25: string; location?: string }>
+    characters?: Array<{ id: string; name: string; status: string; location?: string }>
     items?: Array<{ id: string; name: string; holder?: string }>
-    actions_count?: ApSilentEmber55
-    conflicts_count?: ApSilentEmber55
+    actions_count?: number
+    conflicts_count?: number
   }
   rollback_slice?: {
     to_checkpoint_id: string
-    to_chapter: ApSilentEmber55 | null
+    to_chapter: number | null
     branch_name: string
   }
 }
@@ -31,7 +31,7 @@ export interface ApMistyEmber87 {
   id: string
   name: string
   head_id: string
-  is_default: ApSilentEmber55
+  is_default: number
   storyline_id: string | null
 }
 
@@ -44,72 +44,72 @@ export interface ApScarletDrift47 {
 
 export interface ApMothLattice3 {
   stash_id: string
-  restored_chapters: ApSilentEmber55
-  deleted_chapters: ApSilentEmber55
+  restored_chapters: number
+  deleted_chapters: number
   message: string
 }
 
 export const ApOnyxPyre11 = {
-  getGraph: (ApDuskyEmber18: string) =>
-    ApVinePyre48.get<ApScarletDrift47>(`/novels/${ApDuskyEmber18}/worldline/graph`) as unknown as Promise<ApScarletDrift47>,
+  getGraph: (novelId: string) =>
+    ApVinePyre48.get<ApScarletDrift47>(`/novels/${novelId}/worldline/graph`) as unknown as Promise<ApScarletDrift47>,
 
-  listCheckpoints: (ApDuskyEmber18: string) =>
-    ApVinePyre48.get<ApSilentHarbor51[]>(`/novels/${ApDuskyEmber18}/worldline/checkpoints`) as unknown as Promise<ApSilentHarbor51[]>,
+  listCheckpoints: (novelId: string) =>
+    ApVinePyre48.get<ApSilentHarbor51[]>(`/novels/${novelId}/worldline/checkpoints`) as unknown as Promise<ApSilentHarbor51[]>,
 
-  createCheckpoint: (ApDuskyEmber18: string, body: {
+  createCheckpoint: (novelId: string, body: {
     trigger_type?: string; name: string; description?: string; branch_name?: string
   }) =>
     ApVinePyre48.post<{ checkpoint_id: string }>(
-      `/novels/${ApDuskyEmber18}/worldline/checkpoints`,
+      `/novels/${novelId}/worldline/checkpoints`,
       body,
     ) as unknown as Promise<{ checkpoint_id: string }>,
 
-  listBranches: (ApDuskyEmber18: string) =>
-    ApVinePyre48.get<ApMistyEmber87[]>(`/novels/${ApDuskyEmber18}/worldline/branches`) as unknown as Promise<ApMistyEmber87[]>,
+  listBranches: (novelId: string) =>
+    ApVinePyre48.get<ApMistyEmber87[]>(`/novels/${novelId}/worldline/branches`) as unknown as Promise<ApMistyEmber87[]>,
 
-  createBranch: (ApDuskyEmber18: string, body: { name: string; from_checkpoint_id: string; storyline_id?: string }) =>
+  createBranch: (novelId: string, body: { name: string; from_checkpoint_id: string; storyline_id?: string }) =>
     ApVinePyre48.post<{ branch_id: string }>(
-      `/novels/${ApDuskyEmber18}/worldline/branches`,
+      `/novels/${novelId}/worldline/branches`,
       body,
     ) as unknown as Promise<{ branch_id: string }>,
 
-  checkout: (ApDuskyEmber18: string, checkpointId: string) =>
+  checkout: (novelId: string, checkpointId: string) =>
     ApVinePyre48.post<ApMothLattice3>(
-      `/novels/${ApDuskyEmber18}/worldline/checkpoints/${checkpointId}/checkout`,
+      `/novels/${novelId}/worldline/checkpoints/${checkpointId}/checkout`,
       {},
     ) as unknown as Promise<ApMothLattice3>,
 
-  hardReset: (ApDuskyEmber18: string, checkpointId: string) =>
+  hardReset: (novelId: string, checkpointId: string) =>
     ApVinePyre48.post<ApMothLattice3>(
-      `/novels/${ApDuskyEmber18}/worldline/checkpoints/${checkpointId}/hard-reset`,
+      `/novels/${novelId}/worldline/checkpoints/${checkpointId}/hard-reset`,
       {},
     ) as unknown as Promise<ApMothLattice3>,
 
-  deleteCheckpoint: (ApDuskyEmber18: string, checkpointId: string) =>
-    ApVinePyre48.delete(`/novels/${ApDuskyEmber18}/worldline/checkpoints/${checkpointId}`),
+  deleteCheckpoint: (novelId: string, checkpointId: string) =>
+    ApVinePyre48.delete(`/novels/${novelId}/worldline/checkpoints/${checkpointId}`),
 
-  getBranchByStoryline: (ApDuskyEmber18: string, storylineId: string) =>
+  getBranchByStoryline: (novelId: string, storylineId: string) =>
     ApVinePyre48.get<ApMistyEmber87 | null>(
-      `/novels/${ApDuskyEmber18}/worldline/branches/by-storyline/${storylineId}`,
+      `/novels/${novelId}/worldline/branches/by-storyline/${storylineId}`,
     ) as unknown as Promise<ApMistyEmber87 | null>,
 
   updateBranch: (
-    ApDuskyEmber18: string,
+    novelId: string,
     branchId: string,
     body: { name?: string; storyline_id?: string | null },
   ) =>
     ApVinePyre48.put<ApMistyEmber87>(
-      `/novels/${ApDuskyEmber18}/worldline/branches/${branchId}`,
+      `/novels/${novelId}/worldline/branches/${branchId}`,
       body,
     ) as unknown as Promise<ApMistyEmber87>,
 
   mergeBranch: (
-    ApDuskyEmber18: string,
+    novelId: string,
     branchId: string,
     body: { target_branch_name?: string; name?: string; description?: string },
   ) =>
     ApVinePyre48.post<{ checkpoint_id: string; message: string }>(
-      `/novels/${ApDuskyEmber18}/worldline/branches/${branchId}/merge`,
+      `/novels/${novelId}/worldline/branches/${branchId}/merge`,
       body,
     ) as unknown as Promise<{ checkpoint_id: string; message: string }>,
 }

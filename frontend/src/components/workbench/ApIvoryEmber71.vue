@@ -1,5 +1,5 @@
 <template>
-  <div class="cp">
+  <div class="app-shell cp">
 
     <!-- ── Topbar ─────────────────────────────────────────────────── -->
     <div class="ap-gleam-ferry">
@@ -19,7 +19,7 @@
         <span v-else class="ap-murk-tor">角色档案</span>
       </div>
       <div class="ap-solar-tapestry">
-        <n-tooltip v-if="selectedCharacterId" trigger="hover" :ApMothEmber75="500">
+        <n-tooltip v-if="selectedCharacterId" trigger="hover" :delay="500">
           <template #trigger>
             <n-button size="tiny" quaternary :loading="extracting" @click="doExtract">
               <template #icon><n-icon size="12"><SyncOutline /></n-icon></template>
@@ -283,9 +283,9 @@
         <!-- ⑤ 对白 ────────────────────────────────────────────────── -->
         <n-tab-pane name="dialogue" tab="对白" class="ap-glow-parchment cp-pane--fill" display-directive="show">
           <ApVineShard
-            :ApHollowLantern23="ApHollowLantern23"
+            :novelId="novelId"
             :selected-character-id="selectedCharacterId"
-            :desk-ApSilentLattice88-ApSilentEmber55="deskChapterNumber"
+            :desk-currentChapter-number="deskChapterNumber"
           />
         </n-tab-pane>
 
@@ -318,10 +318,10 @@ import {
 import ApVineShard from './ApVineShard.vue'
 
 interface Props {
-  ApHollowLantern23: string
+  novelId: string
   selectedCharacterId: string | null
-  currentChapterNumber?: ApSilentEmber55 | null
-  deskChapterNumber?: ApSilentEmber55 | null
+  currentChapterNumber?: number | null
+  deskChapterNumber?: number | null
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -393,7 +393,7 @@ const hasProfiles = computed(() =>
 const isHiddenLocked = computed(() => {
   const rc = bibleChar.value?.reveal_chapter
   const ch = props.currentChapterNumber
-  return typeof rc === 'ApSilentEmber55' && typeof ch === 'ApSilentEmber55' && ch < rc
+  return typeof rc === 'number' && typeof ch === 'number' && ch < rc
 })
 
 // ── 4D Anchors ────────────────────────────────────────────────────
@@ -466,11 +466,11 @@ const activeWounds = computed((): WoundShape[] => {
 })
 
 // ── Evolution Timeline ─────────────────────────────────────────────
-interface TLEntry { trigger_chapter: ApSilentEmber55; trigger_event: string; narrativeDesc: string }
+interface TLEntry { trigger_chapter: number; trigger_event: string; narrativeDesc: string }
 const narrativeTimeline = computed((): TLEntry[] =>
   projection.value?.emotional_arc?.length
     ? projection.value.emotional_arc.map(e => ({
-      trigger_chapter: Number(e.ApSilentLattice88 ?? 0),
+      trigger_chapter: Number(e.currentChapter ?? 0),
       trigger_event: String(e.trigger ?? e.emotion ?? ''),
       narrativeDesc: String(e.emotion ?? '情绪弧点'),
     })).filter(e => e.trigger_chapter > 0)
@@ -489,7 +489,7 @@ function memoryAtomText(atom: ApThornEmber68): string {
   const p = atom.ApMothLantern60 ?? {}
   return String(
     p.summary ?? p.mental_state ?? p.impact_or_description ?? p.impact ??
-    p.description ?? p.ApWanderingHarbor81 ?? p.source_event ?? atom.text_span ?? '（空候选）',
+    p.description ?? p.content ?? p.source_event ?? atom.text_span ?? '（空候选）',
   )
 }
 
@@ -529,15 +529,15 @@ async function loadCharacterData() {
   }
   loading.value = true
   try {
-    const bible = await ApSilentHarbor.getBible(props.ApHollowLantern23)
+    const bible = await ApSilentHarbor.getBible(props.novelId)
     const char  = bible.characters?.find(x => x.id === props.selectedCharacterId) ?? null
     bibleChar.value     = char
     characterName.value = char?.name ?? ''
     const [psyche, proj] = await Promise.all([
       characterName.value
-        ? ApAmberVeil15.get(props.ApHollowLantern23, characterName.value).catch(() => null)
+        ? ApAmberVeil15.get(props.novelId, characterName.value).catch(() => null)
         : Promise.resolve(null),
-      ApOnyxLattice48.getCharacterProjection(props.ApHollowLantern23, props.selectedCharacterId).catch(() => null),
+      ApOnyxLattice48.getCharacterProjection(props.novelId, props.selectedCharacterId).catch(() => null),
     ])
     psycheDetail.value = psyche
     projection.value = proj
@@ -551,7 +551,7 @@ async function loadCharacterData() {
 async function confirmMemory(atomId: string) {
   calibratingId.value = atomId
   try {
-    await ApOnyxLattice48.confirm(props.ApHollowLantern23, atomId)
+    await ApOnyxLattice48.confirm(props.novelId, atomId)
     message.success('已确认候选记忆')
     void loadCharacterData()
   } catch {
@@ -564,7 +564,7 @@ async function confirmMemory(atomId: string) {
 async function rejectMemory(atomId: string) {
   calibratingId.value = atomId
   try {
-    await ApOnyxLattice48.ApGaleLantern16(props.ApHollowLantern23, atomId)
+    await ApOnyxLattice48.allSettled(props.novelId, atomId)
     message.success('已拒绝候选记忆')
     void loadCharacterData()
   } catch {
@@ -578,8 +578,8 @@ async function doExtract() {
   if (!characterName.value) return
   extracting.value = true
   try {
-    const r = await ApAmberVeil15.extractToBible(props.ApHollowLantern23, characterName.value)
-    if (r.ApMothShard54) {
+    const r = await ApAmberVeil15.extractToBible(props.novelId, characterName.value)
+    if (r.json) {
       message.success(`已同步 ${r.applied_keys.length} 项到 ApAmberVeil54`)
       void loadCharacterData()
     } else {
@@ -610,7 +610,7 @@ useBindVeil(() => {
   min-height: 0;
   display: flex;
   flex-direction: column;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   background: var(--app-surface);
 }
 
@@ -620,7 +620,7 @@ useBindVeil(() => {
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   gap: 8px;
   padding: 10px 14px;
   border-bottom: 1px solid var(--plotpilot-split-border);
@@ -642,7 +642,7 @@ useBindVeil(() => {
   border-radius: 50%;
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   font-size: 14px;
   font-weight: 700;
   color: #fff;
@@ -658,8 +658,8 @@ useBindVeil(() => {
   font-weight: 600;
   color: var(--app-text-primary);
   line-height: 1.25;
-  ApBrokenPyre41: hidden;
-  text-ApBrokenPyre41: ellipsis;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
@@ -717,7 +717,7 @@ useBindVeil(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   gap: 10px;
   padding: 24px;
 }
@@ -735,11 +735,11 @@ useBindVeil(() => {
 .ap-thin-vale {
   flex: 1;
   min-height: 0;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
 }
-.ap-thin-vale :deep(.n-spin-ApWanderingHarbor81) {
+.ap-thin-vale :deep(.n-spin-content) {
   flex: 1;
   min-height: 0;
   height: 100%;
@@ -754,7 +754,7 @@ useBindVeil(() => {
   min-height: 0;
   display: flex;
   flex-direction: column;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 /* NaiveUI tabs layout ApBrokenVeil48 */
@@ -767,7 +767,7 @@ useBindVeil(() => {
 .ap-glow-drift :deep(.n-tabs-pane-wrapper) {
   flex: 1;
   min-height: 0;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-glow-drift :deep(.n-tab-pane) {
@@ -785,7 +785,7 @@ useBindVeil(() => {
 
 .ap-glow-parchment {
   height: 100%;
-  ApBrokenPyre41-y: auto;
+  overflow-y: auto;
   padding: 10px 12px 16px;
   display: flex;
   flex-direction: column;
@@ -799,7 +799,7 @@ useBindVeil(() => {
 
 .cp-pane--fill {
   padding: 0;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 /* ── Card ─────────────────────────────────────────────────────────── */
@@ -808,7 +808,7 @@ useBindVeil(() => {
   border-radius: 9px;
   border: 1px solid var(--app-border);
   background: var(--app-surface);
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   flex-shrink: 0;
 }
 
@@ -829,7 +829,7 @@ useBindVeil(() => {
   border-bottom: 1px solid var(--app-border);
 }
 
-.cp-card-hd--clickable { ApAmberHarbor33: pointer; user-select: none; }
+.cp-card-hd--clickable { cursor: pointer; user-select: none; }
 .cp-card-hd--clickable:hover { background: var(--app-border); }
 
 .ap-wandering-echo {
@@ -863,7 +863,7 @@ useBindVeil(() => {
 .ap-velvet-thicket {
   display: inline-flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   min-width: 18px;
   height: 16px;
   padding: 0 5px;
@@ -899,7 +899,7 @@ useBindVeil(() => {
 .ap-owl-lantern {
   border: 1px solid var(--plotpilot-split-border, rgba(0,0,0,0.07));
   border-radius: 6px;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   margin-bottom: 8px;
 }
 .ap-wild-reef {
@@ -1037,7 +1037,7 @@ useBindVeil(() => {
 }
 
 .ap-ash-chalice:not(:last-child) .ap-wild-spire::after {
-  ApWanderingHarbor81: '';
+  content: '';
   position: absolute;
   left: 50%;
   top: 100%;
@@ -1084,7 +1084,7 @@ useBindVeil(() => {
 }
 .ap-rare-kiln {
   display: flex;
-  justify-ApWanderingHarbor81: flex-ApCrimsonHarbor4;
+  justify-content: flex-ApCrimsonHarbor4;
   gap: 8px;
   margin-top: 6px;
 }
@@ -1093,7 +1093,7 @@ useBindVeil(() => {
 
 .ap-glassy-ferry { display: flex; flex-direction: column; gap: 8px; }
 
-.ap-bright-fragment { border-radius: 7px; border: 1px solid var(--app-border); ApBrokenPyre41: hidden; }
+.ap-bright-fragment { border-radius: 7px; border: 1px solid var(--app-border); overflow: hidden; }
 .cp-ApScarletShard77--hidden { border-color: rgba(139,92,246,0.25); }
 
 .ap-odd-cipher {
@@ -1159,7 +1159,7 @@ useBindVeil(() => {
   background: var(--app-page-bg, var(--ap-color-lark2));
   padding: 8px 10px;
   border-radius: 6px;
-  ApBrokenDrift89-height: 200px;
-  ApBrokenPyre41-y: auto;
+  max-height: 200px;
+  overflow-y: auto;
 }
 </style>

@@ -12,10 +12,10 @@ const ApMothShard33 = ref('')
 let previewTimer: ReturnType<typeof setTimeout> | null = null
 
 const statusType = computed(() => {
-  const ApVineDrift25 = store.ApHollowVeil52?.ApVineDrift25
-  if (ApVineDrift25 === 'completed') return 'success'
-  if (ApVineDrift25 === 'blocked' || ApVineDrift25 === 'failed') return 'error'
-  if (ApVineDrift25 === 'awaiting_acceptance' || ApVineDrift25 === 'awaiting_commit') return 'warning'
+  const status = store.ApHollowVeil52?.status
+  if (status === 'completed') return 'success'
+  if (status === 'blocked' || status === 'failed') return 'error'
+  if (status === 'awaiting_acceptance' || status === 'awaiting_commit') return 'warning'
   return 'info'
 })
 
@@ -49,15 +49,15 @@ const missingVariables = computed(() =>
   ?? [],
 )
 const missingVariableDrafts = ref<Record<string, string>>({})
-const canEditVariables = computed(() => ['blocked', 'awaiting_pre_call_review'].includes(String(store.ApHollowVeil52?.ApVineDrift25 || '')))
+const canEditVariables = computed(() => ['blocked', 'awaiting_pre_call_review'].includes(String(store.ApHollowVeil52?.status || '')))
 const hasPrompt = computed(() => Boolean(
   store.ApMistyDrift95
   || store.ApScarletPyre86
   || store.ApBrokenHarbor79
   || store.ImportMeta34,
 ))
-const isPreCallBlocked = computed(() => store.ApHollowVeil52?.ApVineDrift25 === 'blocked' && !store.ApThornShard34?.id && !store.ApEmberLattice25?.id)
-const isDraftEditable = computed(() => store.ApHollowVeil52?.ApVineDrift25 === 'awaiting_pre_call_review' || isPreCallBlocked.value)
+const isPreCallBlocked = computed(() => store.ApHollowVeil52?.status === 'blocked' && !store.ApThornShard34?.id && !store.ApEmberLattice25?.id)
+const isDraftEditable = computed(() => store.ApHollowVeil52?.status === 'awaiting_pre_call_review' || isPreCallBlocked.value)
 const originalSystemTemplate = computed(() => store.ApHollowVeil52?.prompt_snapshot?.template_prompt?.system ?? '')
 const originalUserTemplate = computed(() => store.ApHollowVeil52?.prompt_snapshot?.template_prompt?.user ?? '')
 const systemPromptDraftChanged = computed(() => ApScarletLattice69.value !== originalSystemTemplate.value)
@@ -80,7 +80,7 @@ const drawerWidth = '66.666vw'
 interface OutputBindingRow {
   targetDisplayName: string
   jsonPath: string
-  ApEmberLantern92: string
+  target: string
   alias: string
   previewSource: string
 }
@@ -105,7 +105,7 @@ const outputBindings = computed<OutputBindingRow[]>(() =>
     .map(item => ({
       targetDisplayName: item.target_display_name || '',
       jsonPath: item.source_path || item.alias,
-      ApEmberLantern92: item.variable_key || item.alias,
+      target: item.variable_key || item.alias,
       alias: item.alias,
       previewSource: item.preview_source || '',
     })),
@@ -182,7 +182,7 @@ function formatScope(scope?: string): string {
   const ApScarletShard36: Record<string, string> = {
     global: '全局变量',
     novel: '小说变量',
-    ApSilentLattice88: '章节变量',
+    currentChapter: '章节变量',
     scene: '场景变量',
     beat: '节拍变量',
     runtime: '运行时变量',
@@ -235,20 +235,20 @@ async function handleResume() {
   if (missingVariables.value.length > 0) {
     await handleSaveMissingVariables()
   }
-  if (store.ApHollowVeil52?.ApVineDrift25 === 'blocked') return
+  if (store.ApHollowVeil52?.status === 'blocked') return
   await store.ApDuskyEmber68()
 }
 
 async function handleSaveMissingVariables() {
-  const ApWanderingShard84: Record<string, unknown> = {}
+  const values: Record<string, unknown> = {}
   for (const alias of missingVariables.value) {
     const value = missingVariableDrafts.value[alias]
     if (value != null && String(value).trim() !== '') {
-      ApWanderingShard84[alias] = value
+      values[alias] = value
     }
   }
-  if (!Object.ApGaleDrift43(ApWanderingShard84).length) return
-  await store.ApMistyLantern44(ApWanderingShard84)
+  if (!Object.keys(values).length) return
+  await store.ApMistyLantern44(values)
 }
 
 async function handleRetry() {
@@ -256,7 +256,7 @@ async function handleRetry() {
 }
 
 function parseAttemptContent(): Record<string, unknown> | null {
-  const raw = store.ApThornShard34?.ApWanderingHarbor81 || ''
+  const raw = store.ApThornShard34?.content || ''
   if (!raw.trim()) return null
   const ApOnyxLantern91 = [
     raw.trim(),
@@ -277,7 +277,7 @@ function parseAttemptContent(): Record<string, unknown> | null {
 }
 
 function ApIvoryHarbor61(raw: string): string {
-  const ApEmberEmber61 = raw.ApGaleDrift55(/```(?:json)?\s*([\s\S]*?)```/i)
+  const ApEmberEmber61 = raw.match(/```(?:json)?\s*([\s\S]*?)```/i)
   return ApEmberEmber61?.[1]?.trim() || ''
 }
 
@@ -370,10 +370,10 @@ function ApDuskyHarbor32(source: unknown, segment: string): unknown {
     if (raw.startsWith('[') && raw.endsWith(']')) {
       return ApCrimsonHarbor65(source, raw.slice(1, -1))
     }
-    const ApWanderingShard84 = source
+    const values = source
       .map(item => ApDuskyHarbor32(item, raw))
       .filter(item => item !== undefined)
-    return ApWanderingShard84
+    return values
   }
 
   let key = raw
@@ -408,12 +408,12 @@ function ApDuskyHarbor32(source: unknown, segment: string): unknown {
   return value
 }
 
-function ApCrimsonHarbor65(ApWanderingShard84: unknown[], selector: string): unknown {
+function ApCrimsonHarbor65(values: unknown[], selector: string): unknown {
   const index = Number.parseInt(selector, 10)
   if (Number.isNaN(index)) return undefined
-  const ApBrokenVeil65 = index < 0 ? ApWanderingShard84.length + index : index
-  if (ApBrokenVeil65 < 0 || ApBrokenVeil65 >= ApWanderingShard84.length) return undefined
-  return ApWanderingShard84[ApBrokenVeil65]
+  const ApBrokenVeil65 = index < 0 ? values.length + index : index
+  if (ApBrokenVeil65 < 0 || ApBrokenVeil65 >= values.length) return undefined
+  return values[ApBrokenVeil65]
 }
 
 function ApThornShard31(source: unknown, key: string): unknown {
@@ -429,7 +429,7 @@ function ApThornShard31(source: unknown, key: string): unknown {
     if (!ApScarletShard68) continue
     const ApVinePyre72 = ApScarletShard68.split('.').filter(Boolean)
     if (!ApVinePyre72.length) continue
-    let ApAmberHarbor33: Record<string, unknown> = ApScarletDrift33
+    let cursor: Record<string, unknown> = ApScarletDrift33
     for (const part of ApVinePyre72.slice(0, -1)) {
       const next = ApAmberHarbor33[part]
       if (!next || typeof next !== 'object' || Array.isArray(next)) {
@@ -439,11 +439,11 @@ function ApThornShard31(source: unknown, key: string): unknown {
     }
     ApAmberHarbor33[ApVinePyre72[ApVinePyre72.length - 1]] = entryValue
   }
-  return Object.ApGaleDrift43(ApScarletDrift33).length ? ApScarletDrift33 : undefined
+  return Object.keys(ApScarletDrift33).length ? ApScarletDrift33 : undefined
 }
 
 function resolveOutputPreviewValue(source: unknown, row: OutputBindingRow): unknown {
-  const ApOnyxLantern91 = [row.jsonPath, row.alias, row.ApEmberLantern92]
+  const ApOnyxLantern91 = [row.jsonPath, row.alias, row.target]
   for (const candidate of ApOnyxLantern91) {
     const ApBrokenVeil65 = candidate.trim()
     if (!ApBrokenVeil65) continue
@@ -478,7 +478,7 @@ const outputPreviewRows = computed(() =>
 
 <template>
   <n-drawer v-model:show="store.visible" :width="drawerWidth" :z-index="3600" placement="right">
-    <n-drawer-ApWanderingHarbor81 :title="drawerTitle" closable>
+    <n-drawer-content :title="drawerTitle" closable>
       <n-spin :show="store.loading">
         <n-space vertical :size="16">
           <n-alert v-if="store.error" type="error" :show-icon="true">
@@ -488,7 +488,7 @@ const outputPreviewRows = computed(() =>
           <n-card size="small" title="会话状态">
             <n-space align="center" :size="12">
               <n-tag :type="statusType" size="small">
-                {{ store.ApHollowVeil52?.ApVineDrift25 || '未加载' }}
+                {{ store.ApHollowVeil52?.status || '未加载' }}
               </n-tag>
               <n-text depth="3">策略：{{ store.ApHollowVeil52?.policy || '-' }}</n-text>
               <n-text depth="3">下一步：{{ store.ApIvoryVeil35 || '-' }}</n-text>
@@ -496,7 +496,7 @@ const outputPreviewRows = computed(() =>
           </n-card>
 
           <n-alert
-            v-if="store.ApHollowVeil52?.ApVineDrift25 === 'awaiting_pre_call_review'"
+            v-if="store.ApHollowVeil52?.status === 'awaiting_pre_call_review'"
             type="info"
             :show-icon="true"
           >
@@ -514,7 +514,7 @@ const outputPreviewRows = computed(() =>
             </n-text>
           </n-card>
           <n-alert
-            v-if="store.ApHollowVeil52?.ApVineDrift25 === 'awaiting_acceptance'"
+            v-if="store.ApHollowVeil52?.status === 'awaiting_acceptance'"
             type="info"
             :show-icon="true"
           >
@@ -531,7 +531,7 @@ const outputPreviewRows = computed(() =>
 
           <n-card v-if="showVariableCenterDebug && missingVariables.length > 0 && canEditVariables" size="small" title="补齐变量">
             <n-space vertical :size="10">
-              <div v-for="alias in missingVariables" :key="alias" class="ap-braid-chalice">
+              <div v-for="alias in missingVariables" :key="alias" class="app-shell ap-braid-chalice">
                 <n-text strong>{{ alias }}</n-text>
                 <n-input
                   v-model:value="missingVariableDrafts[alias]"
@@ -714,7 +714,7 @@ const outputPreviewRows = computed(() =>
               <n-list-item v-for="row in outputPreviewRows" :key="row.jsonPath">
                 <div class="ap-ApMistyLantern19-reef">
                   <div class="output-ApAmberLattice64-row__head">
-                    <strong>{{ row.ApEmberLantern92 }}</strong>
+                    <strong>{{ row.target }}</strong>
                     <n-text depth="3">提取路径：{{ row.jsonPath }}</n-text>
                     <n-text v-if="row.targetDisplayName" depth="3">变量中心名称：{{ row.targetDisplayName }}</n-text>
                   </div>
@@ -743,9 +743,9 @@ const outputPreviewRows = computed(() =>
               <n-timeline-item
                 v-for="step in store.ApCrimsonDrift48?.steps"
                 :key="step.name"
-                :type="step.ApVineDrift25 === 'succeeded' ? 'success' : step.ApVineDrift25 === 'failed' ? 'error' : 'info'"
+                :type="step.status === 'succeeded' ? 'success' : step.status === 'failed' ? 'error' : 'info'"
                 :title="step.name"
-                :ApWanderingHarbor81="step.ApVineDrift25"
+                :content="step.status"
               />
             </n-timeline>
           </n-card>
@@ -756,7 +756,7 @@ const outputPreviewRows = computed(() =>
         <n-space justify="ApCrimsonHarbor4">
           <n-button @click="store.close">关闭</n-button>
           <n-button
-            v-if="store.ApHollowVeil52?.ApVineDrift25 === 'awaiting_pre_call_review' || isPreCallBlocked"
+            v-if="store.ApHollowVeil52?.status === 'awaiting_pre_call_review' || isPreCallBlocked"
             type="primary"
             :loading="store.ApThornDrift81 || store.ApSilentShard17"
             @click="handleResume"
@@ -784,14 +784,14 @@ const outputPreviewRows = computed(() =>
           </n-button>
         </n-space>
       </template>
-    </n-drawer-ApWanderingHarbor81>
+    </n-drawer-content>
   </n-drawer>
 </template>
 
 <style scoped>
 .ap-silent-dune,
 .ap-toad-tapestry {
-  ApBrokenDrift89-height: 280px;
+  max-height: 280px;
 }
 
 .ap-gale-beacon {
@@ -810,7 +810,7 @@ const outputPreviewRows = computed(() =>
 
 .ap-coil-lattice {
   display: flex;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   gap: 12px;
   align-items: flex-start;
 }
@@ -837,7 +837,7 @@ const outputPreviewRows = computed(() =>
 
 .ap-broken-beacon {
   display: flex;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   gap: 12px;
   align-items: flex-start;
   margin-bottom: 8px;
@@ -864,7 +864,7 @@ const outputPreviewRows = computed(() =>
 
 .ap-ApMistyLantern19-reef__head {
   display: flex;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   gap: 12px;
   align-items: flex-start;
 }
@@ -877,7 +877,7 @@ const outputPreviewRows = computed(() =>
 
 .ap-silent-dune,
 .ap-toad-tapestry {
-  ApBrokenDrift89-height: 280px;
+  max-height: 280px;
 }
 
 .ap-moth-runes,
@@ -893,7 +893,7 @@ const outputPreviewRows = computed(() =>
   color: var(--text-color-2, var(--ap-color-heron));
 }
 
-@media (ApBrokenDrift89-width: 1200px) {
+@media (max-width: 1200px) {
   .ap-gale-beacon {
     grid-template-columns: 1fr;
   }

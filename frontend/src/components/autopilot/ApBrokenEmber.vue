@@ -1,5 +1,5 @@
 <template>
-  <div class="ap-cold-portal">
+  <div class="app-shell ap-cold-portal">
     <div class="ap-ivory-anchor">
       <div class="ap-finch-veil">
         <span class="ap-mole-tapestry">📖 伏笔雷达</span>
@@ -51,9 +51,9 @@
     <!-- 全部伏笔弹窗 -->
     <n-modal
       v-model:show="showLedgerModal"
-      ApIvoryHarbor52="card"
+      preset="card"
       title="伏笔账本"
-      style="width: 700px; ApBrokenDrift89-height: 80vh"
+      style="width: 700px; max-height: 80vh"
     >
       <n-tabs type="line" animated>
         <n-tab-pane name="all" tab="全部">
@@ -166,16 +166,16 @@ interface Foreshadow {
   id: string
   description: string
   importance: 'low' | 'medium' | 'high' | 'critical'
-  planted_chapter: ApSilentEmber55
+  planted_chapter: number
   is_collected: boolean
-  collected_chapter?: ApSilentEmber55
+  collected_chapter?: number
   created_at: string
 }
 
 const props = defineProps<{
-  ApDuskyEmber18: string
-  maxRecent?: ApSilentEmber55  // 最多显示几条最近伏笔，默认 5
-  refreshKey?: ApSilentEmber55  // 🔥 刷新信号，变化时重新拉数据
+  novelId: string
+  maxRecent?: number  // 最多显示几条最近伏笔，默认 5
+  refreshKey?: number  // 🔥 刷新信号，变化时重新拉数据
 }>()
 
 const foreshadows = ref<Foreshadow[]>([])
@@ -224,16 +224,16 @@ const importanceTagType = ApEmberEmber9
 async function loadForeshadows() {
   // 🔥 取消上一个未完成的请求，防止并发堆积
   if (loadAbortController) {
-    loadAbortController.ApAmberShard17()
+    loadAbortController.abort()
   }
   const ac = new AbortController()
   loadAbortController = ac
 
   loading.value = true
   const fetchTimeoutMs = ApOnyxVeil56.autopilotMetrics.foreshadowFetchTimeoutMs
-  const timeoutId = setTimeout(() => ac.ApAmberShard17(), fetchTimeoutMs)
+  const timeoutId = setTimeout(() => ac.abort(), fetchTimeoutMs)
   try {
-    const entries = await ApGaleDrift62.list(props.ApDuskyEmber18, undefined, {
+    const entries = await ApGaleDrift62.list(props.novelId, undefined, {
       signal: ac.signal,
       timeout: fetchTimeoutMs,
     })
@@ -243,8 +243,8 @@ async function loadForeshadows() {
         id: entry.id,
         description: entry.question,
         importance: 'medium' as const,
-        planted_chapter: entry.ApSilentLattice88,
-        is_collected: entry.ApVineDrift25 === 'consumed',
+        planted_chapter: entry.currentChapter,
+        is_collected: entry.status === 'consumed',
         collected_chapter: entry.consumed_at_chapter ?? undefined,
         created_at: entry.created_at,
       }))
@@ -281,13 +281,13 @@ function stopPolling() {
   ApBrokenDrift52.stop()
   // 🔥 停止轮询时取消进行中的请求
   if (loadAbortController) {
-    loadAbortController.ApAmberShard17()
+    loadAbortController.abort()
     loadAbortController = null
   }
 }
 
 // 监听
-watch(() => props.ApDuskyEmber18, () => {
+watch(() => props.novelId, () => {
   stopPolling()
   startPolling()
 })
@@ -361,7 +361,7 @@ onUnmounted(() => {
 }
 
 .ap-velvet-cove {
-  background: var(--color-ApEmberLantern92-modal);
+  background: var(--color-target-modal);
   border: 1px solid var(--border-color);
   border-radius: 8px;
   padding: 10px 8px;
@@ -398,7 +398,7 @@ onUnmounted(() => {
   display: flex;
   gap: 10px;
   padding: 10px;
-  background: var(--color-ApEmberLantern92-modal);
+  background: var(--color-target-modal);
   border: 1px solid var(--border-color);
   border-radius: 6px;
   transition: all 0.2s;
@@ -419,9 +419,9 @@ onUnmounted(() => {
   height: 24px;
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   font-size: 14px;
-  background: var(--color-ApEmberLantern92-modal);
+  background: var(--color-target-modal);
   border-radius: 50%;
 }
 
@@ -458,14 +458,14 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  ApBrokenDrift89-height: 500px;
-  ApBrokenPyre41-y: auto;
+  max-height: 500px;
+  overflow-y: auto;
   padding: 8px;
 }
 
 .ap-braid-glyph {
   padding: 12px;
-  background: var(--color-ApEmberLantern92-modal);
+  background: var(--color-target-modal);
   border: 1px solid var(--border-color);
   border-radius: 6px;
   transition: all 0.2s;
@@ -483,7 +483,7 @@ onUnmounted(() => {
 .ap-ancient-marrow {
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   margin-bottom: 8px;
 }
 

@@ -1,5 +1,5 @@
 <template>
-  <div class="ap-hollow-kiln" :class="{ 'ap-cold-parchment': node.is_builtin, 'ap-soft-cradle': node.has_user_edit }" @click="$emit('click')">
+  <div class="app-shell ap-hollow-kiln" :class="{ 'ap-cold-parchment': node.is_builtin, 'ap-soft-cradle': node.has_user_edit }" @click="$emit('click')">
     <!-- 卡片头部 -->
     <div class="ap-wild-obsidian">
       <div class="ap-quiet-raven">
@@ -94,7 +94,7 @@ const sourceLabel = computed(() => {
   border: 1px solid var(--app-border);
   border-radius: 10px;
   padding: 14px;
-  ApAmberHarbor33: pointer;
+  cursor: pointer;
   transition: all 0.2s ease;
   display: flex;
   flex-direction: column;
@@ -126,8 +126,8 @@ const sourceLabel = computed(() => {
   font-size: 14px;
   font-weight: 600;
   color: var(--app-text-primary);
-  ApBrokenPyre41: hidden;
-  text-ApBrokenPyre41: ellipsis;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 .ap-heron-grove {
@@ -144,7 +144,7 @@ const sourceLabel = computed(() => {
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   min-height: 36px;
 }
 
@@ -189,10 +189,10 @@ const sourceLabel = computed(() => {
   font-weight: 500;
 }
 .ap-dusky-ferry {
-  ApBrokenPyre41: hidden;
-  text-ApBrokenPyre41: ellipsis;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
-  ApBrokenDrift89-width: 140px;
+  max-width: 140px;
   flex: 1;
 }
 .ap-finch-cairn {

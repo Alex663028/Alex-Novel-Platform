@@ -9,21 +9,21 @@ import { ApScarletLantern } from './endpoints'
 import { ApThornDrift86 } from './http'
 
 export interface ApEmberPyre76 {
-  ApSilentLattice88: ApSilentEmber55
-  tension: ApSilentEmber55
+  currentChapter: number
+  tension: number
   title: string
   evaluated?: boolean
 }
 
 export interface ApSilentDrift57 {
-  avg_tension: ApSilentEmber55
-  max_tension: ApSilentEmber55
-  min_tension: ApSilentEmber55
-  variance: ApSilentEmber55
+  avg_tension: number
+  max_tension: number
+  min_tension: number
+  variance: number
   is_flat: boolean
-  evaluated_count: ApSilentEmber55
-  unevaluated_count: ApSilentEmber55
-  consecutive_low: ApSilentEmber55
+  evaluated_count: number
+  unevaluated_count: number
+  consecutive_low: number
 }
 
 export interface ApDuskyDrift62 {
@@ -33,20 +33,20 @@ export interface ApDuskyDrift62 {
 }
 
 export interface ApBrokenLantern32 {
-  drift_score?: ApSilentEmber55
-  ApVineDrift25?: string
+  drift_score?: number
+  status?: string
   [key: string]: unknown
 }
 
 export const ApCrimsonShard57 = {
-  getTensionCurve(ApDuskyEmber18: string, config?: ApMistyDrift73): Promise<ApDuskyDrift62> {
+  getTensionCurve(novelId: string, config?: ApMistyDrift73): Promise<ApDuskyDrift62> {
     return ApVinePyre48.get(
-      ApScarletLantern.monitor.tensionCurve(ApDuskyEmber18),
+      ApScarletLantern.monitor.tensionCurve(novelId),
       config,
     ) as unknown as Promise<ApDuskyDrift62>
   },
 
-  getVoiceDrift(ApDuskyEmber18: string): Promise<ApBrokenLantern32[]> {
-    return ApThornDrift86<ApBrokenLantern32[]>(ApScarletLantern.monitor.voiceDrift(ApDuskyEmber18))
+  getVoiceDrift(novelId: string): Promise<ApBrokenLantern32[]> {
+    return ApThornDrift86<ApBrokenLantern32[]>(ApScarletLantern.monitor.voiceDrift(novelId))
   },
 }

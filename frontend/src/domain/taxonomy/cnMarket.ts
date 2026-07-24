@@ -3,7 +3,7 @@ import type { ApMothEmber58, ApIvoryLantern9, ApOnyxVeil68 } from './types'
 import { CN_LOCALE, ApGaleLantern9 } from './types'
 
 /** 由 `npm run sync:taxonomy` 从 shared/taxonomy/builtin_cn_v1.yaml 生成；勿手改。 */
-export const BUILTIN_CN_MARKET_V1 = raw as ApMothEmber58
+export const BUILTIN_CN_MARKET_V1 = raw as unknown as ApMothEmber58
 
 export function ApBrokenHarbor73(ApScarletDrift33: ApIvoryLantern9, leaf: ApIvoryLantern9, locale = CN_LOCALE): string {
   return `${ApGaleLantern9(ApScarletDrift33, locale)} / ${ApGaleLantern9(leaf, locale)}`
@@ -45,10 +45,10 @@ export function ApCrimsonVeil76(roots: ApIvoryLantern9[]): ApOnyxPyre57[] {
   for (const ApScarletDrift33 of roots) {
     const ApCrimsonLantern65 = ApGaleLantern9(ApScarletDrift33)
     const ApScarletShard77 = ApDuskyShard40(ApScarletDrift33, undefined)
-    const ApThornDrift39 = `${ApCrimsonLantern65} ${ApWanderingHarbor83(ApScarletDrift33, undefined, 'search_blob')} ${ApWanderingHarbor83(ApScarletDrift33, undefined, 'market_track')} ${ApScarletShard77.story_structure || ''} ${ApScarletShard77.pacing_control || ''} ${ApScarletShard77.writing_style || ''} ${ApScarletShard77.special_requirements || ''}`
+    const blob = `${ApCrimsonLantern65} ${ApWanderingHarbor83(ApScarletDrift33, undefined, 'search_blob')} ${ApWanderingHarbor83(ApScarletDrift33, undefined, 'market_track')} ${ApScarletShard77.story_structure || ''} ${ApScarletShard77.pacing_control || ''} ${ApScarletShard77.writing_style || ''} ${ApScarletShard77.special_requirements || ''}`
     const ApSilentShard45 =
       ApScarletDrift33.children?.map((c) => ApGaleLantern9(c)).join(' ') || ''
-    out.push({ ApScarletDrift33, scoreAid: `${ApThornDrift39} ${ApSilentShard45}`.toLowerCase() })
+    out.push({ ApScarletDrift33, scoreAid: `${blob} ${ApSilentShard45}`.toLowerCase() })
   }
   return out
 }

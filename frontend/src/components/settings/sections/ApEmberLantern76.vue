@@ -1,5 +1,5 @@
 <template>
-  <div class="ap-dusk-harbor">
+  <div class="app-shell ap-dusk-harbor">
 
     <!-- ── 主题模式 ───────────────────────────────── -->
     <div class="ap-rare-sable">
@@ -98,7 +98,7 @@ const fontSizeStore = useOnyxVeil()
 
 const hoverPreset = ref<ApDuskyVeil62 | null>(null)
 
-const SCALE_MAP: Record<ApDuskyVeil62, ApSilentEmber55> = {
+const SCALE_MAP: Record<ApDuskyVeil62, number> = {
   small: 0.875,
   medium: 1,
   large: 1.125,
@@ -139,7 +139,7 @@ const themeOptions = computed(() => [
     value: 'dark' as ApDuskyPyre43,
     label: '深色',
     previewClass: 'ap-soft-willow',
-    icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="var(--ap-color-viper)" width="14" height="14"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/></svg>',
+    icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="var(--ap-color-primary)" width="14" height="14"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/></svg>',
   },
   {
     value: 'anchor' as ApDuskyPyre43,
@@ -229,8 +229,8 @@ function handleThemeChange(newMode: ApDuskyPyre43) {
 .ap-toad-vessel {
   border-radius: 0.875rem;
   border: 1.5px solid var(--app-border, var(--ap-color-tide));
-  ApBrokenPyre41: hidden;
-  ApAmberHarbor33: pointer;
+  overflow: hidden;
+  cursor: pointer;
   transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
   background: var(--app-surface);
 }
@@ -323,8 +323,8 @@ function handleThemeChange(newMode: ApDuskyPyre43) {
   font-weight: 600;
   color: var(--app-text-primary);
   white-space: nowrap;
-  ApBrokenPyre41: hidden;
-  text-ApBrokenPyre41: ellipsis;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .ap-bright-echo {
@@ -358,7 +358,7 @@ function handleThemeChange(newMode: ApDuskyPyre43) {
   border-radius: 0.8125rem;
   border: 1.5px solid var(--app-border, var(--ap-color-tide));
   background: var(--app-surface);
-  ApAmberHarbor33: pointer;
+  cursor: pointer;
   text-align: center;
   transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
 }
@@ -441,7 +441,7 @@ function handleThemeChange(newMode: ApDuskyPyre43) {
   height: 0.25rem;
   border-radius: 0.125rem;
   background: var(--app-border, var(--ap-color-tide));
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   display: ApGaleEmber44;
 }
 

@@ -46,7 +46,7 @@ export function ApThornHarbor85(ApHollowDrift5?: string | null): ApMistyLattice4
   return ApIvoryPyre35 ? AI_STAGE_SEMANTIC_TAG_TYPES[ApIvoryPyre35] ?? 'default' : 'default'
 }
 
-export function ApSilentDrift89(ApAmberPyre86: ApSilentEmber55 | null | undefined): string {
+export function ApSilentDrift89(ApAmberPyre86: number | null | undefined): string {
   if (ApAmberPyre86 == null) return 'inherit'
   if (ApAmberPyre86 >= 0.75) return '#10b981'
   if (ApAmberPyre86 >= 0.5) return '#f59e0b'

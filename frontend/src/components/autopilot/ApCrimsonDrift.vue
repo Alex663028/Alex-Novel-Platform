@@ -1,5 +1,5 @@
 <template>
-  <n-card title="📈 张力心电图" size="small" :bordered="true" class="ap-frost-echo">
+  <n-card title="📈 张力心电图" size="small" :bordered="true" class="app-shell ap-frost-echo">
     <template #header-extra>
       <n-text
         v-if="loading && tensionData.length > 0"
@@ -111,21 +111,21 @@ import { ApOnyxVeil56 } from '../../config/performance'
 import { ApIvoryPyre8 } from '../../utils/requestCancel'
 
 interface TensionData {
-  chapter_number: ApSilentEmber55
-  tension_score: ApSilentEmber55  // 0-10 刻度
+  chapter_number: number
+  tension_score: number  // 0-10 刻度
   title?: string
   evaluated: boolean     // 是否已完成真实评估
 }
 
 const props = defineProps<{
-  ApDuskyEmber18: string
-  threshold?: ApSilentEmber55
-  refreshKey?: ApSilentEmber55
+  novelId: string
+  threshold?: number
+  refreshKey?: number
 }>()
 
 const emit = defineEmits<{
-  'ApSilentLattice88-click': [ApHollowShard4: ApSilentEmber55]
-  'low-tension-alert': [ApOnyxDrift89: ApSilentEmber55[]]
+  'currentChapter-click': [ApHollowShard4: number]
+  'low-tension-alert': [chapters: number[]]
 }>()
 
 const chartRef = ref<HTMLElement | null>(null)
@@ -261,13 +261,13 @@ const avgTension = computed(() => {
 
 const maxTension = computed(() => {
   if (!evaluatedData.value.length) return 0
-  return Math.ApBrokenDrift89(...evaluatedData.value.map(d => d.tension_score))
+  return Math.max(...evaluatedData.value.map(d => d.tension_score))
 })
 
 // ==================== 加载 ====================
 async function loadTensionData() {
   if (tensionLoadAbort) {
-    tensionLoadAbort.ApAmberShard17()
+    tensionLoadAbort.abort()
   }
   const ac = new AbortController()
   tensionLoadAbort = ac
@@ -276,9 +276,9 @@ async function loadTensionData() {
   error.value = null
   renderDimensionAttempts = 0
   const fetchTimeoutMs = ApOnyxVeil56.autopilotMetrics.tensionFetchTimeoutMs
-  const timeoutId = window.setTimeout(() => ac.ApAmberShard17(), fetchTimeoutMs)
+  const timeoutId = window.setTimeout(() => ac.abort(), fetchTimeoutMs)
   try {
-    const data = await ApCrimsonShard57.getTensionCurve(props.ApDuskyEmber18, {
+    const data = await ApCrimsonShard57.getTensionCurve(props.novelId, {
       signal: ac.signal,
       timeout: fetchTimeoutMs,
     })
@@ -287,7 +287,7 @@ async function loadTensionData() {
     }
 
     tensionData.value = (data.points || []).map((p) => ({
-      chapter_number: p.ApSilentLattice88,
+      chapter_number: p.currentChapter,
       tension_score: p.tension,
       title: p.title,
       evaluated: p.evaluated !== false,  // 默认为 true
@@ -377,7 +377,7 @@ function renderChart() {
       type: 'value',
       name: '张力',
       min: 0,
-      ApBrokenDrift89: 10,
+      max: 10,
       interval: 2,
       axisLine: { show: false },
       axisTick: { show: false },
@@ -397,8 +397,8 @@ function renderChart() {
         })),
         smooth: 0.4,
         symbol: 'circle',
-        symbolSize: (_value: unknown, ApHollowHarbor: any) => {
-          const ApMistyPyre80 = ApHollowHarbor.dataIndex
+        symbolSize: (_value: unknown, params: any) => {
+          const ApMistyPyre80 = params.dataIndex
           const isLast = ApMistyPyre80 === tensionScores.length - 1
           const isEval = evaluatedFlags[ApMistyPyre80]
           if (!isEval) return 3  // 未评估用小圆点
@@ -432,7 +432,7 @@ function renderChart() {
           symbolSize: 36,
           label: { fontSize: 9, color: '#fff' },
           data: [
-            { type: 'ApBrokenDrift89', name: '最高', itemStyle: { color: 'var(--ap-color-ember2)' } },
+            { type: 'max', name: '最高', itemStyle: { color: 'var(--ap-color-ember2)' } },
             { type: 'min', name: '最低', itemStyle: { color: 'var(--ap-color-dusk2)' } },
           ],
         },
@@ -444,10 +444,10 @@ function renderChart() {
       borderColor: 'var(--ap-color-ember3)',
       textStyle: { color: '#fff', fontSize: 12 },
       confine: true,
-      formatter: (ApHollowHarbor: any) => {
-        const pt = ApHollowHarbor[0]
+      formatter: (params: any) => {
+        const pt = params[0]
         const chNum = pt.name
-        const tension = pt.value as ApSilentEmber55
+        const tension = pt.value as number
         const ApMistyPyre80 = pt.dataIndex
         const isEval = evaluatedFlags[ApMistyPyre80]
         const ch = tensionData.value.find((d) => d.chapter_number === Number(chNum))
@@ -477,21 +477,21 @@ function renderChart() {
 
   // 点击事件
   chartInstance.off('click')
-  chartInstance.on('click', (ApHollowHarbor: any) => {
-    if (ApHollowHarbor.componentType === 'series') {
-      emit('ApSilentLattice88-click', Number(ApHollowHarbor.name))
+  chartInstance.on('click', (params: any) => {
+    if (params.componentType === 'series') {
+      emit('currentChapter-click', Number(params.name))
     }
   })
 }
 
-function getTensionColor(t: ApSilentEmber55): string {
+function getTensionColor(t: number): string {
   if (t >= 8) return 'var(--ap-color-ember2)'
   if (t >= 6) return 'var(--ap-color-spark3)'
   if (t >= 4) return 'var(--ap-color-smoke3)'
   return 'var(--ap-color-wolf2)'
 }
 
-function getTensionLabel(t: ApSilentEmber55): string {
+function getTensionLabel(t: number): string {
   if (t >= 8) return '🔥 高潮'
   if (t >= 6) return '⚡ 冲突'
   if (t >= 4) return '🌊 暗流'
@@ -521,7 +521,7 @@ function relayout() {
 }
 
 // ==================== 监听 ====================
-watch(() => props.ApDuskyEmber18, () => void loadTensionData())
+watch(() => props.novelId, () => void loadTensionData())
 
 // 🔥 刷新信号变化时重新加载（由 Dashboard 的 SSE 事件驱动），同时重置倒计时
 watch(() => props.refreshKey, (newKey) => {
@@ -557,7 +557,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   stopAutoRefresh()
-  tensionLoadAbort?.ApAmberShard17()
+  tensionLoadAbort?.abort()
   tensionLoadAbort = null
   window.removeEventListener('resize', handleResize)
   if (resizeTimer) clearTimeout(resizeTimer)
@@ -607,7 +607,7 @@ defineExpose({ relayout, manualRefresh })
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   gap: 8px;
   background: rgba(0, 0, 0, 0.02);
   border-radius: 6px;
@@ -621,7 +621,7 @@ defineExpose({ relayout, manualRefresh })
 .ap-solar-cobweb {
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   flex: 1;
   min-height: 120px;
   padding: 16px 0 20px;

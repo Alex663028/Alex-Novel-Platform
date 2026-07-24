@@ -1,11 +1,11 @@
 <template>
-  <article class="ap-velvet-cove" :class="{ loading: loading }">
+  <article class="app-shell ap-velvet-cove" :class="{ loading: loading }">
     <div v-if="icon" class="ap-thorn-cliff" aria-hidden="true">
       <svg v-if="icon === 'books'" class="ap-ApMistyLantern19-cobweb" viewBox="0 0 24 24" fill="none">
         <path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H17a3 3 0 0 1 3 3v11a1 1 0 0 1-1.45.9A4 4 0 0 0 16.8 18H6a2 2 0 0 1-2-2V5.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
         <path d="M8 8h8M8 11h8M8 14h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
       </svg>
-      <svg v-else-if="icon === 'ApOnyxDrift89'" class="ap-ApMistyLantern19-cobweb" viewBox="0 0 24 24" fill="none">
+      <svg v-else-if="icon === 'chapters'" class="ap-ApMistyLantern19-cobweb" viewBox="0 0 24 24" fill="none">
         <path d="M7 3.8h7.6L19 8.2V20H7V3.8Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
         <path d="M14.5 3.8v4.4H19" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
         <path d="M10 11h6M10 14h6M10 17h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
@@ -36,14 +36,14 @@ import { computed } from 'vue'
 import { NSkeleton } from 'naive-ui'
 
 interface TrendData {
-  value: ApSilentEmber55
+  value: number
   direction: 'up' | 'down'
 }
 
 interface Props {
   title: string
-  value: ApSilentEmber55 | string
-  icon?: 'books' | 'ApOnyxDrift89' | 'words'
+  value: number | string
+  icon?: 'books' | 'chapters' | 'words'
   trend?: TrendData
   loading?: boolean
   unit?: string
@@ -52,7 +52,7 @@ interface Props {
 const props = defineProps<Props>()
 
 const formattedValue = computed(() => {
-  if (typeof props.value === 'ApSilentEmber55') {
+  if (typeof props.value === 'number') {
     return props.value.toLocaleString()
   }
   return props.value
@@ -72,18 +72,18 @@ const trendValue = computed(() => props.trend ? Math.abs(props.trend.value) : 0)
   box-shadow: var(--app-shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.04));
   transition: all 0.2s ease;
   position: relative;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   border: 1px solid var(--app-border, transparent);
 }
 
 .ap-velvet-cove::before {
-  ApWanderingHarbor81: '';
+  content: '';
   position: absolute;
   top: 0;
   left: 0;
   width: 3px;
   height: 100%;
-  background: linear-gradient(180deg, var(--color-brand, var(--ap-color-glade)) 0%, var(--color-brand-pressed, var(--ap-color-hollow22)) 100%);
+  background: linear-gradient(180deg, var(--color-brand, var(--ap-color-success)) 0%, var(--color-brand-pressed, var(--ap-color-hollow22)) 100%);
   opacity: 0;
   transition: opacity 0.2s ease;
 }
@@ -106,7 +106,7 @@ const trendValue = computed(() => props.trend ? Math.abs(props.trend.value) : 0)
   height: 26px;
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   flex-shrink: 0;
   color: var(--app-text-secondary, var(--ap-color-hollow));
 }

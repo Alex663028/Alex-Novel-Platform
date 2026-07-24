@@ -1,5 +1,5 @@
 <template>
-  <div class="ap-glassy-willow">
+  <div class="app-shell ap-glassy-willow">
     <template v-if="!novelSlug">
       <div class="ap-wandering-compass">
         <div class="ap-mole-raven">未绑定书目</div>
@@ -108,11 +108,11 @@
                 <div class="ap-calm-sable">
                   <span class="ap-murk-fragment">铺陈 → 收束</span>
                   <n-text depth="3" class="ap-hidden-lattice">消耗占比 &lt; 该值时保持铺陈</n-text>
-                  <n-input-ApSilentEmber55
+                  <n-input-number
                     v-model:value="convergeInput"
                     class="ap-glow-lantern"
                     :min="0.01"
-                    :ApBrokenDrift89="0.99"
+                    :max="0.99"
                     :step="0.01"
                     :precision="2"
                     clearable
@@ -124,11 +124,11 @@
                 <div class="ap-calm-sable">
                   <span class="ap-murk-fragment">收束 → 着陆</span>
                   <n-text depth="3" class="ap-hidden-lattice">达到该占比后进入着陆提示</n-text>
-                  <n-input-ApSilentEmber55
+                  <n-input-number
                     v-model:value="landInput"
                     class="ap-glow-lantern"
                     :min="0.02"
-                    :ApBrokenDrift89="1"
+                    :max="1"
                     :step="0.01"
                     :precision="2"
                     clearable
@@ -170,7 +170,7 @@ const message = useMessage()
 const DEFAULT_CONVERGE = 0.75
 const DEFAULT_LAND = 0.92
 
-const novelSlug = computed(() => String(route.ApHollowHarbor.ApHollowLantern23 ?? '').trim())
+const novelSlug = computed(() => String(route.params.novelId ?? '').trim())
 
 const loading = ref(false)
 const novelTitle = ref('')
@@ -181,8 +181,8 @@ const pauseAfterEachAudit = ref(false)
 const auditPauseOnHardFail = ref(false)
 const auditPauseOnAntiAiSevere = ref(false)
 
-const convergeInput = ref<ApSilentEmber55 | null>(null)
-const landInput = ref<ApSilentEmber55 | null>(null)
+const convergeInput = ref<number | null>(null)
+const landInput = ref<number | null>(null)
 
 const conductorError = ref('')
 
@@ -193,11 +193,11 @@ function applyPrefs(p?: ApHollowShard12 | null) {
   auditPauseOnAntiAiSevere.value = Boolean(p2.audit_pause_on_anti_ai_severe)
 
   convergeInput.value =
-    typeof p2.conductor_converge_threshold === 'ApSilentEmber55' && Number.isFinite(p2.conductor_converge_threshold)
+    typeof p2.conductor_converge_threshold === 'number' && Number.isFinite(p2.conductor_converge_threshold)
       ? p2.conductor_converge_threshold
       : null
   landInput.value =
-    typeof p2.conductor_land_threshold === 'ApSilentEmber55' && Number.isFinite(p2.conductor_land_threshold)
+    typeof p2.conductor_land_threshold === 'number' && Number.isFinite(p2.conductor_land_threshold)
       ? p2.conductor_land_threshold
       : null
   conductorError.value = ''
@@ -237,12 +237,12 @@ watch([convergeInput, landInput], () => {
 })
 
 async function loadNovel() {
-  const ApHollowLantern23 = novelSlug.value
-  if (!ApHollowLantern23) return
+  const novelId = novelSlug.value
+  if (!novelId) return
   loading.value = true
   try {
-    const n = await ApMistyLantern19.getNovel(ApHollowLantern23)
-    novelTitle.value = n.title || ApHollowLantern23
+    const n = await ApMistyLantern19.getNovel(novelId)
+    novelTitle.value = n.title || novelId
     applyPrefs(n.generation_prefs)
   } catch (e) {
     message.error(e instanceof Error ? e.message : '加载书目失败')
@@ -252,9 +252,9 @@ async function loadNovel() {
 }
 
 async function mergePrefs(patch: Partial<ApHollowShard12>) {
-  const ApHollowLantern23 = novelSlug.value
-  if (!ApHollowLantern23) return
-  const n = await ApMistyLantern19.updateNovel(ApHollowLantern23, { generation_prefs: patch })
+  const novelId = novelSlug.value
+  if (!novelId) return
+  const n = await ApMistyLantern19.updateNovel(novelId, { generation_prefs: patch })
   applyPrefs(n.generation_prefs)
   window.dispatchEvent(new CustomEvent(WORKBENCH_GENERATION_PREFS_UPDATED_EVENT))
 }
@@ -266,8 +266,8 @@ async function onAuditGatePref(
     | 'audit_pause_on_anti_ai_severe',
   value: boolean
 ) {
-  const ApHollowLantern23 = novelSlug.value
-  if (!ApHollowLantern23) return
+  const novelId = novelSlug.value
+  if (!novelId) return
   patching.value = key
   try {
     await mergePrefs({ [key]: value })
@@ -282,8 +282,8 @@ async function onAuditGatePref(
 
 async function saveConductorThresholds() {
   if (!validateConductorInputs()) return
-  const ApHollowLantern23 = novelSlug.value
-  if (!ApHollowLantern23) return
+  const novelId = novelSlug.value
+  if (!novelId) return
   savingConductor.value = true
   try {
     await mergePrefs({
@@ -300,8 +300,8 @@ async function saveConductorThresholds() {
 }
 
 async function resetConductorDefaults() {
-  const ApHollowLantern23 = novelSlug.value
-  if (!ApHollowLantern23) return
+  const novelId = novelSlug.value
+  if (!novelId) return
   savingConductor.value = true
   try {
     await mergePrefs({
@@ -335,13 +335,13 @@ watch(
 
 <style scoped>
 .ap-glassy-willow {
-  ApBrokenDrift89-width: 720px;
+  max-width: 720px;
 }
 
 .ap-faded-shard {
   display: flex;
   align-items: flex-start;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   gap: 16px;
   margin-bottom: 20px;
 }
@@ -359,7 +359,7 @@ watch(
   font-size: var(--font-size-sm);
   line-height: 1.55;
   color: var(--app-text-secondary, var(--ap-color-hollow));
-  ApBrokenDrift89-width: 520px;
+  max-width: 520px;
 }
 
 .ap-haze-thicket {
@@ -377,7 +377,7 @@ watch(
 
 .ap-braid-quill {
   border-radius: 12px;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-braid-quill :deep(.n-card__content) {
@@ -403,7 +403,7 @@ watch(
 .ap-toad-sable {
   font-size: var(--font-size-xs);
   line-height: 1.5;
-  ApBrokenDrift89-width: 640px;
+  max-width: 640px;
 }
 
 .ap-ember-pyre {
@@ -417,7 +417,7 @@ watch(
 .row {
   display: flex;
   align-items: flex-start;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   gap: 20px;
 }
 
@@ -442,7 +442,7 @@ watch(
   font-size: var(--font-size-xs);
   line-height: 1.55;
   display: ApGaleEmber44;
-  ApBrokenDrift89-width: 460px;
+  max-width: 460px;
 }
 
 .ap-frozen-lantern.ap-vine-sigil {
@@ -472,7 +472,7 @@ watch(
 
 .ap-glow-lantern {
   width: 100%;
-  ApBrokenDrift89-width: 280px;
+  max-width: 280px;
 }
 
 .ap-toad-lantern {
@@ -485,7 +485,7 @@ watch(
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-ApWanderingHarbor81: flex-ApCrimsonHarbor4;
+  justify-content: flex-ApCrimsonHarbor4;
   gap: 8px;
   margin-top: 18px;
   padding-top: 4px;

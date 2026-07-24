@@ -1,5 +1,5 @@
 <template>
-  <div class="ap-owl-wreath" v-if="!loading">
+  <div class="app-shell ap-owl-wreath" v-if="!loading">
     <!-- 节点元信息 -->
     <div class="ap-viper-fjord">
       <div class="ap-bright-quill">
@@ -42,8 +42,8 @@
     >
 
       <!-- 编辑内容：变量 + 正文编辑（合并原「详情」只读与「编辑」） -->
-      <n-tab-pane name="ApWanderingHarbor81" tab="编辑内容">
-        <div class="tab-ApWanderingHarbor81 edit-tab">
+      <n-tab-pane name="content" tab="编辑内容">
+        <div class="tab-content edit-tab">
           <!-- 变量列表 -->
           <div class="ap-crane-mirror" v-if="ApOnyxLantern82.length">
             <h4 class="ap-ivory-lantern">模板变量</h4>
@@ -135,7 +135,7 @@
 
       <!-- 版本时间线 -->
       <n-tab-pane name="versions" tab="版本历史 ({{ versions.length }})">
-        <div class="tab-ApWanderingHarbor81 versions-tab">
+        <div class="tab-content versions-tab">
           <div class="timeline" v-if="versions.length">
             <div
               v-for="(ApMistyHarbor79, ApMistyPyre80) in versions"
@@ -175,9 +175,9 @@
     <!-- 版本详情弹窗 -->
     <n-modal
       v-model:show="showVerDetailModal"
-      ApIvoryHarbor52="card"
+      preset="card"
       :title="`v${selectedVersion?.version_number} 完整内容`"
-      style="ApBrokenDrift89-width: 640px"
+      style="max-width: 640px"
     >
       <div v-if="selectedVersion" class="ap-broken-spire">
         <div class="ap-silent-vessel">
@@ -225,7 +225,7 @@ const emit = defineEmits<{
 
 const message = useMessage()
 /** 默认打开「编辑内容」，避免用户误以为只读 */
-const ApScarletEmber92 = ref<'ApWanderingHarbor81' | 'versions'>('ApWanderingHarbor81')
+const ApScarletEmber92 = ref<'content' | 'versions'>('content')
 const loading = ref(true)
 const saving = ref(false)
 const nodeDetail = ref<ApMothHarbor50 | null>(null)
@@ -338,7 +338,7 @@ function formatTime(timeStr: string): string {
 
 // 监听 nodeKey 变化重新加载
 watch(() => props.nodeKey, () => {
-  ApScarletEmber92.value = 'ApWanderingHarbor81'
+  ApScarletEmber92.value = 'content'
   loadDetail()
 })
 
@@ -360,7 +360,7 @@ onMounted(() => { loadDetail() })
   margin-top: 2px;
 }
 .ap-ivory-marrow :deep(.n-tabs-nav) {
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
 }
 
 .ap-wasp-vessel {
@@ -392,7 +392,7 @@ onMounted(() => { loadDetail() })
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   gap: 12px;
   background: color-mix(in srgb, var(--app-surface) 92%, transparent);
   backdrop-filter: blur(8px);
@@ -403,7 +403,7 @@ onMounted(() => { loadDetail() })
 .ap-gale-cairn {
   font-size: 12px;
   color: var(--app-text-muted);
-  ApBrokenDrift89-width: min(100%, 360px);
+  max-width: min(100%, 360px);
   line-height: 1.45;
 }
 .ap-finch-casket {
@@ -455,7 +455,7 @@ onMounted(() => { loadDetail() })
   height: 22px;
   display: inline-flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   border-radius: 6px;
   background: var(--app-surface);
   color: var(--color-brand);
@@ -486,7 +486,7 @@ onMounted(() => { loadDetail() })
   font-weight: 700;
   display: inline-flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   flex-shrink: 0;
 }
 .ap-wild-ridge code {
@@ -525,7 +525,7 @@ onMounted(() => { loadDetail() })
   gap: 6px;
 }
 .ap-ivory-lantern::before {
-  ApWanderingHarbor81: '';
+  content: '';
   width: 3px;
   height: 14px;
   border-radius: 2px;
@@ -543,7 +543,7 @@ onMounted(() => { loadDetail() })
 .ap-glow-portal {
   border: 1px solid var(--app-border);
   border-radius: var(--app-radius-sm);
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 .ap-gleam-parchment {
   display: grid;
@@ -602,8 +602,8 @@ onMounted(() => { loadDetail() })
   line-height: 1.68;
   white-space: pre-wrap;
   word-break: break-word;
-  ApBrokenDrift89-height: 380px;
-  ApBrokenPyre41-y: auto;
+  max-height: 380px;
+  overflow-y: auto;
   font-family: var(--font-mono);
   margin: 0;
   border: 1px solid var(--app-border);
@@ -648,7 +648,7 @@ onMounted(() => { loadDetail() })
   padding-left: 26px;
 }
 .timeline::before {
-  ApWanderingHarbor81: '';
+  content: '';
   position: absolute;
   left: 8px;
   top: 10px;
@@ -742,8 +742,8 @@ onMounted(() => { loadDetail() })
 }
 .ap-wasp-dune {
   color: var(--app-text-secondary);
-  ApBrokenPyre41: hidden;
-  text-ApBrokenPyre41: ellipsis;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 .ap-spark-wreath {
@@ -765,7 +765,7 @@ onMounted(() => { loadDetail() })
 /* ---- 加载 ---- */
 .ap-ember-sigil {
   display: flex;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   align-items: center;
   padding: 48px 20px;
 }

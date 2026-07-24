@@ -1,5 +1,7 @@
 <template>
+<div class="app-shell">
   <ApThornShard :option="chartOption" :height="height" :aria-label="`${title} - 分布图表`" />
+</div>
 </template>
 
 <script setup lang="ts">
@@ -10,7 +12,7 @@ import { CHART_COLORS } from '@/constants/chartTheme'
 
 interface DistributionData {
   name: string
-  value: ApSilentEmber55
+  value: number
 }
 
 const props = withDefaults(defineProps<{

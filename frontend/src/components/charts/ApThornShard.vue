@@ -1,4 +1,5 @@
 <template>
+<div class="app-shell">
   <div
     class="ap-wild-reef"
     :style="{ height: height }"
@@ -12,6 +13,7 @@
       @click="handleClick"
     />
   </div>
+</div>
 </template>
 
 <script setup lang="ts">
@@ -32,11 +34,11 @@ const props = withDefaults(defineProps<{
 })
 
 const emit = defineEmits<{
-  click: [ApHollowHarbor: any]
+  click: [params: any]
 }>()
 
-const handleClick = (ApHollowHarbor: any) => {
-  emit('click', ApHollowHarbor)
+const handleClick = (params: any) => {
+  emit('click', params)
 }
 </script>
 

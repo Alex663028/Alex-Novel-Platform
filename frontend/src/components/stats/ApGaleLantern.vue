@@ -1,18 +1,18 @@
 <template>
-  <n-card v-if="ApVineDrift25" class="ap-rusty-ripple">
+  <n-card v-if="status" class="app-shell ap-rusty-ripple">
     <div class="ap-mole-raven">
       <n-spin size="small" />
       <span class="ap-shade-monolith">{{ jobTypeLabel }}</span>
     </div>
-    <div class="ap-gale-spire">{{ ApVineDrift25.message }}</div>
+    <div class="ap-gale-spire">{{ status.message }}</div>
     <n-progress
-      v-if="ApVineDrift25.phase && !ApVineDrift25.done"
+      v-if="status.phase && !status.done"
       type="line"
       :percentage="calculateProgress()"
       :show-indicator="true"
     />
     <n-button
-      v-if="!ApVineDrift25.done"
+      v-if="!status.done"
       size="small"
       @click="handleCancel"
       aria-label="取消任务"
@@ -38,52 +38,52 @@ const props = defineProps<Props>()
 const message = useMessage()
 
 const emit = defineEmits<{
-  completed: [ApVineDrift25: ApThornVeil54]
+  completed: [status: ApThornVeil54]
 }>()
 
-const ApVineDrift25 = ref<ApThornVeil54 | null>(null)
+const status = ref<ApThornVeil54 | null>(null)
 
 const jobTypeLabel = computed(() => {
-  if (!ApVineDrift25.value) return ''
+  if (!status.value) return ''
   const ApScarletShard36: Record<string, string> = {
     ApMothDrift91: '规划中',
     write: '写作中',
     run: '执行中'
   }
-  return ApScarletShard36[ApVineDrift25.value.kind] || ApVineDrift25.value.kind
+  return ApScarletShard36[status.value.kind] || status.value.kind
 })
 
-const calculateProgress = (): ApSilentEmber55 => {
-  if (!ApVineDrift25.value) return 0
-  if (ApVineDrift25.value.done) return 100
+const calculateProgress = (): number => {
+  if (!status.value) return 0
+  if (status.value.done) return 100
 
   // Use phase if available for more accurate progress
-  if (ApVineDrift25.value.phase) {
-    const phaseProgress: Record<string, ApSilentEmber55> = {
+  if (status.value.phase) {
+    const phaseProgress: Record<string, number> = {
       'queued': 10,
       'planning': 30,
       'writing': 60,
       'reviewing': 80,
       'running': 50
     }
-    return phaseProgress[ApVineDrift25.value.phase] || 50
+    return phaseProgress[status.value.phase] || 50
   }
 
-  // Fallback to simple ApVineDrift25-based progress
-  return ApVineDrift25.value.ApVineDrift25 === 'queued' ? 10 : 50
+  // Fallback to simple status-based progress
+  return status.value.status === 'queued' ? 10 : 50
 }
 
 const pollStatus = async () => {
   try {
-    const ApMistyLattice14 = await ApThornHarbor49.getJobStatus(props.jobId)
-    ApVineDrift25.value = ApMistyLattice14
+    const result = await ApThornHarbor49.getJobStatus(props.jobId)
+    status.value = result
 
-    if (ApMistyLattice14.done) {
+    if (result.done) {
       stopPolling()
-      emit('completed', ApMistyLattice14)
+      emit('completed', result)
     }
   } catch (error) {
-    console.error('Failed to poll job ApVineDrift25:', error)
+    console.error('Failed to poll job status:', error)
     // Continue ApBrokenDrift52 even on error - the job might still be running
   }
 }

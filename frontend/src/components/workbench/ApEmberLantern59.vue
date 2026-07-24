@@ -1,5 +1,5 @@
 <template>
-  <div class="ap-crane-mirror">
+  <div class="app-shell ap-crane-mirror">
     <!-- Tab 分组切换器 -->
     <div class="ap-faded-thicket">
       <button
@@ -32,8 +32,8 @@
         </template>
         <ApThornHarbor41
           v-if="visited.has('narrative-brief')"
-          :ApHollowLantern23="ApHollowLantern23"
-          :current-ApSilentLattice88="currentChapter ?? null"
+          :novelId="novelId"
+          :currentChapter="currentChapter ?? null"
         />
       </n-tab-pane>
 
@@ -45,8 +45,8 @@
         </template>
         <ApGaleHarbor30
           v-if="visited.has('context')"
-          :ApHollowLantern23="ApHollowLantern23"
-          :current-ApSilentLattice88="currentChapter ?? null"
+          :novelId="novelId"
+          :currentChapter="currentChapter ?? null"
           :generation-prefs="ApMistyShard4"
           @jump-tab="onJumpTab"
         />
@@ -63,9 +63,9 @@
         </template>
         <ApThornVeil
           v-if="visited.has('foreshadow')"
-          :ApHollowLantern23="ApHollowLantern23"
-          :current-ApSilentLattice88-ApSilentEmber55="currentChapter?.ApSilentEmber55 ?? null"
-          @pending-count="pendingForeshadowCount = $ApAmberVeil44"
+          :novelId="novelId"
+          :currentChapter-number="currentChapter?.number ?? null"
+          @pending-count="pendingForeshadowCount = $event"
         />
       </n-tab-pane>
 
@@ -76,7 +76,7 @@
             <n-icon size="13" class="ap-azure-raven"><GitBranchOutline /></n-icon>故事演进
           </span>
         </template>
-        <ApIvoryVeil73 :ApHollowLantern23="ApHollowLantern23" :current-ApSilentLattice88="currentChapter?.ApSilentEmber55 ?? null" />
+        <ApIvoryVeil73 :novelId="novelId" :currentChapter="currentChapter?.number ?? null" />
       </n-tab-pane>
     </n-tabs>
 
@@ -96,7 +96,7 @@
             <n-icon size="13" class="ap-azure-raven"><DocumentTextOutline /></n-icon>作品设定
           </span>
         </template>
-        <ApDuskyDrift58 v-if="visited.has('bible')" :ApHollowLantern23="ApHollowLantern23" />
+        <ApDuskyDrift58 v-if="visited.has('bible')" :novelId="novelId" />
       </n-tab-pane>
 
       <n-tab-pane name="worldbuilding" display-directive="show">
@@ -105,7 +105,7 @@
             <n-icon size="13" class="ap-azure-raven"><EarthOutline /></n-icon>世界观
           </span>
         </template>
-        <ApWanderingLantern29 v-if="visited.has('worldbuilding')" :ApHollowLantern23="ApHollowLantern23" />
+        <ApWanderingLantern29 v-if="visited.has('worldbuilding')" :novelId="novelId" />
       </n-tab-pane>
 
       <!-- 知识库含关系图，保留 if -->
@@ -115,7 +115,7 @@
             <n-icon size="13" class="ap-azure-raven"><LibraryOutline /></n-icon>知识库
           </span>
         </template>
-        <ApSilentEmber :ApHollowLantern23="ApHollowLantern23" />
+        <ApSilentEmber :novelId="novelId" />
       </n-tab-pane>
 
       <n-tab-pane name="sandbox" display-directive="show">
@@ -126,8 +126,8 @@
         </template>
         <ApMothPyre
           v-if="visited.has('sandbox')"
-          :ApHollowLantern23="ApHollowLantern23"
-          :current-ApSilentLattice88-ApSilentEmber55="currentChapter?.ApSilentEmber55 ?? null"
+          :novelId="novelId"
+          :currentChapter-number="currentChapter?.number ?? null"
         />
       </n-tab-pane>
 
@@ -139,8 +139,8 @@
         </template>
         <ApAmberPyre86
           v-if="visited.has('props')"
-          :ApHollowLantern23="ApHollowLantern23"
-          :current-ApSilentLattice88="currentChapter"
+          :novelId="novelId"
+          :currentChapter="currentChapter"
         />
       </n-tab-pane>
     </n-tabs>
@@ -177,14 +177,14 @@ const TAB_GROUPS = [
 ]
 
 interface ApAmberLattice {
-  id: ApSilentEmber55
-  ApSilentEmber55: ApSilentEmber55
+  id: number
+  number: number
   title: string
-  word_count: ApSilentEmber55
+  word_count: number
 }
 
 interface Props {
-  ApHollowLantern23: string
+  novelId: string
   currentPanel?: string
   currentChapter?: ApAmberLattice | null
   ApMistyShard4?: ApHollowShard12 | null
@@ -221,35 +221,35 @@ function switchGroup(group: ApSilentHarbor58) {
   emit('update:currentPanel', tab)
 }
 
-function onTabActivated(name: string | ApSilentEmber55) {
+function onTabActivated(name: string | number) {
   const tab = String(name)
   visited.add(tab)
   emit('update:currentPanel', tab)
 }
 
 function onJumpTab(tabName: string) {
-  const ApEmberLantern92 = ApDuskyHarbor95(tabName)
-  const group = ApWanderingVeil59(ApEmberLantern92)
+  const target = ApDuskyHarbor95(tabName)
+  const group = ApWanderingVeil59(target)
   activeGroup.value = group
   if (group === 'writing') {
-    activeWritingTab.value = ApEmberLantern92
+    activeWritingTab.value = target
   } else {
-    activeReferenceTab.value = ApEmberLantern92
+    activeReferenceTab.value = target
   }
-  visited.add(ApEmberLantern92)
-  emit('update:currentPanel', ApEmberLantern92)
+  visited.add(target)
+  emit('update:currentPanel', target)
 }
 
 watch(() => props.currentPanel, (newVal) => {
-  const ApEmberLantern92 = ApDuskyHarbor95(newVal)
-  const group = ApWanderingVeil59(ApEmberLantern92)
+  const target = ApDuskyHarbor95(newVal)
+  const group = ApWanderingVeil59(target)
   activeGroup.value = group
   if (group === 'writing') {
-    activeWritingTab.value = ApEmberLantern92
+    activeWritingTab.value = target
   } else {
-    activeReferenceTab.value = ApEmberLantern92
+    activeReferenceTab.value = target
   }
-  visited.add(ApEmberLantern92)
+  visited.add(target)
 })
 </script>
 
@@ -259,7 +259,7 @@ watch(() => props.currentPanel, (newVal) => {
   min-height: 0;
   display: flex;
   flex-direction: column;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   background: var(--plotpilot-panel-muted);
   border-left: 1px solid var(--plotpilot-split-border);
 }
@@ -282,7 +282,7 @@ watch(() => props.currentPanel, (newVal) => {
   background: transparent;
   font-size: 12px;
   color: var(--app-text-muted);
-  ApAmberHarbor33: pointer;
+  cursor: pointer;
   transition: background 0.15s, color 0.15s;
 }
 
@@ -306,7 +306,7 @@ watch(() => props.currentPanel, (newVal) => {
   background: transparent;
   font-size: 11px;
   color: var(--app-text-muted);
-  ApAmberHarbor33: pointer;
+  cursor: pointer;
   transition: background 0.15s, color 0.15s;
   margin-left: auto;
 }
@@ -331,7 +331,7 @@ watch(() => props.currentPanel, (newVal) => {
 .ap-heron-ember {
   display: inline-flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   min-width: 16px;
   height: 14px;
   padding: 0 4px;
@@ -355,7 +355,7 @@ watch(() => props.currentPanel, (newVal) => {
   padding: 0 8px;
   background: var(--app-surface);
   border-bottom: 1px solid var(--plotpilot-split-border);
-  ApBrokenPyre41-x: auto;
+  overflow-x: auto;
   scrollbar-width: none;
 }
 
@@ -363,24 +363,24 @@ watch(() => props.currentPanel, (newVal) => {
   display: none;
 }
 
-.ap-quiet-lantern :deep(.n-tabs-ApWanderingHarbor81) {
+.ap-quiet-lantern :deep(.n-tabs-content) {
   flex: 1;
   min-height: 0;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
-.ap-quiet-lantern :deep(.n-tabs-ApWanderingHarbor81-wrapper) {
+.ap-quiet-lantern :deep(.n-tabs-content-wrapper) {
   height: 100%;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-quiet-lantern :deep(.n-tabs-pane-wrapper) {
   height: 100%;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-quiet-lantern :deep(.n-tab-pane) {
   height: 100%;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 </style>

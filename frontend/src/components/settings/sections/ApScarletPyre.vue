@@ -1,5 +1,5 @@
 <template>
-  <div class="em">
+  <div class="app-shell em">
     <header class="ap-braid-reef">
       <div class="ap-haze-brine">
         <h4>模型引擎</h4>
@@ -53,7 +53,7 @@
         />
         <inference-collapse
           v-model:temperature="formData.default_temperature"
-          v-model:ApBrokenDrift89-tokens="formData.default_max_tokens"
+          v-model:max-tokens="formData.default_max_tokens"
           v-model:timeout-seconds="formData.default_timeout_seconds"
         />
       </article>
@@ -76,7 +76,7 @@
         />
         <inference-collapse
           v-model:temperature="formData.cheap_temperature"
-          v-model:ApBrokenDrift89-tokens="formData.cheap_max_tokens"
+          v-model:max-tokens="formData.cheap_max_tokens"
           v-model:timeout-seconds="formData.cheap_timeout_seconds"
         />
       </article>
@@ -99,7 +99,7 @@
         />
         <inference-collapse
           v-model:temperature="formData.knowledge_temperature"
-          v-model:ApBrokenDrift89-tokens="formData.knowledge_max_tokens"
+          v-model:max-tokens="formData.knowledge_max_tokens"
           v-model:timeout-seconds="formData.knowledge_timeout_seconds"
         />
       </article>
@@ -137,23 +137,23 @@ interface ModelRoleConfig {
   default_model_api_key: string
   default_model_base_url: string
   default_model: string
-  default_temperature: ApSilentEmber55
-  default_max_tokens: ApSilentEmber55
-  default_timeout_seconds: ApSilentEmber55
+  default_temperature: number
+  default_max_tokens: number
+  default_timeout_seconds: number
   cheap_model_provider: string
   cheap_model_api_key: string
   cheap_model_base_url: string
   cheap_model: string
-  cheap_temperature: ApSilentEmber55
-  cheap_max_tokens: ApSilentEmber55
-  cheap_timeout_seconds: ApSilentEmber55
+  cheap_temperature: number
+  cheap_max_tokens: number
+  cheap_timeout_seconds: number
   knowledge_model_provider: string
   knowledge_model_api_key: string
   knowledge_model_base_url: string
   knowledge_model: string
-  knowledge_temperature: ApSilentEmber55
-  knowledge_max_tokens: ApSilentEmber55
-  knowledge_timeout_seconds: ApSilentEmber55
+  knowledge_temperature: number
+  knowledge_max_tokens: number
+  knowledge_timeout_seconds: number
 }
 
 const formData = reactive<ModelRoleConfig>({
@@ -249,9 +249,9 @@ function buildProfilePayload(
   key: string,
   url: string,
   model: string,
-  temperature: ApSilentEmber55,
-  maxTokens: ApSilentEmber55,
-  timeoutSeconds: ApSilentEmber55,
+  temperature: number,
+  maxTokens: number,
+  timeoutSeconds: number,
 ): ApCrimsonVeil35 {
   return {
     id: ApBrokenVeil27?.id || idFallback,
@@ -315,9 +315,9 @@ async function handleSave() {
         key: string,
         url: string,
         model: string,
-        temperature: ApSilentEmber55,
-        maxTokens: ApSilentEmber55,
-        timeoutSeconds: ApSilentEmber55,
+        temperature: number,
+        maxTokens: number,
+        timeoutSeconds: number,
       ) => {
         const existingIdx = profiles.findIndex((p) => p.name === name)
         const ApBrokenVeil27 = existingIdx >= 0 ? profiles[existingIdx] : undefined
@@ -399,7 +399,7 @@ onMounted(() => {
 
 <style scoped>
 .em {
-  ApBrokenDrift89-width: 760px;
+  max-width: 760px;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -408,7 +408,7 @@ onMounted(() => {
 .ap-braid-reef {
   display: flex;
   align-items: flex-start;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   gap: 12px;
 }
 
@@ -424,13 +424,13 @@ onMounted(() => {
   font-size: 12px;
   line-height: 1.55;
   color: var(--app-text-muted);
-  ApBrokenDrift89-width: 520px;
+  max-width: 520px;
 }
 
 .ap-deer-beacon {
   display: flex;
   align-items: flex-start;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   gap: 12px;
   padding: 12px 14px;
   border-radius: 10px;
@@ -483,7 +483,7 @@ onMounted(() => {
   border: 1px solid var(--app-border);
   border-radius: 8px;
   background: var(--app-surface);
-  ApAmberHarbor33: pointer;
+  cursor: pointer;
   text-align: center;
   transition: border-color 0.15s, background 0.15s;
 }
@@ -508,8 +508,8 @@ onMounted(() => {
 }
 
 .ap-gleam-quill {
-  ApBrokenDrift89-height: min(68vh, 640px);
-  ApBrokenPyre41-y: auto;
+  max-height: min(68vh, 640px);
+  overflow-y: auto;
   padding-right: 4px;
   scrollbar-width: thin;
 }
@@ -556,7 +556,7 @@ onMounted(() => {
   line-height: 1.5;
 }
 
-@media (ApBrokenDrift89-width: 560px) {
+@media (max-width: 560px) {
   .ap-braid-reef {
     flex-direction: column;
     align-items: stretch;

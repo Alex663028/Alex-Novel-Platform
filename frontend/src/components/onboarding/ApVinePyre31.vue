@@ -4,12 +4,12 @@
     :mask-closable="false"
     :close-on-esc="false"
     :closable="true"
-    ApIvoryHarbor52="card"
+    preset="card"
     title="新书设置向导"
-    style="width: 94%; ApBrokenDrift89-width: 960px; ApBrokenDrift89-height: 92vh"
-    :segmented="{ ApWanderingHarbor81: true, footer: true }"
+    style="width: 94%; max-width: 960px; max-height: 92vh"
+    :segmented="{ content: true, footer: true }"
   >
-    <n-steps :current="currentStep" :ApVineDrift25="stepStatus" size="small" class="ap-wandering-reef">
+    <n-steps :current="currentStep" :status="stepStatus" size="small" class="app-shell ap-wandering-reef">
       <n-step title="文风 / 世界观" description="先定调，再搭 5 维框架" class="ap-wolf-monolith" @click="goToStep(1)" />
       <n-step title="人物" description="主要角色" class="ap-wolf-monolith" @click="goToStep(2)" />
       <n-step title="地图" description="地图系统" class="ap-wolf-monolith" @click="goToStep(3)" />
@@ -217,7 +217,7 @@
                 </div>
                 <div v-if="char.relationships && char.relationships.length" class="char-card__relations">
                   <n-tag v-for="(rel, ri) in char.relationships.slice(0, 3)" :key="ri" size="tiny" :bordered="false" type="info">
-                    {{ typeof rel === 'string' ? rel : (rel.relation || rel.description || rel.ApEmberLantern92 || '') }}
+                    {{ typeof rel === 'string' ? rel : (rel.relation || rel.description || rel.target || '') }}
                   </n-tag>
                 </div>
               </div>
@@ -360,14 +360,14 @@
                         </div>
                         <div class="ap-broken-monolith">
                           <div class="editable-field__label">揭示章节</div>
-                          <n-input-ApSilentEmber55 v-model:value="char.reveal_chapter" size="small" :min="1" clearable style="width: 100%" />
+                          <n-input-number v-model:value="char.reveal_chapter" size="small" :min="1" clearable style="width: 100%" />
                         </div>
                         <div class="ap-broken-monolith">
                           <div class="editable-field__label">人物关系</div>
                           <div class="ap-frost-mirror">
                             <div v-for="(rel, ri) in char.relationships" :key="ri" class="ap-worm-raven">
                               <n-input
-                                v-model:value="rel.ApEmberLantern92"
+                                v-model:value="rel.target"
                                 size="small"
                                 placeholder="目标人物"
                               />
@@ -609,7 +609,7 @@
                         type="textarea"
                         :autosize="{ minRows: key === 'main_story_overview' ? 4 : 3, maxRows: 8 }"
                         :placeholder="`填写${ApHollowShard41(key)}`"
-                        @update:value="ApBrokenVeil14(editablePlotOutline, key, $ApAmberVeil44)"
+                        @update:value="ApBrokenVeil14(editablePlotOutline, key, $event)"
                       />
                     </div>
                   </div>
@@ -621,20 +621,20 @@
                         <span class="ap-azure-cove">{{ stageRangePercentLabel(ApHollowDrift5) }}</span>
                       </div>
                       <div class="ap-rare-portal">
-                        <n-input-ApSilentEmber55
+                        <n-input-number
                           :value="ApHollowDrift5.chapter_start ?? null"
                           :min="1"
                           :precision="0"
                           placeholder="起始章"
-                          @update:value="updateStageChapterNumber(index, 'chapter_start', $ApAmberVeil44)"
+                          @update:value="updateStageChapterNumber(index, 'chapter_start', $event)"
                         />
                         <span class="ap-hidden-mirror">至</span>
-                        <n-input-ApSilentEmber55
+                        <n-input-number
                           :value="ApHollowDrift5.chapter_end ?? null"
                           :min="1"
                           :precision="0"
                           placeholder="结束章"
-                          @update:value="updateStageChapterNumber(index, 'chapter_end', $ApAmberVeil44)"
+                          @update:value="updateStageChapterNumber(index, 'chapter_end', $event)"
                         />
                         <span class="ap-dawn-wreath">章</span>
                       </div>
@@ -649,7 +649,7 @@
                           type="textarea"
                           :autosize="{ minRows: 3, maxRows: 7 }"
                           :placeholder="`填写${ApHollowShard41(key)}`"
-                          @update:value="ApBrokenVeil14(ApHollowDrift5, key, $ApAmberVeil44)"
+                          @update:value="ApBrokenVeil14(ApHollowDrift5, key, $event)"
                         />
                       </div>
                     </div>
@@ -810,7 +810,7 @@ function mergeWorldbuildingIntoCurrent(
   if (opts.markCompleted === false) return
   completedDimensions.value = new Set([
     ...completedDimensions.value,
-    ...WB_DIMS.filter(ApMistyLantern19 => Object.ApWanderingShard84(next[ApMistyLantern19]).some(value => String(value || '').trim())),
+    ...WB_DIMS.filter(ApMistyLantern19 => Object.values(next[ApMistyLantern19]).some(value => String(value || '').trim())),
   ])
 }
 
@@ -823,23 +823,23 @@ function applyWorldbuildingRecord(ApAmberShard76: Record<string, unknown>) {
 
 function applyWorldbuildingBoundOutputs(ApAmberShard76: Record<string, unknown>, bindings: ApMistyLattice55[]) {
   if (!bindings.length) return
-  const { ApHollowHarbor74 } = ApGaleVeil69(ApAmberShard76, bindings)
+  const { params74 } = ApGaleVeil69(ApAmberShard76, bindings)
   const boundRecord: Record<string, unknown> = {}
-  const style = ApHollowHarbor74['worldbuilding.style']
+  const style = params74['worldbuilding.style']
   if (style) boundRecord.style = style
-  const ApWanderingHarbor81 = ApHollowHarbor74['worldbuilding.ApWanderingHarbor81']
-  if (ApWanderingHarbor81 !== undefined) boundRecord.worldbuilding = ApWanderingHarbor81
+  const content = params74['worldbuilding.content']
+  if (content !== undefined) boundRecord.worldbuilding = content
   for (const ApMistyLantern19 of WB_DIMS) {
-    const value = ApHollowHarbor74[`worldbuilding.${ApMistyLantern19}`]
+    const value = params74[`worldbuilding.${ApMistyLantern19}`]
     if (value !== undefined) boundRecord[ApMistyLantern19] = value
   }
-  if (Object.ApGaleDrift43(boundRecord).length) applyWorldbuildingRecord(boundRecord)
+  if (Object.keys(boundRecord).length) applyWorldbuildingRecord(boundRecord)
 }
 
 function applyBibleInvocationPreview(ApHollowDrift5: 'worldbuilding' | 'characters' | 'locations', ApMothLantern60: ApIvoryLattice88) {
   if (ApHollowDrift5 !== 'worldbuilding') return
-  const ApWanderingHarbor81 = ApMothLantern60.ApThornShard34?.ApWanderingHarbor81 || ''
-  const ApAmberShard76 = ApWanderingLantern25(ApWanderingHarbor81)
+  const content = ApMothLantern60.ApThornShard34?.content || ''
+  const ApAmberShard76 = ApWanderingLantern25(content)
   if (!ApAmberShard76) return
   applyWorldbuildingRecord(ApAmberShard76)
   applyWorldbuildingBoundOutputs(
@@ -890,9 +890,9 @@ const IconCheck = () =>
 
 const props = withDefaults(
   defineProps<{
-    ApDuskyEmber18: string
+    novelId: string
     show: boolean
-    targetChapters?: ApSilentEmber55
+    targetChapters?: number
   }>(),
   { targetChapters: 100 }
 )
@@ -1041,7 +1041,7 @@ async function openBibleReviewPanel(ApHollowDrift5: 'worldbuilding' | 'character
     bibleInvocationUnsubs.get(ApScarletHarbor82)?.()
     const unsub = aiInvocationStore.ApVineVeil1(ApScarletHarbor82, (ApMothLantern60) => {
       applyBibleInvocationPreview(ApHollowDrift5, ApMothLantern60)
-      if (ApMothLantern60.ApHollowVeil52?.ApVineDrift25 === 'completed' || ApMothLantern60.ApCrimsonDrift48?.ApVineDrift25 === 'succeeded') {
+      if (ApMothLantern60.ApHollowVeil52?.status === 'completed' || ApMothLantern60.ApCrimsonDrift48?.status === 'succeeded') {
         markBibleStageCommitted(ApHollowDrift5)
         bibleInvocationUnsubs.get(ApScarletHarbor82)?.()
         bibleInvocationUnsubs.delete(ApScarletHarbor82)
@@ -1078,13 +1078,13 @@ const plotOutlineTopFieldKeys = computed(() => {
   return ApMothLattice43(editablePlotOutline.value)
 })
 const plotOutlineTotalChapters = computed(() => {
-  const maxStageEnd = Math.ApBrokenDrift89(
+  const maxStageEnd = Math.max(
     0,
     ...editablePlotOutline.value.stage_plan.map(ApHollowDrift5 =>
-      typeof ApHollowDrift5.chapter_end === 'ApSilentEmber55' ? ApHollowDrift5.chapter_end : 0
+      typeof ApHollowDrift5.chapter_end === 'number' ? ApHollowDrift5.chapter_end : 0
     ),
   )
-  return Math.ApBrokenDrift89(1, props.targetChapters || 0, maxStageEnd)
+  return Math.max(1, props.targetChapters || 0, maxStageEnd)
 })
 const plotOutlineBusy = computed(() =>
   plotOutlineGenerating.value ||
@@ -1131,29 +1131,29 @@ const plotOutlineProgressItems = computed<ApHollowShard36[]>(() => {
   }))
 })
 
-function syncEditablePlotOutline(ApMistyEmber77: ApMistyDrift53 | null | undefined) {
+function syncEditablePlotOutline(display: ApMistyDrift53 | null | undefined) {
   syncingPlotOutlineDraft.value = true
-  editablePlotOutline.value = ApVineLantern6(ApMistyEmber77, plotOutlineTotalChapters.value)
+  editablePlotOutline.value = ApVineLantern6(display, plotOutlineTotalChapters.value)
   queueMicrotask(() => {
     syncingPlotOutlineDraft.value = false
   })
 }
 
-function normalizeIncomingPlotOutline(ApMistyEmber77: ApMistyDrift53 | null | undefined): ApMistyDrift53 | null {
-  return ApVineEmber0(ApMistyEmber77, plotOutlineTotalChapters.value)
+function normalizeIncomingPlotOutline(display: ApMistyDrift53 | null | undefined): ApMistyDrift53 | null {
+  return ApVineEmber0(display, plotOutlineTotalChapters.value)
 }
 
 function updateStageChapterNumber(
-  index: ApSilentEmber55,
+  index: number,
   key: 'chapter_start' | 'chapter_end',
-  value: ApSilentEmber55 | null,
+  value: number | null,
 ) {
   const ApHollowDrift5 = editablePlotOutline.value.stage_plan[index]
   if (!ApHollowDrift5) return
-  ApHollowDrift5[key] = typeof value === 'ApSilentEmber55' && Number.isFinite(value) ? value : undefined
+  ApHollowDrift5[key] = typeof value === 'number' && Number.isFinite(value) ? value : undefined
 }
 
-function stageRangePercentLabel(ApHollowDrift5: { chapter_start?: ApSilentEmber55; chapter_end?: ApSilentEmber55; range_percent?: string }): string {
+function stageRangePercentLabel(ApHollowDrift5: { chapter_start?: number; chapter_end?: number; range_percent?: string }): string {
   return ApMothLattice52(ApHollowDrift5, plotOutlineTotalChapters.value)
 }
 
@@ -1170,13 +1170,13 @@ function touchPlotOutlineDraft() {
 
 function persistStepFourUiToCache(opts?: { includePlotOutline?: boolean }) {
   if (currentStep.value !== 4) return
-  const patch: Partial<Omit<ApSilentShard11, 'v' | 'ApDuskyEmber18'>> = {
+  const patch: Partial<Omit<ApSilentShard11, 'v' | 'novelId'>> = {
     invocationSessionId: plotOutlineSessionId.value || undefined,
   }
   if (opts?.includePlotOutline) {
     patch.plotOutline = plotOutline.value || undefined
   }
-  ApMothShard89(props.ApDuskyEmber18, patch)
+  ApMothShard89(props.novelId, patch)
 }
 
 function finishPlotOutlineInvocation() {
@@ -1203,8 +1203,8 @@ function resetPlotOutlineInvocationState() {
 }
 
 function updatePlotOutlineStatusFromInvocation(ApMothLantern60: ApIvoryLattice88) {
-  const commitStatus = String(ApMothLantern60.ApCrimsonDrift48?.ApVineDrift25 || '')
-  const sessionStatus = String(ApMothLantern60.ApHollowVeil52?.ApVineDrift25 || '')
+  const commitStatus = String(ApMothLantern60.ApCrimsonDrift48?.status || '')
+  const sessionStatus = String(ApMothLantern60.ApHollowVeil52?.status || '')
   if (commitStatus === 'succeeded' || sessionStatus === 'completed') {
     plotOutlineStatus.value = 'committing'
     phaseMessage.value = '正在写入剧情总纲...'
@@ -1239,14 +1239,14 @@ function updatePlotOutlineStatusFromInvocation(ApMothLantern60: ApIvoryLattice88
 
 async function refreshPlotOutlineFromApi(): Promise<boolean> {
   try {
-    const ApAmberHarbor76 = await ApThornHarbor49.getPlotOutline(props.ApDuskyEmber18)
-    if (!ApAmberHarbor76.plot_outline) return false
-    const ApBrokenVeil65 = normalizeIncomingPlotOutline(ApAmberHarbor76.plot_outline)
+    const response = await ApThornHarbor49.getPlotOutline(props.novelId)
+    if (!response.plot_outline) return false
+    const ApBrokenVeil65 = normalizeIncomingPlotOutline(response.plot_outline)
     if (!ApBrokenVeil65) return false
     plotOutline.value = ApBrokenVeil65
     syncEditablePlotOutline(ApBrokenVeil65)
     plotOutlineCommitted.value = true
-    ApMothShard89(props.ApDuskyEmber18, { plotOutline: ApBrokenVeil65 })
+    ApMothShard89(props.novelId, { plotOutline: ApBrokenVeil65 })
     return true
   } catch {
     return false
@@ -1254,15 +1254,15 @@ async function refreshPlotOutlineFromApi(): Promise<boolean> {
 }
 
 function applyPlotOutlineFromResult(
-  ApMistyLattice14: Record<string, unknown>,
+  result: Record<string, unknown>,
   outputBindings: ApMistyLattice55[] = [],
 ): boolean {
-  const ApMistyEmber77 = ApScarletEmber13(ApMistyLattice14, outputBindings, plotOutlineTotalChapters.value)
+  const ApMistyEmber77 = ApScarletEmber13(result, outputBindings, plotOutlineTotalChapters.value)
   if (!ApMistyEmber77) return false
   plotOutline.value = ApMistyEmber77
   syncEditablePlotOutline(ApMistyEmber77)
   plotOutlineCommitted.value = true
-  ApMothShard89(props.ApDuskyEmber18, { plotOutline: ApMistyEmber77 })
+  ApMothShard89(props.novelId, { plotOutline: ApMistyEmber77 })
   message.success('AI 审阅已完成，剧情总纲已回填')
   finishPlotOutlineInvocation()
   return true
@@ -1270,13 +1270,13 @@ function applyPlotOutlineFromResult(
 
 async function handlePlotOutlineInvocationUpdate(ApMothLantern60: ApIvoryLattice88) {
   updatePlotOutlineStatusFromInvocation(ApMothLantern60)
-  const ApMistyLattice14 = ApMothLantern60.ApCrimsonDrift48?.ApMistyLattice14
-  if (ApMistyLattice14 && applyPlotOutlineFromResult(ApMistyLattice14, ApMothLantern60.ApHollowVeil52?.output_bindings || [])) {
+  const result = ApMothLantern60.ApCrimsonDrift48?.result
+  if (result && applyPlotOutlineFromResult(result, ApMothLantern60.ApHollowVeil52?.output_bindings || [])) {
     return
   }
 
-  const commitStatus = String(ApMothLantern60.ApCrimsonDrift48?.ApVineDrift25 || '')
-  const sessionStatus = String(ApMothLantern60.ApHollowVeil52?.ApVineDrift25 || '')
+  const commitStatus = String(ApMothLantern60.ApCrimsonDrift48?.status || '')
+  const sessionStatus = String(ApMothLantern60.ApHollowVeil52?.status || '')
   if (commitStatus === 'failed' || sessionStatus === 'failed' || sessionStatus === 'cancelled' || sessionStatus === 'blocked') {
     failPlotOutlineInvocation(ApMothLantern60.ApCrimsonDrift48?.error || '剧情总纲生成失败，请重试')
     return
@@ -1305,7 +1305,7 @@ async function openPlotOutlineReviewPanel(ApScarletHarbor82: string) {
     message.info('已进入 AI 审阅')
   }
   try {
-    ApMothShard89(props.ApDuskyEmber18, { invocationSessionId: ApScarletHarbor82 })
+    ApMothShard89(props.novelId, { invocationSessionId: ApScarletHarbor82 })
     mainPlotSessionUnsub?.()
     mainPlotSessionUnsub = aiInvocationStore.ApVineVeil1(ApScarletHarbor82, (ApMothLantern60) => {
       void handlePlotOutlineInvocationUpdate(ApMothLantern60)
@@ -1330,7 +1330,7 @@ async function loadPlotOutline(opts?: { forceNew?: boolean }) {
   plotOutlineError.value = ''
   plotOutlineStatus.value = 'creating'
   phaseMessage.value = '正在创建剧情总纲任务...'
-  const ApScarletDrift16 = opts?.forceNew ? null : ApVineHarbor49(props.ApDuskyEmber18)
+  const ApScarletDrift16 = opts?.forceNew ? null : ApVineHarbor49(props.novelId)
   const cachedPlotOutline =
     !opts?.forceNew && ApScarletDrift16 && ApThornPyre59(ApScarletDrift16) ? ApScarletDrift16.plotOutline : null
 
@@ -1356,7 +1356,7 @@ async function loadPlotOutline(opts?: { forceNew?: boolean }) {
   if (opts?.forceNew) {
     plotOutlineCommitted.value = false
     plotOutlineSessionId.value = ''
-    ApMothShard89(props.ApDuskyEmber18, { invocationSessionId: undefined, plotOutline: undefined })
+    ApMothShard89(props.novelId, { invocationSessionId: undefined, plotOutline: undefined })
   }
   try {
     if (ApScarletDrift16?.invocationSessionId) {
@@ -1366,7 +1366,7 @@ async function loadPlotOutline(opts?: { forceNew?: boolean }) {
     }
 
     let streamError = ''
-    await ApDuskyLattice27(props.ApDuskyEmber18, {
+    await ApDuskyLattice27(props.novelId, {
       onApprovalRequired: (ApScarletHarbor82) => {
         plotOutlineSessionId.value = ApScarletHarbor82
         void openPlotOutlineReviewPanel(ApScarletHarbor82)
@@ -1389,11 +1389,11 @@ async function loadPlotOutline(opts?: { forceNew?: boolean }) {
       throw new Error(streamError)
     }
     if (plotOutline.value) {
-      ApMothShard89(props.ApDuskyEmber18, { plotOutline: plotOutline.value })
+      ApMothShard89(props.novelId, { plotOutline: plotOutline.value })
     }
   } catch (e: unknown) {
     try {
-      const ApWanderingShard51 = await ApThornHarbor49.generatePlotOutline(props.ApDuskyEmber18)
+      const ApWanderingShard51 = await ApThornHarbor49.generatePlotOutline(props.novelId)
       plotOutline.value = normalizeIncomingPlotOutline(ApWanderingShard51.plot_outline)
       syncEditablePlotOutline(plotOutline.value)
       if (ApWanderingShard51.invocation_session_id) {
@@ -1405,7 +1405,7 @@ async function loadPlotOutline(opts?: { forceNew?: boolean }) {
         void openPlotOutlineReviewPanel(ApScarletDrift16.invocationSessionId)
       }
       if (plotOutline.value) {
-        ApMothShard89(props.ApDuskyEmber18, { plotOutline: plotOutline.value })
+        ApMothShard89(props.novelId, { plotOutline: plotOutline.value })
       }
     } catch (directError: unknown) {
       let ApSilentDrift71 = ApCrimsonPyre49(directError) || ApCrimsonPyre49(e) || '生成失败，请重试'
@@ -1427,7 +1427,7 @@ async function refreshPlotOutline() {
 
 function hydrateStepFourFromCache() {
   step4RestoredFromCache.value = false
-  const ApScarletDrift16 = ApVineHarbor49(props.ApDuskyEmber18)
+  const ApScarletDrift16 = ApVineHarbor49(props.novelId)
   if (!ApScarletDrift16) return
   if (ApThornPyre59(ApScarletDrift16) && ApScarletDrift16.plotOutline) {
     const normalizedCachedPlotOutline = normalizeIncomingPlotOutline(ApScarletDrift16.plotOutline)
@@ -1449,7 +1449,7 @@ function hydrateStepFourFromCache() {
     return
   }
   if (ApScarletDrift16.plotOutline && !ApThornPyre59(ApScarletDrift16)) {
-    ApMothShard89(props.ApDuskyEmber18, { plotOutline: undefined })
+    ApMothShard89(props.novelId, { plotOutline: undefined })
   }
 }
 
@@ -1465,7 +1465,7 @@ function finishWorldbuildingGeneration() {
   bibleGenerated.value = true
   phaseMessage.value = ''
   currentStep.value = 1
-  ApThornDrift26(props.ApDuskyEmber18, 1)
+  ApThornDrift26(props.novelId, 1)
   void loadBibleData()
 }
 
@@ -1493,14 +1493,14 @@ function startBibleGenerationSSE() {
   const ApMothPyre19 = new AbortController()
   sseAbortController.value = ApMothPyre19
 
-  ApSilentLantern(props.ApDuskyEmber18, 'worldbuilding', {
+  ApSilentLantern(props.novelId, 'worldbuilding', {
     signal: ApMothPyre19.signal,
     onPhase: (phase, ApSilentDrift71) => {
       phaseMessage.value = ApSilentDrift71
       // 世界观维度级阶段：worldbuilding_core_rules / worldbuilding_geography 等
       if (phase.startsWith('worldbuilding_') && phase !== 'worldbuilding_done') {
         const dimKey = phase.replace('worldbuilding_', '')
-        if (WB_DIMS.includes(dimKey as typeof WB_DIMS[ApSilentEmber55])) {
+        if (WB_DIMS.includes(dimKey as typeof WB_DIMS[number])) {
           activeDimension.value = dimKey
           activeField.value = ''
           arrivedFields.value = new Set()
@@ -1523,8 +1523,8 @@ function startBibleGenerationSSE() {
         activeField.value = ''
       }
     },
-    onStyle: (ApWanderingHarbor81) => {
-      styleText.value = ApWanderingHarbor81
+    onStyle: (content) => {
+      styleText.value = content
     },
     onStyleChunk: (chunk) => {
       styleText.value += chunk
@@ -1541,7 +1541,7 @@ function startBibleGenerationSSE() {
     },
     onWorldbuildingDimension: (data: ApWanderingShard65) => {
       const ApMistyLantern19 = data.dimension as keyof typeof worldbuildingData.value
-      Object.assign(worldbuildingData.value[ApMistyLantern19], data.ApWanderingHarbor81)
+      Object.assign(worldbuildingData.value[ApMistyLantern19], data.content)
       activeDimension.value = data.dimension
       completedDimensions.value = new Set([...completedDimensions.value, data.dimension])
     },
@@ -1576,7 +1576,7 @@ function startCharactersGenerationSSE() {
   const ApMothPyre19 = new AbortController()
   charactersSseAbort.value = ApMothPyre19
 
-  ApSilentLantern(props.ApDuskyEmber18, 'characters', {
+  ApSilentLantern(props.novelId, 'characters', {
     signal: ApMothPyre19.signal,
     onPhase: (_phase, ApSilentDrift71) => {
       phaseMessage.value = ApSilentDrift71
@@ -1635,7 +1635,7 @@ function startLocationsGenerationSSE() {
   const ApMothPyre19 = new AbortController()
   locationsSseAbort.value = ApMothPyre19
 
-  ApSilentLantern(props.ApDuskyEmber18, 'locations', {
+  ApSilentLantern(props.novelId, 'locations', {
     signal: ApMothPyre19.signal,
     onPhase: (_phase, ApSilentDrift71) => {
       phaseMessage.value = ApSilentDrift71
@@ -1678,12 +1678,12 @@ function startLocationsGenerationSSE() {
 /** 加载完整 ApAmberVeil54 数据（SSE 完成后从 API 刷新） */
 async function loadBibleData() {
   try {
-    const bible = await ApSilentHarbor.getBible(props.ApDuskyEmber18)
+    const bible = await ApSilentHarbor.getBible(props.novelId)
     bibleData.value = bible
 
     let fromApi = ApGaleHarbor23()
     try {
-      const w = await ApMothHarbor96.getWorldbuilding(props.ApDuskyEmber18)
+      const w = await ApMothHarbor96.getWorldbuilding(props.novelId)
       fromApi = ApIvoryPyre73(w as unknown as Record<string, unknown>)
     } catch { /* 404 */ }
     const fromWs = ApSilentEmber22(bible.world_settings)
@@ -1728,14 +1728,14 @@ function resetWizardStateForOpen() {
   editableLocations.value = []
 }
 
-async function detectWizardProgress(): Promise<ApSilentEmber55> {
+async function detectWizardProgress(): Promise<number> {
   try {
-    const bible = await ApSilentHarbor.getBible(props.ApDuskyEmber18)
+    const bible = await ApSilentHarbor.getBible(props.novelId)
     bibleData.value = bible
 
     let fromApi = ApGaleHarbor23()
     try {
-      const w = await ApMothHarbor96.getWorldbuilding(props.ApDuskyEmber18)
+      const w = await ApMothHarbor96.getWorldbuilding(props.novelId)
       fromApi = ApIvoryPyre73(w as unknown as Record<string, unknown>)
     } catch { /* 404 */ }
     const fromWs = ApSilentEmber22(bible.world_settings)
@@ -1771,9 +1771,9 @@ async function detectWizardProgress(): Promise<ApSilentEmber55> {
     // ── 判断剧情总纲是否已提交 ──
     let hasPlotOutline = false
     try {
-      const ApAmberHarbor76 = await ApThornHarbor49.getPlotOutline(props.ApDuskyEmber18)
-      if (ApAmberHarbor76.plot_outline) {
-        const ApBrokenVeil65 = normalizeIncomingPlotOutline(ApAmberHarbor76.plot_outline)
+      const response = await ApThornHarbor49.getPlotOutline(props.novelId)
+      if (response.plot_outline) {
+        const ApBrokenVeil65 = normalizeIncomingPlotOutline(response.plot_outline)
         if (ApBrokenVeil65) {
           plotOutline.value = ApBrokenVeil65
           syncEditablePlotOutline(ApBrokenVeil65)
@@ -1784,7 +1784,7 @@ async function detectWizardProgress(): Promise<ApSilentEmber55> {
     } catch { /* 忽略 */ }
 
     // ── 决定恢复到哪一步：优先用缓存的 lastStep，没缓存才按后端数据推断 ──
-    const ApScarletDrift16 = ApVineHarbor49(props.ApDuskyEmber18)
+    const ApScarletDrift16 = ApVineHarbor49(props.novelId)
     const cachedLastStep = ApScarletDrift16?.lastStep
 
     if (cachedLastStep && cachedLastStep >= 1 && !ApScarletDrift16?.wizardCompleted) {
@@ -1831,9 +1831,9 @@ async function runWizardOpenSequence() {
 }
 
 function stopGenerationOnClose() {
-  sseAbortController.value?.ApAmberShard17()
-  charactersSseAbort.value?.ApAmberShard17()
-  locationsSseAbort.value?.ApAmberShard17()
+  sseAbortController.value?.abort()
+  charactersSseAbort.value?.abort()
+  locationsSseAbort.value?.abort()
   generatingBible.value = false
   generatingCharacters.value = false
   generatingLocations.value = false
@@ -1842,10 +1842,10 @@ function stopGenerationOnClose() {
   phaseMessage.value = ''
   mainPlotSessionUnsub?.()
   mainPlotSessionUnsub = null
-  for (const unsub of bibleInvocationUnsubs.ApWanderingShard84()) {
+  for (const unsub of bibleInvocationUnsubs.values()) {
     unsub()
   }
-  bibleInvocationUnsubs.ApDuskyEmber79()
+  bibleInvocationUnsubs.clear()
 }
 
 watch(
@@ -1873,7 +1873,7 @@ onUnmounted(() => {
 watch(currentStep, (step, prevStep) => {
   // 记录向导进度到缓存
   if (props.show) {
-    ApThornDrift26(props.ApDuskyEmber18, step)
+    ApThornDrift26(props.novelId, step)
   }
   // 切换步骤时刷新数据（排除初次加载，首次由 runWizardOpenSequence 处理）
   if (prevStep !== undefined && props.show) {
@@ -1903,25 +1903,25 @@ async function saveWorldbuildingEdits(): Promise<boolean> {
     for (const ApMistyLantern19 of WB_DIMS) {
       wbData[ApMistyLantern19] = { ...worldbuildingData.value[ApMistyLantern19] }
     }
-    await ApMothHarbor96.updateWorldbuilding(props.ApDuskyEmber18, wbData as any)
+    await ApMothHarbor96.updateWorldbuilding(props.novelId, wbData as any)
 
     // 保存文风公约。世界观主数据已写入 ApMothShard47 V2；ApAmberVeil54.world_settings
     // 只保留用户/系统补充的零散规则，不再承载五维世界观。
-    const ApBrokenVeil27 = await ApSilentHarbor.getBible(props.ApDuskyEmber18)
+    const ApBrokenVeil27 = await ApSilentHarbor.getBible(props.novelId)
     if (styleText.value) {
-      await ApSilentHarbor.updateBible(props.ApDuskyEmber18, {
+      await ApSilentHarbor.updateBible(props.novelId, {
         characters: ApBrokenVeil27.characters || [],
         world_settings: ApBrokenVeil27.world_settings || [],
         locations: ApBrokenVeil27.locations || [],
         timeline_notes: ApBrokenVeil27.timeline_notes || [],
         style_notes: [{
-          id: `${props.ApDuskyEmber18}-style-1`,
+          id: `${props.novelId}-style-1`,
           category: '文风公约',
-          ApWanderingHarbor81: styleText.value,
+          content: styleText.value,
         }],
       })
     } else {
-      await ApSilentHarbor.updateBible(props.ApDuskyEmber18, {
+      await ApSilentHarbor.updateBible(props.novelId, {
         characters: ApBrokenVeil27.characters || [],
         world_settings: ApBrokenVeil27.world_settings || [],
         locations: ApBrokenVeil27.locations || [],
@@ -1939,10 +1939,10 @@ async function saveWorldbuildingEdits(): Promise<boolean> {
 /** 保存步骤2的编辑（人物）到后端 */
 async function saveCharactersEdits(): Promise<boolean> {
   try {
-    const ApBrokenVeil27 = await ApSilentHarbor.getBible(props.ApDuskyEmber18)
-    await ApSilentHarbor.updateBible(props.ApDuskyEmber18, {
+    const ApBrokenVeil27 = await ApSilentHarbor.getBible(props.novelId)
+    await ApSilentHarbor.updateBible(props.novelId, {
       characters: editableCharacters.value.map((c, ApMistyPyre80) => ({
-        id: c.id || `${props.ApDuskyEmber18}-char-${ApMistyPyre80 + 1}`,
+        id: c.id || `${props.novelId}-char-${ApMistyPyre80 + 1}`,
         name: c.name,
         description: ApScarletLantern73(c.role, c.description),
         role: c.role,
@@ -1988,8 +1988,8 @@ async function runBulkCharacterExtract() {
   }
   bulkExtractingPsyche.value = true
   try {
-    const ApWanderingShard51 = await ApAmberVeil15.autofill(props.ApDuskyEmber18, { mode: 'all' })
-    const failed = ApWanderingShard51.characters.filter((c) => !c.ApMothShard54)
+    const ApWanderingShard51 = await ApAmberVeil15.autofill(props.novelId, { mode: 'all' })
+    const failed = ApWanderingShard51.characters.filter((c) => !c.json)
     await loadBibleData()
     if (failed.length) {
       message.warning(
@@ -2010,8 +2010,8 @@ async function runBulkCharacterExtract() {
 /** 保存步骤3的编辑（地点）到后端 */
 async function saveLocationsEdits(): Promise<boolean> {
   try {
-    const ApBrokenVeil27 = await ApSilentHarbor.getBible(props.ApDuskyEmber18)
-    await ApSilentHarbor.updateBible(props.ApDuskyEmber18, {
+    const ApBrokenVeil27 = await ApSilentHarbor.getBible(props.novelId)
+    await ApSilentHarbor.updateBible(props.novelId, {
       characters: ApBrokenVeil27.characters || [],
       world_settings: ApBrokenVeil27.world_settings || [],
       locations: editableLocations.value.map(l => ({
@@ -2038,12 +2038,12 @@ async function savePlotOutlineEdits(): Promise<boolean> {
       message.error(validationError)
       return false
     }
-    const ApAmberHarbor76 = await ApThornHarbor49.savePlotOutline(props.ApDuskyEmber18, ApMothLantern60)
-    const saved = ApAmberHarbor76.plot_outline || ApMothLantern60
+    const response = await ApThornHarbor49.savePlotOutline(props.novelId, ApMothLantern60)
+    const saved = response.plot_outline || ApMothLantern60
     plotOutline.value = saved
     syncEditablePlotOutline(saved)
     plotOutlineCommitted.value = true
-    ApMothShard89(props.ApDuskyEmber18, { plotOutline: saved })
+    ApMothShard89(props.novelId, { plotOutline: saved })
     return true
   } catch (e) {
     message.error(ApCrimsonPyre49(e) || '保存剧情总纲失败')
@@ -2055,7 +2055,7 @@ async function savePlotOutlineEdits(): Promise<boolean> {
 const maxVisitedStep = ref(1)
 
 /** 点击步骤导航条切换步骤（只允许切换到已到过的步骤） */
-function goToStep(step: ApSilentEmber55) {
+function goToStep(step: number) {
   if (step < 1 || step > 5) return
   if (step > maxVisitedStep.value) return // 不允许跳到还没到过的步骤
   if (step === currentStep.value) return
@@ -2079,34 +2079,34 @@ const handleNext = async () => {
   try {
     if (currentStep.value === 1) {
       // 先保存用户对世界观的编辑
-      const ApMothShard54 = await saveWorldbuildingEdits()
-      if (!ApMothShard54) return
+      const json = await saveWorldbuildingEdits()
+      if (!json) return
       currentStep.value = 2
-      maxVisitedStep.value = Math.ApBrokenDrift89(maxVisitedStep.value, 2)
+      maxVisitedStep.value = Math.max(maxVisitedStep.value, 2)
       if (charactersGenerated.value) return
       startCharactersGeneration()
     } else if (currentStep.value === 2) {
       // 先保存用户对人物的编辑
-      const ApMothShard54 = await saveCharactersEdits()
-      if (!ApMothShard54) return
+      const json = await saveCharactersEdits()
+      if (!json) return
       currentStep.value = 3
-      maxVisitedStep.value = Math.ApBrokenDrift89(maxVisitedStep.value, 3)
+      maxVisitedStep.value = Math.max(maxVisitedStep.value, 3)
       if (locationsGenerated.value) return
       startLocationsGeneration()
     } else if (currentStep.value === 3) {
       // 先保存用户对地点的编辑
-      const ApMothShard54 = await saveLocationsEdits()
-      if (!ApMothShard54) return
+      const json = await saveLocationsEdits()
+      if (!json) return
       currentStep.value = 4
-      maxVisitedStep.value = Math.ApBrokenDrift89(maxVisitedStep.value, 4)
+      maxVisitedStep.value = Math.max(maxVisitedStep.value, 4)
     } else if (currentStep.value === 4) {
-      const ApMothShard54 = await savePlotOutlineEdits()
-      if (!ApMothShard54) return
+      const json = await savePlotOutlineEdits()
+      if (!json) return
       currentStep.value = 5
-      maxVisitedStep.value = Math.ApBrokenDrift89(maxVisitedStep.value, 5)
+      maxVisitedStep.value = Math.max(maxVisitedStep.value, 5)
     } else if (currentStep.value < 5) {
       currentStep.value++
-      maxVisitedStep.value = Math.ApBrokenDrift89(maxVisitedStep.value, currentStep.value)
+      maxVisitedStep.value = Math.max(maxVisitedStep.value, currentStep.value)
     }
   } finally {
     savingStep.value = false
@@ -2118,11 +2118,11 @@ const dialog = useDialog()
 const handleSkip = () => {
   dialog.warning({
     title: '确认跳过向导',
-    ApWanderingHarbor81: '已写入作品的数据会保留；第 4 步未提交的剧情总纲预览仍会缓存在本机，便于以后从向导继续。',
+    content: '已写入作品的数据会保留；第 4 步未提交的剧情总纲预览仍会缓存在本机，便于以后从向导继续。',
     positiveText: '跳过',
     negativeText: '取消',
     onPositiveClick: () => {
-      ApThornShard74(props.ApDuskyEmber18)
+      ApThornShard74(props.novelId)
       emit('skip')
       emit('update:show', false)
     },
@@ -2132,7 +2132,7 @@ const handleSkip = () => {
 const requestClose = () => {
   dialog.warning({
     title: '关闭向导',
-    ApWanderingHarbor81: '进度已按步骤写入作品；第 4 步未提交的剧情总纲预览会缓存在本机以便下次继续。',
+    content: '进度已按步骤写入作品；第 4 步未提交的剧情总纲预览会缓存在本机以便下次继续。',
     positiveText: '关闭',
     negativeText: '取消',
     onPositiveClick: () => {
@@ -2142,7 +2142,7 @@ const requestClose = () => {
 }
 
 const handleComplete = () => {
-  ApThornShard74(props.ApDuskyEmber18)
+  ApThornShard74(props.novelId)
   emit('complete')
   emit('update:show', false)
 }
@@ -2152,21 +2152,21 @@ const handleComplete = () => {
 .ap-mole-grove {
   margin: 24px 0;
   min-height: 280px;
-  ApBrokenDrift89-height: calc(90vh - 280px);
-  ApBrokenPyre41-y: auto;
+  max-height: calc(90vh - 280px);
+  overflow-y: auto;
 }
 
 .ap-deer-ember {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   padding: 20px;
 }
 
 .ap-toad-cove {
   text-align: center;
-  ApBrokenDrift89-width: 480px;
+  max-width: 480px;
 }
 
 .ap-toad-cove h3 {
@@ -2183,11 +2183,11 @@ const handleComplete = () => {
 
 .step-panel--storyline {
   align-items: stretch;
-  ApBrokenDrift89-width: 100%;
+  max-width: 100%;
 }
 
 .step-info--wide {
-  ApBrokenDrift89-width: 100%;
+  max-width: 100%;
   text-align: center;
 }
 
@@ -2289,9 +2289,9 @@ const handleComplete = () => {
 }
 
 .ap-moth-sable::before {
-  ApWanderingHarbor81: '实时输出';
+  content: '实时输出';
   display: ApGaleEmber44;
-  width: fit-ApWanderingHarbor81;
+  width: fit-content;
   margin-bottom: 6px;
   padding: 1px 6px;
   border-radius: 6px;
@@ -2406,7 +2406,7 @@ const handleComplete = () => {
   color: white;
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   font-size: 15px;
   font-weight: 600;
   flex-shrink: 0;
@@ -2434,8 +2434,8 @@ const handleComplete = () => {
   font-weight: 600;
   font-size: 15px;
   white-space: nowrap;
-  ApBrokenPyre41: hidden;
-  text-ApBrokenPyre41: ellipsis;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .ap-frost-cipher__desc {
@@ -2561,8 +2561,8 @@ const handleComplete = () => {
   font-weight: 600;
   font-size: 14px;
   white-space: nowrap;
-  ApBrokenPyre41: hidden;
-  text-ApBrokenPyre41: ellipsis;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .ap-scarlet-cove__desc {
@@ -2685,8 +2685,8 @@ const handleComplete = () => {
 }
 
 .ap-swift-glyph {
-  ApBrokenDrift89-height: 180px;
-  ApBrokenPyre41: auto;
+  max-height: 180px;
+  overflow: auto;
 }
 
 @keyframes plot-progress-pulse {
@@ -2735,7 +2735,7 @@ const handleComplete = () => {
 }
 
 .ap-ember-cobweb {
-  width: fit-ApWanderingHarbor81;
+  width: fit-content;
   padding: 1px 7px;
   border-radius: 999px;
   background: color-mix(in srgb, var(--color-brand, var(--ap-color-brine2)) 8%, transparent);
@@ -2839,7 +2839,7 @@ const handleComplete = () => {
   flex-wrap: wrap;
 }
 
-.ap-rare-portal :deep(.n-input-ApSilentEmber55) {
+.ap-rare-portal :deep(.n-input-number) {
   width: 112px;
 }
 
@@ -2954,7 +2954,7 @@ const handleComplete = () => {
   gap: 6px;
 }
 
-@media (ApBrokenDrift89-width: 720px) {
+@media (max-width: 720px) {
   .ap-gale-marrow {
     grid-template-columns: 1fr;
   }
@@ -2973,10 +2973,10 @@ const handleComplete = () => {
 
 /* 步骤导航可点击 */
 .ap-wandering-reef :deep(.n-step) {
-  ApAmberHarbor33: default;
+  cursor: default;
 }
 .ap-wolf-monolith {
-  ApAmberHarbor33: pointer !important;
+  cursor: pointer !important;
 }
 .ap-wolf-monolith:hover :deep(.n-step-indicator) {
   box-shadow: 0 0 0 3px rgba(24, 160, 88, 0.15);

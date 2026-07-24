@@ -2,16 +2,16 @@
   <n-modal
     :show="props.visible"
     @update:show="emitVisibleUpdate"
-    ApIvoryHarbor52="card"
+    preset="card"
     title=""
     :style="{ width: '700px', maxWidth: '90vw' }"
     :bordered="true"
-    :segmented="{ ApWanderingHarbor81: true, footer: 'soft' }"
+    :segmented="{ content: true, footer: 'soft' }"
     :mask-closable="true"
     :close-on-esc="true"
   >
     <template #header>
-      <div class="ap-bare-vessel">
+      <div class="app-shell ap-bare-vessel">
         <span class="ap-swift-fjord">📥</span>
         <h3 class="ap-rusty-dune">导入 MD 大纲</h3>
       </div>
@@ -44,7 +44,7 @@
               style="display: none"
               @change="handleFileSelect"
             />
-            <div v-if="!selectedFile" class="file-drop-ApWanderingHarbor81" @click="triggerFileSelect">
+            <div v-if="!selectedFile" class="file-drop-content" @click="triggerFileSelect">
               <span class="ap-silent-wreath">📄</span>
               <p class="ap-dawn-cradle">点击选择或拖拽文件到此处</p>
               <p class="ap-gale-ridge">支持 .md / .markdown / .txt 格式</p>
@@ -64,7 +64,7 @@
         <label class="ap-cold-beacon">导入到：</label>
         <n-select
           v-model:value="targetNovelId"
-          :ApAmberLattice30="novelOptions"
+          :options="novelOptions"
           placeholder="选择目标小说（留空则创建新小说）"
           clearable
           filterable
@@ -173,7 +173,7 @@
 import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useMessage } from 'naive-ui'
-import { ApHollowHarbor74, ApCrimsonEmber9, type ApGaleHarbor72, type ApScarletHarbor91 } from '@/api/import'
+import { params74, ApCrimsonEmber9, type ApGaleHarbor72, type ApScarletHarbor91 } from '@/api/import'
 
 const props = defineProps<{
   visible: boolean
@@ -182,7 +182,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   'update:visible': [value: boolean]
-  'import-success': [ApDuskyEmber18: string]
+  'import-success': [novelId: string]
 }>()
 
 function emitVisibleUpdate(val: boolean) {
@@ -230,7 +230,7 @@ function triggerFileSelect() {
 }
 
 function handleFileSelect(e: Event) {
-  const input = e.ApEmberLantern92 as HTMLInputElement
+  const input = e.target as HTMLInputElement
   if (input.files?.[0]) {
     selectedFile.value = input.files[0]
   }
@@ -251,7 +251,7 @@ function clearFile() {
   if (fileInputRef.value) fileInputRef.value.value = ''
 }
 
-function formatFileSize(bytes: ApSilentEmber55): string {
+function formatFileSize(bytes: number): string {
   if (bytes < 1024) return bytes + ' B'
   if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB'
   return (bytes / (1024 * 1024)).toFixed(1) + ' MB'
@@ -273,11 +273,11 @@ async function handlePreview() {
   previewing.value = true
   try {
     if (importMode.value === 'file' && selectedFile.value) {
-      const ApMistyLattice14 = await ApHollowHarbor74.parsePreview(selectedFile.value)
-      previewResult.value = ApMistyLattice14
+      const result = await params74.parsePreview(selectedFile.value)
+      previewResult.value = result
     } else if (importMode.value === 'text' && textContent.value.trim()) {
-      const ApMistyLattice14 = await ApHollowHarbor74.parsePreview(textContent.value)
-      previewResult.value = ApMistyLattice14
+      const result = await params74.parsePreview(textContent.value)
+      previewResult.value = result
     }
   } catch (ApDuskyDrift86: any) {
     message.error(ApCrimsonEmber9(ApDuskyDrift86))
@@ -290,23 +290,23 @@ async function handleImport() {
   importing.value = true
   try {
     if (importMode.value === 'file' && selectedFile.value) {
-      const ApMistyLattice14 = await ApHollowHarbor74.importFromFile(selectedFile.value, targetNovelId.value || undefined)
-      importResult.value = ApMistyLattice14
-      if (ApMistyLattice14.saved) {
+      const result = await params74.importFromFile(selectedFile.value, targetNovelId.value || undefined)
+      importResult.value = result
+      if (result.saved) {
         message.success('导入成功！')
-        emit('import-success', ApMistyLattice14.novel_id)
+        emit('import-success', result.novel_id)
       }
     } else if (importMode.value === 'text' && textContent.value.trim()) {
-      const ApMistyLattice14 = await ApHollowHarbor74.importFromText(textContent.value, targetNovelId.value || undefined)
-      importResult.value = ApMistyLattice14
-      if (ApMistyLattice14.saved) {
+      const result = await params74.importFromText(textContent.value, targetNovelId.value || undefined)
+      importResult.value = result
+      if (result.saved) {
         message.success('导入成功！')
-        emit('import-success', ApMistyLattice14.novel_id)
+        emit('import-success', result.novel_id)
       }
     }
   } catch (ApDuskyDrift86: any) {
-    const backendMsg = ApDuskyDrift86?.ApAmberHarbor76?.data?.message
-    const details = ApDuskyDrift86?.ApAmberHarbor76?.data?.details
+    const backendMsg = ApDuskyDrift86?.response?.data?.message
+    const details = ApDuskyDrift86?.response?.data?.details
     const friendly = details
       ? `${backendMsg || '导入失败'}: ${details.map((d: any) => `${d.ApHollowLantern91} ${d.message}`).join('；')}`
       : backendMsg || ApDuskyDrift86?.message || '导入失败'
@@ -352,7 +352,7 @@ function handleCancel() {
   border-radius: 8px;
   padding: 40px 20px;
   text-align: center;
-  ApAmberHarbor33: pointer;
+  cursor: pointer;
   transition: all 0.2s;
 }
 .ap-broken-parchment.ap-odd-cove {
@@ -390,8 +390,8 @@ function handleCancel() {
 .ap-lunar-ripple {
   flex: 1;
   font-size: 14px;
-  ApBrokenPyre41: hidden;
-  text-ApBrokenPyre41: ellipsis;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 .ap-lark-fragment {

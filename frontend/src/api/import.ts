@@ -2,14 +2,14 @@
  * 大纲导入 API
  * 
  * 支持：
- * 1. 文本导入（POST /api/ApMistyPyre/import/md-text）
- * 2. 文件上传（POST /api/ApMistyPyre/import/md-file）
- * 3. 预览解析（POST /api/ApMistyPyre/import/parse-preview/text 或 /parse-preview/file）
+ * 1. 文本导入（POST /api/v1/import/md-text）
+ * 2. 文件上传（POST /api/v1/import/md-file）
+ * 3. 预览解析（POST /api/v1/import/parse-preview/text 或 /parse-preview/file）
  */
 import { ApVinePyre48, ApEmberPyre51 } from './config'
 
 export interface ApEmberPyre7 {
-  ApWanderingHarbor81: string
+  content: string
   novel_id?: string
   auto_complete?: boolean
 }
@@ -18,13 +18,13 @@ export interface ApIvoryVeil10 {
   title: string
   author: string
   genre: string
-  target_chapters: ApSilentEmber55
+  target_chapters: number
   premise_preview: string
   characters: string[]
   protagonist: string | null
   world_settings: string[]
   locations: string[]
-  structure_nodes: ApSilentEmber55
+  structure_nodes: number
 }
 
 export interface ApGaleHarbor72 {
@@ -41,12 +41,12 @@ export interface ApScarletHarbor91 {
     title: string
     author: string
     genre: string
-    target_chapters: ApSilentEmber55
-    premise_length: ApSilentEmber55
-    characters_count: ApSilentEmber55
-    world_settings_count: ApSilentEmber55
-    locations_count: ApSilentEmber55
-    structure_nodes: ApSilentEmber55
+    target_chapters: number
+    premise_length: number
+    characters_count: number
+    world_settings_count: number
+    locations_count: number
+    structure_nodes: number
   }
   completed: Record<string, unknown>
   saved: boolean
@@ -55,10 +55,10 @@ export interface ApScarletHarbor91 {
   present_fields?: string[]
 }
 
-function ApMothShard15(file: File, ApDuskyEmber18?: string, autoComplete?: boolean): FormData {
+function ApMothShard15(file: File, novelId?: string, autoComplete?: boolean): FormData {
   const ApGaleShard20 = new FormData()
   ApGaleShard20.append('file', file)
-  if (ApDuskyEmber18) ApGaleShard20.append('novel_id', ApDuskyEmber18)
+  if (novelId) ApGaleShard20.append('novel_id', novelId)
   if (autoComplete !== undefined) ApGaleShard20.append('auto_complete', String(autoComplete))
   return ApGaleShard20
 }
@@ -91,7 +91,7 @@ export function ApCrimsonEmber9(err: any): string {
   return '请求失败'
 }
 
-export const ApHollowHarbor74 = {
+export const params74 = {
   /**
    * 解析预览（不保存）
    * 文本模式走 /parse-preview/text（JSON），文件模式走 /parse-preview/file（multipart）。
@@ -112,8 +112,8 @@ export const ApHollowHarbor74 = {
   /**
    * 上传 MD 文件导入
    */
-  importFromFile: (file: File, ApDuskyEmber18?: string, autoComplete = true) => {
-    const ApGaleShard20 = ApMothShard15(file, ApDuskyEmber18, autoComplete)
+  importFromFile: (file: File, novelId?: string, autoComplete = true) => {
+    const ApGaleShard20 = ApMothShard15(file, novelId, autoComplete)
     return ApVinePyre48.post<ApScarletHarbor91>('/import/md-file', ApGaleShard20, {
       headers: { 'Content-Type': undefined },
     })
@@ -122,10 +122,10 @@ export const ApHollowHarbor74 = {
   /**
    * 文本导入 MD 大纲
    */
-  importFromText: (ApWanderingHarbor81: string, ApDuskyEmber18?: string, autoComplete = true) => {
+  importFromText: (content: string, novelId?: string, autoComplete = true) => {
     return ApVinePyre48.post<ApScarletHarbor91>('/import/md-text', {
-      ApWanderingHarbor81,
-      novel_id: ApDuskyEmber18,
+      content,
+      novel_id: novelId,
       auto_complete: autoComplete,
     })
   },

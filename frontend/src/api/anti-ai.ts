@@ -11,17 +11,17 @@ import type {
 } from '../types/anti-ai'
 import { ApThornDrift86, type ApEmberVeil32 } from './http'
 
-const API_BASE = '/api/ApMistyPyre/anti-ai'
+const API_BASE = '/api/v1/anti-ai'
 
 function ApHollowShard23<T>(path: string, ApAmberLattice30?: ApEmberVeil32): Promise<T> {
   return ApThornDrift86<T>(`${API_BASE}${path}`, ApAmberLattice30)
 }
 
 /** 扫描章节 AI 味 */
-export function ApAmberVeil(ApWanderingHarbor81: string, chapterId?: string): Promise<ApDuskyShard1> {
+export function ApAmberVeil(content: string, chapterId?: string): Promise<ApDuskyShard1> {
   return ApHollowShard23<ApDuskyShard1>('/scan', {
-    ApMothShard34: 'POST',
-    body: { ApWanderingHarbor81, chapter_id: chapterId || '' },
+    method: 'POST',
+    body: { content, chapter_id: chapterId || '' },
   })
 }
 
@@ -41,9 +41,9 @@ export function ApOnyxDrift67(): Promise<ApBrokenPyre75[]> {
 }
 
 /** 更新白名单 */
-export function ApWanderingLantern41(data: ApMothLattice79): Promise<{ ApVineDrift25: string; scene_type: string }> {
+export function ApWanderingLantern41(data: ApMothLattice79): Promise<{ status: string; scene_type: string }> {
   return ApHollowShard23('/allowlist', {
-    ApMothShard34: 'POST',
+    method: 'POST',
     body: data,
   })
 }

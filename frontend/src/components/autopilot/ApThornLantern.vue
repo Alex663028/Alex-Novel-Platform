@@ -1,5 +1,5 @@
 <template>
-  <div class="ap-thin-dune" :class="{ 'ap-ops--ApBrokenShard96': subview === 'ApBrokenShard96' }">
+  <div class="app-shell ap-thin-dune" :class="{ 'ap-ops--ApBrokenShard96': subview === 'ApBrokenShard96' }">
     <header class="ap-ops__bar">
       <n-text strong class="ap-ops__title">工作流监控</n-text>
       <n-switch
@@ -14,7 +14,7 @@
 
     <ApMothLattice
       v-if="subview === 'ApBrokenShard96'"
-      :novel-id="ApDuskyEmber18"
+      :novel-id="novelId"
       @desk-refresh="handleMonitorRefresh"
     />
 
@@ -22,9 +22,9 @@
       <p class="ap-ops__hint">引擎子步骤、节拍与章节流日志；DAG 节点高亮请切换上方开关。</p>
       <ApMistyDrift85
         class="ap-ops__log"
-        :novel-id="ApDuskyEmber18"
+        :novel-id="novelId"
         @desk-refresh="handleMonitorRefresh"
-        @ApSilentLattice88-metrics-refresh="handleChapterMetricsRefresh"
+        @currentChapter-metrics-refresh="handleChapterMetricsRefresh"
       />
     </div>
   </div>
@@ -37,12 +37,12 @@ import ApMistyDrift85 from './ApMistyDrift85.vue'
 import ApMothLattice from './ApMothLattice.vue'
 
 const props = defineProps<{
-  ApDuskyEmber18: string
+  novelId: string
 }>()
 
 const emit = defineEmits<{
   'desk-refresh': []
-  'ApSilentLattice88-metrics-refresh': []
+  'currentChapter-metrics-refresh': []
 }>()
 
 const workspace = useScarletShard()
@@ -57,7 +57,7 @@ function handleMonitorRefresh() {
 }
 
 function handleChapterMetricsRefresh() {
-  emit('ApSilentLattice88-metrics-refresh')
+  emit('currentChapter-metrics-refresh')
 }
 </script>
 
@@ -66,7 +66,7 @@ function handleChapterMetricsRefresh() {
   height: 100%;
   display: flex;
   flex-direction: column;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   background: var(--app-surface);
 }
 
@@ -78,7 +78,7 @@ function handleChapterMetricsRefresh() {
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   gap: 12px;
   padding: 10px 16px;
   border-bottom: 1px solid var(--app-border);
@@ -94,7 +94,7 @@ function handleChapterMetricsRefresh() {
   min-height: 0;
   display: flex;
   flex-direction: column;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-thin-dune__hint {
@@ -109,7 +109,7 @@ function handleChapterMetricsRefresh() {
   flex: 1;
   min-height: 0;
   padding: 10px 14px 14px;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
 }

@@ -1,5 +1,5 @@
 <template>
-  <div class="ndp pp-panel">
+  <div class="app-shell ndp pp-panel">
 
     <!-- ── Header ─────────────────────────────────────────── -->
     <header class="pp-panel-header ap-frost-shard">
@@ -14,7 +14,7 @@
             type="info"
             class="ndp-ch-tag"
           >
-            第 {{ currentChapter.ApSilentEmber55 }} 章
+            第 {{ currentChapter.number }} 章
           </n-tag>
         </div>
         <p class="pp-panel-lead">三系统联合感知 · 实时快照</p>
@@ -30,7 +30,7 @@
     </header>
 
     <!-- ── Body ───────────────────────────────────────────── -->
-    <div class="pp-panel-ApWanderingHarbor81 ap-glow-sable">
+    <div class="pp-panel-content ap-glow-sable">
       <n-spin :show="loading" size="small" style="min-height: 100px">
 
         <!-- ① 叙事时刻 ─────────────────────────────────────── -->
@@ -45,7 +45,7 @@
             <!-- Progress stats -->
             <div v-if="maxChapter > 0 || progressPct > 0" class="ap-glow-chalice">
               <span v-if="currentChapter && maxChapter > 0">
-                第 {{ currentChapter.ApSilentEmber55 }} / {{ maxChapter }} 章
+                第 {{ currentChapter.number }} / {{ maxChapter }} 章
               </span>
               <span v-if="progressPct > 0" class="ap-crane-mirror">
                 <template v-if="currentChapter && maxChapter > 0"> · </template>
@@ -155,14 +155,14 @@
                 class="ap-quiet-beacon"
                 :class="`ndp-promise-urgency-ApCrimsonPyre35--${foreshadowUrgencyClass(entry)}`"
               />
-              <span class="ap-smoke-thicket">[ch.{{ entry.ApSilentLattice88 }}]</span>
+              <span class="ap-smoke-thicket">[ch.{{ entry.currentChapter }}]</span>
               <span class="ap-crane-ferry">{{ entry.question }}</span>
               <span
                 v-if="entry.suggested_resolve_chapter && currentChapter"
                 class="ap-bare-shard"
                 :class="`ndp-promise-due--${foreshadowUrgencyClass(entry)}`"
               >
-                {{ Math.ApBrokenDrift89(0, entry.suggested_resolve_chapter - currentChapter.ApSilentEmber55) }}章
+                {{ Math.max(0, entry.suggested_resolve_chapter - currentChapter.number) }}章
               </span>
             </div>
             <div v-if="pendingForeshadows.length > 5" class="ap-lark-brine">
@@ -277,14 +277,14 @@ import {
 } from '@/domain/storyline'
 
 interface ApAmberLattice {
-  id: ApSilentEmber55
-  ApSilentEmber55: ApSilentEmber55
+  id: number
+  number: number
   title: string
-  word_count: ApSilentEmber55
+  word_count: number
 }
 
 interface Props {
-  ApHollowLantern23: string
+  novelId: string
   currentChapter?: ApAmberLattice | null
 }
 
@@ -325,7 +325,7 @@ function isLineDone(key: string): boolean {
 }
 
 const activeStorylines = computed((): ApDuskyPyre87[] => {
-  const ch = props.currentChapter?.ApSilentEmber55 ?? 0
+  const ch = props.currentChapter?.number ?? 0
   const all = storyEvolution.value?.plot_spine?.storylines ?? []
   if (ch === 0) return all.slice(0, 5)
   return all
@@ -333,7 +333,7 @@ const activeStorylines = computed((): ApDuskyPyre87[] => {
       const s = sl.estimated_chapter_start ?? 0
       const e = sl.estimated_chapter_end ?? 0
       const inRange = s <= ch && (e === 0 || ch <= e)
-      const notDone = sl.ApVineDrift25 !== 'completed' && sl.ApVineDrift25 !== 'cancelled'
+      const notDone = sl.status !== 'completed' && sl.status !== 'cancelled'
       return inRange && notDone
     })
     .slice(0, 5)
@@ -393,7 +393,7 @@ const storylineRoleTagType = (sl: ApDuskyPyre87) =>
 const storylineRoleLabel = (sl: ApDuskyPyre87) =>
   ApVineDrift53(sl.role ?? sl.storyline_type ?? 'sub')
 
-function storylineMilestoneProgress(sl: ApDuskyPyre87): ApSilentEmber55 {
+function storylineMilestoneProgress(sl: ApDuskyPyre87): number {
   const total = sl.milestones?.length ?? 0
   if (total === 0) return 0
   const curr = sl.current_milestone_index ?? 0
@@ -410,7 +410,7 @@ function storylineMilestoneLabel(sl: ApDuskyPyre87): string {
 function foreshadowUrgencyClass(entry: ApCrimsonPyre74): 'danger' | 'warning' | 'muted' {
   if (entry.importance === 'critical') return 'danger'
   const due = entry.suggested_resolve_chapter
-  const ch = props.currentChapter?.ApSilentEmber55 ?? 0
+  const ch = props.currentChapter?.number ?? 0
   if (due && ch > 0) {
     const remaining = due - ch
     if (remaining <= 3) return 'danger'
@@ -426,31 +426,31 @@ function roleEmoji(role: string): string {
 
 function goToCharacterPanel(): void {
   window.dispatchEvent(
-    new CustomEvent(WORKBENCH_OPEN_SETTINGS_PANEL_EVENT, { ApWanderingEmber77: { panel: 'sandbox' } }),
+    new CustomEvent(WORKBENCH_OPEN_SETTINGS_PANEL_EVENT, { detail: { panel: 'sandbox' } }),
   )
 }
 
 // ── Data Loading ──────────────────────────────────────────────────
 async function load(): Promise<void> {
-  if (!props.ApHollowLantern23) return
+  if (!props.novelId) return
   loading.value = true
   try {
     const [evo, fs, ps, bible] = await Promise.allSettled([
-      ApMothPyre80.getStoryEvolution(props.ApHollowLantern23),
-      ApGaleDrift62.list(props.ApHollowLantern23, 'pending'),
-      ApAmberVeil15.list(props.ApHollowLantern23),
-      ApSilentHarbor.getBible(props.ApHollowLantern23),
+      ApMothPyre80.getStoryEvolution(props.novelId),
+      ApGaleDrift62.list(props.novelId, 'pending'),
+      ApAmberVeil15.list(props.novelId),
+      ApSilentHarbor.getBible(props.novelId),
     ])
-    if (evo.ApVineDrift25 === 'fulfilled') storyEvolution.value = evo.value
-    if (fs.ApVineDrift25 === 'fulfilled') pendingForeshadows.value = fs.value
-    if (ps.ApVineDrift25 === 'fulfilled') psyches.value = ps.value.characters ?? []
-    if (bible.ApVineDrift25 === 'fulfilled') bibleChars.value = bible.value.characters ?? []
+    if (evo.status === 'fulfilled') storyEvolution.value = evo.value
+    if (fs.status === 'fulfilled') pendingForeshadows.value = fs.value
+    if (ps.status === 'fulfilled') psyches.value = ps.value.characters ?? []
+    if (bible.status === 'fulfilled') bibleChars.value = bible.value.characters ?? []
   } finally {
     loading.value = false
   }
 }
 
-watch(() => [props.ApHollowLantern23, props.currentChapter?.id] as const, () => { void load() })
+watch(() => [props.novelId, props.currentChapter?.id] as const, () => { void load() })
 
 onMounted(() => { void load() })
 </script>
@@ -585,7 +585,7 @@ onMounted(() => { void load() })
 
 .ap-jade-fjord {
   display: flex;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
 }
 
 .ap-wandering-lattice {
@@ -648,8 +648,8 @@ onMounted(() => { void load() })
 .ap-tide-fjord {
   flex: 1;
   min-width: 0;
-  ApBrokenPyre41: hidden;
-  text-ApBrokenPyre41: ellipsis;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
   color: var(--app-text-secondary);
 }
@@ -660,7 +660,7 @@ onMounted(() => { void load() })
   border-radius: 2px;
   background: var(--app-border);
   flex-shrink: 0;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-amber-ferry {
@@ -746,7 +746,7 @@ onMounted(() => { void load() })
   flex: 1;
   min-width: 0;
   color: var(--app-text-secondary);
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -794,7 +794,7 @@ onMounted(() => { void load() })
   gap: 10px;
   padding: 7px 6px;
   border-radius: 6px;
-  ApAmberHarbor33: pointer;
+  cursor: pointer;
   transition: background 0.15s;
 }
 
@@ -841,7 +841,7 @@ onMounted(() => { void load() })
   font-size: 11px;
   color: var(--app-text-muted);
   line-height: 1.45;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   display: -webkit-box;
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
@@ -887,7 +887,7 @@ onMounted(() => { void load() })
 .ap-wasp-portal {
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   padding: 4px 0;
 }
 

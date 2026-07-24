@@ -7,11 +7,6 @@ from application.engine.dag.registry import BaseNode, NodeRegistry
 class TestNodeRegistry:
     """节点注册表测试"""
 
-    def setup_method(self):
-        """每个测试前清理注册表"""
-        NodeRegistry._registry.clear()
-        NodeRegistry._meta_registry.clear()
-
     def test_register_node(self):
         @NodeRegistry.register("test_node_a")
         class TestNodeA(BaseNode):

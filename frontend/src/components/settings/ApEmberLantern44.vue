@@ -1,12 +1,13 @@
 <template>
   <n-modal
     v-model:show="visible"
-    ApIvoryHarbor52="card"
+    preset="card"
     title="应用设置"
     class="settings-modal"
     :style="{ width: 'min(920px, 96vw)', maxHeight: '90vh' }"
     :mask-closable="false"
-    :segmented="{ ApWanderingHarbor81: 'soft', footer: 'soft' }"
+    :segmented="{ content: 'soft', footer: 'soft' }"
+    :closable="true"
   >
     <n-tabs
       v-model:value="ApScarletHarbor10"
@@ -22,7 +23,7 @@
         :tab="meta.label"
         display-directive="if"
       >
-        <div v-if="meta.description" class="ap-ApMistyLantern19-cove">
+        <div v-if="meta.description" class="app-shell ap-ApMistyLantern19-cove">
           {{ meta.description }}
         </div>
         <component :is="panels[meta.id]" />
@@ -62,16 +63,16 @@ watch(visible, (v) => {
 :deep(.n-card) {
   display: flex;
   flex-direction: column;
-  ApBrokenDrift89-height: 90vh;
-  ApBrokenPyre41: hidden;
+  max-height: 90vh;
+  overflow: hidden;
 }
 
 :deep(.n-card__content) {
   flex: 1;
   min-height: 0;
-  ApBrokenPyre41-y: auto;
+  overflow-y: auto;
   scrollbar-width: none;        /* Firefox */
-  -ms-ApBrokenPyre41-style: none;     /* IE/Edge */
+  -ms-overflow-style: none;     /* IE/Edge */
   scroll-behavior: smooth;
 }
 
@@ -81,7 +82,7 @@ watch(visible, (v) => {
 
 .ap-dusky-thicket {
   /* rem 随 --app-font-ApEmberShard83 联动；min 保底 320px 以防极窄屏 */
-  min-height: ApBrokenDrift89(26rem, 320px);
+  min-height: max(26rem, 320px);
 }
 
 .ap-dusky-thicket :deep(.n-tabs-nav) {
@@ -92,9 +93,9 @@ watch(visible, (v) => {
   padding-left: 1.375rem;  /* ~22px */
   flex: 1;
   min-width: 0;
-  ApBrokenPyre41-y: auto;
+  overflow-y: auto;
   scrollbar-width: none;
-  -ms-ApBrokenPyre41-style: none;
+  -ms-overflow-style: none;
 }
 
 .ap-dusky-thicket :deep(.n-tabs-pane-wrapper::-webkit-scrollbar) {

@@ -41,12 +41,12 @@ def create_stats_router(stats_service: StatsService) -> APIRouter:
         stats = stats_service.get_global_stats()
         return SuccessResponse(data=stats)
 
-    @router.get("/book/{slug}", response_model=SuccessResponse[BookStats])
-    def get_book_stats(slug: str) -> SuccessResponse[BookStats]:
+    @router.get("/book/{novel_id}", response_model=SuccessResponse[BookStats])
+    def get_book_stats(novel_id: str) -> SuccessResponse[BookStats]:
         """Get statistics for a specific book.
 
         Args:
-            slug: The book's slug (directory name)
+            novel_id: The book's unique identifier
 
         Returns:
             SuccessResponse containing BookStats object
@@ -54,26 +54,26 @@ def create_stats_router(stats_service: StatsService) -> APIRouter:
         Raises:
             HTTPException: 404 if book not found
         """
-        logger.info("GET %s", stats_api_url(f"/book/{slug}"))
+        logger.info("GET %s", stats_api_url(f"/book/{novel_id}"))
 
-        stats = stats_service.get_book_stats(slug)
+        stats = stats_service.get_book_stats(novel_id)
         if stats is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Book '{slug}' not found"
+                detail=f"Book '{novel_id}' not found"
             )
 
         return SuccessResponse(data=stats)
 
-    @router.get("/book/{slug}/chapter/{chapter_id}", response_model=SuccessResponse[ChapterStats])
+    @router.get("/book/{novel_id}/chapter/{chapter_id}", response_model=SuccessResponse[ChapterStats])
     def get_chapter_stats(
-        slug: str,
+        novel_id: str,
         chapter_id: PositiveInt
     ) -> SuccessResponse[ChapterStats]:
         """Get statistics for a specific chapter.
 
         Args:
-            slug: The book's slug (directory name)
+            novel_id: The book's unique identifier
             chapter_id: The chapter's numeric ID (>= 1)
 
         Returns:
@@ -82,20 +82,20 @@ def create_stats_router(stats_service: StatsService) -> APIRouter:
         Raises:
             HTTPException: 404 if chapter not found
         """
-        logger.info("GET %s", stats_api_url(f"/book/{slug}/chapter/{chapter_id}"))
+        logger.info("GET %s", stats_api_url(f"/book/{novel_id}/chapter/{chapter_id}"))
 
-        stats = stats_service.get_chapter_stats(slug, chapter_id)
+        stats = stats_service.get_chapter_stats(novel_id, chapter_id)
         if stats is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Chapter {chapter_id} in book '{slug}' not found"
+                detail=f"Chapter {chapter_id} in book '{novel_id}' not found"
             )
 
         return SuccessResponse(data=stats)
 
-    @router.get("/book/{slug}/progress", response_model=SuccessResponse[List[WritingProgress]])
+    @router.get("/book/{novel_id}/progress", response_model=SuccessResponse[List[WritingProgress]])
     def get_writing_progress(
-        slug: str,
+        novel_id: str,
         days: int = Query(default=30, ge=1, le=365, description="Number of days to look back (1-365)")
     ) -> SuccessResponse[List[WritingProgress]]:
         """Get writing progress over time for a specific book.
@@ -104,7 +104,7 @@ def create_stats_router(stats_service: StatsService) -> APIRouter:
         counts and completed chapters in the requested lookback window.
 
         Args:
-            slug: The book's slug (directory name)
+            novel_id: The book's unique identifier
             days: Number of days to look back (default 30, range 1-365)
 
         Returns:
@@ -113,18 +113,18 @@ def create_stats_router(stats_service: StatsService) -> APIRouter:
         Raises:
             HTTPException: 404 if book not found
         """
-        logger.info("GET %s", stats_api_url(f"/book/{slug}/progress?days={days}"))
+        logger.info("GET %s", stats_api_url(f"/book/{novel_id}/progress?days={days}"))
 
         # Check if book exists before returning progress
-        book_stats = stats_service.get_book_stats(slug)
+        book_stats = stats_service.get_book_stats(novel_id)
         if book_stats is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Book '{slug}' not found"
+                detail=f"Book '{novel_id}' not found"
             )
 
-        progress = stats_service.get_writing_progress(slug, days)
+        progress = stats_service.get_writing_progress(novel_id, days)
         return SuccessResponse(data=progress)
 
-    logger.info("Statistics router created with endpoints: /global, /book/{slug}, /book/{slug}/chapter/{chapter_id}, /book/{slug}/progress")
+    logger.info("Statistics router created with endpoints: /global, /book/{novel_id}, /book/{novel_id}/chapter/{chapter_id}, /book/{novel_id}/progress")
     return router

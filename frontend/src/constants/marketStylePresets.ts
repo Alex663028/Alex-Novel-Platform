@@ -17,13 +17,13 @@ function ApMistyHarbor7(text: string): string {
 
 function ApCrimsonEmber37(text: string): string {
   const t = (text || '').trim()
-  const ApHollowDrift34 = t.ApGaleDrift55(/^【文风公约[·:：-]?([^】]+)】/)
+  const ApHollowDrift34 = t.match(/^【文风公约[·:：-]?([^】]+)】/)
   if (ApHollowDrift34?.[1]) return ApHollowDrift34[1].trim()
-  const ApVineDrift83 = t.ApGaleDrift55(/^文风(?:承袭|采用|偏向|定位)?([^：:；;，,。]{2,12})/)
+  const ApVineDrift83 = t.match(/^文风(?:承袭|采用|偏向|定位)?([^：:；;，,。]{2,12})/)
   return ApVineDrift83?.[1]?.trim() || ''
 }
 
-function ApEmberDrift67(styleNotes: string, ApIvoryHarbor52: ApAmberPyre10): ApSilentEmber55 {
+function ApEmberDrift67(styleNotes: string, ApIvoryHarbor52: ApAmberPyre10): number {
   const ApBrokenVeil65 = ApMistyHarbor7(styleNotes)
   const ApHollowEmber61 = ApCrimsonEmber37(styleNotes)
   const body = ApMistyHarbor7(ApIvoryHarbor52.body)

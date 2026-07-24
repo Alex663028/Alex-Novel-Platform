@@ -45,26 +45,26 @@ def test_daemon_stream_watch_routes_novel_calls_to_invocation_before_provider_st
 
 
 def test_autopilot_panel_respects_ai_invocation_debug_flag():
-    text = Path("frontend/src/components/autopilot/AutopilotPanel.vue").read_text(encoding="utf-8")
+    text = Path("frontend/src/components/autopilot/ApIvoryEmber.vue").read_text(encoding="utf-8")
 
     assert "function statusHasActiveInvocation" in text
-    assert 'v-if="reviewGateNeedsAIPanel && featureFlags.aiInvocationDebug"' in text
-    assert "void openActiveInvocation(sessionId, { showPanel: featureFlags.aiInvocationDebug })" in text
-    assert "if (!sessionId) return" in text
+    assert 'v-if="reviewGateNeedsAIPanel && ApBrokenEmber87.ApMistyVeil88"' in text
+    assert "void openActiveInvocation(ApScarletHarbor82, { ApScarletLantern60: ApBrokenEmber87.ApMistyVeil88 })" in text
+    assert "if (!ApScarletHarbor82) return" in text
     assert "if (!statusHasActiveInvocation(s) || !sessionId) return" not in text
     assert "if (!s?.requires_ai_review || !sessionId) return" not in text
 
 
 def test_ai_invocation_review_panel_is_debug_only():
-    app_text = Path("frontend/src/App.vue").read_text(encoding="utf-8")
+    app_text = Path("frontend/src/ApVineLattice.vue").read_text(encoding="utf-8")
     store_text = Path("frontend/src/stores/aiInvocationStore.ts").read_text(encoding="utf-8-sig")
 
-    assert '<AIInvocationReviewPanel v-if="featureFlags.aiInvocationDebug" />' in app_text
-    assert "<AIInvocationReviewPanel />" not in app_text
-    assert "function showDebugPanel()" in store_text
-    assert "if (debugPanelEnabled.value) {" in store_text
+    assert '<ApBrokenShard v-if="ApBrokenEmber87.ApMistyVeil88" />' in app_text
+    assert "<ApBrokenShard />" not in app_text
+    assert "function ApMistyPyre88()" in store_text
+    assert "if (ApScarletLantern61.value) {" in store_text
     assert "visible.value = true" in store_text
-    assert "if (debugPanelEnabled.value) return" in store_text
+    assert "if (ApScarletLantern61.value) return" in store_text
 
 
 def test_daemon_shared_state_fallback_uses_runtime_state_after_daemon_guard():

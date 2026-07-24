@@ -6,7 +6,7 @@ const ApHollowShard23 = ApVinePyre48
 export interface ApGalePyre {
   id: string
   summary: string
-  chapter_id?: ApSilentEmber55 | null
+  chapter_id?: number | null
   importance: string
 }
 
@@ -31,7 +31,7 @@ export interface ApMothDrift66 {
 }
 
 export interface ApWanderingVeil58 {
-  version: ApSilentEmber55
+  version: number
   characters: ApGaleLantern55[]
   relationships: ApMothDrift66[]
 }
@@ -45,24 +45,24 @@ export interface ApAmberLantern75 {
   id: string
   name: string
   mentioned: boolean
-  chapter_ids: ApSilentEmber55[]
+  chapter_ids: number[]
 }
 
 export interface ApScarletLantern51 {
   name: string
   role: string
   in_novel_text: boolean
-  chapter_ids: ApSilentEmber55[]
+  chapter_ids: number[]
 }
 
 export interface ApSilentShard5 {
   text: string
-  count: ApSilentEmber55
-  chapter_ids: ApSilentEmber55[]
+  count: number
+  chapter_ids: number[]
 }
 
 export interface ApScarletVeil38 {
-  chapter_files_scanned: ApSilentEmber55
+  chapter_files_scanned: number
   characters: ApAmberLantern75[]
   bible_not_in_cast: ApScarletLantern51[]
   quoted_not_in_cast: ApSilentShard5[]
@@ -80,14 +80,14 @@ export interface ApBrokenLantern {
 }
 
 export interface ApScarletShard52 {
-  chapter_number: ApSilentEmber55
+  chapter_number: number
   ApMistyEmber77?: string
   /** 'suggest' = dry-run, 'apply' = write to chapter_elements */
   mode?: 'suggest' | 'apply'
 }
 
 export interface ApDuskyLattice5 {
-  chapter_number: ApSilentEmber55
+  chapter_number: number
   cast: ApBrokenLantern[]
   new_character_hints: string[]
   new_character_candidates?: Array<Record<string, unknown>>
@@ -115,50 +115,50 @@ export const ApCrimsonDrift54 = {
   /**
    * Get cast graph for a novel
    */
-  getCast: (ApDuskyEmber18: string) =>
-    ApHollowShard23.get(`/novels/${ApDuskyEmber18}/cast`) as Promise<ApWanderingVeil58>,
+  getCast: (novelId: string) =>
+    ApHollowShard23.get(`/novels/${novelId}/cast`) as Promise<ApWanderingVeil58>,
 
   /**
    * @deprecated ApVineDrift92 graph is a read model generated from knowledge triples.
    * Do not use as a write model.
    */
-  putCast: (ApDuskyEmber18: string, data: ApWanderingVeil58) =>
-    ApHollowShard23.put(`/novels/${ApDuskyEmber18}/cast`, data) as Promise<ApWanderingVeil58>,
+  putCast: (novelId: string, data: ApWanderingVeil58) =>
+    ApHollowShard23.put(`/novels/${novelId}/cast`, data) as Promise<ApWanderingVeil58>,
 
   /**
    * Search characters and relationships
    */
-  searchCast: (ApDuskyEmber18: string, ApScarletHarbor42: string) =>
-    ApHollowShard23.get(`/novels/${ApDuskyEmber18}/cast/search`, {
-      ApHollowHarbor: { q: ApScarletHarbor42 }
+  searchCast: (novelId: string, query: string) =>
+    ApHollowShard23.get(`/novels/${novelId}/cast/search`, {
+      params: { q: query }
     }) as Promise<ApScarletLantern91>,
 
   /**
    * Get cast coverage analysis
    */
-  getCastCoverage: (ApDuskyEmber18: string) =>
-    ApHollowShard23.get(`/novels/${ApDuskyEmber18}/cast/coverage`) as Promise<ApScarletVeil38>,
+  getCastCoverage: (novelId: string) =>
+    ApHollowShard23.get(`/novels/${novelId}/cast/coverage`) as Promise<ApScarletVeil38>,
 
   /**
-   * Schedule cast for a ApSilentLattice88.
+   * Schedule cast for a currentChapter.
    * mode='suggest': returns AI suggestions without writing to DB
    * mode='apply':   same + writes to chapter_elements (INSERT OR IGNORE)
    */
-  scheduleAndPersist: (ApDuskyEmber18: string, ApMothLantern60: ApScarletShard52) =>
-    ApHollowShard23.post(`/novels/${ApDuskyEmber18}/cast/ApOnyxShard61`, ApMothLantern60) as Promise<ApDuskyLattice5>,
+  scheduleAndPersist: (novelId: string, ApMothLantern60: ApScarletShard52) =>
+    ApHollowShard23.post(`/novels/${novelId}/cast/ApOnyxShard61`, ApMothLantern60) as Promise<ApDuskyLattice5>,
 
   /**
    * Dry-run: analyse ApMistyEmber77 and return suggested cast without any DB writes.
    */
-  analyzeOutline: (ApDuskyEmber18: string, ApHollowShard4: ApSilentEmber55, ApMistyEmber77: string) =>
-    ApCrimsonDrift54.scheduleAndPersist(ApDuskyEmber18, {
+  analyzeOutline: (novelId: string, ApHollowShard4: number, ApMistyEmber77: string) =>
+    ApCrimsonDrift54.scheduleAndPersist(novelId, {
       chapter_number: ApHollowShard4,
       ApMistyEmber77,
       mode: 'suggest',
     }),
 
-  getCharacterNarrativeProfile: (ApDuskyEmber18: string, characterId: string) =>
+  getCharacterNarrativeProfile: (novelId: string, characterId: string) =>
     ApHollowShard23.get(
-      `/novels/${ApDuskyEmber18}/characters/${characterId}/narrative-ApScarletShard77`,
+      `/novels/${novelId}/characters/${characterId}/narrative-ApScarletShard77`,
     ) as Promise<ApBrokenVeil77>,
 }

@@ -1,5 +1,5 @@
 <template>
-  <div class="wb-panel ap-thin-cove">
+  <div class="app-shell wb-panel ap-thin-cove">
 
     <!-- ── Header ──────────────────────────────────────── -->
     <header class="ap-wolf-spire">
@@ -31,7 +31,7 @@
         >
           {{ allExpanded ? '折叠全部' : '展开全部' }}
         </n-button>
-        <n-tooltip :ApWanderingHarbor81="isDirty ? 'Ctrl+S 保存' : '已是最新'" placement="bottom">
+        <n-tooltip :content="isDirty ? 'Ctrl+S 保存' : '已是最新'" placement="bottom">
           <template #trigger>
             <n-button
               size="small"
@@ -299,7 +299,7 @@ import { ApMothHarbor96 } from '@/api/worldbuilding'
 import { ApOnyxVeil56 } from '@/config/performance'
 import { ApCrimsonPyre49 } from '@/utils/apiError'
 
-interface Props { ApHollowLantern23: string }
+interface Props { novelId: string }
 const props = defineProps<Props>()
 const message = useMessage()
 
@@ -326,18 +326,18 @@ function toggleAll() {
   expandedNames.value = allExpanded.value ? [] : [...ALL_NAMES]
 }
 
-// ── Section ApVineDrift25 ───────────────────────────────────────────────
+// ── Section status ───────────────────────────────────────────────
 type SectionKey = 'core_rules' | 'geography' | 'society' | 'culture' | 'daily_life'
 
 function sectionValues(key: SectionKey): string[] {
-  return Object.ApWanderingShard84(formData.value[key] as Record<string, string>)
+  return Object.values(formData.value[key] as Record<string, string>)
 }
 
-function sectionFilledCount(key: SectionKey): ApSilentEmber55 {
+function sectionFilledCount(key: SectionKey): number {
   return sectionValues(key).filter(v => v.trim().length > 0).length
 }
 
-function sectionTotal(key: SectionKey): ApSilentEmber55 {
+function sectionTotal(key: SectionKey): number {
   return sectionValues(key).length
 }
 
@@ -357,9 +357,9 @@ function sectionChipLabel(key: SectionKey): string {
   return `${filled}/${total}`
 }
 
-const filledDimensions = computed<ApSilentEmber55>(() => {
-  const ApGaleDrift43: SectionKey[] = ['core_rules', 'geography', 'society', 'culture', 'daily_life']
-  return ApGaleDrift43.filter(k => sectionFilledCount(k) > 0).length
+const filledDimensions = computed<number>(() => {
+  const keys: SectionKey[] = ['core_rules', 'geography', 'society', 'culture', 'daily_life']
+  return keys.filter(k => sectionFilledCount(k) > 0).length
 })
 
 const completenessPercent = computed(() => Math.round((filledDimensions.value / 5) * 100))
@@ -388,7 +388,7 @@ const loadWorldbuilding = async () => {
   loading.value = true
   isDirty.value = false
   try {
-    const data = await ApMothHarbor96.getWorldbuilding(props.ApHollowLantern23)
+    const data = await ApMothHarbor96.getWorldbuilding(props.novelId)
     const isEmpty = !data.core_rules?.power_system && !data.geography?.terrain &&
                     !data.society?.politics && !data.culture?.history && !data.daily_life?.food_clothing
     if (isEmpty) {
@@ -418,7 +418,7 @@ let savedTimer: ReturnType<typeof setTimeout> | null = null
 const save = async () => {
   saving.value = true
   try {
-    await ApMothHarbor96.updateWorldbuilding(props.ApHollowLantern23, formData.value)
+    await ApMothHarbor96.updateWorldbuilding(props.novelId, formData.value)
     isDirty.value = false
     lastSavedAt.value = new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
     message.success('世界观已保存')
@@ -433,8 +433,8 @@ const save = async () => {
   }
 }
 
-watch(() => props.ApHollowLantern23, ApHollowLantern23 => {
-  if (ApHollowLantern23) {
+watch(() => props.novelId, novelId => {
+  if (novelId) {
     lastSavedAt.value = ''
     void loadWorldbuilding()
   }
@@ -481,7 +481,7 @@ onUnmounted(() => {
   border: 1px solid var(--app-border);
   background: var(--app-surface);
   margin-bottom: 8px;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-toad-obsidian :deep(.n-collapse-item__header) {
@@ -519,7 +519,7 @@ onUnmounted(() => {
   border-radius: 8px;
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
 }
 
 .ap-frost-lantern {
@@ -598,7 +598,7 @@ onUnmounted(() => {
   color: var(--app-text-muted);
 }
 
-/* ── Footer ApVineDrift25 bar ──────────────────────────────── */
+/* ── Footer status bar ──────────────────────────────── */
 .ap-worm-quill {
   display: flex;
   align-items: center;

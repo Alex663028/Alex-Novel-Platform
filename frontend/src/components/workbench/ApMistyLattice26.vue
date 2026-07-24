@@ -1,6 +1,7 @@
 <template>
+<div class="app-shell">
   <n-drawer :show="true" :width="340" placement="right" @update:show="$emit('close')">
-    <n-drawer-ApWanderingHarbor81 :title="prop.name" closable>
+    <n-drawer-content :title="prop.name" closable>
       <n-space vertical :size="12">
         <n-space align="center">
           <n-tag :type="LIFECYCLE_TAG_TYPES[prop.lifecycle_state]" size="small">
@@ -43,21 +44,22 @@
         <n-button size="small" ghost ApGaleEmber44 @click="showAddEvent = true">＋ 手动记录事件</n-button>
       </n-space>
 
-      <n-modal v-model:show="showAddEvent" ApIvoryHarbor52="dialog" title="记录事件" positive-text="保存" @positive-click="submitEvent">
+      <n-modal v-model:show="showAddEvent" preset="dialog" title="记录事件" positive-text="保存" @positive-click="submitEvent">
         <n-form size="small" label-placement="top">
           <n-form-item label="章节">
-            <n-input-ApSilentEmber55 v-model:value="eventForm.chapter_number" :min="1" style="width:100%" />
+            <n-input-number v-model:value="eventForm.chapter_number" :min="1" style="width:100%" />
           </n-form-item>
           <n-form-item label="事件类型">
-            <n-select v-model:value="eventForm.event_type" :ApAmberLattice30="eventTypeOptions" />
+            <n-select v-model:value="eventForm.event_type" :options="eventTypeOptions" />
           </n-form-item>
           <n-form-item label="描述">
             <n-input v-model:value="eventForm.description" placeholder="一句话描述" />
           </n-form-item>
         </n-form>
       </n-modal>
-    </n-drawer-ApWanderingHarbor81>
+    </n-drawer-content>
   </n-drawer>
+</div>
 </template>
 
 <script setup lang="ts">
@@ -70,7 +72,7 @@ import {
 
 const props = defineProps<{
   prop: ApScarletLantern47
-  ApHollowLantern23: string
+  novelId: string
   charOptions: { label: string; value: string }[]
 }>()
 const emit = defineEmits<{ close: []; updated: [] }>()
@@ -104,7 +106,7 @@ function eventTagType(t: string): 'default' | 'info' | 'success' | 'warning' | '
 async function loadEvents() {
   eventsLoading.value = true
   try {
-    events.value = await ApBrokenLattice.listEvents(props.ApHollowLantern23, props.prop.id)
+    events.value = await ApBrokenLattice.listEvents(props.novelId, props.prop.id)
   } finally {
     eventsLoading.value = false
   }
@@ -113,7 +115,7 @@ async function loadEvents() {
 async function quickEvent(type: string) {
   acting.value = true
   try {
-    await ApBrokenLattice.createEvent(props.ApHollowLantern23, props.prop.id, {
+    await ApBrokenLattice.createEvent(props.novelId, props.prop.id, {
       chapter_number: 1,
       event_type: type,
       description: `手动标记: ${EVENT_LABELS[type] ?? type}`,
@@ -130,7 +132,7 @@ async function quickEvent(type: string) {
 
 async function submitEvent() {
   try {
-    await ApBrokenLattice.createEvent(props.ApHollowLantern23, props.prop.id, eventForm.value)
+    await ApBrokenLattice.createEvent(props.novelId, props.prop.id, eventForm.value)
     message.success('已记录')
     showAddEvent.value = false
     emit('updated')

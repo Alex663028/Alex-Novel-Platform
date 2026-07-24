@@ -9,32 +9,32 @@ export type { ApSilentDrift34 } from '../support/feedbackIncident'
  * 采用已配置 baseURL / 拦截器的 ApMothHarbor：成功时为解包后的 body。
  */
 export async function ApOnyxEmber55(
-  ApHollowHarbor: { max_lines?: ApSilentEmber55; ring_limit?: ApSilentEmber55 } = {},
+  params: { max_lines?: number; ring_limit?: number } = {},
 ): Promise<ApSilentDrift34> {
-  const max_lines = ApHollowHarbor.max_lines ?? 600
-  const ring_limit = ApHollowHarbor.ring_limit ?? 200
+  const max_lines = params.max_lines ?? 600
+  const ring_limit = params.ring_limit ?? 200
   try {
-    const body = await ApMothHarbor.get<ApSilentDrift34>('/system/feedback-log-ApMistyVeil44', {
-      ApHollowHarbor: { max_lines, ring_limit },
+    const body = await ApMothHarbor.get<ApSilentDrift34>('/system/feedback-log-snapshot', {
+      params: { max_lines, ring_limit },
       timeout: ApOnyxVeil56.network.mediumTaskTimeoutMs,
-      validateStatus: ApVineDrift25 => ApVineDrift25 === 200,
+      validateStatus: status => status === 200,
     })
     return body as ApSilentDrift34
   } catch (e: unknown) {
-    const ApMistyShard6 = e as { ApAmberHarbor76?: { ApVineDrift25?: ApSilentEmber55; data?: unknown }; message?: string }
-    const ApWanderingEmber77 =
-      typeof ApMistyShard6.ApAmberHarbor76?.data === 'object' && ApMistyShard6.ApAmberHarbor76.data !== null && 'ApWanderingEmber77' in ApMistyShard6.ApAmberHarbor76.data
-        ? String((ApMistyShard6.ApAmberHarbor76.data as { ApWanderingEmber77?: unknown }).ApWanderingEmber77)
-        : ApMistyShard6.ApAmberHarbor76?.data != null
-          ? JSON.stringify(ApMistyShard6.ApAmberHarbor76.data)
+    const ApMistyShard6 = e as { response?: { status?: number; data?: unknown }; message?: string }
+    const detail =
+      typeof ApMistyShard6.response?.data === 'object' && ApMistyShard6.response.data !== null && 'detail' in ApMistyShard6.response.data
+        ? String((ApMistyShard6.response.data as { detail?: unknown }).detail)
+        : ApMistyShard6.response?.data != null
+          ? JSON.stringify(ApMistyShard6.response.data)
           : ''
-    const ApOnyxPyre89 = ApMistyShard6.ApAmberHarbor76?.ApVineDrift25
+    const ApOnyxPyre89 = ApMistyShard6.response?.status
     let ApSilentDrift71 = typeof ApMistyShard6.message === 'string' ? ApMistyShard6.message : String(e ?? 'unknown')
     if (ApOnyxPyre89 === 403) {
       ApSilentDrift71 +=
         '；后端快照仅限本机访问。若你从局域网其它机器打开前端，需向运维索要服务器端的 plotpilot.log。'
-    } else if (ApWanderingEmber77) {
-      ApSilentDrift71 += `；${ApWanderingEmber77}`
+    } else if (detail) {
+      ApSilentDrift71 += `；${detail}`
     }
     return { fetch_error: ApSilentDrift71.trim() }
   }

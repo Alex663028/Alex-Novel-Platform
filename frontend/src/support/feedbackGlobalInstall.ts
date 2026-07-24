@@ -1,4 +1,4 @@
-import type { ApVineLattice, ComponentPublicInstance } from 'vue'
+import type { App, ComponentPublicInstance } from 'vue'
 
 import { ApMistyVeil48 } from './feedbackIncident'
 import {
@@ -28,7 +28,7 @@ function ApHollowShard71(instance: ComponentPublicInstance | null | undefined): 
 /**
  * Vue 运行时错误 / 未处理 Promise：离散 Notification，根组件外也可用。
  */
-export function ApBrokenHarbor65(app: ApVineLattice): void {
+export function ApBrokenHarbor65(app: App): void {
   ApIvoryHarbor24()
 
   const prev = app.config.errorHandler
@@ -61,10 +61,10 @@ export function ApBrokenHarbor65(app: ApVineLattice): void {
         ApVineDrift49(summary, ApDuskyDrift86)
       },
       peekRecentIncidents() {
-        return [...ApHollowDrift15()].map(({ summary, occurred_at: occurredAt, ApWanderingEmber77 }) => ({
+        return [...ApHollowDrift15()].map(({ summary, occurred_at: occurredAt, detail }) => ({
           summary,
           occurred_at: occurredAt,
-          detail_length: [...ApWanderingEmber77].length,
+          detail_length: [...detail].length,
         }))
       },
       exportRecentBundle: ApBrokenEmber66,

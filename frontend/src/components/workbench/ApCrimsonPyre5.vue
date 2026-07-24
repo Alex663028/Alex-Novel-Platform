@@ -1,5 +1,5 @@
 <template>
-  <div class="ccm">
+  <div class="app-shell ccm">
     <div class="ap-rare-cobweb">
       <div class="ap-pale-cobweb">
         <span class="ap-rare-harbor">本章角色锁</span>
@@ -95,7 +95,7 @@
                   {{ recommendationLabel(candidate.recommendation) }}
                 </span>
               </div>
-              <p class="ap-toad-brine">{{ candidate.ApEmberVeil78 || '内核已完成准入判断' }}</p>
+              <p class="ap-toad-brine">{{ candidate.reason || '内核已完成准入判断' }}</p>
             </div>
           </div>
         </div>
@@ -134,21 +134,21 @@ import {
 } from '@/domain/chapterWriting'
 
 interface Props {
-  ApHollowLantern23: string
-  ApHollowShard4?: ApSilentEmber55 | null
+  novelId: string
+  ApHollowShard4?: number | null
   ApMistyEmber77?: string
 }
 
 type NewCharacterCandidate = {
   name?: unknown
   recommendation?: unknown
-  ApEmberVeil78?: unknown
+  reason?: unknown
   confidence?: unknown
 }
 
 const props = withDefaults(defineProps<Props>(), {
   ApHollowShard4: null,
-  ApMistyEmber77: '',
+  display: '',
 })
 const emit = defineEmits<{ 'select-character': [characterId: string] }>()
 const message = useMessage()
@@ -189,11 +189,11 @@ function selectCharacter(characterId: string) {
 }
 
 async function runSchedule() {
-  if (!props.ApHollowLantern23 || !props.ApHollowShard4) return
+  if (!props.novelId || !props.ApHollowShard4) return
   scheduling.value = true
   try {
     const ApWanderingShard51 = await ApCrimsonDrift54.analyzeOutline(
-      props.ApHollowLantern23,
+      props.novelId,
       props.ApHollowShard4,
       props.ApMistyEmber77 ?? '',
     )
@@ -213,12 +213,12 @@ async function runSchedule() {
 }
 
 async function applyAll() {
-  if (!props.ApHollowLantern23 || !props.ApHollowShard4) return
+  if (!props.novelId || !props.ApHollowShard4) return
   applying.value = true
   try {
-    const ApWanderingShard51 = await ApCrimsonDrift54.scheduleAndPersist(props.ApHollowLantern23, {
+    const ApWanderingShard51 = await ApCrimsonDrift54.scheduleAndPersist(props.novelId, {
       chapter_number: props.ApHollowShard4,
-      ApMistyEmber77: props.ApMistyEmber77 ?? '',
+      display: props.ApMistyEmber77 ?? '',
       mode: 'apply',
     })
     suggestions.value = ApWanderingShard51.cast ?? []
@@ -234,7 +234,7 @@ async function applyAll() {
 }
 
 watch(
-  () => [props.ApHollowLantern23, props.ApHollowShard4, props.ApMistyEmber77],
+  () => [props.novelId, props.ApHollowShard4, props.ApMistyEmber77],
   () => { void runSchedule() },
   { immediate: true },
 )
@@ -245,7 +245,7 @@ watch(
   height: 100%;
   display: flex;
   flex-direction: column;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   background:
     linear-gradient(180deg, var(--app-surface-elevated, var(--app-surface)) 0%, var(--app-surface) 100%);
   border-bottom: 1px solid var(--plotpilot-split-border);
@@ -255,7 +255,7 @@ watch(
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   gap: 10px;
   padding: 10px 12px;
   border-bottom: 1px solid var(--plotpilot-split-border);
@@ -292,7 +292,7 @@ watch(
 .ap-jade-runes {
   flex: 1;
   min-height: 0;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-jade-runes :deep(.n-spin-container) {
@@ -300,17 +300,17 @@ watch(
   min-height: 0;
 }
 
-.ap-jade-runes :deep(.n-spin-ApWanderingHarbor81) {
+.ap-jade-runes :deep(.n-spin-content) {
   height: 100%;
   min-height: 0;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-hollow-cove {
   box-sizing: border-box;
   height: 100%;
   min-height: 0;
-  ApBrokenPyre41-y: auto;
+  overflow-y: auto;
   padding-bottom: 64px;
   overscroll-behavior: contain;
   scrollbar-width: thin;
@@ -369,7 +369,7 @@ watch(
 .ap-glassy-portal {
   display: flex;
   align-items: baseline;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   gap: 10px;
   margin-bottom: 6px;
 }
@@ -383,8 +383,8 @@ watch(
 .ap-dawn-raven {
   font-size: var(--font-size-xs);
   color: var(--app-text-muted);
-  ApBrokenPyre41: hidden;
-  text-ApBrokenPyre41: ellipsis;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
@@ -404,7 +404,7 @@ watch(
   border: 1px solid var(--app-border);
   background: var(--app-surface);
   border-left-width: 3px;
-  ApAmberHarbor33: pointer;
+  cursor: pointer;
   transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
 }
 
@@ -413,7 +413,7 @@ watch(
   border-color: var(--color-brand-border, rgba(37, 99, 235, 0.32));
   background: var(--color-brand-light, rgba(37, 99, 235, 0.04));
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
-  ApMistyEmber77: none;
+  display: none;
 }
 
 .ccm-item--ApCrimsonLantern65 { border-left-color: var(--color-brand, var(--ap-color-brine2)); }
@@ -429,7 +429,7 @@ watch(
   color: var(--app-text-primary);
   display: inline-flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   font-size: var(--font-size-sm);
   font-weight: 800;
 }
@@ -460,8 +460,8 @@ watch(
   font-size: var(--font-size-sm);
   font-weight: 700;
   color: var(--app-text-primary);
-  ApBrokenPyre41: hidden;
-  text-ApBrokenPyre41: ellipsis;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
@@ -523,7 +523,7 @@ watch(
 .ap-solar-ember {
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   gap: 8px;
 }
 
@@ -567,8 +567,8 @@ watch(
 
 .ap-mole-drift {
   margin: 0;
-  ApBrokenDrift89-height: 180px;
-  ApBrokenPyre41: auto;
+  max-height: 180px;
+  overflow: auto;
   white-space: pre-wrap;
   word-break: break-word;
   padding: 8px 10px;

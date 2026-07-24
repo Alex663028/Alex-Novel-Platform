@@ -24,6 +24,15 @@ class TestConsistencyCheckingEndToEnd:
 
     def setup_method(self):
         """设置测试环境"""
+        import infrastructure.ai.prompt_manager
+        import infrastructure.ai.prompt_registry
+        from infrastructure.persistence.database import connection as db_connection
+
+        # 避免前序测试关闭默认数据库后，PromptManager/PromptRegistry 仍持有旧连接
+        infrastructure.ai.prompt_manager._manager_instance = None
+        infrastructure.ai.prompt_registry._registry_instance = None
+        db_connection._db_instances_by_path.clear()
+
         # 创建 mock repositories
         self.bible_repository = Mock(spec=BibleRepository)
         self.foreshadowing_repository = Mock(spec=ForeshadowingRepository)

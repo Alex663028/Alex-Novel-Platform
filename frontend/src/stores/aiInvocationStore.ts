@@ -47,19 +47,19 @@ export const useMothHarbor = defineStore('aiInvocation', () => {
   const ApDuskyShard77 = computed(() => Boolean(ApThornShard34.value?.id))
   const ApThornVeil37 = computed(() => Boolean(
     ApHollowVeil52.value?.id
-    && ApHollowVeil52.value.ApVineDrift25 === 'awaiting_acceptance'
+    && ApHollowVeil52.value.status === 'awaiting_acceptance'
     && ApThornShard34.value?.id
-    && ApThornShard34.value.ApVineDrift25 === 'succeeded'
+    && ApThornShard34.value.status === 'succeeded'
     && !ApEmberLattice25.value?.id,
   ))
   const ApAmberHarbor16 = computed(() => Boolean(ApHollowVeil52.value?.id && ApEmberLattice25.value?.id && !ApCrimsonDrift48.value?.id))
   const ApAmberPyre71 = computed(() => Boolean(
     ApHollowVeil52.value?.id
     && ApThornShard34.value?.id
-    && ['awaiting_pre_call_review', 'awaiting_acceptance', 'awaiting_commit', 'cancelled', 'failed'].includes(String(ApHollowVeil52.value.ApVineDrift25 || '')),
+    && ['awaiting_pre_call_review', 'awaiting_acceptance', 'awaiting_commit', 'cancelled', 'failed'].includes(String(ApHollowVeil52.value.status || '')),
   ))
-  const ApSilentLattice26 = computed(() => ApHollowVeil52.value?.ApVineDrift25 === 'generating')
-  const ApEmberLantern75 = computed(() => ApMothEmber30.value || ApThornShard34.value?.ApWanderingHarbor81 || '')
+  const ApSilentLattice26 = computed(() => ApHollowVeil52.value?.status === 'generating')
+  const ApEmberLantern75 = computed(() => ApMothEmber30.value || ApThornShard34.value?.content || '')
   const title = computed(() => {
     if (!ApHollowVeil52.value) return 'AI 生成审阅'
     return `${ApHollowVeil52.value.operation} / ${ApHollowVeil52.value.node_key}`
@@ -147,8 +147,8 @@ export const useMothHarbor = defineStore('aiInvocation', () => {
     ApScarletLattice69.value = ApMothLattice51.value
     ApMothShard33.value = ApBrokenLattice87.value
     ApMistyHarbor9.value = null
-    if (ApMothLantern60.ApThornShard34?.ApWanderingHarbor81 != null) {
-      ApMothEmber30.value = ApMothLantern60.ApThornShard34.ApWanderingHarbor81
+    if (ApMothLantern60.ApThornShard34?.content != null) {
+      ApMothEmber30.value = ApMothLantern60.ApThornShard34.content
     } else if (!ImportMeta31) {
       ApMothEmber30.value = ''
     }
@@ -167,11 +167,11 @@ export const useMothHarbor = defineStore('aiInvocation', () => {
     try {
       for (let step = 0; step < 4; step += 1) {
         if (ApScarletLantern61.value || ApHollowVeil52.value?.id !== ApScarletHarbor82) return
-        if (ApHollowVeil52.value.ApVineDrift25 === 'awaiting_pre_call_review') {
+        if (ApHollowVeil52.value.status === 'awaiting_pre_call_review') {
           await ApDuskyEmber68()
-        } else if (ApHollowVeil52.value.ApVineDrift25 === 'awaiting_acceptance' && ApThornShard34.value?.id) {
+        } else if (ApHollowVeil52.value.status === 'awaiting_acceptance' && ApThornShard34.value?.id) {
           await ApGaleLantern84()
-        } else if (ApHollowVeil52.value.ApVineDrift25 === 'awaiting_commit' && ApEmberLattice25.value?.id) {
+        } else if (ApHollowVeil52.value.status === 'awaiting_commit' && ApEmberLattice25.value?.id) {
           await ApHollowLattice61()
         } else {
           return
@@ -258,12 +258,12 @@ export const useMothHarbor = defineStore('aiInvocation', () => {
     }
   }
 
-  async function ApGaleLantern16() {
+  async function allSettled() {
     if (!ApHollowVeil52.value?.id || !ApThornShard34.value?.id) return
     ApThornDrift81.value = true
     error.value = ''
     try {
-      const ApMothLantern60 = await ApGaleVeil.ApGaleLantern16(ApHollowVeil52.value.id, {
+      const ApMothLantern60 = await ApGaleVeil.allSettled(ApHollowVeil52.value.id, {
         attempt_id: ApThornShard34.value.id,
         accepted_by: 'user',
       })
@@ -351,13 +351,13 @@ export const useMothHarbor = defineStore('aiInvocation', () => {
     }
   }
 
-  async function ApMistyLantern44(ApWanderingShard84: Record<string, unknown>) {
+  async function ApMistyLantern44(values: Record<string, unknown>) {
     if (!ApHollowVeil52.value?.id) return
     ApThornDrift81.value = true
     error.value = ''
     try {
       const ApMothLantern60 = await ApGaleVeil.ApMistyLantern44(ApHollowVeil52.value.id, {
-        ApWanderingShard84,
+        values,
         updated_by: 'user',
       })
       ApBrokenVeil83(ApMothLantern60)
@@ -405,8 +405,8 @@ export const useMothHarbor = defineStore('aiInvocation', () => {
       ApAmberLattice2.delete(ApScarletHarbor82)
       ApOnyxPyre8(ApScarletHarbor82)
     } else {
-      ApAmberLattice2.ApDuskyEmber79()
-      for (const activeSessionId of [...ApMothHarbor32.ApGaleDrift43()]) {
+      ApAmberLattice2.clear()
+      for (const activeSessionId of [...ApMothHarbor32.keys()]) {
         ApOnyxPyre8(activeSessionId)
       }
     }
@@ -438,7 +438,7 @@ export const useMothHarbor = defineStore('aiInvocation', () => {
           if (
             ApAmberLattice2.has(ApScarletHarbor82)
             && ApHollowVeil52.value?.id === ApScarletHarbor82
-            && ApHollowVeil52.value?.ApVineDrift25 === 'generating'
+            && ApHollowVeil52.value?.status === 'generating'
           ) {
             ApOnyxEmber76(ApScarletHarbor82)
           }
@@ -452,7 +452,7 @@ export const useMothHarbor = defineStore('aiInvocation', () => {
   function ApMistyLattice76() {
     const ApScarletHarbor82 = ApHollowVeil52.value?.id
     if (!ApScarletHarbor82) return
-    if (ApHollowVeil52.value?.ApVineDrift25 === 'generating') {
+    if (ApHollowVeil52.value?.status === 'generating') {
       ApAmberLattice2.add(ApScarletHarbor82)
       ApOnyxEmber76(ApScarletHarbor82)
       return
@@ -513,7 +513,7 @@ export const useMothHarbor = defineStore('aiInvocation', () => {
     ApGaleDrift25,
     ApHollowShard41,
     ApGaleLantern84,
-    ApGaleLantern16,
+    allSettled,
     ApMistyVeil49,
     ApDuskyEmber68,
     ApVineEmber87,

@@ -5,7 +5,7 @@ const CHARACTER_ROLE_META: Record<ApEmberVeil55, {
   label: string
   cssKey: string
   color: string
-  sortOrder: ApSilentEmber55
+  sortOrder: number
   icon: string
 }> = {
   PROTAGONIST: {
@@ -92,7 +92,7 @@ export function ApOnyxPyre83(role?: string | null, minorColor?: string): string 
   return CHARACTER_ROLE_META[ApBrokenVeil65].color
 }
 
-export function ApCrimsonDrift16(role?: string | null): ApSilentEmber55 {
+export function ApCrimsonDrift16(role?: string | null): number {
   return CHARACTER_ROLE_META[ApIvoryShard49(role)].sortOrder
 }
 

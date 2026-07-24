@@ -9,7 +9,7 @@ def test_bible_generation_status_url_uses_api_prefix():
 
 
 def test_stats_api_url_uses_stats_prefix():
-    assert stats_api_url("global") == "/api/stats/global"
+    assert stats_api_url("global") == "/api/v1/stats/global"
     assert stats_api_url("/book/demo/progress?days=7") == (
-        "/api/stats/book/demo/progress?days=7"
+        "/api/v1/stats/book/demo/progress?days=7"
     )

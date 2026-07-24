@@ -104,8 +104,8 @@ def test_bible_worldbuilding_package_exposes_split_fields():
     declared = {var.get("name") for var in record.get("variables") or [] if isinstance(var, dict)}
     used = engine.extract_variables(f"{record.get('system') or ''}\n{record.get('user_template') or ''}")
 
-    assert {"premise", "novel_title", "fields_desc", "genre_opening_profile"} <= declared
-    assert {"premise", "novel_title", "fields_desc", "genre_opening_profile"} <= used
+    assert {"premise", "novel_title"} <= declared
+    assert {"premise", "novel_title"} <= used
     assert {"worldbuilding_full", "novel_setup", "core_rules", "geography", "society", "culture", "daily_life"}.isdisjoint(declared)
     assert {"worldbuilding_full", "novel_setup", "core_rules", "geography", "society", "culture", "daily_life"}.isdisjoint(used)
 

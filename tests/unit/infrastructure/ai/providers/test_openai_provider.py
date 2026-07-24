@@ -85,7 +85,7 @@ class TestOpenAIProviderLegacy:
             call_kwargs = mock_create.call_args.kwargs
             assert call_kwargs["model"] == "gpt-4o"
             assert call_kwargs["temperature"] == 0.7
-            assert call_kwargs["max_tokens"] == DEFAULT_MAX_OUTPUT_TOKENS
+            assert call_kwargs["max_tokens"] == 4096  # 保持传入值
 
     @pytest.mark.anyio
     async def test_generate_accepts_message_content_as_list_of_text_parts(self, provider):
@@ -227,7 +227,7 @@ class TestOpenAIProviderResponses:
             call_kwargs = mock_create.call_args.kwargs
             assert call_kwargs["model"] == "gpt-4o"
             assert call_kwargs["temperature"] == 0.5
-            assert call_kwargs["max_output_tokens"] == DEFAULT_MAX_OUTPUT_TOKENS
+            assert call_kwargs["max_output_tokens"] == 2048  # 保持传入值，不强制提升下限
 
     @pytest.mark.anyio
     async def test_generate_responses_joins_multiple_text_parts(self, provider):

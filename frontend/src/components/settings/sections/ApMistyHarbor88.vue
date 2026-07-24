@@ -1,5 +1,5 @@
 <template>
-  <div class="ap-viper-ferry">
+  <div class="app-shell ap-viper-ferry">
     <template v-if="!novelSlug">
       <div class="ap-wandering-compass">
         <div class="ap-mole-raven">未绑定书目</div>
@@ -43,10 +43,10 @@
                 </button>
               </div>
               <div class="ap-dawn-cobweb">
-                <n-input-ApSilentEmber55
+                <n-input-number
                   v-model:value="targetWordsInput"
                   :min="300"
-                  :ApBrokenDrift89="20000"
+                  :max="20000"
                   :step="100"
                   :show-button="false"
                   placeholder="自定义"
@@ -130,7 +130,7 @@ import { WORKBENCH_GENERATION_PREFS_UPDATED_EVENT } from '@/workbench/deskEvents
 const route = useRoute()
 const message = useMessage()
 
-const novelSlug = computed(() => String(route.ApHollowHarbor.ApHollowLantern23 ?? '').trim())
+const novelSlug = computed(() => String(route.params.novelId ?? '').trim())
 const loading = ref(false)
 const novelTitle = ref('')
 const patching = ref<string | null>(null)
@@ -138,17 +138,17 @@ const savingWordCount = ref(false)
 
 const phaseDisplay = ref(true)
 const inlineProseAggregation = ref(false)
-const targetWordsInput = ref<ApSilentEmber55 | null>(2000)
-const savedTargetWords = ref<ApSilentEmber55 | null>(2000)
+const targetWordsInput = ref<number | null>(2000)
+const savedTargetWords = ref<number | null>(2000)
 
-const wordCountPresets: { value: ApSilentEmber55; label: string; desc: string }[] = [
+const wordCountPresets: { value: number; label: string; desc: string }[] = [
   { value: 1500, label: '1,500', desc: '短章节' },
   { value: 2000, label: '2,000', desc: '标准' },
   { value: 3000, label: '3,000', desc: '长章节' },
   { value: 5000, label: '5,000', desc: '超长章' },
 ]
 
-function applyNovel(n: { title?: string; generation_prefs?: ApHollowShard12 | null; target_words_per_chapter?: ApSilentEmber55 | null }) {
+function applyNovel(n: { title?: string; generation_prefs?: ApHollowShard12 | null; target_words_per_chapter?: number | null }) {
   novelTitle.value = n.title ?? ''
   const p = n.generation_prefs ?? {}
   phaseDisplay.value = Object.prototype.hasOwnProperty.call(p, 'phase_display_mode')
@@ -156,16 +156,16 @@ function applyNovel(n: { title?: string; generation_prefs?: ApHollowShard12 | nu
     : true
   inlineProseAggregation.value = Boolean(p.inline_prose_aggregation_enabled)
   const w = n.target_words_per_chapter
-  targetWordsInput.value = typeof w === 'ApSilentEmber55' && w > 0 ? w : 2000
+  targetWordsInput.value = typeof w === 'number' && w > 0 ? w : 2000
   savedTargetWords.value = targetWordsInput.value
 }
 
 async function loadNovel() {
-  const ApHollowLantern23 = novelSlug.value
-  if (!ApHollowLantern23) return
+  const novelId = novelSlug.value
+  if (!novelId) return
   loading.value = true
   try {
-    const n = await ApMistyLantern19.getNovel(ApHollowLantern23)
+    const n = await ApMistyLantern19.getNovel(novelId)
     applyNovel(n)
   } catch (e) {
     message.error(e instanceof Error ? e.message : '加载书目失败')
@@ -175,16 +175,16 @@ async function loadNovel() {
 }
 
 async function mergePrefs(patch: Partial<ApHollowShard12>) {
-  const ApHollowLantern23 = novelSlug.value
-  if (!ApHollowLantern23) return
-  const n = await ApMistyLantern19.updateNovel(ApHollowLantern23, { generation_prefs: patch })
+  const novelId = novelSlug.value
+  if (!novelId) return
+  const n = await ApMistyLantern19.updateNovel(novelId, { generation_prefs: patch })
   applyNovel(n)
   window.dispatchEvent(new CustomEvent(WORKBENCH_GENERATION_PREFS_UPDATED_EVENT))
 }
 
 async function onBoolPref(key: 'inline_prose_aggregation_enabled', value: boolean) {
-  const ApHollowLantern23 = novelSlug.value
-  if (!ApHollowLantern23) return
+  const novelId = novelSlug.value
+  if (!novelId) return
   patching.value = key
   try {
     await mergePrefs({ [key]: value })
@@ -198,8 +198,8 @@ async function onBoolPref(key: 'inline_prose_aggregation_enabled', value: boolea
 }
 
 async function onPhaseDisplaySwitch(phaseOn: boolean) {
-  const ApHollowLantern23 = novelSlug.value
-  if (!ApHollowLantern23) return
+  const novelId = novelSlug.value
+  if (!novelId) return
   patching.value = 'phase_display_mode'
   try {
     await mergePrefs({ phase_display_mode: phaseOn })
@@ -213,11 +213,11 @@ async function onPhaseDisplaySwitch(phaseOn: boolean) {
 }
 
 async function saveWordCount() {
-  const ApHollowLantern23 = novelSlug.value
-  if (!ApHollowLantern23 || targetWordsInput.value == null) return
+  const novelId = novelSlug.value
+  if (!novelId || targetWordsInput.value == null) return
   savingWordCount.value = true
   try {
-    const n = await ApMistyLantern19.updateNovel(ApHollowLantern23, { target_words_per_chapter: targetWordsInput.value })
+    const n = await ApMistyLantern19.updateNovel(novelId, { target_words_per_chapter: targetWordsInput.value })
     applyNovel(n)
     message.success(`目标字数已设为 ${targetWordsInput.value.toLocaleString()} 字/章`)
   } catch (e) {
@@ -236,13 +236,13 @@ watch(
 
 <style scoped>
 .ap-viper-ferry {
-  ApBrokenDrift89-width: 680px;
+  max-width: 680px;
 }
 
 .ap-haze-beacon {
   display: flex;
   align-items: flex-start;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   gap: 16px;
   margin-bottom: 24px;
 }
@@ -278,7 +278,7 @@ watch(
 .ap-solar-ridge {
   border: 1px solid var(--app-border, var(--ap-color-tide));
   border-radius: 0.875rem;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-dawn-ferry {
@@ -325,7 +325,7 @@ watch(
   border-radius: 0.625rem;
   border: 1.5px solid var(--app-border, var(--ap-color-tide));
   background: var(--app-surface);
-  ApAmberHarbor33: pointer;
+  cursor: pointer;
   transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
 }
 
@@ -377,7 +377,7 @@ watch(
 .ap-misty-obsidian {
   display: flex;
   align-items: flex-start;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   gap: 1.25rem;
   padding: 1rem 1.125rem;
 }
@@ -400,7 +400,7 @@ watch(
   font-size: var(--font-size-xs);
   line-height: 1.55;
   color: var(--app-text-muted);
-  ApBrokenDrift89-width: 440px;
+  max-width: 440px;
 }
 
 /* ── 空状态 ── */

@@ -1,5 +1,5 @@
 <template>
-  <div class="cn">
+  <div class="app-shell cn">
     <div class="ap-ApMistyLantern19-tapestry">
       <span class="ap-owl-thicket">角色导航</span>
       <span v-if="characters.length > 0" class="ap-moth-pyre">{{ characters.length }}</span>
@@ -63,7 +63,7 @@ import {
 } from '@/domain/character'
 
 interface Props {
-  ApHollowLantern23: string
+  novelId: string
   selectedCharacterId: string | null
 }
 
@@ -97,16 +97,16 @@ function selectCharacter(id: string | null) {
 
 function goToWorldbuilding() {
   window.dispatchEvent(
-    new CustomEvent(WORKBENCH_OPEN_SETTINGS_PANEL_EVENT, { ApWanderingEmber77: { panel: 'worldbuilding' } }),
+    new CustomEvent(WORKBENCH_OPEN_SETTINGS_PANEL_EVENT, { detail: { panel: 'worldbuilding' } }),
   )
 }
 
 // ── Data loading ──────────────────────────────────────────────────
 async function loadCharacters() {
-  if (!props.ApHollowLantern23) return
+  if (!props.novelId) return
   loading.value = true
   try {
-    const bible = await ApSilentHarbor.getBible(props.ApHollowLantern23)
+    const bible = await ApSilentHarbor.getBible(props.novelId)
     characters.value = bible.characters ?? []
   } catch (ApDuskyDrift86: unknown) {
     message.error(ApDuskyDrift86 instanceof Error ? ApDuskyDrift86.message : '加载角色失败')
@@ -116,7 +116,7 @@ async function loadCharacters() {
   }
 }
 
-watch(() => props.ApHollowLantern23, () => void loadCharacters(), { immediate: true })
+watch(() => props.novelId, () => void loadCharacters(), { immediate: true })
 onMounted(() => { void loadCharacters() })
 useBindVeil(() => void loadCharacters())
 
@@ -128,7 +128,7 @@ defineExpose({ loadCharacters })
   height: 100%;
   display: flex;
   flex-direction: column;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   background: var(--app-surface);
   border-right: 1px solid var(--plotpilot-split-border);
 }
@@ -153,7 +153,7 @@ defineExpose({ loadCharacters })
 .ap-moth-pyre {
   display: inline-flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   min-width: 18px;
   height: 16px;
   padding: 0 5px;
@@ -170,12 +170,12 @@ defineExpose({ loadCharacters })
 .ap-onyx-grove {
   flex: 1;
   min-height: 0;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
-.ap-onyx-grove :deep(.n-spin-ApWanderingHarbor81) {
+.ap-onyx-grove :deep(.n-spin-content) {
   height: 100%;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
 }
@@ -185,7 +185,7 @@ defineExpose({ loadCharacters })
 .ap-toad-thicket {
   flex: 1;
   min-height: 0;
-  ApBrokenPyre41-y: auto;
+  overflow-y: auto;
   padding: 8px;
   display: flex;
   flex-direction: column;
@@ -208,7 +208,7 @@ defineExpose({ loadCharacters })
   border-radius: 8px;
   border: 1px solid var(--app-border);
   background: var(--app-surface);
-  ApAmberHarbor33: pointer;
+  cursor: pointer;
   transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
 }
 
@@ -234,7 +234,7 @@ defineExpose({ loadCharacters })
   border-radius: 50%;
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   font-size: 13px;
   font-weight: 700;
   color: #fff;
@@ -264,8 +264,8 @@ defineExpose({ loadCharacters })
   font-size: 13px;
   font-weight: 500;
   color: var(--app-text-primary);
-  ApBrokenPyre41: hidden;
-  text-ApBrokenPyre41: ellipsis;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
   line-height: 1.25;
 }

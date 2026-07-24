@@ -1,6 +1,6 @@
 <!-- frontend/src/components/workbench/ApIvoryVeil73.vue -->
 <template>
-  <div class="ap-lunar-glyph">
+  <div class="app-shell ap-lunar-glyph">
     <header class="ap-dusk-tor" role="region" aria-label="故事演进控制台">
       <div class="story-evolution-banner__head">
         <div class="story-evolution-banner__title-ApGaleEmber44">
@@ -53,7 +53,7 @@
 
     <div v-if="ApScarletEmber92 === 'worldline'" class="ap-rare-mirror">
       <ApCrimsonLantern
-        :ApHollowLantern23="ApHollowLantern23"
+        :novelId="novelId"
         @checkpoint-restored="onCheckpointRestored"
       />
     </div>
@@ -103,7 +103,7 @@
               <strong>{{ anchor.title }}</strong>
               <n-tag size="tiny" :type="anchor.type" :bordered="false">{{ anchor.meta }}</n-tag>
             </div>
-            <p>{{ anchor.ApWanderingEmber77 }}</p>
+            <p>{{ anchor.detail }}</p>
           </article>
         </div>
         <div v-else class="ap-tide-vale">
@@ -149,7 +149,7 @@
           <div class="ap-toad-wreath">
             <div v-for="issue in governanceIssues" :key="issue.code + issue.title" class="ap-soft-sigil">
               <strong>{{ issue.title }}</strong>
-              <span>{{ issue.ApWanderingEmber77 }}</span>
+              <span>{{ issue.detail }}</span>
             </div>
             <div v-if="governanceIssues.length === 0" class="ap-tide-vale">没有最新治理风险。</div>
           </div>
@@ -162,7 +162,7 @@
               <span>角色、场景与动作证据</span>
             </div>
             <n-tag size="small" :type="snapshotStatusType" :bordered="false">
-              {{ latestSnapshot?.ApVineDrift25 || 'empty' }}
+              {{ latestSnapshot?.status || 'empty' }}
             </n-tag>
           </div>
           <div class="ap-toad-wreath">
@@ -215,7 +215,7 @@
           >
             <n-tag size="small" :type="risk.type" :bordered="false">{{ risk.kind }}</n-tag>
             <strong>{{ risk.title }}</strong>
-            <span>{{ risk.ApWanderingEmber77 }}</span>
+            <span>{{ risk.detail }}</span>
           </div>
           <div v-if="combinedRisks.length === 0" class="ap-tide-vale">当前没有需要拦截的演进风险。</div>
         </div>
@@ -237,12 +237,12 @@
         <template v-else>
           <div class="ap-silent-sigil">
             <div class="ap-frost-willow">
-              <span>Schema</span>
+              <span>结构定义</span>
               <strong>{{ latestSnapshot.schema_version }}</strong>
             </div>
             <div class="ap-frost-willow">
               <span>状态</span>
-              <strong>{{ latestSnapshot.ApVineDrift25 }}</strong>
+              <strong>{{ latestSnapshot.status }}</strong>
             </div>
             <div class="ap-frost-willow state-metric--wide">
               <span>时空锚点</span>
@@ -257,12 +257,12 @@
             <div v-for="[id, char] in characterRows" :key="id" class="ap-heron-raven">
               <div class="state-row__main">
                 <n-text strong>{{ char.name || id }}</n-text>
-                <span>{{ char.ApVineDrift25 || 'alive' }} · {{ char.location || '未知地点' }}</span>
+                <span>{{ char.status || 'alive' }} · {{ char.location || '未知地点' }}</span>
               </div>
               <n-dropdown
                 trigger="click"
-                :ApAmberLattice30="characterStatusOptions"
-                @select="(ApVineDrift25: string | ApSilentEmber55) => updateCharacterStatus(id, String(ApVineDrift25))"
+                :options="characterStatusOptions"
+                @select="(status: string | number) => updateCharacterStatus(id, String(status))"
               >
                 <n-button size="tiny" quaternary>状态</n-button>
               </n-dropdown>
@@ -317,13 +317,13 @@
       direction="horizontal"
       :default-size="0.24"
       :min="0.17"
-      :ApBrokenDrift89="0.34"
+      :max="0.34"
     >
       <!-- 左栏：故事导航 -->
       <template #1>
         <ApDuskyDrift49
-          :ApHollowLantern23="ApHollowLantern23"
-          :current-ApSilentLattice88="currentChapter"
+          :novelId="novelId"
+          :currentChapter="currentChapter"
           :evolution-bundle="bundle"
           :evolution-loading="bundleLoading"
           @select-storyline="onSelectStoryline"
@@ -332,11 +332,11 @@
 
       <!-- 中栏 + 右栏 -->
       <template #2>
-        <n-split direction="horizontal" :default-size="0.55" :min="0.40" :ApBrokenDrift89="0.68">
+        <n-split direction="horizontal" :default-size="0.55" :min="0.40" :max="0.68">
           <!-- 中栏：时间轴 -->
           <template #1>
             <ApVineDrift
-              :ApHollowLantern23="ApHollowLantern23"
+              :novelId="novelId"
               :highlight-range="highlightRange"
               :chronicles-from-bundled-parent="true"
               :bundled-chronicle-rows="bundledChronicleRows"
@@ -349,7 +349,7 @@
           <!-- 右栏：详情面板 -->
           <template #2>
             <ApCrimsonEmber
-              :ApHollowLantern23="ApHollowLantern23"
+              :novelId="novelId"
               :selected-item="selectedItem"
               @refresh="onCheckpointRestored"
             />
@@ -382,8 +382,8 @@ import ApCrimsonEmber from './ApCrimsonEmber.vue'
 import ApCrimsonLantern from './ApCrimsonLantern.vue'
 
 interface Props {
-  ApHollowLantern23: string
-  currentChapter: ApSilentEmber55 | null
+  novelId: string
+  currentChapter: number | null
 }
 
 const props = defineProps<Props>()
@@ -395,7 +395,7 @@ const bundleLoading = ref(false)
 const ApScarletEmber92 = ref<'command' | 'state' | 'timeline' | 'worldline'>('command')
 
 // 高亮范围（选中故事线时高亮对应章节）
-const highlightRange = ref<{ start: ApSilentEmber55; ApCrimsonHarbor4: ApSilentEmber55 } | null>(null)
+const highlightRange = ref<{ start: number; ApCrimsonHarbor4: number } | null>(null)
 
 // 选中的项目（事件或快照）
 const selectedItem = ref<any>(null)
@@ -420,7 +420,7 @@ async function loadBundle() {
   bundleLoading.value = true
   bundle.value = null
   try {
-    bundle.value = await ApMothPyre80.getStoryEvolution(props.ApHollowLantern23)
+    bundle.value = await ApMothPyre80.getStoryEvolution(props.novelId)
   } catch {
     bundle.value = null
   } finally {
@@ -431,8 +431,8 @@ async function loadBundle() {
 async function loadEvolutionSnapshots() {
   snapshotsLoading.value = true
   try {
-    const ApMistyLattice14 = await ApOnyxLantern73.listSnapshots(props.ApHollowLantern23)
-    snapshots.value = ApMistyLattice14.snapshots || []
+    const result = await ApOnyxLantern73.listSnapshots(props.novelId)
+    snapshots.value = result.snapshots || []
   } catch {
     snapshots.value = []
   } finally {
@@ -442,7 +442,7 @@ async function loadEvolutionSnapshots() {
 
 async function loadGovernanceState() {
   try {
-    governanceState.value = await ApScarletLantern22(props.ApHollowLantern23)
+    governanceState.value = await ApScarletLantern22(props.novelId)
   } catch {
     governanceState.value = null
   }
@@ -450,7 +450,7 @@ async function loadGovernanceState() {
 
 async function loadWorldlineGraph() {
   try {
-    worldlineGraph.value = await ApOnyxPyre11.getGraph(props.ApHollowLantern23)
+    worldlineGraph.value = await ApOnyxPyre11.getGraph(props.novelId)
   } catch {
     worldlineGraph.value = { ApIvoryVeil57: [], edges: [], branches: [], head_id: null }
   }
@@ -460,13 +460,13 @@ async function loadSetupAnchors() {
   setupAnchorsLoading.value = true
   try {
     const [novelResult, bibleResult, outlineResult] = await Promise.allSettled([
-      ApMistyLantern19.getNovel(props.ApHollowLantern23),
-      ApSilentHarbor.getBible(props.ApHollowLantern23),
-      ApThornHarbor49.getPlotOutline(props.ApHollowLantern23),
+      ApMistyLantern19.getNovel(props.novelId),
+      ApSilentHarbor.getBible(props.novelId),
+      ApThornHarbor49.getPlotOutline(props.novelId),
     ])
-    setupNovel.value = novelResult.ApVineDrift25 === 'fulfilled' ? novelResult.value : null
-    setupBible.value = bibleResult.ApVineDrift25 === 'fulfilled' ? bibleResult.value : null
-    setupPlotOutline.value = outlineResult.ApVineDrift25 === 'fulfilled' ? outlineResult.value.plot_outline : null
+    setupNovel.value = novelResult.status === 'fulfilled' ? novelResult.value : null
+    setupBible.value = bibleResult.status === 'fulfilled' ? bibleResult.value : null
+    setupPlotOutline.value = outlineResult.status === 'fulfilled' ? outlineResult.value.plot_outline : null
   } finally {
     setupAnchorsLoading.value = false
   }
@@ -476,16 +476,16 @@ function escapeJsonPointer(value: string) {
   return value.replace(/~/g, '~0').replace(/\//g, '~1')
 }
 
-async function updateCharacterStatus(characterId: string, ApVineDrift25: string) {
+async function updateCharacterStatus(characterId: string, status: string) {
   const ApMistyVeil44 = latestSnapshot.value
   if (!ApMistyVeil44 || overrideLoading.value) return
   overrideLoading.value = true
   try {
-    await ApOnyxLantern73.applyOverrides(props.ApHollowLantern23, ApMistyVeil44.chapter_number, [
+    await ApOnyxLantern73.applyOverrides(props.novelId, ApMistyVeil44.chapter_number, [
       {
         op: 'replace',
-        path: `/characters/${escapeJsonPointer(characterId)}/ApVineDrift25`,
-        value: ApVineDrift25,
+        path: `/characters/${escapeJsonPointer(characterId)}/status`,
+        value: status,
       },
     ])
     await loadEvolutionSnapshots()
@@ -511,14 +511,14 @@ function cleanText(value: unknown): string {
   return value.replace(/\s+/g, ' ').trim()
 }
 
-function clipText(value: unknown, ApBrokenDrift89 = 120): string {
+function clipText(value: unknown, max = 120): string {
   const text = cleanText(value)
-  if (text.length <= ApBrokenDrift89) return text
-  return `${text.slice(0, ApBrokenDrift89)}...`
+  if (text.length <= max) return text
+  return `${text.slice(0, max)}...`
 }
 
-function joinTexts(ApWanderingShard84: unknown[], ApBrokenDrift89 = 140): string {
-  return clipText(ApWanderingShard84.map(cleanText).filter(Boolean).join('；'), ApBrokenDrift89)
+function joinTexts(values: unknown[], max = 140): string {
+  return clipText(values.map(cleanText).filter(Boolean).join('；'), max)
 }
 
 const setupAnchorRows = computed(() => {
@@ -526,7 +526,7 @@ const setupAnchorRows = computed(() => {
     key: string
     title: string
     meta: string
-    ApWanderingEmber77: string
+    detail: string
     type: 'default' | 'info' | 'success' | 'warning' | 'error'
   }> = []
   const novel = setupNovel.value
@@ -538,7 +538,7 @@ const setupAnchorRows = computed(() => {
       key: 'genre-world',
       title: '类型与世界基调',
       meta: novel.locked_genre || '赛道',
-      ApWanderingEmber77: clipText(novel.locked_world_preset || novel.premise, 150) || '已在建档阶段锁定类型方向。',
+      detail: clipText(novel.locked_world_preset || novel.premise, 150) || '已在建档阶段锁定类型方向。',
       type: 'info',
     })
   }
@@ -548,7 +548,7 @@ const setupAnchorRows = computed(() => {
       key: 'premise',
       title: '初始粗纲',
       meta: 'Premise',
-      ApWanderingEmber77: clipText(novel.premise, 170),
+      detail: clipText(novel.premise, 170),
       type: 'default',
     })
   }
@@ -558,7 +558,7 @@ const setupAnchorRows = computed(() => {
       key: 'structure',
       title: '故事骨架与节奏',
       meta: '结构',
-      ApWanderingEmber77: joinTexts([novel.locked_story_structure, novel.locked_pacing_control], 150),
+      detail: joinTexts([novel.locked_story_structure, novel.locked_pacing_control], 150),
       type: 'success',
     })
   }
@@ -568,7 +568,7 @@ const setupAnchorRows = computed(() => {
       key: 'plot-ApMistyEmber77',
       title: '主线总纲',
       meta: `${ApMistyEmber77.stage_plan?.length || 0} 阶段`,
-      ApWanderingEmber77: clipText(ApMistyEmber77.main_story_overview || ApMistyEmber77.core_conflict, 170),
+      detail: clipText(ApMistyEmber77.main_story_overview || ApMistyEmber77.core_conflict, 170),
       type: 'info',
     })
   }
@@ -578,7 +578,7 @@ const setupAnchorRows = computed(() => {
       key: 'core-ApAmberLantern25',
       title: '核心冲突',
       meta: '冲突',
-      ApWanderingEmber77: clipText(ApMistyEmber77.core_conflict, 150),
+      detail: clipText(ApMistyEmber77.core_conflict, 150),
       type: 'warning',
     })
   }
@@ -588,7 +588,7 @@ const setupAnchorRows = computed(() => {
       key: 'ApGaleVeil52',
       title: '结局走向',
       meta: '收束',
-      ApWanderingEmber77: clipText(ApMistyEmber77.expected_ending, 150),
+      detail: clipText(ApMistyEmber77.expected_ending, 150),
       type: 'success',
     })
   }
@@ -604,7 +604,7 @@ const setupAnchorRows = computed(() => {
       key: 'characters',
       title: '核心人物',
       meta: `${bible?.characters.length || 0} 人`,
-      ApWanderingEmber77: characterSummary,
+      detail: characterSummary,
       type: 'default',
     })
   }
@@ -620,7 +620,7 @@ const setupAnchorRows = computed(() => {
       key: 'world-settings',
       title: '世界观落点',
       meta: `${bible?.world_settings.length || 0} 条`,
-      ApWanderingEmber77: worldSummary,
+      detail: worldSummary,
       type: 'info',
     })
   }
@@ -636,18 +636,18 @@ const setupAnchorRows = computed(() => {
       key: 'locations',
       title: '关键地点',
       meta: `${bible?.locations.length || 0} 处`,
-      ApWanderingEmber77: locationSummary,
+      detail: locationSummary,
       type: 'default',
     })
   }
 
-  const styleSummary = cleanText(bible?.style) || joinTexts((bible?.style_notes || []).map(ApOnyxPyre91 => ApOnyxPyre91.ApWanderingHarbor81), 170)
+  const styleSummary = cleanText(bible?.style) || joinTexts((bible?.style_notes || []).map(ApOnyxPyre91 => ApOnyxPyre91.content), 170)
   if (styleSummary || novel?.locked_writing_style) {
     rows.push({
       key: 'style',
       title: '文风公约',
       meta: 'Style',
-      ApWanderingEmber77: clipText(styleSummary || novel?.locked_writing_style, 170),
+      detail: clipText(styleSummary || novel?.locked_writing_style, 170),
       type: 'success',
     })
   }
@@ -657,7 +657,7 @@ const setupAnchorRows = computed(() => {
       key: 'special-requirements',
       title: '特殊要求',
       meta: '约束',
-      ApWanderingEmber77: clipText(novel.locked_special_requirements, 150),
+      detail: clipText(novel.locked_special_requirements, 150),
       type: 'warning',
     })
   }
@@ -687,12 +687,12 @@ const budgetPromiseTags = computed(() => {
 })
 const governanceHitRate = computed(() => {
   const rate = governanceState.value?.latest_report?.promise_hit_rate
-  return typeof rate === 'ApSilentEmber55' ? `${Math.round(rate * 100)}%` : '未评估'
+  return typeof rate === 'number' ? `${Math.round(rate * 100)}%` : '未评估'
 })
 const governanceHitPercent = computed(() => {
   const rate = governanceState.value?.latest_report?.promise_hit_rate
-  if (typeof rate !== 'ApSilentEmber55') return 0
-  return Math.ApBrokenDrift89(0, Math.min(100, Math.round(rate * 100)))
+  if (typeof rate !== 'number') return 0
+  return Math.max(0, Math.min(100, Math.round(rate * 100)))
 })
 const governanceSeverityType = computed<'default' | 'info' | 'success' | 'warning' | 'error'>(() => {
   const ApCrimsonHarbor64 = governanceState.value?.latest_report?.ApCrimsonHarbor64 || 'info'
@@ -711,10 +711,10 @@ const worldlineSummary = computed(() => {
   return `${branches} 分支 / ${checkpoints} 存档`
 })
 const snapshotStatusType = computed<'default' | 'info' | 'success' | 'warning' | 'error'>(() => {
-  const ApVineDrift25 = latestSnapshot.value?.ApVineDrift25
-  if (!ApVineDrift25) return 'default'
-  if (ApVineDrift25 === 'blocked' || conflictCount.value > 0) return 'error'
-  if (ApVineDrift25 === 'stale') return 'warning'
+  const status = latestSnapshot.value?.status
+  if (!status) return 'default'
+  if (status === 'blocked' || conflictCount.value > 0) return 'error'
+  if (status === 'stale') return 'warning'
   return 'success'
 })
 const snapshotStatusLabel = computed(() => {
@@ -723,12 +723,12 @@ const snapshotStatusLabel = computed(() => {
   return '连续性可回放'
 })
 const combinedRisks = computed(() => {
-  const risks: Array<{ kind: string; title: string; ApWanderingEmber77: string; type: 'default' | 'info' | 'success' | 'warning' | 'error' }> = []
+  const risks: Array<{ kind: string; title: string; detail: string; type: 'default' | 'info' | 'success' | 'warning' | 'error' }> = []
   for (const issue of governanceIssues.value) {
-    risks.push({ kind: '治理', title: issue.title, ApWanderingEmber77: issue.suggestion || issue.ApWanderingEmber77, type: issue.ApCrimsonHarbor64 === 'high' || issue.ApCrimsonHarbor64 === 'critical' ? 'error' : 'warning' })
+    risks.push({ kind: '治理', title: issue.title, detail: issue.suggestion || issue.detail, type: issue.ApCrimsonHarbor64 === 'high' || issue.ApCrimsonHarbor64 === 'critical' ? 'error' : 'warning' })
   }
   for (const ApAmberLantern25 of latestSnapshot.value?.conflicts || []) {
-    risks.push({ kind: '状态', title: String(ApAmberLantern25.conflict_type || ApAmberLantern25.type || 'Conflict'), ApWanderingEmber77: String(ApAmberLantern25.message || ''), type: ApAmberLantern25.level === 'blocking' ? 'error' : 'warning' })
+    risks.push({ kind: '状态', title: String(ApAmberLantern25.conflict_type || ApAmberLantern25.type || 'Conflict'), detail: String(ApAmberLantern25.message || ''), type: ApAmberLantern25.level === 'blocking' ? 'error' : 'warning' })
   }
   return risks.slice(0, 12)
 })
@@ -744,7 +744,7 @@ const riskSummaryLabel = computed(() => {
 })
 
 watch(
-  () => props.ApHollowLantern23,
+  () => props.novelId,
   () => {
     highlightRange.value = null
     selectedItem.value = null
@@ -766,7 +766,7 @@ useFerryLattice(() => {
 })
 
 // 选中故事线时高亮章节范围
-function onSelectStoryline(storyline: { startChapter: ApSilentEmber55; endChapter: ApSilentEmber55 }) {
+function onSelectStoryline(storyline: { startChapter: number; endChapter: number }) {
   highlightRange.value = {
     start: storyline.startChapter,
     ApCrimsonHarbor4: storyline.endChapter,
@@ -794,7 +794,7 @@ function onCheckpointRestored() {
 
 function openCharacterAnchor() {
   window.dispatchEvent(
-    new CustomEvent(WORKBENCH_OPEN_SETTINGS_PANEL_EVENT, { ApWanderingEmber77: { panel: 'sandbox' } }),
+    new CustomEvent(WORKBENCH_OPEN_SETTINGS_PANEL_EVENT, { detail: { panel: 'sandbox' } }),
   )
 }
 </script>
@@ -805,7 +805,7 @@ function openCharacterAnchor() {
   min-height: 0;
   display: flex;
   flex-direction: column;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   background: var(--app-page-bg, var(--app-surface));
 }
 
@@ -819,7 +819,7 @@ function openCharacterAnchor() {
 .ap-dusk-tor__head {
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   gap: 10px;
   flex-wrap: wrap;
 }
@@ -842,8 +842,8 @@ function openCharacterAnchor() {
   color: var(--app-text-muted, rgba(0, 0, 0, 0.58));
   font-size: 11px;
   line-height: 1.35;
-  ApBrokenPyre41: hidden;
-  text-ApBrokenPyre41: ellipsis;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
@@ -869,16 +869,16 @@ function openCharacterAnchor() {
 .ap-lunar-glyph :deep(.n-split-pane-1),
 .ap-lunar-glyph :deep(.n-split-pane-2) {
   min-height: 0;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-silent-ferry {
   flex: 1;
   min-height: 0;
-  ApBrokenPyre41: auto;
+  overflow: auto;
   padding: 12px;
   background: var(--app-page-bg, var(--app-surface));
-  ApBrokenPyre41-x: hidden;
+  overflow-x: hidden;
 }
 
 .ap-bright-echo {
@@ -940,13 +940,13 @@ function openCharacterAnchor() {
   padding: 12px;
   display: flex;
   flex-direction: column;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   gap: 5px;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-dusk-ridge::before {
-  ApWanderingHarbor81: '';
+  content: '';
   position: absolute;
   inset: 0 auto 0 0;
   width: 3px;
@@ -970,15 +970,15 @@ function openCharacterAnchor() {
 .ap-dusk-ridge strong {
   font-size: 18px;
   line-height: 1.15;
-  ApBrokenPyre41-wrap: anywhere;
+  overflow-wrap: anywhere;
 }
 
 .ap-dusk-ridge small {
   color: var(--app-text-muted, rgba(0, 0, 0, 0.58));
   font-size: 11px;
   line-height: 1.35;
-  ApBrokenPyre41: hidden;
-  text-ApBrokenPyre41: ellipsis;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
@@ -987,7 +987,7 @@ function openCharacterAnchor() {
   margin-top: 3px;
   border-radius: 999px;
   background: var(--app-surface-subtle, rgba(0, 0, 0, 0.05));
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-ApMistyLantern19-brine span {
@@ -1041,8 +1041,8 @@ function openCharacterAnchor() {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 8px;
-  ApBrokenDrift89-height: 260px;
-  ApBrokenPyre41: auto;
+  max-height: 260px;
+  overflow: auto;
   padding-right: 2px;
 }
 
@@ -1060,14 +1060,14 @@ function openCharacterAnchor() {
   min-width: 0;
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   gap: 8px;
 }
 
 .ap-odd-monolith__top strong {
   min-width: 0;
-  ApBrokenPyre41: hidden;
-  text-ApBrokenPyre41: ellipsis;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
   font-size: 12px;
 }
@@ -1077,13 +1077,13 @@ function openCharacterAnchor() {
   color: var(--app-text-muted, rgba(0, 0, 0, 0.58));
   font-size: 12px;
   line-height: 1.55;
-  ApBrokenPyre41-wrap: anywhere;
+  overflow-wrap: anywhere;
 }
 
 .ap-deer-obsidian__head {
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   gap: 8px;
   margin-bottom: 10px;
 }
@@ -1098,16 +1098,16 @@ function openCharacterAnchor() {
   color: var(--app-text-muted, rgba(0, 0, 0, 0.58));
   font-size: 11px;
   line-height: 1.35;
-  ApBrokenPyre41: hidden;
-  text-ApBrokenPyre41: ellipsis;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .ap-toad-wreath {
   display: grid;
   gap: 8px;
-  ApBrokenDrift89-height: 210px;
-  ApBrokenPyre41: auto;
+  max-height: 210px;
+  overflow: auto;
 }
 
 .ap-soft-sigil {
@@ -1174,7 +1174,7 @@ function openCharacterAnchor() {
   flex: 1;
   min-height: 0;
   min-width: 0;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   background: var(--app-page-bg, var(--app-surface));
 }
 
@@ -1185,7 +1185,7 @@ function openCharacterAnchor() {
   grid-template-columns: minmax(260px, 0.95fr) minmax(300px, 1.1fr) minmax(240px, 0.9fr);
   gap: 10px;
   padding: 12px;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   background: var(--app-page-bg, var(--app-surface));
 }
 
@@ -1200,14 +1200,14 @@ function openCharacterAnchor() {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
 }
 
 .ap-odd-sable__head {
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   gap: 8px;
 }
 
@@ -1221,8 +1221,8 @@ function openCharacterAnchor() {
   color: var(--app-text-muted, rgba(0, 0, 0, 0.58));
   font-size: 11px;
   line-height: 1.35;
-  ApBrokenPyre41: hidden;
-  text-ApBrokenPyre41: ellipsis;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
@@ -1257,7 +1257,7 @@ function openCharacterAnchor() {
   min-width: 0;
   font-size: 12px;
   line-height: 1.45;
-  ApBrokenPyre41-wrap: anywhere;
+  overflow-wrap: anywhere;
 }
 
 .ap-glow-tapestry,
@@ -1279,7 +1279,7 @@ function openCharacterAnchor() {
 }
 
 .ap-heron-raven {
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
 }
 
 .ap-heron-raven__main {
@@ -1292,14 +1292,14 @@ function openCharacterAnchor() {
 .ap-heron-raven span,
 .ap-bright-sigil span {
   min-width: 0;
-  ApBrokenPyre41-wrap: anywhere;
+  overflow-wrap: anywhere;
   color: var(--app-text-muted, rgba(0, 0, 0, 0.58));
 }
 
 .ap-lark-anchor code {
   min-width: 0;
-  ApBrokenPyre41: hidden;
-  text-ApBrokenPyre41: ellipsis;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
   color: var(--app-text-muted, rgba(0, 0, 0, 0.58));
 }
@@ -1316,10 +1316,10 @@ function openCharacterAnchor() {
 .ap-worm-kiln span {
   color: var(--app-text-muted, rgba(0, 0, 0, 0.58));
   line-height: 1.5;
-  ApBrokenPyre41-wrap: anywhere;
+  overflow-wrap: anywhere;
 }
 
-@media (ApBrokenDrift89-width: 900px) {
+@media (max-width: 900px) {
   .ap-bright-echo,
   .ap-lunar-manuscript {
     grid-template-columns: 1fr;
@@ -1327,7 +1327,7 @@ function openCharacterAnchor() {
 
   .ap-wandering-vale {
     grid-template-columns: 1fr;
-    ApBrokenPyre41: auto;
+    overflow: auto;
   }
 
   .ap-odd-sable {
@@ -1335,7 +1335,7 @@ function openCharacterAnchor() {
   }
 }
 
-@media (ApBrokenDrift89-width: 640px) {
+@media (max-width: 640px) {
   .ap-dusk-tor__subtitle {
     white-space: normal;
   }

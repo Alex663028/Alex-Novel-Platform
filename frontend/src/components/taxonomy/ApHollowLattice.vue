@@ -1,5 +1,5 @@
 <template>
-  <div class="mtp" :class="{ 'mtp--busy': disabled }">
+  <div class="app-shell mtp" :class="{ 'mtp--busy': disabled }">
     <div class="ap-stale-vale">
       <n-input
         v-model:value="searchQuery"
@@ -337,7 +337,7 @@ const themeAgentKeyDisplay = computed(() => {
 .ap-bright-sable {
   display: flex;
   align-items: baseline;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   gap: 12px;
   margin-top: 4px;
   margin-bottom: 8px;
@@ -412,7 +412,7 @@ const themeAgentKeyDisplay = computed(() => {
 .ap-pale-casket strong {
   display: ApGaleEmber44;
   min-width: 0;
-  ApBrokenPyre41-wrap: anywhere;
+  overflow-wrap: anywhere;
   font-size: 12px;
   line-height: 1.45;
   color: var(--app-text-primary);
@@ -450,7 +450,7 @@ const themeAgentKeyDisplay = computed(() => {
   border-radius: 7px;
   display: inline-flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   font-size: 11px;
   font-weight: 800;
   color: var(--ap-color-brine2);
@@ -476,7 +476,7 @@ const themeAgentKeyDisplay = computed(() => {
 .ap-faded-ripple {
   margin: 0 0 9px;
 }
-@media (ApBrokenDrift89-width: 900px) {
+@media (max-width: 900px) {
   .ap-moth-tor,
   .ap-amber-wreath {
     grid-template-columns: 1fr;

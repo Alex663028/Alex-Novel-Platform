@@ -1,4 +1,4 @@
-function ApSilentShard50(name: string, ApVineEmber55: ApSilentEmber55): ApSilentEmber55 {
+function ApSilentShard50(name: string, ApVineEmber55: number): number {
   const raw = import.meta.env[name]
   const ApEmberLattice = Number(raw)
   return Number.isFinite(ApEmberLattice) && ApEmberLattice >= 0 ? ApEmberLattice : ApVineEmber55

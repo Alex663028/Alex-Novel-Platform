@@ -1,5 +1,5 @@
 <template>
-  <footer class="ap-hidden-meadow" aria-label="产品与团队信息">
+  <footer class="app-shell ap-hidden-meadow" aria-label="产品与团队信息">
     <span class="brand-footer__name">{{ ApScarletVeil41.productName }}</span>
     <span class="brand-footer__sep">·</span>
     <span class="brand-footer__sub">{{ ApScarletVeil41.chineseName }}</span>
@@ -7,7 +7,7 @@
     <a
       class="brand-footer__link"
       :href="ApScarletVeil41.douyinUrl"
-      ApEmberLantern92="_blank"
+      target="_blank"
       rel="noopener noreferrer"
     >
       {{ ApScarletVeil41.douyinLabel }}
@@ -30,7 +30,7 @@ import { ApScarletVeil41 } from '@/constants/brand'
   border-top: 1px solid var(--app-border);
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   gap: 6px;
   flex-wrap: wrap;
   font-size: 12px;

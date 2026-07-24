@@ -181,6 +181,11 @@ class PersistentQueueV2:
                     "CREATE INDEX IF NOT EXISTS idx_persistence_queue_status_created "
                     "ON persistence_queue(status, created_at)"
                 )
+                # Composite index for pop() priority+FIFO query
+                conn.execute(
+                    "CREATE INDEX IF NOT EXISTS idx_persistence_queue_pop "
+                    "ON persistence_queue(status, priority DESC, created_at)"
+                )
                 # 僵尸任务恢复索引
                 conn.execute(
                     "CREATE INDEX IF NOT EXISTS idx_persistence_queue_status_updated "
@@ -399,6 +404,66 @@ class PersistentQueueV2:
 
         except Exception as e:
             logger.error(f"处理失败命令异常: id={command_id}, {e}")
+
+    def batch_ack(self, command_ids: list[int]):
+        """Batch acknowledge successful processing.
+
+        Args:
+            command_ids: List of command IDs
+        """
+        if not command_ids:
+            return
+        try:
+            with self._db_pool.get_connection() as conn:
+                placeholders = ",".join("?" * len(command_ids))
+                conn.execute(
+                    f"""UPDATE persistence_queue
+                        SET status = 'completed', completed_at = CURRENT_TIMESTAMP
+                        WHERE id IN ({placeholders})""",
+                    command_ids
+                )
+                conn.commit()
+                self._stats["processed"] += len(command_ids)
+        except Exception as e:
+            logger.error(f"Batch ack failed: {e}")
+
+    def batch_nack(self, command_ids: list[int], error: str, retry: bool = True):
+        """Batch handle failed commands.
+
+        Args:
+            command_ids: List of command IDs
+            error: Error message
+            retry: Whether to retry
+        """
+        if not command_ids:
+            return
+        try:
+            with self._db_pool.get_connection() as conn:
+                placeholders = ",".join("?" * len(command_ids))
+                if retry:
+                    # Retry: bump retry_count for those under max
+                    conn.execute(
+                        f"""UPDATE persistence_queue
+                           SET status = 'pending',
+                               retry_count = retry_count + 1,
+                               error_message = ?
+                           WHERE id IN ({placeholders})
+                             AND retry_count < max_retries""",
+                        [error] + command_ids
+                    )
+                # Mark as failed for those at max retries
+                conn.execute(
+                    f"""UPDATE persistence_queue
+                       SET status = 'failed',
+                           completed_at = CURRENT_TIMESTAMP,
+                           error_message = ?
+                       WHERE id IN ({placeholders})
+                         AND retry_count >= max_retries""",
+                    [error] + command_ids
+                )
+                conn.commit()
+        except Exception as e:
+            logger.error(f"Batch nack failed: {e}")
 
     def register_handler(self, command_type: str, handler: Callable):
         """注册命令处理器"""

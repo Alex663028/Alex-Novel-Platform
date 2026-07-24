@@ -13,11 +13,11 @@ const router = createRouter({
   history: createWebHistory(),
   routes: [
     { path: '/', name: 'Home', component: Home },
-    { path: '/book/:slug/workbench', name: 'Workbench', component: Workbench },
-    { path: '/book/:slug/cast', name: 'Cast', component: Cast },
-    { path: '/book/:slug/chapter/:id', name: 'Chapter', component: Chapter },
-    { path: '/book/:slug/characters', name: 'CharacterGraph', component: CharacterGraph },
-    { path: '/book/:slug/location-graph', name: 'LocationGraph', component: LocationGraph },
+    { path: '/book/:novelId/workbench', name: 'Workbench', component: Workbench },
+    { path: '/book/:novelId/cast', name: 'Cast', component: Cast },
+    { path: '/book/:novelId/chapter/:id', name: 'Chapter', component: Chapter },
+    { path: '/book/:novelId/characters', name: 'CharacterGraph', component: CharacterGraph },
+    { path: '/book/:novelId/location-graph', name: 'LocationGraph', component: LocationGraph },
     {
       path: '/debug/scheduler',
       name: 'CharacterSchedulerSimulator',

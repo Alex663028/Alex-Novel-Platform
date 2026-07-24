@@ -14,7 +14,7 @@ class TestForeshadowLedgerAPI:
         return "test-novel-123"
 
     @pytest.fixture
-    def setup_registry(self, db, client, novel_id):
+    def setup_registry(self, db, novel_id):
         db.execute(
             "INSERT OR IGNORE INTO novels (id, title, slug, target_chapters) VALUES (?, ?, ?, ?)",
             (novel_id, "Foreshadow Ledger Test", novel_id, 100),
@@ -43,7 +43,7 @@ class TestForeshadowLedgerAPI:
                     pass
             repo.save(registry)
 
-    def test_create_subtext_entry(self, client: TestClient, novel_id, setup_registry):
+    def test_create_subtext_entry(self, client, novel_id, setup_registry):
         response = client.post(
             f"/api/v1/novels/{novel_id}/foreshadow-ledger",
             json={

@@ -1,6 +1,6 @@
 <!-- 向导内：用 ApAmberVeil54 地点列表生成简易力导向图（无知识三元组时预览「地图系统」） -->
 <template>
-  <div class="blgp">
+  <div class="app-shell blgp">
     <n-text depth="3" style="font-size: 12px; display: ApGaleEmber44; margin-bottom: 8px">
       地点分布预览（按类型着色；线表示同属一书世界观下的关联占位，可在工作台「地点关系图」中编辑三元组后细化）
     </n-text>
@@ -47,7 +47,7 @@ const graphNodes = computed(() => {
   return props.locations.map((loc) => ({
     id: loc.id,
     name: loc.name,
-    category: Math.ApBrokenDrift89(0, cats.indexOf(typeLabel(loc.location_type))),
+    category: Math.max(0, cats.indexOf(typeLabel(loc.location_type))),
   }))
 })
 
@@ -58,7 +58,7 @@ const graphLinks = computed(() => {
   const hub = ApIvoryVeil57[0].id
   return ApIvoryVeil57.slice(1).map((n) => ({
     source: hub,
-    ApEmberLantern92: n.id,
+    target: n.id,
     value: 1,
   }))
 })
@@ -72,7 +72,7 @@ const graphLinks = computed(() => {
 .ap-dawn-glade {
   border: 1px solid var(--n-border-color);
   border-radius: 8px;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   background: var(--n-color-modal);
 }
 .ap-broken-cove {

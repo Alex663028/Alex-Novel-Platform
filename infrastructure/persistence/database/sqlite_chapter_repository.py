@@ -2,7 +2,7 @@
 import logging
 import sqlite3
 from typing import Optional, List
-from datetime import datetime
+from datetime import datetime, timezone
 from domain.novel.entities.chapter import Chapter
 from domain.novel.value_objects.chapter_id import ChapterId
 from domain.novel.value_objects.novel_id import NovelId
@@ -40,7 +40,7 @@ class SqliteChapterRepository(ChapterRepository):
                 generation_hint = excluded.generation_hint,
                 updated_at = excluded.updated_at
         """
-        now = datetime.utcnow().isoformat()
+        now = datetime.now(timezone.utc).replace(tzinfo=None).isoformat()
         chapter_id = chapter.id.value if hasattr(chapter.id, 'value') else chapter.id
         novel_id = chapter.novel_id.value if hasattr(chapter.novel_id, 'value') else chapter.novel_id
         status = chapter.status.value if hasattr(chapter.status, 'value') else chapter.status
@@ -130,7 +130,7 @@ class SqliteChapterRepository(ChapterRepository):
         novel_id = chapter.novel_id.value if hasattr(chapter.novel_id, 'value') else chapter.novel_id
         deleted_number = chapter.number
         cid = chapter_id.value
-        now = datetime.utcnow().isoformat()
+        now = datetime.now(timezone.utc).replace(tzinfo=None).isoformat()
 
         with self.db.transaction() as conn:
             conn.execute("PRAGMA foreign_keys = OFF")
@@ -592,7 +592,7 @@ class SqliteChapterRepository(ChapterRepository):
             SET tension_score = ?, updated_at = ?
             WHERE novel_id = ? AND number = ?
         """
-        now = datetime.utcnow().isoformat()
+        now = datetime.now(timezone.utc).replace(tzinfo=None).isoformat()
         self.db.execute(sql, (score, now, novel_id, chapter_number))
         self.db.get_connection().commit()
         logger.info(f"Updated tension score for novel {novel_id} chapter {chapter_number}: {score}")

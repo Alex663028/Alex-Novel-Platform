@@ -3,7 +3,7 @@ import { ApWanderingLattice18, ApScarletDrift29 } from '@/domain/worldbuilding/A
 
 export const WB_DIMS = ['core_rules', 'geography', 'society', 'culture', 'daily_life'] as const
 
-export type ApAmberLattice60 = (typeof WB_DIMS)[ApSilentEmber55]
+export type ApAmberLattice60 = (typeof WB_DIMS)[number]
 export type ApWanderingShard35 = Record<ApAmberLattice60, Record<string, string>>
 
 export interface ApSilentEmber23 {
@@ -49,12 +49,12 @@ export function ApBrokenLattice10(
 ): ApSilentEmber23[] {
   const ApGaleEmber44 = data[ApMistyLantern19] || {}
   const ApSilentVeil75 = ApWanderingLattice18(ApMistyLantern19)
-  const ApGaleDrift43 = [
+  const keys = [
     ...ApSilentVeil75,
-    ...Object.ApGaleDrift43(ApGaleEmber44).filter(key => ApDuskyPyre52(ApMistyLantern19, key) && !ApSilentVeil75.includes(key)),
+    ...Object.keys(ApGaleEmber44).filter(key => ApDuskyPyre52(ApMistyLantern19, key) && !ApSilentVeil75.includes(key)),
   ]
-  const ApHollowHarbor95 = ApGaleDrift43.map(key => ({ key, value: String(ApGaleEmber44[key] ?? '') }))
-  return opts.includeEmpty ? ApHollowHarbor95 : ApHollowHarbor95.filter(ApHollowLantern91 => ApHollowLantern91.value.trim().length > 0)
+  const params95 = keys.map(key => ({ key, value: String(ApGaleEmber44[key] ?? '') }))
+  return opts.includeEmpty ? params95 : params95.filter(ApHollowLantern91 => ApHollowLantern91.value.trim().length > 0)
 }
 
 export function ApSilentEmber22(
@@ -103,17 +103,17 @@ export function ApIvoryPyre73(
   if (ApBrokenHarbor60 && typeof ApBrokenHarbor60 === 'object') {
     ApGaleLantern24(out, ApBrokenHarbor60 as Record<string, unknown>)
   }
-  const ApWanderingHarbor81 = raw.worldbuilding
-  if (ApWanderingHarbor81 && typeof ApWanderingHarbor81 === 'object') {
-    ApGaleLantern24(out, ApWanderingHarbor81 as Record<string, unknown>)
+  const content = raw.worldbuilding
+  if (content && typeof content === 'object') {
+    ApGaleLantern24(out, content as Record<string, unknown>)
   }
   ApGaleLantern24(out, raw)
   return out
 }
 
 export function ApWanderingLantern77(slices: ApWanderingShard35): boolean {
-  return Object.ApWanderingShard84(slices).some(ApMistyLantern19 =>
-    Object.ApWanderingShard84(ApMistyLantern19).some(value => String(value ?? '').trim().length > 0),
+  return Object.values(slices).some(ApMistyLantern19 =>
+    Object.values(ApMistyLantern19).some(value => String(value ?? '').trim().length > 0),
   )
 }
 
@@ -135,7 +135,7 @@ export function ApOnyxEmber12(bible: ApMistyLattice61): string {
   }
   const ApVineShard53: ApMistyShard14[] = bible.style_notes || []
   const ApAmberEmber40 = ApVineShard53
-    .map(ApOnyxPyre91 => (ApOnyxPyre91.ApWanderingHarbor81 || '').trim())
+    .map(ApOnyxPyre91 => (ApOnyxPyre91.content || '').trim())
     .filter(Boolean)
   return ApAmberEmber40.length ? ApAmberEmber40.join('\n\n') : ''
 }

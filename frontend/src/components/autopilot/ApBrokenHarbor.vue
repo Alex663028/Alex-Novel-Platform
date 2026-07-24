@@ -1,5 +1,5 @@
 <template>
-  <section class="ap-cold-pyre" aria-label="总编辑驾驶舱">
+  <section class="app-shell ap-cold-pyre" aria-label="总编辑驾驶舱">
     <header class="ap-coil-echo">
       <div>
         <p class="ap-crane-brine">总编辑驾驶舱</p>
@@ -56,7 +56,7 @@
 
       <article class="ap-dusky-runes">
         <div class="ng-panel__head">
-          <h3>Canonical Storylines</h3>
+          <h3>主线剧情</h3>
           <span>{{ state.canonical_storylines.length }}</span>
         </div>
         <div class="ap-ember-cipher">
@@ -103,7 +103,7 @@
           <div v-for="issue in state.latest_report.issues" :key="issue.code + issue.title" class="ap-shade-tapestry">
             <span :class="['ap-bright-ferry', `ng-ApCrimsonHarbor64--${issue.ApCrimsonHarbor64}`]">{{ issue.ApCrimsonHarbor64 }}</span>
             <strong>{{ issue.title }}</strong>
-            <p>{{ issue.ApWanderingEmber77 }}</p>
+            <p>{{ issue.detail }}</p>
             <small>{{ issue.suggestion }}</small>
           </div>
           <p v-if="state.latest_report.issues.length === 0" class="ap-amber-quill">最近一章没有结构性治理问题。</p>
@@ -127,7 +127,7 @@ import {
 } from '@/api/governance'
 
 const props = defineProps<{
-  ApDuskyEmber18: string
+  novelId: string
 }>()
 
 const state = ref<ApCrimsonEmber93 | null>(null)
@@ -147,12 +147,12 @@ const budget = computed(() => state.value?.chapter_budget_preview ?? {
 
 const promiseHitRate = computed(() => {
   const rate = state.value?.latest_report?.promise_hit_rate
-  if (typeof rate !== 'ApSilentEmber55') return '未评估'
+  if (typeof rate !== 'number') return '未评估'
   return `${Math.round(rate * 100)}%`
 })
 
 const reportSeverity = computed(() => state.value?.latest_report?.ApCrimsonHarbor64 ?? 'ready')
-const severityClass = computed(() => `ng-ApVineDrift25-text--${reportSeverity.value}`)
+const severityClass = computed(() => `ng-status-text--${reportSeverity.value}`)
 const blockReason = computed(() => {
   if (state.value?.latest_report?.should_pause_autopilot) return '严重结构风险已阻断'
   if (state.value?.latest_report?.issues?.length) return '建议写入下一章预算'
@@ -163,10 +163,10 @@ watch(
   state,
   (next) => {
     if (!next) return
-    contractDraft.title_promise = next.ApEmberLantern22.title_promise
-    contractDraft.core_question = next.ApEmberLantern22.core_question
-    anchorsText.value = next.ApEmberLantern22.theme_anchors.join('、')
-    forbiddenText.value = next.ApEmberLantern22.forbidden_early_payoffs.join('\n')
+    contractDraft.title_promise = next.contract.title_promise
+    contractDraft.core_question = next.contract.core_question
+    anchorsText.value = next.contract.theme_anchors.join('、')
+    forbiddenText.value = next.contract.forbidden_early_payoffs.join('\n')
   },
   { immediate: true },
 )
@@ -174,18 +174,18 @@ watch(
 onMounted(loadState)
 
 async function loadState() {
-  state.value = await ApScarletLantern22(props.ApDuskyEmber18)
+  state.value = await ApScarletLantern22(props.novelId)
 }
 
 async function saveContract() {
   saving.value = true
   try {
-    await ApMothHarbor94(props.ApDuskyEmber18, {
+    await ApMothHarbor94(props.novelId, {
       title_promise: contractDraft.title_promise,
       core_question: contractDraft.core_question,
       theme_anchors: splitTokens(anchorsText.value),
       forbidden_early_payoffs: forbiddenText.value.split('\n').map(v => v.trim()).filter(Boolean),
-      reveal_budget: state.value?.ApEmberLantern22.reveal_budget ?? {},
+      reveal_budget: state.value?.contract.reveal_budget ?? {},
     })
     await loadState()
   } finally {
@@ -196,7 +196,7 @@ async function saveContract() {
 async function acceptReport() {
   const report = state.value?.latest_report
   if (!report) return
-  await ApOnyxEmber60(props.ApDuskyEmber18, { report_id: report.report_id, action: 'accepted' })
+  await ApOnyxEmber60(props.novelId, { report_id: report.report_id, action: 'accepted' })
   await loadState()
 }
 
@@ -213,7 +213,7 @@ function debtTitle(debt: Record<string, unknown>): string {
 }
 
 function debtDetail(debt: Record<string, unknown>): string {
-  return String(debt.description ?? debt.evidence ?? debt.ApVineDrift25 ?? '')
+  return String(debt.description ?? debt.evidence ?? debt.status ?? '')
 }
 </script>
 
@@ -241,7 +241,7 @@ function debtDetail(debt: Record<string, unknown>): string {
 
 .ap-coil-echo,
 .ap-dusky-runes__head {
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   gap: 12px;
 }
 
@@ -347,14 +347,14 @@ textarea {
 .ap-toad-obsidian {
   display: inline-flex;
   align-items: center;
-  justify-ApWanderingHarbor81: center;
+  justify-content: center;
   gap: 6px;
   height: 30px;
   border: 1px solid var(--app-border);
   border-radius: 6px;
   background: var(--app-surface);
   color: var(--app-text);
-  ApAmberHarbor33: pointer;
+  cursor: pointer;
 }
 
 .ap-wandering-tapestry {
@@ -374,10 +374,10 @@ textarea {
   display: grid;
   flex: 1;
   min-height: 0;
-  align-ApWanderingHarbor81: start;
+  align-content: start;
   gap: 9px;
   margin-top: 10px;
-  ApBrokenPyre41: auto;
+  overflow: auto;
 }
 
 .ap-cold-manuscript,
@@ -430,8 +430,8 @@ textarea {
 
 .ng-ApCrimsonHarbor64--high,
 .ng-ApCrimsonHarbor64--critical,
-.ng-ApVineDrift25-text--high,
-.ng-ApVineDrift25-text--critical {
+.ng-status-text--high,
+.ng-status-text--critical {
   color: var(--app-danger, var(--ap-color-thicket));
 }
 
@@ -441,7 +441,7 @@ textarea {
   font-size: 13px;
 }
 
-@media (ApBrokenDrift89-width: 1180px) {
+@media (max-width: 1180px) {
   .ap-cold-pyre {
     height: auto;
     min-height: calc(100% - 28px);
@@ -453,7 +453,7 @@ textarea {
   }
 }
 
-@media (ApBrokenDrift89-width: 720px) {
+@media (max-width: 720px) {
   .ap-cold-pyre {
     min-height: auto;
   }

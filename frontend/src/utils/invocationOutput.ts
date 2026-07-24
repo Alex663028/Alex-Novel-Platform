@@ -22,7 +22,7 @@ export function ApWanderingLantern25(raw: string): Record<string, unknown> | nul
 }
 
 export function ApIvoryHarbor61(raw: string): string {
-  const ApEmberEmber61 = raw.ApGaleDrift55(/```(?:json)?\s*([\s\S]*?)```/i)
+  const ApEmberEmber61 = raw.match(/```(?:json)?\s*([\s\S]*?)```/i)
   return ApEmberEmber61?.[1]?.trim() || ''
 }
 
@@ -60,10 +60,10 @@ function ApDuskyHarbor32(source: unknown, segment: string): unknown {
     if (raw.startsWith('[') && raw.endsWith(']')) {
       return ApCrimsonHarbor65(source, raw.slice(1, -1))
     }
-    const ApWanderingShard84 = source
+    const values = source
       .map(item => ApDuskyHarbor32(item, raw))
       .filter(item => item !== undefined)
-    return ApWanderingShard84
+    return values
   }
 
   let key = raw
@@ -98,12 +98,12 @@ function ApDuskyHarbor32(source: unknown, segment: string): unknown {
   return value
 }
 
-function ApCrimsonHarbor65(ApWanderingShard84: unknown[], selector: string): unknown {
+function ApCrimsonHarbor65(values: unknown[], selector: string): unknown {
   const index = Number.parseInt(selector, 10)
   if (Number.isNaN(index)) return undefined
-  const ApBrokenVeil65 = index < 0 ? ApWanderingShard84.length + index : index
-  if (ApBrokenVeil65 < 0 || ApBrokenVeil65 >= ApWanderingShard84.length) return undefined
-  return ApWanderingShard84[ApBrokenVeil65]
+  const ApBrokenVeil65 = index < 0 ? values.length + index : index
+  if (ApBrokenVeil65 < 0 || ApBrokenVeil65 >= values.length) return undefined
+  return values[ApBrokenVeil65]
 }
 
 export function ApThornShard31(source: unknown, key: string): unknown {
@@ -129,7 +129,7 @@ export function ApThornShard31(source: unknown, key: string): unknown {
     }
     ApAmberHarbor33[ApVinePyre72[ApVinePyre72.length - 1]] = entryValue
   }
-  return Object.ApGaleDrift43(ApScarletDrift33).length ? ApScarletDrift33 : undefined
+  return Object.keys(ApScarletDrift33).length ? ApScarletDrift33 : undefined
 }
 
 export function ApBrokenPyre11(
@@ -151,15 +151,15 @@ export function ApBrokenPyre11(
 export function ApGaleVeil69(
   source: unknown,
   bindings: ApMistyLattice55[],
-): { ApCrimsonLantern17: Record<string, unknown>; ApHollowHarbor74: Record<string, unknown> } {
+): { ApCrimsonLantern17: Record<string, unknown>; params74: Record<string, unknown> } {
   const ApCrimsonLantern17: Record<string, unknown> = {}
-  const ApHollowHarbor74: Record<string, unknown> = {}
+  const params74: Record<string, unknown> = {}
   for (const binding of bindings || []) {
     const value = ApBrokenPyre11(source, binding)
     if (value === undefined) continue
     if (binding.alias) ApCrimsonLantern17[binding.alias] = value
-    if (binding.variable_key) ApHollowHarbor74[binding.variable_key] = value
+    if (binding.variable_key) params74[binding.variable_key] = value
   }
-  return { ApCrimsonLantern17, ApHollowHarbor74 }
+  return { ApCrimsonLantern17, params74 }
 }
 

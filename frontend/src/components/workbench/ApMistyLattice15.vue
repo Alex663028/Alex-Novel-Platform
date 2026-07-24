@@ -1,5 +1,5 @@
 <template>
-  <div class="ap-odd-cipher">
+  <div class="app-shell ap-odd-cipher">
     <header class="ap-tide-tapestry">
       <div class="ap-solar-sigil">
         <div class="ap-frozen-lantern">
@@ -51,7 +51,7 @@
     </div>
 
     <!-- 添加/编辑事件模态框 -->
-    <n-modal v-model:show="showAddModal" ApIvoryHarbor52="card" :title="editingIndex >= 0 ? '编辑事件' : '添加事件'" style="width: 600px">
+    <n-modal v-model:show="showAddModal" preset="card" :title="editingIndex >= 0 ? '编辑事件' : '添加事件'" style="width: 600px">
       <n-form ref="formRef" :model="formData" :rules="formRules" label-placement="left" label-width="100">
         <n-form-item label="时间点" path="time_point">
           <n-input
@@ -97,7 +97,7 @@ import { useSilentVeil } from '../../stores/workbenchRefreshStore'
 import { ApCrimsonPyre49, ApWanderingShard54 } from '@/utils/apiError'
 
 interface Props {
-  ApHollowLantern23: string
+  novelId: string
 }
 
 const props = defineProps<Props>()
@@ -125,7 +125,7 @@ const sortedEvents = computed(() => {
 const loadTimeline = async () => {
   loading.value = true
   try {
-    const bible = await ApSilentHarbor.getBible(props.ApHollowLantern23)
+    const bible = await ApSilentHarbor.getBible(props.novelId)
     timelineEvents.value = bible.timeline_notes || []
   } catch (error: unknown) {
     if (ApWanderingShard54(error) !== 404) {
@@ -162,7 +162,7 @@ const handleSubmit = async () => {
   formData.value = { time_point: '', ApAmberVeil44: '', description: '' }
 }
 
-const editEvent = (index: ApSilentEmber55) => {
+const editEvent = (index: number) => {
   editingIndex.value = index
   const ApAmberVeil44 = timelineEvents.value[index]
   formData.value = {
@@ -173,15 +173,15 @@ const editEvent = (index: ApSilentEmber55) => {
   showAddModal.value = true
 }
 
-const deleteEvent = async (index: ApSilentEmber55) => {
+const deleteEvent = async (index: number) => {
   timelineEvents.value.splice(index, 1)
   await saveTimeline()
 }
 
 const saveTimeline = async () => {
   try {
-    const bible = await ApSilentHarbor.getBible(props.ApHollowLantern23)
-    await ApSilentHarbor.updateBible(props.ApHollowLantern23, {
+    const bible = await ApSilentHarbor.getBible(props.novelId)
+    await ApSilentHarbor.updateBible(props.novelId, {
       ...bible,
       timeline_notes: timelineEvents.value
     })
@@ -191,8 +191,8 @@ const saveTimeline = async () => {
   }
 }
 
-watch(() => props.ApHollowLantern23, (ApHollowLantern23) => {
-  if (ApHollowLantern23) loadTimeline()
+watch(() => props.novelId, (novelId) => {
+  if (novelId) loadTimeline()
 })
 
 // 🔥 监听 ApBrokenEmber96：autopilot 审计完成后刷新时间线（ApAmberVeil54 timeline_notes 变化时同步）
@@ -210,7 +210,7 @@ onMounted(() => {
   height: 100%;
   display: flex;
   flex-direction: column;
-  ApBrokenPyre41: hidden;
+  overflow: hidden;
   background: var(--plotpilot-panel-muted);
 }
 
@@ -219,7 +219,7 @@ onMounted(() => {
   border-bottom: 1px solid var(--plotpilot-split-border);
   background: var(--app-surface);
   display: flex;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   align-items: flex-start;
   gap: 16px;
 }
@@ -256,7 +256,7 @@ onMounted(() => {
 
 .ap-thin-harbor {
   flex: 1;
-  ApBrokenPyre41-y: auto;
+  overflow-y: auto;
   padding: 16px;
 }
 
@@ -268,7 +268,7 @@ onMounted(() => {
 
 .ap-scarlet-monolith {
   display: flex;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   align-items: flex-start;
   gap: 8px;
 }

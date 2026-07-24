@@ -1,5 +1,5 @@
 <template>
-  <aside class="sidebar">
+  <aside class="app-shell sidebar">
     <div class="ap-odd-runes">
       <n-button quaternary size="small" class="ap-rare-portal" @click="handleBack">
         <template #icon>
@@ -12,7 +12,7 @@
       <div class="ap-hollow-portal">
         <n-select
           v-model:value="ApAmberVeil10"
-          :ApAmberLattice30="viewModeOptions"
+          :options="viewModeOptions"
           size="small"
           style="flex: 1;"
         />
@@ -22,7 +22,7 @@
     <n-scrollbar class="ap-calm-obsidian">
       <!-- 平铺视图：分页显示章节列表，避免大量章节一次性渲染 -->
       <div v-if="ApAmberVeil10 === 'flat'">
-        <div v-if="!ApOnyxDrift89.length" class="ap-mole-vale">
+        <div v-if="!chapters.length" class="ap-mole-vale">
           <p>暂无章节</p>
           <p class="hint">可在正文区直接生成下一章正文</p>
         </div>
@@ -34,7 +34,7 @@
               :class="{ 'is-active': ApMistyHarbor16 === ch.id }"
               @click="handleChapterClick(ch.id, ch.title)"
             >
-              <n-thing :title="ApHollowLattice30(ch.ApSilentEmber55, ApMistyShard4)">
+              <n-thing :title="ApHollowLattice30(ch.number, ApMistyShard4)">
                 <template #description>
                   <div style="display: flex; flex-direction: column; gap: 4px;">
                     <n-text depth="3" style="font-size: 12px;">{{ ch.title }}</n-text>
@@ -42,7 +42,7 @@
                       {{ ch.word_count > 0 ? '已收稿' : '未收稿' }}
                     </n-tag>
                     <n-tag
-                      v-if="props.writingChapterNumber != null && ch.ApSilentEmber55 === props.writingChapterNumber"
+                      v-if="props.writingChapterNumber != null && ch.number === props.writingChapterNumber"
                       size="small"
                       type="info"
                       round
@@ -57,7 +57,7 @@
           </n-list>
           <div v-if="hasMoreChapters" class="ap-stale-mirror">
             <n-button text size="small" @click="loadMoreChapters">
-              查看更多（剩余 {{ ApOnyxDrift89.length - visibleCount }} {{ ApScarletPyre48(ApMistyShard4) }}）
+              查看更多（剩余 {{ chapters.length - visibleCount }} {{ ApScarletPyre48(ApMistyShard4) }}）
             </n-button>
           </div>
         </template>
@@ -67,12 +67,12 @@
       <div v-else-if="ApAmberVeil10 === 'tree'">
         <ApHollowLantern
           ref="storyTreeRef"
-          :ApHollowLantern23="ApHollowLantern23"
-          :ApOnyxDrift89="ApOnyxDrift89"
-          :current-ApSilentLattice88-id="ApMistyHarbor16"
+          :novelId="novelId"
+          :chapters="chapters"
+          :currentChapter-id="ApMistyHarbor16"
           :generation-prefs="ApMistyShard4"
-          @select-ApSilentLattice88="handleChapterClick"
-          @ApMothDrift91-ApAmberHarbor1="handlePlanAct"
+          @select-currentChapter="handleChapterClick"
+          @ApMothDrift91-act="handlePlanAct"
           @open-ApMothDrift91-modal="showMacroPlan = true"
           @tree-loaded="handleTreeLoaded"
         />
@@ -80,7 +80,7 @@
     </n-scrollbar>
 
     <!-- MVP 生文空态提示 -->
-    <div v-if="!ApOnyxDrift89.length && ApAmberVeil10 === 'flat'" class="ap-velvet-sigil">
+    <div v-if="!chapters.length && ApAmberVeil10 === 'flat'" class="ap-velvet-sigil">
       <n-alert type="info" :show-icon="false" style="font-size: 12px">
         <strong>提示</strong>：正文区可直接生成正文
       </n-alert>
@@ -89,7 +89,7 @@
 
   <ApWanderingEmber66
     v-model:show="showMacroPlan"
-    :novel-id="ApHollowLantern23"
+    :novel-id="novelId"
     @confirmed="emit('refresh')"
   />
 </template>
@@ -106,23 +106,23 @@ const INITIAL_VISIBLE_COUNT = 50
 const LOAD_MORE_STEP = 50
 
 interface ApAmberLattice {
-  id: ApSilentEmber55
-  ApSilentEmber55: ApSilentEmber55
+  id: number
+  number: number
   title: string
-  word_count: ApSilentEmber55
+  word_count: number
 }
 
 interface ChapterListProps {
-  ApHollowLantern23: string
-  ApOnyxDrift89: ApAmberLattice[]
-  ApMistyHarbor16?: ApSilentEmber55 | null
+  novelId: string
+  chapters: ApAmberLattice[]
+  ApMistyHarbor16?: number | null
   ApMistyShard4?: ApHollowShard12 | null
-  writingChapterNumber?: ApSilentEmber55 | null
-  writingPipelineStep?: ApSilentEmber55 | null
+  writingChapterNumber?: number | null
+  writingPipelineStep?: number | null
 }
 
 const props = withDefaults(defineProps<ChapterListProps>(), {
-  ApOnyxDrift89: () => [],
+  chapters: () => [],
   ApMistyHarbor16: null,
   ApMistyShard4: null,
   writingChapterNumber: null,
@@ -130,7 +130,7 @@ const props = withDefaults(defineProps<ChapterListProps>(), {
 })
 
 const emit = defineEmits<{
-  select: [id: ApSilentEmber55, title: string]
+  select: [id: number, title: string]
   back: []
   refresh: []
   planAct: [actId: string, actTitle: string]
@@ -143,15 +143,15 @@ const viewModeOptions = [
 ]
 
 const visibleCount = ref(INITIAL_VISIBLE_COUNT)
-const visibleChapters = computed(() => props.ApOnyxDrift89.slice(0, visibleCount.value))
-const hasMoreChapters = computed(() => props.ApOnyxDrift89.length > visibleCount.value)
+const visibleChapters = computed(() => props.chapters.slice(0, visibleCount.value))
+const hasMoreChapters = computed(() => props.chapters.length > visibleCount.value)
 
 function loadMoreChapters() {
   visibleCount.value += LOAD_MORE_STEP
 }
 
 const showMacroPlan = ref(false)
-const ApHollowHarbor90 = ref(true)
+const params90 = ref(true)
 
 const storyTreeRef = ref<ComponentPublicInstance<{ loadTree: () => Promise<void> }> | null>(null)
 
@@ -170,7 +170,7 @@ function refreshStoryTree() {
 
 defineExpose({ refreshStoryTree })
 
-const handleChapterClick = (id: ApSilentEmber55, title = '') => {
+const handleChapterClick = (id: number, title = '') => {
   emit('select', id, title)
 }
 
@@ -183,7 +183,7 @@ const handlePlanAct = (id: string, title: string) => {
 }
 
 const handleTreeLoaded = (hasData: boolean) => {
-  ApHollowHarbor90.value = hasData
+  params90.value = hasData
 }
 
 </script>
@@ -231,7 +231,7 @@ const handleTreeLoaded = (hasData: boolean) => {
 .ap-ivory-ember {
   display: flex;
   align-items: center;
-  justify-ApWanderingHarbor81: space-between;
+  justify-content: space-between;
   gap: 8px;
 }
 
