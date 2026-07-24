@@ -546,6 +546,44 @@ class StateBootstrap:
             logger.debug(f"加载编年史失败（可能 Bible/snapshots 不存在）: {novel_id}, {e}")
             return []
 
+    def _load_knowledge(self, novel_id: str) -> Optional[Dict[str, Any]]:
+        """加载知识图谱到共享内存"""
+        try:
+            from application.world.services.knowledge_service import KnowledgeService
+            from infrastructure.persistence.database.connection import get_database
+            from infrastructure.persistence.database.sqlite_knowledge_repository import SqliteKnowledgeRepository
+
+            db = get_database()
+            knowledge_service = KnowledgeService(SqliteKnowledgeRepository(db))
+            knowledge = knowledge_service.get_knowledge(novel_id)
+
+            if knowledge:
+                knowledge_dict = {
+                    "novel_id": novel_id,
+                    "chapters": [
+                        {
+                            "chapter_id": ch.chapter_id,
+                            "summary": ch.summary if hasattr(ch, "summary") else "",
+                        }
+                        for ch in (knowledge.chapters or [])
+                    ] if hasattr(knowledge, "chapters") else [],
+                    "triples": [
+                        {
+                            "subject": t.subject if hasattr(t, "subject") else "",
+                            "predicate": t.predicate if hasattr(t, "predicate") else "",
+                            "object": t.object if hasattr(t, "object") else "",
+                        }
+                        for t in (knowledge.facts or [])
+                    ] if hasattr(knowledge, "facts") else [],
+                }
+                self._shared.set_knowledge(novel_id, knowledge_dict)
+                return knowledge_dict
+            return None
+
+        except Exception as e:
+            logger.debug(f"加载知识图谱失败（可能不存在）: {novel_id}, {e}")
+            return None
+
 
 def bootstrap_state() -> Dict[str, Any]:
     """启动时加载所有状态（便捷函数）"""
